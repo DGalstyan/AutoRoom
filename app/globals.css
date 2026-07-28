@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Design tokens as CSS variables. Tailwind is the primary consumer (see
+ * tailwind.config.ts); these exist for canvas/SVG/inline-style consumers such as
+ * BranchMap pins, PriceJourney fills and scroll progress bars.
+ */
+@layer base {
+  :root {
+    --color-bg: #0b0b0f;
+    --color-surface: #14141a;
+    --color-surface-light: #f6f7f9;
+    --color-paper: #ffffff;
+    --color-ink: #0b0b0f;
+    --color-muted: #8a8f98;
+    --color-line: #26262e;
+    --color-line-light: #e6e8ec;
+    --color-accent: #e4002b;
+    --color-accent-600: #b80022;
+    --color-success: #1fa971;
+    --color-warn: #e6a100;
+    --color-info: #2f6bff;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-pill: 999px;
+
+    --duration-micro: 150ms;
+    --duration-standard: 250ms;
+    --duration-entrance: 500ms;
+    --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --header-height: 72px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper font-body text-body text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-bold;
+    text-wrap: balance;
+  }
+
+  /* Armenian text renders in Noto Sans Armenian via the font-family fallback
+     chain; keep line-height generous — Armenian ascenders/descenders are tall. */
+  :lang(hy) {
+    line-height: 1.55;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-paper;
+  }
+
+  .on-dark :focus-visible {
+    @apply ring-offset-bg;
+  }
+}
+
+@layer components {
+  /* Page container: max-width 1280, gutter 24 desktop / 16 mobile. */
+  .container-page {
+    @apply mx-auto w-full max-w-container px-gutter-sm lg:px-gutter;
+  }
+
+  /* Section rhythm: 96px desktop / 56px mobile. */
+  .section-y {
+    @apply py-section-sm lg:py-section;
+  }
+
+  /* Hairline that flips with the surface it sits on. */
+  .hairline {
+    @apply border-line-light;
+  }
+
+  .on-dark .hairline {
+    @apply border-line;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/**
+ * Reduced motion is a hard requirement: every scroll-driven or auto-playing
+ * animation must have a still fallback. This kills transitions/animations
+ * globally; components additionally branch on `useReducedMotion()` to skip
+ * scroll-scrubbing and show the final composed state.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
