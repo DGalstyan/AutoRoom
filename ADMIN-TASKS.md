@@ -62,8 +62,8 @@ Format per task: agent · Prompt (paste) · Done when.
 
 > **A6 — Settings UI (whitelabel)** · `admin-frontend`
 > Prompt: "Build the Settings screens: branding (brand name, logo light/dark,
-favicon, accent color/theme tokens, font — with live preview), contacts/socials/
-messengers,  feature toggles, localization.
+> favicon, accent color/theme tokens, font — with live preview), contacts/socials/
+> messengers, feature toggles, localization.
 > Persist via the settings API; changes reflect on reload."
 > Done when: editing branding/contacts saves and re-renders; feature toggles flip; values validated.
 
