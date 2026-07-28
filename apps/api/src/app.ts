@@ -1,18 +1,22 @@
 import express, { type Express } from 'express';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env';
 import { healthRouter } from './routes/health';
+import { authRouter } from './routes/auth';
+import { rolesRouter } from './routes/roles';
+import { usersRouter } from './routes/users';
 import { errorHandler, notFoundHandler } from './middleware/error';
 
 /**
  * Express application factory. Kept separate from `server.ts` so tests can build
  * an app without binding a port.
  *
- * A1 adds cookie parsing, CSRF and the auth routes; A2 mounts the RBAC
- * middleware in front of the admin routers. The order below is the contract
- * those steps slot into: security headers → CORS → body parsing → routes →
- * 404 → error translation.
+ * Order is the contract: security headers → CORS → body/cookie parsing →
+ * routes → 404 → error translation. Authentication and permission checks are
+ * mounted per route rather than globally, because `/health` and the public
+ * lead-submission endpoint (Phase C) must stay open.
  */
 export function createApp(): Express {
   const app = express();
@@ -32,8 +36,14 @@ export function createApp(): Express {
   );
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
+  // Needed before the auth routes: the refresh and CSRF cookies are read from
+  // `req.cookies`.
+  app.use(cookieParser());
 
   app.use(healthRouter);
+  app.use(authRouter);
+  app.use(rolesRouter);
+  app.use(usersRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

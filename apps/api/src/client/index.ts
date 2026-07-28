@@ -1,4 +1,21 @@
-import type { ApiErrorBody, ErrorCode, HealthResponse } from './types';
+import type {
+  AdminUser,
+  ApiErrorBody,
+  AuthContext,
+  ErrorCode,
+  HealthResponse,
+  LoginRequest,
+  LoginResponse,
+  PermissionCatalogue,
+  PermissionPair,
+  RegisterRequest,
+  RegisterResponse,
+  RoleDetail,
+  RoleSummary,
+  Session,
+  UserListResponse,
+  UserStatus,
+} from './types';
 
 export * from './types';
 
@@ -95,10 +112,89 @@ export function createApiClient(options: ApiClientOptions) {
     return parsed as T;
   }
 
+  /**
+   * Cookie-authenticated calls (`/auth/refresh`, `/auth/logout`) must echo the
+   * readable `ar_csrf` cookie in a header. Reading it here keeps that detail out
+   * of every call site.
+   */
+  function csrfHeader(): Record<string, string> {
+    // Reached through `globalThis` rather than the DOM lib: this module is also
+    // compiled for the server, where `document` does not exist.
+    const doc = (globalThis as { document?: { cookie?: string } }).document;
+    const match = doc?.cookie?.match(/(?:^|;\s*)ar_csrf=([^;]+)/);
+    return match?.[1] ? { 'x-csrf-token': decodeURIComponent(match[1]) } : {};
+  }
+
   return {
     request,
+    csrfHeader,
+
     /** `GET /health` — also returns 503 with a `degraded` body if the DB is down. */
     health: (init?: RequestOptions) => request<HealthResponse>('GET', '/health', init),
+
+    auth: {
+      register: (body: RegisterRequest, init?: RequestOptions) =>
+        request<RegisterResponse>('POST', '/auth/register', { ...init, body }),
+
+      login: (body: LoginRequest, init?: RequestOptions) =>
+        request<LoginResponse>('POST', '/auth/login', { ...init, body }),
+
+      /** Rotates the refresh cookie. Requires `credentials: 'include'`. */
+      refresh: (init?: RequestOptions) =>
+        request<Session>('POST', '/auth/refresh', {
+          ...init,
+          headers: { ...csrfHeader(), ...init?.headers },
+        }),
+
+      logout: (init?: RequestOptions) =>
+        request<void>('POST', '/auth/logout', {
+          ...init,
+          headers: { ...csrfHeader(), ...init?.headers },
+        }),
+
+      forgot: (body: { email: string }, init?: RequestOptions) =>
+        request<{ message: string }>('POST', '/auth/forgot', { ...init, body }),
+
+      reset: (body: { token: string; password: string }, init?: RequestOptions) =>
+        request<{ message: string }>('POST', '/auth/reset', { ...init, body }),
+
+      me: (init?: RequestOptions) => request<AuthContext>('GET', '/auth/me', init),
+    },
+
+    roles: {
+      list: (init?: RequestOptions) => request<RoleSummary[]>('GET', '/roles', init),
+      get: (key: string, init?: RequestOptions) =>
+        request<RoleDetail>('GET', `/roles/${key}`, init),
+      catalogue: (init?: RequestOptions) =>
+        request<PermissionCatalogue>('GET', '/permissions', init),
+      /** Replaces the role's grants with exactly this set. */
+      setPermissions: (key: string, permissions: PermissionPair[], init?: RequestOptions) =>
+        request<{ key: string; permissions: PermissionPair[] }>(
+          'PUT',
+          `/roles/${key}/permissions`,
+          { ...init, body: { permissions } },
+        ),
+    },
+
+    users: {
+      list: (
+        query: { status?: UserStatus; take?: number; skip?: number } = {},
+        init?: RequestOptions,
+      ) => {
+        const search = new URLSearchParams(
+          Object.entries(query)
+            .filter(([, value]) => value !== undefined)
+            .map(([key, value]): [string, string] => [key, String(value)]),
+        ).toString();
+        return request<UserListResponse>('GET', `/users${search ? `?${search}` : ''}`, init);
+      },
+      approve: (id: string, roleKey: string, init?: RequestOptions) =>
+        request<AdminUser>('POST', `/users/${id}/approve`, { ...init, body: { roleKey } }),
+      assignRole: (id: string, roleKey: string, init?: RequestOptions) =>
+        request<AdminUser>('PATCH', `/users/${id}/role`, { ...init, body: { roleKey } }),
+      setStatus: (id: string, status: UserStatus, init?: RequestOptions) =>
+        request<AdminUser>('PATCH', `/users/${id}/status`, { ...init, body: { status } }),
+    },
   };
 }
 

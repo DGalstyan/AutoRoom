@@ -34,3 +34,97 @@ export interface HealthResponse {
   timestamp: string;
   database: { status: 'up'; latencyMs: number } | { status: 'down' };
 }
+
+/* ---------------------------------- auth ---------------------------------- */
+
+export type UserStatus = 'PENDING' | 'ACTIVE' | 'DISABLED';
+export type PermissionAction = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'PUBLISH';
+
+export interface RoleRef {
+  key: string;
+  name: string;
+}
+
+export interface PublicUser {
+  id: string;
+  email: string;
+  name: string;
+  status: UserStatus;
+  /** Null until an admin approves the account and assigns a role. */
+  role: RoleRef | null;
+}
+
+export interface Session {
+  accessToken: string;
+  /** Seconds until the access token expires — schedule a refresh before this. */
+  expiresIn: number;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export type LoginResponse = Session & { user: PublicUser };
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  name: string;
+}
+
+/**
+ * The first-ever registration becomes an active super_admin and is signed in
+ * immediately (201). Everyone else is created pending and gets 202 with no
+ * session — discriminate on `status`.
+ */
+export type RegisterResponse =
+  ({ status: 'active'; user: PublicUser } & Session) | { status: 'pending'; message: string };
+
+/** `GET /auth/me` — the identity every guarded screen renders from. */
+export interface AuthContext {
+  userId: string;
+  email: string;
+  name: string;
+  role: RoleRef;
+  /** `resource:action`, e.g. `cars:UPDATE`. Hide UI the role cannot use. */
+  permissions: string[];
+}
+
+/* ------------------------------ roles & users ------------------------------ */
+
+export interface PermissionPair {
+  resource: string;
+  action: PermissionAction;
+}
+
+export interface RoleSummary extends RoleRef {
+  description: string | null;
+  isSystem: boolean;
+  permissionCount: number;
+  userCount: number;
+}
+
+export interface RoleDetail extends RoleRef {
+  description: string | null;
+  isSystem: boolean;
+  permissions: PermissionPair[];
+}
+
+export interface PermissionCatalogue {
+  /** Every resource and the actions that are meaningful for it. */
+  resources: Record<string, PermissionAction[]>;
+  permissions: (PermissionPair & { id: string })[];
+}
+
+export interface AdminUser extends PublicUser {
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
+export interface UserListResponse {
+  items: AdminUser[];
+  total: number;
+  take: number;
+  skip: number;
+}

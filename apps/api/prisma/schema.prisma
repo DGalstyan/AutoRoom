@@ -98,11 +98,22 @@ model User {
   status       UserStatus @default(PENDING)
   lastLoginAt  DateTime?
 
-  roleId String
-  role   Role   @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  /// Consecutive failed logins; reset to 0 on success.
+  failedLoginAttempts Int       @default(0)
+  /// Set when `failedLoginAttempts` crosses the threshold. Login is refused
+  /// until this passes, regardless of whether the password is correct.
+  lockedUntil         DateTime?
 
-  updatedSettings Setting[]
-  auditEntries    AuditLog[]
+  /// Null while `status` is PENDING: a self-registered user has no role until an
+  /// admin approves and assigns one (admin.md A1). Enforced in code rather than
+  /// by the database, since the two columns constrain each other.
+  roleId String?
+  role   Role?   @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  updatedSettings     Setting[]
+  auditEntries        AuditLog[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -110,6 +121,52 @@ model User {
   @@index([roleId])
   @@index([status])
   @@map("users")
+}
+
+/// A refresh-token grant. The token itself is opaque high-entropy random bytes
+/// that only ever reach the client; the database stores its SHA-256, so a dump
+/// of this table cannot be replayed against the API.
+///
+/// Rotation: each refresh revokes the presented token and issues a successor,
+/// linked through `replacedById`. Presenting an already-revoked token means it
+/// leaked and is being replayed, so the whole family is revoked at once.
+model RefreshToken {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String @unique
+
+  expiresAt DateTime
+  revokedAt DateTime?
+  /// The token issued when this one was rotated.
+  replacedById String?
+
+  /// Context for the sessions list an admin can review later.
+  userAgent String?
+  ip        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+/// Single-use password reset grant. Hashed at rest for the same reason as
+/// refresh tokens, and consumed by setting `usedAt`.
+model PasswordResetToken {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String @unique
+
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 /// Grouped, typed settings read by both the admin and (as a filtered subset)

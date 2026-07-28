@@ -28,6 +28,26 @@ const schema = z.object({
         .map((origin) => origin.trim())
         .filter(Boolean),
     ),
+
+  /**
+   * Signs the short-lived access token. Refresh tokens need no secret: they are
+   * opaque random bytes checked against a SHA-256 stored in the database, so
+   * there is nothing to forge.
+   */
+  JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
+  /** `jsonwebtoken` duration string, e.g. `15m`. */
+  ACCESS_TOKEN_TTL: z.string().default('15m'),
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
+
+  /** Consecutive failures before an account is temporarily locked. */
+  LOGIN_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
+  LOGIN_LOCKOUT_MINUTES: z.coerce.number().int().positive().default(15),
+  PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().positive().default(60),
+
+  /** Where the reset link points — the admin SPA, not the API. */
+  APP_URL: z.string().url().default('http://localhost:5173'),
+  /** Leave unset for host-only cookies; set to share across subdomains. */
+  COOKIE_DOMAIN: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
