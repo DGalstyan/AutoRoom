@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const refreshTimer = useRef<number | null>(null);
+  const inFlightRefresh = useRef<Promise<string | null> | null>(null);
 
   const api = useMemo(() => makeClient(token), [token]);
 
@@ -62,26 +63,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /**
    * Spend the refresh cookie for a new access token, then schedule the next
    * rotation. Returns the token so the caller can chain an identity load.
+   *
+   * Concurrent callers share one request. Refresh tokens rotate, so presenting
+   * an already-spent one is indistinguishable from a stolen-token replay and
+   * the API responds by revoking *every* session the user has. Two overlapping
+   * calls carry the same cookie — StrictMode double-invoking the boot effect,
+   * or a scheduled rotation landing on top of a manual one — and the second
+   * would log the user out of everywhere. Deduplicating here is the fix,
+   * because the cause is one client asking twice, not a real replay.
    */
-  const rotate = useCallback(async (): Promise<string | null> => {
-    const anonymous = makeClient();
-    try {
-      const session = await anonymous.auth.refresh();
-      setToken(session.accessToken);
+  const rotate = useCallback((): Promise<string | null> => {
+    if (inFlightRefresh.current) return inFlightRefresh.current;
 
-      clearTimer();
-      const delay = Math.max(5, session.expiresIn - REFRESH_MARGIN_SECONDS) * 1000;
-      refreshTimer.current = window.setTimeout(() => void rotate(), delay);
+    const attempt = (async () => {
+      const anonymous = makeClient();
+      try {
+        const session = await anonymous.auth.refresh();
+        setToken(session.accessToken);
 
-      return session.accessToken;
-    } catch {
-      // No cookie, expired, or revoked — all mean "not signed in".
-      clearTimer();
-      setToken(null);
-      setIdentity(null);
-      setStatus('anonymous');
-      return null;
-    }
+        clearTimer();
+        const delay = Math.max(5, session.expiresIn - REFRESH_MARGIN_SECONDS) * 1000;
+        refreshTimer.current = window.setTimeout(() => void rotate(), delay);
+
+        return session.accessToken;
+      } catch {
+        // No cookie, expired, or revoked — all mean "not signed in".
+        clearTimer();
+        setToken(null);
+        setIdentity(null);
+        setStatus('anonymous');
+        return null;
+      } finally {
+        inFlightRefresh.current = null;
+      }
+    })();
+
+    inFlightRefresh.current = attempt;
+    return attempt;
   }, [clearTimer]);
 
   const loadIdentity = useCallback(async (accessToken: string) => {

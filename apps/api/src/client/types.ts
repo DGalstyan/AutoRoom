@@ -128,3 +128,21 @@ export interface UserListResponse {
   take: number;
   skip: number;
 }
+
+/**
+ * Accounts are created complete — active, with a role and a password the
+ * administrator hands over directly. There is no invite email, so nothing in
+ * this flow depends on SMTP.
+ */
+export interface CreateUserRequest {
+  email: string;
+  name: string;
+  password: string;
+  roleKey: string;
+}
+
+/** At least one field must be present. */
+export interface UpdateUserRequest {
+  email?: string;
+  name?: string;
+}

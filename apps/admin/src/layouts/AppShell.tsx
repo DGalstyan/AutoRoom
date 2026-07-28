@@ -33,7 +33,11 @@ const SIDEBAR_WIDTH = 248;
  * click into a 403. Catalogue, CRM and settings entries get added here as their
  * screens land.
  */
-const NAV: { label: string; to: string; permission?: string }[] = [{ label: 'Dashboard', to: '/' }];
+const NAV: { label: string; to: string; permission?: string }[] = [
+  { label: 'Dashboard', to: '/' },
+  { label: 'Users', to: '/users', permission: 'users:READ' },
+  { label: 'Roles', to: '/roles', permission: 'roles:READ' },
+];
 
 export function AppShell() {
   const { identity, signOut } = useAuth();

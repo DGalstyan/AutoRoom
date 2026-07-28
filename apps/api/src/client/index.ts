@@ -2,6 +2,7 @@ import type {
   AdminUser,
   ApiErrorBody,
   AuthContext,
+  CreateUserRequest,
   ErrorCode,
   HealthResponse,
   LoginRequest,
@@ -13,6 +14,7 @@ import type {
   RoleDetail,
   RoleSummary,
   Session,
+  UpdateUserRequest,
   UserListResponse,
   UserStatus,
 } from './types';
@@ -188,12 +190,20 @@ export function createApiClient(options: ApiClientOptions) {
         ).toString();
         return request<UserListResponse>('GET', `/users${search ? `?${search}` : ''}`, init);
       },
+      create: (body: CreateUserRequest, init?: RequestOptions) =>
+        request<AdminUser>('POST', '/users', { ...init, body }),
+      update: (id: string, body: UpdateUserRequest, init?: RequestOptions) =>
+        request<AdminUser>('PATCH', `/users/${id}`, { ...init, body }),
       approve: (id: string, roleKey: string, init?: RequestOptions) =>
         request<AdminUser>('POST', `/users/${id}/approve`, { ...init, body: { roleKey } }),
       assignRole: (id: string, roleKey: string, init?: RequestOptions) =>
         request<AdminUser>('PATCH', `/users/${id}/role`, { ...init, body: { roleKey } }),
       setStatus: (id: string, status: UserStatus, init?: RequestOptions) =>
         request<AdminUser>('PATCH', `/users/${id}/status`, { ...init, body: { status } }),
+      /** Revokes every session the user has; they must sign in again. */
+      setPassword: (id: string, password: string, init?: RequestOptions) =>
+        request<void>('POST', `/users/${id}/password`, { ...init, body: { password } }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/users/${id}`, init),
     },
   };
 }
