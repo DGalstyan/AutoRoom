@@ -1,5 +1,11 @@
-.next
 node_modules
 package-lock.json
+apps/web/.next
+apps/api/dist
+apps/api/prisma/migrations
 autoroom-claude-kit
 .claude
+
+# Hand-authored task doc. A wrapped line begins with "+ `POST /auth/reset`",
+# which Prettier parses as a list item and restructures the blockquote around it.
+ADMIN-TASKS.md
