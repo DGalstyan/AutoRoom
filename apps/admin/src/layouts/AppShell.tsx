@@ -33,9 +33,7 @@ const SIDEBAR_WIDTH = 248;
  * click into a 403. Catalogue, CRM and settings entries get added here as their
  * screens land.
  */
-const NAV: { label: string; to: string; permission?: string }[] = [
-  { label: 'Dashboard', to: '/' },
-];
+const NAV: { label: string; to: string; permission?: string }[] = [{ label: 'Dashboard', to: '/' }];
 
 export function AppShell() {
   const { identity, signOut } = useAuth();
@@ -128,13 +126,24 @@ export function AppShell() {
   return (
     <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: brand.surfaceLight }}>
       {/* Desktop: part of the layout, collapsed by animating its width to 0 so
-          the main column reclaims the space instead of sitting beside a gap. */}
+          the main column reclaims the space instead of sitting beside a gap.
+
+          Sticky and viewport-tall, not just tall: the page scrolls as one
+          document, so a static column ends one screen down and the dark band
+          stops with it, leaving bare background beside long content. Pinning it
+          keeps the nav on screen and the colour running the full height however
+          far the main column scrolls. `alignSelf` stops the flex parent from
+          stretching it, which would defeat `position: sticky`. */}
       <Box
         sx={{
           display: { xs: 'none', md: 'block' },
           width: desktopNavOpen ? SIDEBAR_WIDTH : 0,
           flex: 'none',
           overflow: 'hidden',
+          position: 'sticky',
+          top: 0,
+          alignSelf: 'flex-start',
+          height: '100dvh',
           transition: theme.transitions.create('width', {
             duration: theme.transitions.duration.shorter,
           }),
@@ -155,8 +164,15 @@ export function AppShell() {
       </Drawer>
 
       <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        {/* Pinned: the account menu and the nav toggle are the two controls
+            available from anywhere, so they should not require scrolling back
+            up. Above the sidebar in the stack so the shadowless bar still reads
+            as the top edge. */}
         <Toolbar
           sx={{
+            position: 'sticky',
+            top: 0,
+            zIndex: theme.zIndex.appBar,
             bgcolor: brand.paper,
             borderBottom: `1px solid ${brand.lineLight}`,
             gap: 1,
