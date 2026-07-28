@@ -157,3 +157,110 @@ export interface UpdateUserRequest {
   email?: string;
   name?: string;
 }
+
+/* --------------------------------- settings --------------------------------- */
+
+export type SettingGroup = 'BRANDING' | 'CONTACTS' | 'FINANCE' | 'FEATURES' | 'LOCALIZATION';
+
+export type Locale = 'hy' | 'ru' | 'en';
+
+export interface BrandingIdentity {
+  brandName: string;
+  logoLightUrl: string | null;
+  logoDarkUrl: string | null;
+  faviconUrl: string | null;
+}
+
+/** Every value is a 6-digit hex colour. These override the compiled theme. */
+export interface BrandingTheme {
+  accent: string;
+  accentHover: string;
+  bg: string;
+  surface: string;
+  surfaceLight: string;
+  paper: string;
+  ink: string;
+  muted: string;
+  lineDark: string;
+  lineLight: string;
+  success: string;
+  warn: string;
+  info: string;
+}
+
+export interface BrandingTypography {
+  display: string;
+  body: string;
+  /** Sora and Inter carry no Armenian glyphs; this is the fallback that does. */
+  armenian: string;
+}
+
+export interface ContactsGeneral {
+  phones: string[];
+  email: string | null;
+  workingHours: string | null;
+}
+
+export interface ContactsSocial {
+  facebook: string | null;
+  instagram: string | null;
+  tiktok: string | null;
+  linkedin: string | null;
+}
+
+export interface ContactsMessengers {
+  whatsapp: string | null;
+  viber: string | null;
+  telegram: string | null;
+}
+
+export interface FeatureToggles {
+  machinery: boolean;
+  blog: boolean;
+  quiz: boolean;
+  registrationInviteOnly: boolean;
+  maintenanceMode: boolean;
+}
+
+export interface LocalizationLocales {
+  defaultLocale: Locale;
+  enabledLocales: Locale[];
+}
+
+/** Maps each setting key to the shape stored under it. */
+export interface SettingValues {
+  'branding.identity': BrandingIdentity;
+  'branding.theme': BrandingTheme;
+  'branding.typography': BrandingTypography;
+  'contacts.general': ContactsGeneral;
+  'contacts.social': ContactsSocial;
+  'contacts.messengers': ContactsMessengers;
+  'finance.calculator': Record<string, unknown>;
+  'features.toggles': FeatureToggles;
+  'localization.locales': LocalizationLocales;
+}
+
+export type SettingKey = keyof SettingValues;
+
+export interface SettingRecord<K extends SettingKey = SettingKey> {
+  key: K;
+  group: SettingGroup;
+  /** Human label from the registry, so the UI need not hardcode one. */
+  label: string;
+  /** Whether `GET /settings/public` exposes this key. */
+  isPublic: boolean;
+  value: SettingValues[K];
+  updatedAt: string | null;
+  updatedBy: { id: string; name: string } | null;
+}
+
+/** `GET /settings/public` — the subset the website may read, unauthenticated. */
+export type PublicSettings = Partial<SettingValues>;
+
+/**
+ * `400` bodies from a settings write carry per-field messages so a form can
+ * mark the offending input.
+ */
+export interface SettingValidationDetails {
+  fields: { path: string; message: string }[];
+}

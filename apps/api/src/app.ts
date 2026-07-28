@@ -6,6 +6,7 @@ import { env } from './config/env';
 import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
 import { rolesRouter } from './routes/roles';
+import { settingsRouter } from './routes/settings';
 import { usersRouter } from './routes/users';
 import { errorHandler, notFoundHandler } from './middleware/error';
 
@@ -43,6 +44,7 @@ export function createApp(): Express {
   app.use(healthRouter);
   app.use(authRouter);
   app.use(rolesRouter);
+  app.use(settingsRouter);
   app.use(usersRouter);
 
   app.use(notFoundHandler);

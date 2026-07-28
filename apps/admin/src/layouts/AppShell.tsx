@@ -37,6 +37,7 @@ const NAV: { label: string; to: string; permission?: string }[] = [
   { label: 'Dashboard', to: '/' },
   { label: 'Users', to: '/users', permission: 'users:READ' },
   { label: 'Roles', to: '/roles', permission: 'roles:READ' },
+  { label: 'Settings', to: '/settings', permission: 'settings:READ' },
 ];
 
 export function AppShell() {

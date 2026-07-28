@@ -9,11 +9,15 @@ import type {
   LoginResponse,
   PermissionCatalogue,
   PermissionPair,
+  PublicSettings,
   RegisterRequest,
   RegisterResponse,
   RoleDetail,
   RoleSummary,
   Session,
+  SettingKey,
+  SettingRecord,
+  SettingValues,
   UpdateUserRequest,
   UserListResponse,
   UserStatus,
@@ -176,6 +180,24 @@ export function createApiClient(options: ApiClientOptions) {
           `/roles/${key}/permissions`,
           { ...init, body: { permissions } },
         ),
+    },
+
+    settings: {
+      /** Every setting, including private ones. Needs `settings:READ`. */
+      list: (init?: RequestOptions) => request<SettingRecord[]>('GET', '/settings', init),
+
+      /**
+       * Replaces one setting's value wholesale. A 400 carries
+       * `details.fields[]` naming the paths that failed validation.
+       */
+      update: <K extends SettingKey>(key: K, value: SettingValues[K], init?: RequestOptions) =>
+        request<{ key: K; value: SettingValues[K] }>('PUT', `/settings/${key}`, {
+          ...init,
+          body: value,
+        }),
+
+      /** Unauthenticated — what the public website reads. */
+      public: (init?: RequestOptions) => request<PublicSettings>('GET', '/settings/public', init),
     },
 
     users: {
