@@ -32,3 +32,6 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# Runtime upload storage (local dev stand-in for S3)
+apps/api/uploads/
