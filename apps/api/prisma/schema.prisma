@@ -1,0 +1,192 @@
+// AutoRoom API — initial schema (A0).
+//
+// Scope is Phase A's foundation from references/admin.md: users, the
+// data-driven role/permission matrix, grouped settings with an audit trail, and
+// the two reference tables the seed needs (branches, banks). The domain models
+// — Car, Lead, Order and the rest — arrive with their own migrations in Phases
+// B–D; migrations are the source of truth, so nothing here is edited in place
+// once it has shipped.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+}
+
+enum PermissionAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  PUBLISH
+}
+
+enum SettingGroup {
+  BRANDING
+  CONTACTS
+  FINANCE
+  FEATURES
+  LOCALIZATION
+}
+
+/// A named bundle of permissions. Seeded with the five roles from admin.md A2,
+/// but editable at runtime by super_admin — hence a table rather than an enum.
+model Role {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  name        String
+  description String?
+  /// Seeded roles the UI must not let anyone delete or rename.
+  isSystem    Boolean @default(false)
+
+  users       User[]
+  permissions RolePermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("roles")
+}
+
+/// One `resource × action` pair. The catalogue is generated from
+/// src/rbac/permissions.ts, so the code and the rows cannot drift apart.
+model Permission {
+  id       String           @id @default(cuid())
+  resource String
+  action   PermissionAction
+
+  roles RolePermission[]
+
+  @@unique([resource, action])
+  @@index([resource])
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+/// Back-office and partner-portal accounts. Public site visitors are never
+/// users — their submissions become Leads (Phase C).
+model User {
+  id String @id @default(cuid())
+
+  /// Stored lower-cased; the application normalises before writing so the
+  /// unique index is effectively case-insensitive.
+  email        String     @unique
+  passwordHash String
+  name         String
+  status       UserStatus @default(PENDING)
+  lastLoginAt  DateTime?
+
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  updatedSettings Setting[]
+  auditEntries    AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([roleId])
+  @@index([status])
+  @@map("users")
+}
+
+/// Grouped, typed settings read by both the admin and (as a filtered subset)
+/// the public site. One row per setting key; the value is JSON so a group can
+/// gain fields without a migration.
+model Setting {
+  key   String       @id
+  group SettingGroup
+
+  valueJson Json
+
+  updatedById String?
+  updatedBy   User?   @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedAt   DateTime @updatedAt
+
+  @@index([group])
+  @@map("settings")
+}
+
+/// Who changed what, when. admin.md requires this for settings changes, role
+/// changes and order-stage advances, so it is generic rather than per-resource.
+model AuditLog {
+  id String @id @default(cuid())
+
+  /// Null for system actions such as the seed.
+  actorId String?
+  actor   User?   @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  /// Dotted verb, e.g. `setting.update`, `role.permissions.update`.
+  action     String
+  resource   String
+  resourceId String?
+  /// Enough of the before/after to reconstruct the change.
+  dataJson   Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([resource, resourceId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+/// The physical branches. Also surfaced in Settings (admin.md A4) but owns its
+/// own table, since the public BranchMap reads it as a collection.
+model Branch {
+  id       String  @id @default(cuid())
+  name     String
+  city     String
+  address  String
+  phone    String
+  hours    String
+  lat      Float?
+  lng      Float?
+  mapUrl   String?
+  photoUrl String?
+  /// Display order on the public site.
+  position Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("branches")
+}
+
+/// Financing partners behind the "Գնել Վարկով" grid. `inHouse` marks AutoRoom's
+/// own offer, which opens in place instead of linking out.
+model Bank {
+  id      String  @id @default(cuid())
+  name    String  @unique
+  logoUrl String?
+  loanUrl String?
+  inHouse Boolean @default(false)
+  position Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banks")
+}

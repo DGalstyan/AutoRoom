@@ -1,0 +1,27 @@
+# Local development database. Production uses a managed Postgres; this exists so
+# `npm run db:up && npm run db:migrate && npm run db:seed` works on a clean machine.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: autoroom-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: autoroom
+      POSTGRES_PASSWORD: autoroom
+      POSTGRES_DB: autoroom
+    ports:
+      # Host 5432 is commonly already taken (another local Postgres, another
+      # project's container), and the resulting failure is a confusing
+      # "password authentication failed" from the *other* server. Publishing on
+      # a distinctive port keeps this project self-contained.
+      - '55432:5432'
+    volumes:
+      - autoroom-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U autoroom -d autoroom']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  autoroom-pgdata:
