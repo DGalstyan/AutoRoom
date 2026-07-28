@@ -13,81 +13,57 @@ import {
   MenuItem,
   Toolbar,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
 import { Wordmark } from '@/components/Wordmark';
 import { useAuth } from '@/auth/AuthProvider';
-import { brand, mono } from '@/theme';
+import { brand } from '@/theme';
 
 const SIDEBAR_WIDTH = 248;
 
 /**
- * Navigation, grouped the way `admin.md` A3 specifies.
+ * Navigation.
  *
- * Every destination declares the permission it needs, so the sidebar shows a
- * role only what that role can actually open — the same matrix the API enforces,
- * applied to the UI so nobody is invited to click into a 403.
- *
- * Items whose screens land in later phases are listed but disabled, marked
- * SOON. Hiding them would misrepresent the product; letting them 404 would be
- * worse.
+ * Only destinations that exist are listed. Each declares the permission it
+ * needs, so the sidebar shows a role only what that role can actually open —
+ * the same matrix the API enforces, applied to the UI so nobody is invited to
+ * click into a 403. Catalogue, CRM and settings entries get added here as their
+ * screens land.
  */
-const NAV: {
-  group: string;
-  items: { label: string; to: string; permission?: string; ready?: boolean }[];
-}[] = [
-  {
-    group: 'Overview',
-    items: [{ label: 'Dashboard', to: '/', ready: true }],
-  },
-  {
-    group: 'Catalogue',
-    items: [
-      { label: 'Cars', to: '/cars', permission: 'cars:READ' },
-      { label: 'Machinery', to: '/machinery', permission: 'machinery:READ' },
-      { label: 'Auctions', to: '/auctions', permission: 'auctions:READ' },
-      { label: 'Offers', to: '/offers', permission: 'offers:READ' },
-    ],
-  },
-  {
-    group: 'Operations',
-    items: [
-      { label: 'Leads', to: '/leads', permission: 'leads:READ' },
-      { label: 'Partners', to: '/partners', permission: 'partners:READ' },
-      { label: 'Bookings', to: '/bookings', permission: 'bookings:READ' },
-      { label: 'Orders', to: '/orders', permission: 'orders:READ' },
-    ],
-  },
-  {
-    group: 'Content',
-    items: [
-      { label: 'FAQ', to: '/faq', permission: 'faq:READ' },
-      { label: 'Branches', to: '/branches', permission: 'branches:READ' },
-      { label: 'Team', to: '/team', permission: 'team:READ' },
-      { label: 'Banks', to: '/banks', permission: 'banks:READ' },
-    ],
-  },
-  {
-    group: 'System',
-    items: [
-      { label: 'Users', to: '/users', permission: 'users:READ' },
-      { label: 'Roles', to: '/roles', permission: 'roles:READ' },
-      { label: 'Settings', to: '/settings', permission: 'settings:READ' },
-    ],
-  },
+const NAV: { label: string; to: string; permission?: string }[] = [
+  { label: 'Dashboard', to: '/' },
 ];
 
 export function AppShell() {
   const { identity, signOut } = useAuth();
   const location = useLocation();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+
+  /**
+   * Two independent open states, because the two layouts mean different things:
+   * on desktop the sidebar is part of the page and starts open, on a phone it
+   * is an overlay that starts closed. One shared flag would either hide the nav
+   * on first paint or open a modal drawer over the dashboard.
+   */
+  const [desktopNavOpen, setDesktopNavOpen] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
+  const navOpen = isDesktop ? desktopNavOpen : mobileNavOpen;
+  const toggleNav = () =>
+    isDesktop ? setDesktopNavOpen((open) => !open) : setMobileNavOpen((open) => !open);
+
   const permissions = identity?.permissions ?? [];
+  const visible = NAV.filter((item) => !item.permission || permissions.includes(item.permission));
 
   const sidebar = (
     <Box
+      component="nav"
+      aria-label="Main"
       sx={{
         width: SIDEBAR_WIDTH,
         flex: 'none',
@@ -103,87 +79,75 @@ export function AppShell() {
         <Wordmark tone="light" size="sm" />
       </Box>
 
-      <Box sx={{ px: 1.5, pb: 3, flex: 1 }}>
-        {NAV.map((section) => {
-          const visible = section.items.filter(
-            (item) => !item.permission || permissions.includes(item.permission),
-          );
-          if (visible.length === 0) return null;
-
+      <List dense disablePadding sx={{ px: 1.5, pb: 3, flex: 1 }}>
+        {visible.map((item) => {
+          const selected = location.pathname === item.to;
           return (
-            <Box key={section.group} sx={{ mb: 2.5 }}>
-              <Typography
-                variant="overline"
-                sx={{ color: brand.muted, px: 1.5, display: 'block', mb: 0.5 }}
-              >
-                {section.group}
-              </Typography>
-              <List dense disablePadding>
-                {visible.map((item) => {
-                  const selected = location.pathname === item.to;
-                  return (
-                    <ListItemButton
-                      key={item.to}
-                      component={item.ready ? RouterLink : 'div'}
-                      to={item.ready ? item.to : undefined}
-                      selected={selected}
-                      disabled={!item.ready}
-                      onClick={() => setDrawerOpen(false)}
-                      sx={{
-                        color: selected ? brand.paper : '#B7BBC2',
-                        '&.Mui-disabled': { opacity: 1, color: '#5C6068' },
-                        '&:hover': { bgcolor: '#FFFFFF10' },
-                        '&.Mui-selected': {
-                          bgcolor: '#FFFFFF14',
-                          '&:hover': { bgcolor: '#FFFFFF1A' },
-                        },
-                      }}
-                    >
-                      {selected && (
-                        <Box
-                          aria-hidden
-                          sx={{
-                            position: 'absolute',
-                            left: -6,
-                            width: 3,
-                            height: 18,
-                            borderRadius: 999,
-                            bgcolor: brand.accent,
-                          }}
-                        />
-                      )}
-                      <ListItemText
-                        primary={item.label}
-                        slotProps={{
-                          primary: { fontSize: '0.875rem', fontWeight: selected ? 600 : 400 },
-                        }}
-                      />
-                      {!item.ready && (
-                        <Typography
-                          component="span"
-                          sx={{ fontFamily: mono, fontSize: '0.5625rem', color: '#4E525A' }}
-                        >
-                          SOON
-                        </Typography>
-                      )}
-                    </ListItemButton>
-                  );
-                })}
-              </List>
-            </Box>
+            <ListItemButton
+              key={item.to}
+              component={RouterLink}
+              to={item.to}
+              selected={selected}
+              onClick={() => setMobileNavOpen(false)}
+              sx={{
+                borderRadius: 1.5,
+                color: selected ? brand.paper : '#B7BBC2',
+                '&:hover': { bgcolor: '#FFFFFF10' },
+                '&.Mui-selected': {
+                  bgcolor: '#FFFFFF14',
+                  '&:hover': { bgcolor: '#FFFFFF1A' },
+                },
+              }}
+            >
+              {selected && (
+                <Box
+                  aria-hidden
+                  sx={{
+                    position: 'absolute',
+                    left: -6,
+                    width: 3,
+                    height: 18,
+                    borderRadius: 999,
+                    bgcolor: brand.accent,
+                  }}
+                />
+              )}
+              <ListItemText
+                primary={item.label}
+                slotProps={{
+                  primary: { fontSize: '0.875rem', fontWeight: selected ? 600 : 400 },
+                }}
+              />
+            </ListItemButton>
           );
         })}
-      </Box>
+      </List>
     </Box>
   );
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: brand.surfaceLight }}>
-      <Box sx={{ display: { xs: 'none', md: 'block' } }}>{sidebar}</Box>
+      {/* Desktop: part of the layout, collapsed by animating its width to 0 so
+          the main column reclaims the space instead of sitting beside a gap. */}
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          width: desktopNavOpen ? SIDEBAR_WIDTH : 0,
+          flex: 'none',
+          overflow: 'hidden',
+          transition: theme.transitions.create('width', {
+            duration: theme.transitions.duration.shorter,
+          }),
+          '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
+        }}
+      >
+        {sidebar}
+      </Box>
 
+      {/* Below md: an overlay, dismissed by the backdrop or Esc. */}
       <Drawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        open={mobileNavOpen}
+        onClose={() => setMobileNavOpen(false)}
         slotProps={{ paper: { sx: { border: 'none' } } }}
         sx={{ display: { md: 'none' } }}
       >
@@ -201,10 +165,11 @@ export function AppShell() {
           }}
         >
           <IconButton
-            onClick={() => setDrawerOpen(true)}
+            onClick={toggleNav}
             edge="start"
-            aria-label="Open navigation"
-            sx={{ display: { md: 'none' }, mr: 0.5 }}
+            aria-label={navOpen ? 'Hide navigation' : 'Show navigation'}
+            aria-expanded={navOpen}
+            sx={{ mr: 0.5 }}
           >
             <MenuIcon />
           </IconButton>
