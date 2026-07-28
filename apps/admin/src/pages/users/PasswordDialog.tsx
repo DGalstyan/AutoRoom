@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { MIN_PASSWORD_LENGTH } from '@autoroom/api/client';
 import type { AdminUser } from '@autoroom/api/client';
 import {
   Alert,
@@ -14,8 +15,6 @@ import {
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { PasswordField } from '@/components/PasswordField';
-
-const MIN_PASSWORD_LENGTH = 10;
 
 /**
  * Set someone's password on their behalf.

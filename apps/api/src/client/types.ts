@@ -9,6 +9,17 @@
  * the client below stays the only place that knows the URLs.
  */
 
+/**
+ * Shortest password the API will accept. Lives here so the admin's forms
+ * validate against the same number the server enforces instead of a copy that
+ * drifts — the two disagreeing shows up as a form that submits happily and
+ * comes back 400.
+ *
+ * Set deliberately low during development. See `lib/password.ts` for what that
+ * costs.
+ */
+export const MIN_PASSWORD_LENGTH = 3;
+
 export type ErrorCode =
   | 'VALIDATION_ERROR'
   | 'UNAUTHORIZED'

@@ -8,8 +8,18 @@ import bcrypt from 'bcryptjs';
  */
 export const BCRYPT_ROUNDS = 12;
 
-/** The floor the API enforces. Length beats composition rules for real entropy. */
-export const MIN_PASSWORD_LENGTH = 10;
+/**
+ * The floor the API enforces, re-exported from the shared client so the admin's
+ * forms and the server validate against one number.
+ *
+ * It is set deliberately low so short throwaway passwords work while the panel
+ * is being built. Three characters is guessable in well under a second, and the
+ * only thing standing in the way is the login lockout (`LOGIN_MAX_ATTEMPTS`
+ * failures, then `LOGIN_LOCKOUT_MINUTES`). Raise it before the panel is
+ * reachable from the internet — length beats composition rules for real
+ * entropy, so a larger number here is worth more than any character-class rule.
+ */
+export { MIN_PASSWORD_LENGTH } from '../client/types';
 
 export function hashPassword(plain: string): Promise<string> {
   return bcrypt.hash(plain, BCRYPT_ROUNDS);

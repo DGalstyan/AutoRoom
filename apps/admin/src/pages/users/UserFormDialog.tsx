@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { MIN_PASSWORD_LENGTH } from '@autoroom/api/client';
 import type { AdminUser, RoleSummary } from '@autoroom/api/client';
 import {
   Alert,
@@ -17,9 +18,6 @@ import { errorMessage } from '@/lib/api';
 import { PasswordField } from '@/components/PasswordField';
 
 export type UserFormMode = 'create' | 'edit';
-
-/** Mirrors `MIN_PASSWORD_LENGTH` in the API, so the dialog can say so up front. */
-const MIN_PASSWORD_LENGTH = 10;
 
 /**
  * Create an account, or edit an existing one's name and email.
