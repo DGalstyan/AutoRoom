@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="AutoRoom">
-  <rect width="800" height="500" fill="#F6F7F9"/>
-  <g fill="none" stroke="#C9CDD4" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M150 320h500M205 320c0-28 22-50 50-50s50 22 50 50M495 320c0-28 22-50 50-50s50 22 50 50"/>
-    <path d="M160 320v-55c0-14 11-25 25-25h30l55-70c8-10 20-16 33-16h175c14 0 26 7 34 19l45 67h48c14 0 25 11 25 25v55"/>
-    <path d="M320 240l40-52h130l35 52z"/>
-  </g>
-  <text x="400" y="410" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" fill="#8A8F98">AutoRoom</text>
-</svg>

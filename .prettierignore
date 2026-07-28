@@ -1,8 +1,8 @@
 node_modules
 package-lock.json
-apps/web/.next
 apps/api/dist
 apps/api/prisma/migrations
+apps/admin/dist
 autoroom-claude-kit
 .claude
 

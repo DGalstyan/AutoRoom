@@ -44,8 +44,11 @@ const schema = z.object({
   LOGIN_LOCKOUT_MINUTES: z.coerce.number().int().positive().default(15),
   PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().positive().default(60),
 
-  /** Where the reset link points — the admin SPA, not the API. */
-  APP_URL: z.string().url().default('http://localhost:5173'),
+  /**
+   * Where the reset link points — the admin SPA, not the API. The panel is
+   * served under `/admin`, so the base includes that segment.
+   */
+  APP_URL: z.string().url().default('http://localhost:3000/admin'),
   /** Leave unset for host-only cookies; set to share across subdomains. */
   COOKIE_DOMAIN: z.string().optional(),
 });
