@@ -82,9 +82,9 @@ Format per task: agent · Prompt (paste) · Done when.
 
 > **B2 — Cars admin screens** · `admin-frontend`
 > Prompt: "Build Cars CRUD screens: list (DataTable, filters by origin/condition/
-> featured), create/edit form, image-album uploader (exterior/interior/details/
-> video/auction/receipt/handover), order-only color editor (name+hex+image),
-> price-journey editor (4 chips), featured toggle, publish."
+ featured), create/edit form, image-album uploader (exterior/interior/details/
+ video/auction/receipt/handover), order-only color editor (name+hex+image),
+price-journey editor (4 chips), featured toggle, publish."
 > Done when: a car can be created end-to-end and appears via the public read API.
 
 > **B3 — Machinery + Auctions** · `backend-api` + `admin-frontend`

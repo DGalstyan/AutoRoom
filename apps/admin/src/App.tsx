@@ -11,6 +11,8 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { UsersPage } from '@/pages/UsersPage';
 import { RolesPage } from '@/pages/RolesPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { CarsPage } from '@/pages/CarsPage';
+import { CarFormPage } from '@/pages/CarFormPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +46,8 @@ export function App() {
                 <Route element={<ProtectedRoute />}>
                   <Route element={<AppShell />}>
                     <Route path="/" element={<DashboardPage />} />
+                    <Route path="/cars" element={<CarsPage />} />
+                    <Route path="/cars/:id" element={<CarFormPage />} />
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/roles" element={<RolesPage />} />
                     <Route path="/settings" element={<SettingsPage />} />

@@ -35,6 +35,7 @@ const SIDEBAR_WIDTH = 248;
  */
 const NAV: { label: string; to: string; permission?: string }[] = [
   { label: 'Dashboard', to: '/' },
+  { label: 'Cars', to: '/cars', permission: 'cars:READ' },
   { label: 'Users', to: '/users', permission: 'users:READ' },
   { label: 'Roles', to: '/roles', permission: 'roles:READ' },
   { label: 'Settings', to: '/settings', permission: 'settings:READ' },

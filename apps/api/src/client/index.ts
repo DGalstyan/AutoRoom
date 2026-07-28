@@ -2,9 +2,15 @@ import type {
   AdminUser,
   ApiErrorBody,
   AuthContext,
+  Car,
+  CarImage,
+  CarInput,
+  CarListQuery,
+  CarListResponse,
   CreateUserRequest,
   ErrorCode,
   HealthResponse,
+  ImageAlbum,
   LoginRequest,
   LoginResponse,
   PermissionCatalogue,
@@ -18,6 +24,7 @@ import type {
   SettingKey,
   SettingRecord,
   SettingValues,
+  UploadResponse,
   UpdateUserRequest,
   UserListResponse,
   UserStatus,
@@ -77,6 +84,16 @@ export interface ApiClientOptions {
 export interface RequestOptions {
   signal?: AbortSignal;
   headers?: Record<string, string>;
+}
+
+/** `{ a: 1, b: undefined }` → `?a=1`. Undefined means "no filter", not "empty". */
+function toSearch(query: object): string {
+  const search = new URLSearchParams(
+    Object.entries(query)
+      .filter(([, value]) => value !== undefined && value !== '')
+      .map(([key, value]): [string, string] => [key, String(value)]),
+  ).toString();
+  return search ? `?${search}` : '';
 }
 
 export function createApiClient(options: ApiClientOptions) {
@@ -180,6 +197,64 @@ export function createApiClient(options: ApiClientOptions) {
           `/roles/${key}/permissions`,
           { ...init, body: { permissions } },
         ),
+    },
+
+    cars: {
+      list: (query: CarListQuery = {}, init?: RequestOptions) =>
+        request<CarListResponse>('GET', `/cars${toSearch(query)}`, init),
+      get: (id: string, init?: RequestOptions) => request<Car>('GET', `/cars/${id}`, init),
+      create: (body: CarInput, init?: RequestOptions) =>
+        request<Car>('POST', '/cars', { ...init, body }),
+      update: (id: string, body: CarInput, init?: RequestOptions) =>
+        request<Car>('PUT', `/cars/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/cars/${id}`, init),
+      /** Separate from `update` because `cars:PUBLISH` is a separate permission. */
+      setPublished: (id: string, published: boolean, init?: RequestOptions) =>
+        request<Car>('POST', `/cars/${id}/publish`, { ...init, body: { published } }),
+
+      addImage: (
+        id: string,
+        image: { album: ImageAlbum; url: string; position?: number },
+        init?: RequestOptions,
+      ) => request<CarImage>('POST', `/cars/${id}/images`, { ...init, body: image }),
+      removeImage: (id: string, imageId: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/cars/${id}/images/${imageId}`, init),
+
+      /** Unauthenticated, published rows only — what the website reads. */
+      publicList: (query: CarListQuery = {}, init?: RequestOptions) =>
+        request<CarListResponse>('GET', `/public/cars${toSearch(query)}`, init),
+      publicGet: (slug: string, init?: RequestOptions) =>
+        request<Car>('GET', `/public/cars/${slug}`, init),
+    },
+
+    /**
+     * Posts a file and returns the URL to store. `FormData` sets its own
+     * multipart boundary, so this bypasses `request` and its JSON headers.
+     */
+    upload: async (file: File, init?: RequestOptions): Promise<UploadResponse> => {
+      const form = new FormData();
+      form.append('file', file);
+
+      const response = await doFetch(`${baseUrl}/uploads`, {
+        method: 'POST',
+        signal: init?.signal,
+        credentials: options.credentials,
+        headers: { Accept: 'application/json', ...options.headers, ...init?.headers },
+        body: form,
+      });
+
+      const text = await response.text();
+      const parsed: unknown = text ? JSON.parse(text) : null;
+      if (!response.ok) {
+        const body = parsed as ApiErrorBody | null;
+        throw new ApiError(
+          response.status,
+          body?.error
+            ? body
+            : { error: { code: 'INTERNAL', message: `Upload failed with ${response.status}` } },
+        );
+      }
+      return parsed as UploadResponse;
     },
 
     settings: {

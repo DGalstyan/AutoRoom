@@ -247,3 +247,120 @@ model Bank {
 
   @@map("banks")
 }
+
+/* ------------------------------- catalogue (B1) ------------------------------ */
+
+enum CarOrigin {
+  CHINA
+  USA
+}
+
+/// Where the car is in its journey. Drives which CTA the public site offers:
+/// IN_STOCK goes to a detail page, AUCTION to the auction flow.
+enum CarCondition {
+  IN_STOCK
+  ON_ORDER
+  ON_ROAD
+  AUCTION
+}
+
+/// Optional shipping marker shown as a badge on the card.
+enum CarStatusBadge {
+  NA_NAVUM
+  POTI
+  CUSTOMS
+}
+
+enum Powertrain {
+  EV
+  HYBRID
+  BENZIN
+}
+
+/// Photo groupings from admin.md. AUCTION and RECEIPT are captured during
+/// import; HANDOVER is uploaded by staff in Gyumri when the container opens.
+enum ImageAlbum {
+  EXTERIOR
+  INTERIOR
+  DETAILS
+  VIDEO
+  AUCTION
+  RECEIPT
+  HANDOVER
+}
+
+model Car {
+  id   String @id @default(cuid())
+  /// URL segment on the public site. Unique so a car has one canonical address.
+  slug String @unique
+
+  origin CarOrigin
+  make   String
+  model  String
+  year   Int
+  trim   String?
+
+  powertrain   Powertrain
+  /// Kilometres on a full charge — EV and hybrid only.
+  range        Int?
+  /// Pack size, e.g. "77 kWh".
+  battery      String?
+  engine       String?
+  drivetrain   String?
+  transmission String?
+  seats        Int?
+  warranty     String?
+
+  vin       String?
+  lotNumber String?
+  mileage   Int?
+
+  /// Whole currency units, not minor: AutoRoom quotes round figures and the
+  /// public site never renders cents.
+  price           Int
+  oldPrice        Int?
+  /// Estimated final price delivered in Armenia.
+  estFinalPriceAM Int?
+
+  condition        CarCondition
+  statusBadge      CarStatusBadge?
+  deliveryEtaDays  Int?
+  location         String?
+  damageHistory    String?
+  financingAvailable Boolean @default(true)
+  featured           Boolean @default(false)
+
+  /// `[{ name, hex, imageUrl? }]`. Only meaningful for ON_ORDER cars — an
+  /// in-stock car is one specific car in one specific colour.
+  colors Json @default("[]")
+  /// `[{ label, amount, note? }]` — the four chips breaking down the price.
+  priceJourney Json @default("[]")
+
+  /// Null means draft: the public read API never returns it.
+  publishedAt DateTime?
+
+  images CarImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([origin, condition])
+  @@index([featured])
+  @@index([publishedAt])
+  @@map("cars")
+}
+
+model CarImage {
+  id    String     @id @default(cuid())
+  carId String
+  car   Car        @relation(fields: [carId], references: [id], onDelete: Cascade)
+  album ImageAlbum
+  url   String
+  /// Display order within its album.
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([carId, album])
+  @@map("car_images")
+}

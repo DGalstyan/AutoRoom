@@ -64,6 +64,14 @@ export async function issueSession(
   return { accessToken, expiresIn: accessTokenLifetimeSeconds(accessToken) };
 }
 
+/**
+ * How long after rotation a spent refresh token is still accepted as a benign
+ * duplicate rather than a replay. Long enough to cover two tabs booting
+ * together or a retried request; far too short to be a useful window for
+ * someone holding a stolen token.
+ */
+const REUSE_LEEWAY_MS = 20_000;
+
 export async function rotateSession(
   presentedToken: string,
   req: Request,
@@ -80,6 +88,30 @@ export async function rotateSession(
   }
 
   if (stored.revokedAt) {
+    const sinceRevoked = Date.now() - stored.revokedAt.getTime();
+
+    /**
+     * Reuse leeway.
+     *
+     * Two tabs share one cookie jar, so they boot with the same refresh token
+     * and race. Whichever loses presents a token the winner rotated a moment
+     * earlier — identical, from the server's side, to a stolen-token replay.
+     * Treating that as compromise logs the person out of everywhere for the
+     * crime of opening a second tab, which is what kept happening.
+     *
+     * Inside the window the loser gets a fresh session instead: it proved
+     * possession of a token that was valid seconds ago, and the alternative
+     * punishes the overwhelmingly common case to defend against the rare one.
+     * Outside it, a replay is still a replay and still revokes everything.
+     *
+     * The cost, stated plainly: a token stolen and replayed within the window
+     * succeeds rather than tripping the alarm. That is the accepted trade in
+     * refresh-token rotation generally, and the window is deliberately short.
+     */
+    if (sinceRevoked <= REUSE_LEEWAY_MS) {
+      return issueSession(stored.user, req, res);
+    }
+
     // Replay of a rotated token: assume compromise and kill every session this
     // user has, rather than only the one presented.
     await prisma.refreshToken.updateMany({

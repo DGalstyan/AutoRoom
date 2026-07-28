@@ -158,6 +158,113 @@ export interface UpdateUserRequest {
   name?: string;
 }
 
+/* --------------------------------- catalogue -------------------------------- */
+
+export type CarOrigin = 'CHINA' | 'USA';
+export type CarCondition = 'IN_STOCK' | 'ON_ORDER' | 'ON_ROAD' | 'AUCTION';
+export type CarStatusBadge = 'NA_NAVUM' | 'POTI' | 'CUSTOMS';
+export type Powertrain = 'EV' | 'HYBRID' | 'BENZIN';
+
+export type ImageAlbum =
+  'EXTERIOR' | 'INTERIOR' | 'DETAILS' | 'VIDEO' | 'AUCTION' | 'RECEIPT' | 'HANDOVER';
+
+export interface CarImage {
+  id: string;
+  carId: string;
+  album: ImageAlbum;
+  url: string;
+  position: number;
+}
+
+/** Order-only: an in-stock car is one specific car in one specific colour. */
+export interface CarColour {
+  name: string;
+  hex: string;
+  imageUrl?: string | null;
+}
+
+/** One of the four chips breaking down how the price is reached. */
+export interface PriceChip {
+  label: string;
+  amount: number;
+  note?: string | null;
+}
+
+export interface Car {
+  id: string;
+  slug: string;
+  origin: CarOrigin;
+  make: string;
+  model: string;
+  year: number;
+  trim: string | null;
+
+  powertrain: Powertrain;
+  range: number | null;
+  battery: string | null;
+  engine: string | null;
+  drivetrain: string | null;
+  transmission: string | null;
+  seats: number | null;
+  warranty: string | null;
+
+  vin: string | null;
+  lotNumber: string | null;
+  mileage: number | null;
+
+  /** Whole currency units — the site never renders cents. */
+  price: number;
+  oldPrice: number | null;
+  estFinalPriceAM: number | null;
+
+  condition: CarCondition;
+  statusBadge: CarStatusBadge | null;
+  deliveryEtaDays: number | null;
+  location: string | null;
+  damageHistory: string | null;
+  financingAvailable: boolean;
+  featured: boolean;
+
+  colors: CarColour[];
+  /** Exactly four chips, or none. */
+  priceJourney: PriceChip[];
+
+  /** Null means draft — the public API does not return it. */
+  publishedAt: string | null;
+  images: CarImage[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** The writable fields. Images and publish state have their own endpoints. */
+export type CarInput = Omit<Car, 'id' | 'publishedAt' | 'images' | 'createdAt' | 'updatedAt'>;
+
+export interface CarListQuery {
+  origin?: CarOrigin;
+  condition?: CarCondition;
+  featured?: boolean;
+  published?: boolean;
+  search?: string;
+  sort?: 'createdAt' | 'price' | 'year' | 'make';
+  direction?: 'asc' | 'desc';
+  take?: number;
+  skip?: number;
+}
+
+export interface CarListResponse {
+  items: Car[];
+  total: number;
+  take: number;
+  skip: number;
+}
+
+export interface UploadResponse {
+  url: string;
+  filename: string;
+  size: number;
+  mimeType: string;
+}
+
 /* --------------------------------- settings --------------------------------- */
 
 export type SettingGroup = 'BRANDING' | 'CONTACTS' | 'FINANCE' | 'FEATURES' | 'LOCALIZATION';
