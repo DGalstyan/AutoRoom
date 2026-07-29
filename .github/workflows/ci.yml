@@ -138,3 +138,49 @@ jobs:
       - name: API log on failure
         if: failure()
         run: cat /tmp/api.log || true
+
+  # The RBAC matrix and the partner portal's record-level scoping, asserted
+  # through real HTTP against a real database. These are the two places where a
+  # quiet regression is a security bug rather than a broken screen, so they get
+  # a suite rather than a smoke test.
+  test:
+    name: Vitest — RBAC and portal scoping
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: autoroom
+          POSTGRES_PASSWORD: autoroom
+          POSTGRES_DB: autoroom
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U autoroom -d autoroom"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # The suite creates and migrates this database itself; the service's own
+      # `autoroom` database is only what Postgres needs to start.
+      TEST_DATABASE_URL: postgresql://autoroom:autoroom@localhost:5432/autoroom_test?schema=public
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate --workspace apps/api
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+
+      - name: Run tests
+        run: npm run test --workspace apps/api
