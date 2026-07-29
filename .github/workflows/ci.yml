@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch makes the in-flight run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  # Static checks. No database — Prisma's client is generated from the schema
+  # file alone, which is all the type checker needs.
+  check:
+    name: Format, lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      # Must precede any tsc: @prisma/client's types do not exist until the
+      # generator has run, and every API module imports them.
+      - name: Generate Prisma client
+        run: npm run db:generate --workspace apps/api
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+
+  # Proves the migration chain applies to an empty database and that the seed
+  # and the app agree with the schema it produces. A migration that only works
+  # against a developer's already-migrated database is the failure this catches.
+  migrate:
+    name: Migrations, seed, boot
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: autoroom
+          POSTGRES_PASSWORD: autoroom
+          POSTGRES_DB: autoroom
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U autoroom -d autoroom"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://autoroom:autoroom@localhost:5432/autoroom?schema=public
+      NODE_ENV: development
+      PORT: '4000'
+      CORS_ORIGINS: http://localhost:3000
+      APP_URL: http://localhost:3000/admin
+      # CI-only, and not a secret: it signs tokens for a database that is
+      # destroyed with the runner.
+      JWT_ACCESS_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      SEED_SUPER_ADMIN_EMAIL: admin@autoroom.am
+      SEED_SUPER_ADMIN_PASSWORD: ci-seed-password
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate --workspace apps/api
+
+      # `migrate deploy`, not `migrate dev`: deploy applies committed migrations
+      # and fails on drift, which is what production does. `dev` would happily
+      # paper over a missing migration by generating one.
+      - name: Apply migrations
+        run: npm run db:deploy --workspace apps/api
+
+      - name: Seed
+        run: npm run db:seed --workspace apps/api
+
+      - name: Boot the API and check health
+        run: |
+          npm run dev:api > /tmp/api.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:4000/health > /dev/null; then
+              echo "API is up."
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://localhost:4000/health | tee /tmp/health.json
+          grep -q '"status":"ok"' /tmp/health.json
+
+      # A smoke test, not a suite: it walks the one path everything else needs
+      # to work — the seeded super_admin can sign in, and an anonymous caller
+      # cannot read what requires a session.
+      - name: Smoke test auth and guards
+        run: |
+          set -euo pipefail
+          token=$(curl -fsS -X POST http://localhost:4000/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"admin@autoroom.am","password":"ci-seed-password"}' \
+            | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>process.stdout.write(JSON.parse(d).accessToken))")
+          test -n "$token"
+          echo "Login OK."
+
+          curl -fsS http://localhost:4000/auth/me -H "Authorization: Bearer $token" > /dev/null
+          echo "GET /auth/me OK."
+
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/users)
+          test "$code" = "401" || { echo "Expected 401 for anonymous /users, got $code"; exit 1; }
+          echo "Anonymous /users correctly refused."
+
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/settings/public)
+          test "$code" = "200" || { echo "Expected 200 for /settings/public, got $code"; exit 1; }
+          echo "Public settings reachable."
+
+      - name: API log on failure
+        if: failure()
+        run: cat /tmp/api.log || true
