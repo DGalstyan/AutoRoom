@@ -99,6 +99,9 @@ const carBodySchema = z.object({
   financingAvailable: z.boolean().default(true),
   featured: z.boolean().default(false),
 
+  /// Null detaches the car from whichever partner held it.
+  partnerId: z.string().min(1).nullish(),
+
   colors: z.array(colourSchema).max(20).default([]),
   priceJourney: priceJourneySchema.default([]),
 });

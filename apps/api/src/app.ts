@@ -6,6 +6,7 @@ import { env } from './config/env';
 import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
 import { carsRouter } from './routes/cars';
+import { partnersRouter } from './routes/partners';
 import { rolesRouter } from './routes/roles';
 import { settingsRouter } from './routes/settings';
 import { uploadsRouter, UPLOAD_DIR } from './routes/uploads';
@@ -58,6 +59,7 @@ export function createApp(): Express {
   app.use(healthRouter);
   app.use(authRouter);
   app.use(carsRouter);
+  app.use(partnersRouter);
   app.use(rolesRouter);
   app.use(settingsRouter);
   app.use(uploadsRouter);

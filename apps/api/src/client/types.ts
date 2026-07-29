@@ -225,6 +225,9 @@ export interface Car {
   financingAvailable: boolean;
   featured: boolean;
 
+  /** The partner this car is assigned to, if any. */
+  partnerId: string | null;
+
   colors: CarColour[];
   /** Exactly four chips, or none. */
   priceJourney: PriceChip[];
@@ -256,6 +259,103 @@ export interface CarListResponse {
   total: number;
   take: number;
   skip: number;
+}
+
+/* --------------------------------- partners --------------------------------- */
+
+export type BookingStatus = 'REQUESTED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+
+export interface Partner {
+  id: string;
+  name: string;
+  company: string | null;
+  phone: string | null;
+  email: string | null;
+  notes: string | null;
+  active: boolean;
+  /** The portal login, once one has been issued. */
+  account: { id: string; email: string; status: UserStatus } | null;
+  carCount: number;
+  bookingCount: number;
+  createdAt: string;
+}
+
+export type PartnerInput = Pick<
+  Partner,
+  'name' | 'company' | 'phone' | 'email' | 'notes' | 'active'
+>;
+
+export interface PartnerAccountRequest {
+  email: string;
+  name?: string;
+  password: string;
+}
+
+export interface Booking {
+  id: string;
+  partnerId: string;
+  partner: { id: string; name: string };
+  carId: string | null;
+  car: { id: string; slug: string; make: string; model: string; year: number } | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  /** ISO 8601. */
+  scheduledAt: string;
+  status: BookingStatus;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface BookingInput {
+  partnerId: string;
+  carId?: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
+  scheduledAt: string;
+  status: BookingStatus;
+  notes?: string | null;
+}
+
+/* ---------------------------------- portal ---------------------------------- */
+
+/** What a signed-in partner sees about themselves. */
+export interface PortalIdentity {
+  id: string;
+  name: string;
+  company: string | null;
+  phone: string | null;
+  email: string | null;
+  counts: {
+    cars: number;
+    publishedCars: number;
+    bookings: number;
+    upcomingBookings: number;
+  };
+}
+
+/**
+ * The portal's narrower view of a car — internal fields such as damage history
+ * and notes are absent from the response, not merely hidden by the UI.
+ */
+export interface PortalCar {
+  id: string;
+  slug: string;
+  origin: CarOrigin;
+  make: string;
+  model: string;
+  year: number;
+  trim: string | null;
+  powertrain: Powertrain;
+  price: number;
+  estFinalPriceAM: number | null;
+  condition: CarCondition;
+  statusBadge: CarStatusBadge | null;
+  deliveryEtaDays: number | null;
+  location: string | null;
+  mileage: number | null;
+  vin: string | null;
+  publishedAt: string | null;
+  images: { id: string; album: ImageAlbum; url: string; position: number }[];
 }
 
 export interface UploadResponse {

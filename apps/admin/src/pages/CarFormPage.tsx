@@ -61,6 +61,7 @@ const BLANK: CarInput = {
   damageHistory: null,
   financingAvailable: true,
   featured: false,
+  partnerId: null,
   colors: [],
   priceJourney: [],
 };
@@ -93,6 +94,16 @@ export function CarFormPage() {
     queryFn: () => api.cars.get(id!),
     enabled: !creating,
   });
+
+  // Only fetched when the viewer may read partners — otherwise the request can
+  // only 403, and the picker is hidden anyway.
+  const canReadPartners = identity?.permissions.includes('partners:READ') ?? false;
+  const partnersQuery = useQuery({
+    queryKey: ['partners'],
+    queryFn: () => api.partners.list({ take: 100 }),
+    enabled: canReadPartners,
+  });
+  const partners = partnersQuery.data?.items ?? [];
 
   const [draft, setDraft] = useState<CarInput>(BLANK);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -495,6 +506,24 @@ export function CarFormPage() {
               }
               disabled={readOnly}
             />
+            {canReadPartners && (
+              <TextField
+                label="Assigned partner"
+                value={draft.partnerId ?? ''}
+                onChange={(event) => set('partnerId', event.target.value || null)}
+                select
+                disabled={readOnly}
+                helperText="The partner who sees this car in their portal."
+              >
+                <MenuItem value="">Nobody</MenuItem>
+                {partners.map((partner) => (
+                  <MenuItem key={partner.id} value={partner.id}>
+                    {partner.name}
+                    {partner.company ? ` — ${partner.company}` : ''}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
           </Grid>
 
           <TextField

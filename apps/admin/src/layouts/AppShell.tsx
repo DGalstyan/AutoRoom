@@ -35,6 +35,8 @@ const SIDEBAR_WIDTH = 248;
  */
 const NAV: { label: string; to: string; permission?: string }[] = [
   { label: 'Dashboard', to: '/' },
+  { label: 'Partners', to: '/partners', permission: 'partners:READ' },
+  { label: 'Bookings', to: '/bookings', permission: 'bookings:READ' },
   { label: 'Cars', to: '/cars', permission: 'cars:READ' },
   { label: 'Users', to: '/users', permission: 'users:READ' },
   { label: 'Roles', to: '/roles', permission: 'roles:READ' },
@@ -62,7 +64,16 @@ export function AppShell() {
     isDesktop ? setDesktopNavOpen((open) => !open) : setMobileNavOpen((open) => !open);
 
   const permissions = identity?.permissions ?? [];
-  const visible = NAV.filter((item) => !item.permission || permissions.includes(item.permission));
+  const isPartner = identity?.role.key === 'partner';
+
+  /**
+   * A partner has none of the admin permissions, so the filter would leave them
+   * with a lone "Dashboard" pointing at a screen built for staff. They get their
+   * own single destination instead, named for what it actually is.
+   */
+  const visible = isPartner
+    ? [{ label: 'My portal', to: '/' }]
+    : NAV.filter((item) => !item.permission || permissions.includes(item.permission));
 
   const sidebar = (
     <Box

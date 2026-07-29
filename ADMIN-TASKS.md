@@ -115,7 +115,7 @@ price-journey editor (4 chips), featured toggle, publish."
 
 > **C3 — Partners + Bookings + Availability** · `backend-api` + `admin-frontend`
 > Prompt: "Add Partner, Booking, Availability models/migrations + CRUD. Booking
-> slots come from Availability (taken/open). Admin: partners list, bookings
+slots come from Availability (taken/open). Admin: partners list, bookings
 > calendar/list with confirm/cancel, availability/slot editor. Link a partner to a
 > portal user account."
 > Done when: a booking ties to a slot; availability edits change open slots; partner can be granted portal access.

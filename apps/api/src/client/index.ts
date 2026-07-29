@@ -13,8 +13,15 @@ import type {
   ImageAlbum,
   LoginRequest,
   LoginResponse,
+  Booking,
+  BookingInput,
+  Partner,
+  PartnerAccountRequest,
+  PartnerInput,
   PermissionCatalogue,
   PermissionPair,
+  PortalCar,
+  PortalIdentity,
   PublicSettings,
   RegisterRequest,
   RegisterResponse,
@@ -255,6 +262,58 @@ export function createApiClient(options: ApiClientOptions) {
         );
       }
       return parsed as UploadResponse;
+    },
+
+    partners: {
+      list: (
+        query: { search?: string; take?: number; skip?: number } = {},
+        init?: RequestOptions,
+      ) =>
+        request<{ items: Partner[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/partners${toSearch(query)}`,
+          init,
+        ),
+      create: (body: PartnerInput, init?: RequestOptions) =>
+        request<Partner>('POST', '/partners', { ...init, body }),
+      update: (id: string, body: PartnerInput, init?: RequestOptions) =>
+        request<Partner>('PUT', `/partners/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/partners/${id}`, init),
+      /** Issues the portal login. Needs `users:CREATE` as well as `partners:UPDATE`. */
+      createAccount: (id: string, body: PartnerAccountRequest, init?: RequestOptions) =>
+        request<Partner>('POST', `/partners/${id}/account`, { ...init, body }),
+    },
+
+    bookings: {
+      list: (
+        query: { partnerId?: string; status?: string; take?: number; skip?: number } = {},
+        init?: RequestOptions,
+      ) =>
+        request<{ items: Booking[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/bookings${toSearch(query)}`,
+          init,
+        ),
+      create: (body: BookingInput, init?: RequestOptions) =>
+        request<Booking>('POST', '/bookings', { ...init, body }),
+      update: (id: string, body: BookingInput, init?: RequestOptions) =>
+        request<Booking>('PUT', `/bookings/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/bookings/${id}`, init),
+    },
+
+    /**
+     * The partner's own view. Every call is scoped to the signed-in account's
+     * partner by the server — none of these take a partner id, so there is
+     * nothing a client could change to see someone else's rows.
+     */
+    portal: {
+      me: (init?: RequestOptions) => request<PortalIdentity>('GET', '/portal/me', init),
+      cars: (init?: RequestOptions) =>
+        request<{ items: PortalCar[]; total: number }>('GET', '/portal/cars', init),
+      bookings: (init?: RequestOptions) =>
+        request<{ items: Booking[]; total: number }>('GET', '/portal/bookings', init),
     },
 
     settings: {

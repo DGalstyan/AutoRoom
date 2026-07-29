@@ -110,6 +110,9 @@ model User {
   roleId String?
   role   Role?   @relation(fields: [roleId], references: [id], onDelete: Restrict)
 
+  /// Set when this account is a partner's portal login.
+  partner Partner?
+
   updatedSettings     Setting[]
   auditEntries        AuditLog[]
   refreshTokens       RefreshToken[]
@@ -339,11 +342,18 @@ model Car {
   /// Null means draft: the public read API never returns it.
   publishedAt DateTime?
 
-  images CarImage[]
+  /// The partner this car is assigned to, if any. Drives what they see in the
+  /// portal; null means it belongs to nobody in particular.
+  partnerId String?
+  partner   Partner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+
+  images   CarImage[]
+  bookings Booking[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([partnerId])
   @@index([origin, condition])
   @@index([featured])
   @@index([publishedAt])
@@ -363,4 +373,64 @@ model CarImage {
 
   @@index([carId, album])
   @@map("car_images")
+}
+
+/* -------------------------------- partners (C3) ------------------------------- */
+
+enum BookingStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+/// A dealer or agent AutoRoom works with. Their portal login is a normal User
+/// carrying the `partner` role; the link is what scopes every portal read to
+/// their own records, since a resource×action matrix cannot express "their own".
+model Partner {
+  id      String  @id @default(cuid())
+  name    String
+  company String?
+  phone   String?
+  email   String?
+  notes   String?
+
+  /// The portal account. Optional: a partner can exist in the CRM before
+  /// anyone gives them a login, and revoking access should not delete them.
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  active Boolean @default(true)
+
+  cars     Car[]
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("partners")
+}
+
+/// A viewing or handover appointment. `carId` is optional — a partner can book
+/// time before deciding which car it is about.
+model Booking {
+  id        String  @id @default(cuid())
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  carId String?
+  car   Car?    @relation(fields: [carId], references: [id], onDelete: SetNull)
+
+  customerName  String?
+  customerPhone String?
+
+  scheduledAt DateTime
+  status      BookingStatus @default(REQUESTED)
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId, scheduledAt])
+  @@map("bookings")
 }

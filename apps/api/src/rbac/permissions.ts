@@ -140,10 +140,18 @@ export const ROLES: RoleDefinition[] = [
   {
     key: 'partner',
     name: 'Partner',
-    description: 'Partner portal only — reads their own orders. Never sees the admin panel.',
+    description:
+      'Partner portal only — the cars assigned to them, their bookings and their orders. Never sees the admin panel.',
     grants: {
-      // Record-level scoping ("their own") is not expressible in this matrix; the
-      // portal routes filter by the partner's own id on top of these grants.
+      // Deliberately no `cars:READ` or `bookings:READ`, even though the portal
+      // shows both. Those grants are checked by the *admin* routes, which
+      // return the whole catalogue and every partner's bookings — handing one
+      // to a partner would open exactly what the portal exists to narrow.
+      //
+      // Record-level scoping ("their own") is not expressible in this matrix at
+      // all, so the `/portal/*` routes carry it instead: they require a signed-in
+      // account with a Partner attached and filter by that partner's id, with no
+      // parameter that could ask for anyone else's rows.
       orders: ['READ'],
       documents: ['READ'],
       payments: ['READ'],
