@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Partner, PartnerInput } from '@autoroom/api/client';
 import {
@@ -56,6 +56,7 @@ const BLANK: PartnerInput = {
 export function PartnersPage() {
   const { api, identity } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState('');
@@ -67,6 +68,8 @@ export function PartnersPage() {
   const canCreate = identity?.permissions.includes('partners:CREATE') ?? false;
   const canUpdate = identity?.permissions.includes('partners:UPDATE') ?? false;
   const canDelete = identity?.permissions.includes('partners:DELETE') ?? false;
+  // The catalogue is where the entry leads, so its permission is what gates it.
+  const canReadCars = identity?.permissions.includes('cars:READ') ?? false;
   const canCreateUsers = identity?.permissions.includes('users:CREATE') ?? false;
 
   const partnersQuery = useQuery({
@@ -233,7 +236,7 @@ export function PartnersPage() {
                       )}
                     </TableCell>
                     <TableCell align="right">
-                      {(canUpdate || canDelete) && (
+                      {(canUpdate || canDelete || canReadCars) && (
                         <IconButton
                           size="small"
                           aria-label={`Actions for ${partner.name}`}
@@ -252,6 +255,23 @@ export function PartnersPage() {
       </Paper>
 
       <Menu anchorEl={menu?.anchor} open={Boolean(menu)} onClose={() => setMenu(null)}>
+        {/*
+          Goes to the catalogue filtered to this partner rather than opening a
+          list of its own: it is the same set of cars, and a second listing
+          would need its own search, sort and paging to stay usable. Shown even
+          at zero, where the empty catalogue reads "no cars match these
+          filters" — a disabled entry would leave "how many?" unanswered.
+        */}
+        {canReadCars && menu && (
+          <MenuItem
+            onClick={() => {
+              navigate(`/cars?partnerId=${menu.partner.id}`);
+              setMenu(null);
+            }}
+          >
+            {menu.partner.carCount === 1 ? 'View 1 car' : `View ${menu.partner.carCount} cars`}
+          </MenuItem>
+        )}
         {canUpdate && (
           <MenuItem
             onClick={() => {
