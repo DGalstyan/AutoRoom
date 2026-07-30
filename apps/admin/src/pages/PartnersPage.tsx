@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Partner, PartnerInput } from '@autoroom/api/client';
 import {
@@ -174,7 +175,29 @@ export function PartnersPage() {
                       )}
                     </TableCell>
                     <TableCell align="center" sx={{ fontSize: '0.875rem' }}>
-                      {partner.carCount}
+                      {/* The count is the natural place to ask "which ones?",
+                          so it is the link rather than a separate action. */}
+                      {partner.carCount > 0 ? (
+                        <Typography
+                          component={RouterLink}
+                          to={`/cars?partnerId=${partner.id}`}
+                          aria-label={`View the ${partner.carCount} cars assigned to ${partner.name}`}
+                          sx={{
+                            fontSize: '0.875rem',
+                            color: 'inherit',
+                            textDecoration: 'underline',
+                            textUnderlineOffset: 3,
+                            textDecorationColor: brand.lineLight,
+                            '&:hover': { textDecorationColor: 'inherit' },
+                          }}
+                        >
+                          {partner.carCount}
+                        </Typography>
+                      ) : (
+                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                          0
+                        </Typography>
+                      )}
                     </TableCell>
                     <TableCell align="center" sx={{ fontSize: '0.875rem' }}>
                       {partner.bookingCount}

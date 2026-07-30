@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Car, CarCondition, CarListQuery, CarOrigin } from '@autoroom/api/client';
 import {
@@ -32,6 +32,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { AssignPartnerDialog } from '@/pages/cars/AssignPartnerDialog';
 import {
   CONDITIONS,
   CONDITION_LABEL,
@@ -56,6 +57,14 @@ export function CarsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  /**
+   * The partner filter lives in the URL, not just in state: the Partners screen
+   * links straight to "Sevan Auto's cars", and that link has to survive being
+   * shared, bookmarked, or reloaded.
+   */
+  const [searchParams, setSearchParams] = useSearchParams();
+  const partnerId = searchParams.get('partnerId') ?? '';
+
   const [origin, setOrigin] = useState<CarOrigin | ''>('');
   const [condition, setCondition] = useState<CarCondition | ''>('');
   const [featured, setFeatured] = useState(false);
@@ -68,15 +77,27 @@ export function CarsPage() {
 
   const [menu, setMenu] = useState<{ anchor: HTMLElement; car: Car } | null>(null);
   const [deleting, setDeleting] = useState<Car | null>(null);
+  const [assigning, setAssigning] = useState<Car | null>(null);
 
   const canCreate = identity?.permissions.includes('cars:CREATE') ?? false;
   const canUpdate = identity?.permissions.includes('cars:UPDATE') ?? false;
   const canDelete = identity?.permissions.includes('cars:DELETE') ?? false;
   const canPublish = identity?.permissions.includes('cars:PUBLISH') ?? false;
+  const canReadPartners = identity?.permissions.includes('partners:READ') ?? false;
+
+  /** Writing the filter also resets to page 1 — page 4 of a narrower list is rarely there. */
+  function setPartnerFilter(next: string) {
+    const params = new URLSearchParams(searchParams);
+    if (next) params.set('partnerId', next);
+    else params.delete('partnerId');
+    setSearchParams(params, { replace: true });
+    setPage(0);
+  }
 
   const query: CarListQuery = {
     ...(origin ? { origin } : {}),
     ...(condition ? { condition } : {}),
+    ...(partnerId ? { partnerId } : {}),
     ...(featured ? { featured: true } : {}),
     ...(published ? { published: published === 'true' } : {}),
     ...(search ? { search } : {}),
@@ -91,7 +112,23 @@ export function CarsPage() {
     queryFn: () => api.cars.list(query),
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ['cars'] });
+  // Only fetched when the viewer may read partners — otherwise the request
+  // would 403 and the assign action is hidden anyway.
+  const partnersQuery = useQuery({
+    queryKey: ['partners'],
+    queryFn: () => api.partners.list({ take: 100 }),
+    enabled: canReadPartners,
+  });
+
+  /**
+   * Partner counts on the Partners screen come from the same rows, so a
+   * reassignment has to invalidate both or that list keeps showing the old
+   * "3 cars" until something else happens to refetch it.
+   */
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ['cars'] });
+    void queryClient.invalidateQueries({ queryKey: ['partners'] });
+  };
 
   const featureMutation = useMutation({
     mutationFn: (car: Car) => api.cars.update(car.id, { ...toInput(car), featured: !car.featured }),
@@ -220,6 +257,24 @@ export function CarsPage() {
               </MenuItem>
             ))}
           </TextField>
+          {canReadPartners && (
+            <TextField
+              label="Partner"
+              value={partnerId}
+              onChange={(event) => setPartnerFilter(event.target.value)}
+              select
+              size="small"
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="">Any</MenuItem>
+              <MenuItem value="none">Unassigned</MenuItem>
+              {(partnersQuery.data?.items ?? []).map((partner) => (
+                <MenuItem key={partner.id} value={partner.id}>
+                  {partner.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
           <TextField
             label="State"
             value={published}
@@ -287,6 +342,7 @@ export function CarsPage() {
                       Price
                     </TableSortLabel>
                   </TableCell>
+                  {canReadPartners && <TableCell>Partner</TableCell>}
                   <TableCell align="center">Featured</TableCell>
                   <TableCell>State</TableCell>
                   <TableCell align="right" />
@@ -347,6 +403,24 @@ export function CarsPage() {
                       <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
                         {formatMoney(car.price)}
                       </TableCell>
+                      {canReadPartners && (
+                        <TableCell sx={{ fontSize: '0.875rem' }}>
+                          {car.partner ? (
+                            <>
+                              {car.partner.name}
+                              {car.partner.company && (
+                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                                  {car.partner.company}
+                                </Typography>
+                              )}
+                            </>
+                          ) : (
+                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                              Unassigned
+                            </Typography>
+                          )}
+                        </TableCell>
+                      )}
                       <TableCell align="center">
                         <IconButton
                           size="small"
@@ -415,6 +489,17 @@ export function CarsPage() {
           {canUpdate ? 'Edit' : 'View'}
         </MenuItem>
 
+        {canUpdate && canReadPartners && menu && (
+          <MenuItem
+            onClick={() => {
+              setAssigning(menu.car);
+              setMenu(null);
+            }}
+          >
+            {menu.car.partnerId ? 'Reassign partner' : 'Assign to partner'}
+          </MenuItem>
+        )}
+
         {canPublish && menu && (
           <MenuItem
             onClick={() => {
@@ -438,6 +523,19 @@ export function CarsPage() {
           </MenuItem>
         )}
       </Menu>
+
+      {assigning && (
+        <AssignPartnerDialog
+          car={assigning}
+          partners={partnersQuery.data?.items ?? []}
+          onClose={() => setAssigning(null)}
+          onDone={(message) => {
+            setAssigning(null);
+            toast(message);
+            refresh();
+          }}
+        />
+      )}
 
       <ConfirmDialog
         open={Boolean(deleting)}

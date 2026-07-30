@@ -227,6 +227,12 @@ export interface Car {
 
   /** The partner this car is assigned to, if any. */
   partnerId: string | null;
+  /**
+   * The assigned partner, on admin responses only — the public routes do not
+   * select it. Absent means "this response carries no partner information";
+   * null means "no partner is assigned".
+   */
+  partner?: { id: string; name: string; company: string | null } | null;
 
   colors: CarColour[];
   /** Exactly four chips, or none. */
@@ -245,6 +251,8 @@ export type CarInput = Omit<Car, 'id' | 'publishedAt' | 'images' | 'createdAt' |
 export interface CarListQuery {
   origin?: CarOrigin;
   condition?: CarCondition;
+  /** A partner's id, or the literal `'none'` for cars assigned to nobody. */
+  partnerId?: string;
   featured?: boolean;
   published?: boolean;
   search?: string;

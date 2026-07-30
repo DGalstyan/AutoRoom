@@ -225,6 +225,13 @@ export function createApiClient(options: ApiClientOptions) {
       setPublished: (id: string, published: boolean, init?: RequestOptions) =>
         request<Car>('POST', `/cars/${id}/publish`, { ...init, body: { published } }),
 
+      /**
+       * Assign, reassign, or detach (`null`) the car's partner without sending
+       * the whole record back, which `update` would require.
+       */
+      setPartner: (id: string, partnerId: string | null, init?: RequestOptions) =>
+        request<Car>('PATCH', `/cars/${id}/partner`, { ...init, body: { partnerId } }),
+
       addImage: (
         id: string,
         image: { album: ImageAlbum; url: string; position?: number },

@@ -269,22 +269,28 @@ partnersRouter.post(
   async (req, res) => {
     const body = req.body as z.infer<typeof bookingBodySchema>;
 
-    // Serializable, because claiming the last place in a slot is read-then-write:
-    // two requests reading "one place left" would otherwise both take it.
-    const booking = await inSlotTransaction(async (tx) => {
-      if (!(await tx.partner.findUnique({ where: { id: body.partnerId } }))) {
-        throw badRequest('Unknown partner');
-      }
+    // Validation, deliberately outside the transaction below. Whether the
+    // partner exists is not part of the atomic claim, and every query held
+    // inside a Serializable transaction is time the slot stays contended.
+    if (!(await prisma.partner.findUnique({ where: { id: body.partnerId } }))) {
+      throw badRequest('Unknown partner');
+    }
 
-      const scheduledAt = body.slotId
-        ? (await resolveSlotForBooking(tx, body.slotId, body.status)).startsAt
-        : new Date(body.scheduledAt!);
-
-      return tx.booking.create({
-        data: { ...body, slotId: body.slotId ?? null, scheduledAt },
-        include: BOOKING_INCLUDE,
-      });
-    });
+    const booking = body.slotId
+      ? // Serializable, because claiming the last place is read-then-write: two
+        // requests reading "one place left" would otherwise both take it.
+        await inSlotTransaction(async (tx) => {
+          const slot = await resolveSlotForBooking(tx, body.slotId!, body.status);
+          return tx.booking.create({
+            data: { ...body, slotId: body.slotId, scheduledAt: slot.startsAt },
+            include: BOOKING_INCLUDE,
+          });
+        })
+      : // No slot, nothing to claim, nothing to race for — a plain insert.
+        await prisma.booking.create({
+          data: { ...body, slotId: null, scheduledAt: new Date(body.scheduledAt!) },
+          include: BOOKING_INCLUDE,
+        });
 
     await audit(req.auth?.userId, 'booking.create', booking.id, {
       partnerId: booking.partnerId,
@@ -303,22 +309,25 @@ partnersRouter.put(
     const id = String(req.params.id ?? '');
     const body = req.body as z.infer<typeof bookingBodySchema>;
 
-    const booking = await inSlotTransaction(async (tx) => {
-      if (!(await tx.booking.findUnique({ where: { id } }))) throw notFound('Booking not found');
+    if (!(await prisma.booking.findUnique({ where: { id } }))) throw notFound('Booking not found');
 
-      // `id` is excluded from the occupancy count: a booking already holding
-      // this slot is not its own rival, or re-saving a capacity-1 appointment
-      // would always come back "taken".
-      const scheduledAt = body.slotId
-        ? (await resolveSlotForBooking(tx, body.slotId, body.status, id)).startsAt
-        : new Date(body.scheduledAt!);
-
-      return tx.booking.update({
-        where: { id },
-        data: { ...body, slotId: body.slotId ?? null, scheduledAt },
-        include: BOOKING_INCLUDE,
-      });
-    });
+    const booking = body.slotId
+      ? await inSlotTransaction(async (tx) => {
+          // `id` is excluded from the occupancy count: a booking already
+          // holding this slot is not its own rival, or re-saving a capacity-1
+          // appointment would always come back "taken".
+          const slot = await resolveSlotForBooking(tx, body.slotId!, body.status, id);
+          return tx.booking.update({
+            where: { id },
+            data: { ...body, slotId: body.slotId, scheduledAt: slot.startsAt },
+            include: BOOKING_INCLUDE,
+          });
+        })
+      : await prisma.booking.update({
+          where: { id },
+          data: { ...body, slotId: null, scheduledAt: new Date(body.scheduledAt!) },
+          include: BOOKING_INCLUDE,
+        });
 
     await audit(req.auth?.userId, 'booking.update', id, {
       status: booking.status,
