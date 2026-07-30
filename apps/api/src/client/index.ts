@@ -8,6 +8,7 @@ import type {
   AvailabilitySlot,
   AvailabilitySlotInput,
   Branch,
+  BranchInput,
   Car,
   CarImage,
   CarInput,
@@ -19,6 +20,9 @@ import type {
   ImageAlbum,
   LoginRequest,
   LoginResponse,
+  Media,
+  MediaInput,
+  MediaKind,
   Booking,
   BookingInput,
   Partner,
@@ -316,10 +320,42 @@ export function createApiClient(options: ApiClientOptions) {
         request<void>('DELETE', `/bookings/${id}`, init),
     },
 
-    /** Read-only for now — see `routes/branches.ts`. */
     branches: {
       list: (init?: RequestOptions) =>
         request<{ items: Branch[]; total: number }>('GET', '/branches', init),
+      create: (body: BranchInput, init?: RequestOptions) =>
+        request<Branch>('POST', '/branches', { ...init, body }),
+      update: (id: string, body: BranchInput, init?: RequestOptions) =>
+        request<Branch>('PUT', `/branches/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/branches/${id}`, init),
+      /** Unauthenticated — the map, footer and Contact page read this. */
+      public: (init?: RequestOptions) =>
+        request<{ items: Branch[]; total: number }>('GET', '/public/branches', init),
+    },
+
+    /**
+     * Homepage video: the Customer Story Wall, the founder film, guide reels.
+     * The file goes through `upload`; what is stored here is the URL it returns.
+     */
+    media: {
+      list: (
+        query: { kind?: MediaKind; published?: boolean; take?: number; skip?: number } = {},
+        init?: RequestOptions,
+      ) =>
+        request<{ items: Media[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/media${toSearch(query)}`,
+          init,
+        ),
+      create: (body: MediaInput, init?: RequestOptions) =>
+        request<Media>('POST', '/media', { ...init, body }),
+      update: (id: string, body: MediaInput, init?: RequestOptions) =>
+        request<Media>('PUT', `/media/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/media/${id}`, init),
+      /** Unauthenticated, published rows only — what the website reads. */
+      public: (query: { kind?: MediaKind } = {}, init?: RequestOptions) =>
+        request<{ items: Media[]; total: number }>('GET', `/public/media${toSearch(query)}`, init),
     },
 
     availability: {

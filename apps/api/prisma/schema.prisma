@@ -237,6 +237,51 @@ model Branch {
   @@map("branches")
 }
 
+/// What a piece of video is for. The Story Wall reads `CUSTOMER_STORY`; the
+/// homepage founder film and the guide reels share the table because they are
+/// the same thing to an editor — a titled video with a poster frame.
+enum MediaKind {
+  FOUNDER
+  CUSTOMER_STORY
+  GUIDE_REEL
+}
+
+/// Video the marketing site plays — `references/admin.md` calls this Media.
+///
+/// The spec parks the kind-specific fields in a `meta` JSON blob. The customer
+/// story fields are real columns instead: they are a known, fixed set that the
+/// Story Wall renders and the admin form validates, and a blob can be neither
+/// validated by the database nor filtered on. They are nullable because a
+/// founder film has no "why they chose us".
+model Media {
+  id   String    @id @default(cuid())
+  kind MediaKind
+  title String
+  videoUrl  String
+  /// Still frame shown before play. Without one a video wall is a grid of black.
+  posterUrl String?
+
+  /* ---- customer story ---- */
+  customerName String?
+  /// Free text, not a Car relation: the story outlives the listing, and most of
+  /// these cars were delivered long before the catalogue existed.
+  carLabel     String?
+  origin       CarOrigin?
+  whyChosen    String?
+  experience   String?
+
+  /// Display order within a kind.
+  position    Int       @default(0)
+  /// Null means draft — the public endpoint never returns it.
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([kind, position])
+  @@map("media")
+}
+
 /// Financing partners behind the "Գնել Վարկով" grid. `inHouse` marks AutoRoom's
 /// own offer, which opens in place instead of linking out.
 model Bank {

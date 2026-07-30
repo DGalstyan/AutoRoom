@@ -8,6 +8,7 @@ import { authRouter } from './routes/auth';
 import { availabilityRouter } from './routes/availability';
 import { branchesRouter } from './routes/branches';
 import { carsRouter } from './routes/cars';
+import { mediaRouter } from './routes/media';
 import { partnersRouter } from './routes/partners';
 import { rolesRouter } from './routes/roles';
 import { settingsRouter } from './routes/settings';
@@ -63,6 +64,7 @@ export function createApp(): Express {
   app.use(availabilityRouter);
   app.use(branchesRouter);
   app.use(carsRouter);
+  app.use(mediaRouter);
   app.use(partnersRouter);
   app.use(rolesRouter);
   app.use(settingsRouter);

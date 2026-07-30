@@ -346,11 +346,63 @@ export interface BranchRef {
   city: string;
 }
 
-/** A branch as the admin lists it. Read-only until Settings owns branch CRUD. */
+/** A branch — a pin on the homepage map and everything its popup shows. */
 export interface Branch extends BranchRef {
   address: string;
   phone: string;
   hours: string;
+  /** Places the pin. Null until someone fills it in. */
+  lat: number | null;
+  lng: number | null;
+  /** Backs the `Ուղղություն` link out to Google Maps. */
+  mapUrl: string | null;
+  photoUrl: string | null;
+  position: number;
+}
+
+export type BranchInput = Omit<Branch, 'id'>;
+
+/* ----------------------------------- media ---------------------------------- */
+
+export type MediaKind = 'FOUNDER' | 'CUSTOMER_STORY' | 'GUIDE_REEL';
+
+/**
+ * A video the site plays. `CUSTOMER_STORY` rows are the homepage Story Wall,
+ * and only those carry the customer fields.
+ */
+export interface Media {
+  id: string;
+  kind: MediaKind;
+  title: string;
+  videoUrl: string;
+  /** Still frame shown before play. Without one the wall is a grid of black. */
+  posterUrl: string | null;
+
+  customerName: string | null;
+  /** Free text — the story outlives the listing it was about. */
+  carLabel: string | null;
+  origin: CarOrigin | null;
+  whyChosen: string | null;
+  experience: string | null;
+
+  position: number;
+  /** Null means draft — the public endpoint does not return it. */
+  publishedAt: string | null;
+  createdAt: string;
+}
+
+export interface MediaInput {
+  kind: MediaKind;
+  title: string;
+  videoUrl: string;
+  posterUrl?: string | null;
+  customerName?: string | null;
+  carLabel?: string | null;
+  origin?: CarOrigin | null;
+  whyChosen?: string | null;
+  experience?: string | null;
+  position: number;
+  published: boolean;
 }
 
 /** A bookable window. `open` is derived from `bookedCount` against `capacity`. */
