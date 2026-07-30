@@ -2,6 +2,12 @@ import type {
   AdminUser,
   ApiErrorBody,
   AuthContext,
+  AvailabilityGenerateRequest,
+  AvailabilityGenerateResponse,
+  AvailabilityListQuery,
+  AvailabilitySlot,
+  AvailabilitySlotInput,
+  Branch,
   Car,
   CarImage,
   CarInput,
@@ -303,6 +309,31 @@ export function createApiClient(options: ApiClientOptions) {
         request<void>('DELETE', `/bookings/${id}`, init),
     },
 
+    /** Read-only for now — see `routes/branches.ts`. */
+    branches: {
+      list: (init?: RequestOptions) =>
+        request<{ items: Branch[]; total: number }>('GET', '/branches', init),
+    },
+
+    availability: {
+      list: (query: AvailabilityListQuery = {}, init?: RequestOptions) =>
+        request<{ items: AvailabilitySlot[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/availability${toSearch(query)}`,
+          init,
+        ),
+      create: (body: AvailabilitySlotInput, init?: RequestOptions) =>
+        request<AvailabilitySlot>('POST', '/availability', { ...init, body }),
+      update: (id: string, body: AvailabilitySlotInput, init?: RequestOptions) =>
+        request<AvailabilitySlot>('PUT', `/availability/${id}`, { ...init, body }),
+      /** 409s while bookings still hold the slot — cancel or move them first. */
+      remove: (id: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/availability/${id}`, init),
+      /** Fills a date range. Start times that already have a slot are skipped. */
+      generate: (body: AvailabilityGenerateRequest, init?: RequestOptions) =>
+        request<AvailabilityGenerateResponse>('POST', '/availability/generate', { ...init, body }),
+    },
+
     /**
      * The partner's own view. Every call is scoped to the signed-in account's
      * partner by the server — none of these take a partner id, so there is
@@ -314,6 +345,9 @@ export function createApiClient(options: ApiClientOptions) {
         request<{ items: PortalCar[]; total: number }>('GET', '/portal/cars', init),
       bookings: (init?: RequestOptions) =>
         request<{ items: Booking[]; total: number }>('GET', '/portal/bookings', init),
+      /** Open, future slots only — what this partner may actually book into. */
+      availability: (init?: RequestOptions) =>
+        request<{ items: AvailabilitySlot[]; total: number }>('GET', '/portal/availability', init),
     },
 
     settings: {

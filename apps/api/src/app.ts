@@ -5,6 +5,8 @@ import helmet from 'helmet';
 import { env } from './config/env';
 import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
+import { availabilityRouter } from './routes/availability';
+import { branchesRouter } from './routes/branches';
 import { carsRouter } from './routes/cars';
 import { partnersRouter } from './routes/partners';
 import { rolesRouter } from './routes/roles';
@@ -58,6 +60,8 @@ export function createApp(): Express {
 
   app.use(healthRouter);
   app.use(authRouter);
+  app.use(availabilityRouter);
+  app.use(branchesRouter);
   app.use(carsRouter);
   app.use(partnersRouter);
   app.use(rolesRouter);

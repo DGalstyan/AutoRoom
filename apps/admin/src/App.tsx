@@ -15,6 +15,7 @@ import { CarFormPage } from '@/pages/CarFormPage';
 import { HomeRoute } from '@/pages/HomeRoute';
 import { PartnersPage } from '@/pages/PartnersPage';
 import { BookingsPage } from '@/pages/BookingsPage';
+import { AvailabilityPage } from '@/pages/AvailabilityPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ export function App() {
                     <Route path="/cars/:id" element={<CarFormPage />} />
                     <Route path="/partners" element={<PartnersPage />} />
                     <Route path="/bookings" element={<BookingsPage />} />
+                    <Route path="/availability" element={<AvailabilityPage />} />
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/roles" element={<RolesPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
