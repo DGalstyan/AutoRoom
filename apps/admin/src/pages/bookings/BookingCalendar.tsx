@@ -5,6 +5,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { brand, mono } from '@/theme';
 import { statusTone } from '@/pages/bookings/status';
+import { toneColor } from '@/components/StatusBadge';
 import { dayKey, formatTime } from '@/pages/availability/time';
 
 const WEEK_STARTS_MONDAY = 1;
@@ -135,20 +136,21 @@ export function BookingCalendar({
 
                   <Stack spacing={0.5}>
                     {dayBookings.slice(0, 3).map((booking) => {
-                      const tone = statusTone(booking.status);
+                      const entry = statusTone(booking.status);
+                      const color = toneColor(entry.tone);
                       return (
                         <Box
                           key={booking.id}
                           component="button"
                           type="button"
                           onClick={() => onSelect(booking)}
-                          title={`${booking.partner.name} — ${tone.label}`}
+                          title={`${booking.partner.name} — ${entry.label}`}
                           sx={{
                             display: 'block',
                             width: '100%',
                             textAlign: 'left',
                             border: 'none',
-                            borderLeft: `3px solid ${tone.color}`,
+                            borderLeft: `3px solid ${color}`,
                             borderRadius: '3px',
                             px: 0.75,
                             py: 0.375,
@@ -156,12 +158,12 @@ export function BookingCalendar({
                             font: 'inherit',
                             fontSize: '0.6875rem',
                             lineHeight: 1.3,
-                            bgcolor: `${tone.color}14`,
+                            bgcolor: `${color}14`,
                             color: 'text.primary',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            '&:hover': { bgcolor: `${tone.color}26` },
+                            '&:hover': { bgcolor: `${color}26` },
                           }}
                         >
                           <Box component="span" sx={{ fontFamily: mono, opacity: 0.8 }}>

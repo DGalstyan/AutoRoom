@@ -6,8 +6,6 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -16,14 +14,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Paper,
   Stack,
   Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   TextField,
   Typography,
 } from '@mui/material';
@@ -33,6 +25,8 @@ import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { DataTable } from '@/components/DataTable';
+import { StatusBadge } from '@/components/StatusBadge';
 import { PasswordField } from '@/components/PasswordField';
 import { brand, mono } from '@/theme';
 
@@ -119,8 +113,15 @@ export function PartnersPage() {
         )}
       </Stack>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Box sx={{ p: 2, borderBottom: `1px solid ${brand.lineLight}` }}>
+      <DataTable
+        rows={partners}
+        getRowId={(partner) => partner.id}
+        isPending={partnersQuery.isPending}
+        error={partnersQuery.isError ? partnersQuery.error : undefined}
+        errorMessage="Could not load partners."
+        emptyMessage="No partners match this search."
+        minWidth={820}
+        toolbar={
           <TextField
             label="Search"
             placeholder="Name, company or email"
@@ -129,130 +130,111 @@ export function PartnersPage() {
             size="small"
             sx={{ minWidth: 260 }}
           />
-        </Box>
-
-        {partnersQuery.isPending ? (
-          <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
-            <CircularProgress size={22} thickness={5} sx={{ color: 'text.secondary' }} />
-          </Box>
-        ) : partnersQuery.isError ? (
-          <Alert severity="error" sx={{ m: 3 }}>
-            {errorMessage(partnersQuery.error, 'Could not load partners.')}
-          </Alert>
-        ) : partners.length === 0 ? (
-          <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8 }}>
-            No partners yet.
-          </Typography>
-        ) : (
-          <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: 820 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Partner</TableCell>
-                  <TableCell>Contact</TableCell>
-                  <TableCell align="center">Cars</TableCell>
-                  <TableCell align="center">Bookings</TableCell>
-                  <TableCell>Portal access</TableCell>
-                  <TableCell align="right" />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {partners.map((partner) => (
-                  <TableRow key={partner.id} hover>
-                    <TableCell>
-                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                        {partner.name}
-                      </Typography>
-                      {partner.company && (
-                        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                          {partner.company}
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
-                      {partner.email ?? '—'}
-                      {partner.phone && (
-                        <Typography sx={{ fontFamily: mono, fontSize: '0.75rem' }}>
-                          {partner.phone}
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell align="center" sx={{ fontSize: '0.875rem' }}>
-                      {/* The count is the natural place to ask "which ones?",
-                          so it is the link rather than a separate action. */}
-                      {partner.carCount > 0 ? (
-                        <Typography
-                          component={RouterLink}
-                          to={`/cars?partnerId=${partner.id}`}
-                          aria-label={`View the ${partner.carCount} cars assigned to ${partner.name}`}
-                          sx={{
-                            fontSize: '0.875rem',
-                            color: 'inherit',
-                            textDecoration: 'underline',
-                            textUnderlineOffset: 3,
-                            textDecorationColor: brand.lineLight,
-                            '&:hover': { textDecorationColor: 'inherit' },
-                          }}
-                        >
-                          {partner.carCount}
-                        </Typography>
-                      ) : (
-                        <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                          0
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell align="center" sx={{ fontSize: '0.875rem' }}>
-                      {partner.bookingCount}
-                    </TableCell>
-                    <TableCell>
-                      {partner.account ? (
-                        <Box>
-                          <Chip
-                            label={partner.active ? 'Active' : 'Suspended'}
-                            size="small"
-                            sx={{
-                              height: 20,
-                              fontSize: '0.6875rem',
-                              fontWeight: 600,
-                              color: partner.active ? brand.success : brand.warn,
-                              bgcolor: `${partner.active ? brand.success : brand.warn}18`,
-                            }}
-                          />
-                          <Typography
-                            sx={{
-                              fontFamily: mono,
-                              fontSize: '0.6875rem',
-                              color: 'text.secondary',
-                            }}
-                          >
-                            {partner.account.email}
-                          </Typography>
-                        </Box>
-                      ) : (
-                        <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
-                          No login
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell align="right">
-                      {(canUpdate || canDelete || canReadCars) && (
-                        <IconButton
-                          size="small"
-                          aria-label={`Actions for ${partner.name}`}
-                          onClick={(event) => setMenu({ anchor: event.currentTarget, partner })}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Box>
-        )}
-      </Paper>
+        }
+        columns={[
+          {
+            key: 'partner',
+            header: 'Partner',
+            render: (partner) => (
+              <>
+                <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                  {partner.name}
+                </Typography>
+                {partner.company && (
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                    {partner.company}
+                  </Typography>
+                )}
+              </>
+            ),
+          },
+          {
+            key: 'contact',
+            header: 'Contact',
+            render: (partner) => (
+              <Box sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
+                {partner.email ?? '—'}
+                {partner.phone && (
+                  <Typography sx={{ fontFamily: mono, fontSize: '0.75rem' }}>
+                    {partner.phone}
+                  </Typography>
+                )}
+              </Box>
+            ),
+          },
+          {
+            key: 'cars',
+            header: 'Cars',
+            align: 'center',
+            render: (partner) =>
+              // The count is the natural place to ask "which ones?", so it is
+              // the link rather than a separate action.
+              partner.carCount > 0 ? (
+                <Typography
+                  component={RouterLink}
+                  to={`/cars?partnerId=${partner.id}`}
+                  aria-label={`View the ${partner.carCount} cars assigned to ${partner.name}`}
+                  sx={{
+                    fontSize: '0.875rem',
+                    color: 'inherit',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: 3,
+                    textDecorationColor: brand.lineLight,
+                    '&:hover': { textDecorationColor: 'inherit' },
+                  }}
+                >
+                  {partner.carCount}
+                </Typography>
+              ) : (
+                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>0</Typography>
+              ),
+          },
+          {
+            key: 'bookings',
+            header: 'Bookings',
+            align: 'center',
+            render: (partner) => (
+              <Typography sx={{ fontSize: '0.875rem' }}>{partner.bookingCount}</Typography>
+            ),
+          },
+          {
+            key: 'portal',
+            header: 'Portal access',
+            render: (partner) =>
+              partner.account ? (
+                <Box>
+                  <StatusBadge
+                    label={partner.active ? 'Active' : 'Suspended'}
+                    tone={partner.active ? 'live' : 'pending'}
+                  />
+                  <Typography
+                    sx={{ fontFamily: mono, fontSize: '0.6875rem', color: 'text.secondary' }}
+                  >
+                    {partner.account.email}
+                  </Typography>
+                </Box>
+              ) : (
+                <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
+                  No login
+                </Typography>
+              ),
+          },
+          {
+            key: 'actions',
+            align: 'right',
+            hidden: !canUpdate && !canDelete && !canReadCars,
+            render: (partner) => (
+              <IconButton
+                size="small"
+                aria-label={`Actions for ${partner.name}`}
+                onClick={(event) => setMenu({ anchor: event.currentTarget, partner })}
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            ),
+          },
+        ]}
+      />
 
       <Menu anchorEl={menu?.anchor} open={Boolean(menu)} onClose={() => setMenu(null)}>
         {/*

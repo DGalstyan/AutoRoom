@@ -3,12 +3,14 @@ import { Link as RouterLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Avatar,
   Box,
+  Breadcrumbs,
   Divider,
   Drawer,
   IconButton,
   List,
   ListItemButton,
   ListItemText,
+  Link as MuiLink,
   Menu,
   MenuItem,
   Toolbar,
@@ -20,31 +22,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
 import { Wordmark } from '@/components/Wordmark';
 import { useAuth } from '@/auth/AuthProvider';
+import { NAV_GROUPS, crumbsFor, type NavGroup } from '@/layouts/navigation';
 import { brand } from '@/theme';
 
 const SIDEBAR_WIDTH = 248;
-
-/**
- * Navigation.
- *
- * Only destinations that exist are listed. Each declares the permission it
- * needs, so the sidebar shows a role only what that role can actually open —
- * the same matrix the API enforces, applied to the UI so nobody is invited to
- * click into a 403. Catalogue, CRM and settings entries get added here as their
- * screens land.
- */
-const NAV: { label: string; to: string; permission?: string }[] = [
-  { label: 'Dashboard', to: '/' },
-  { label: 'Partners', to: '/partners', permission: 'partners:READ' },
-  { label: 'Bookings', to: '/bookings', permission: 'bookings:READ' },
-  { label: 'Availability', to: '/availability', permission: 'availability:READ' },
-  { label: 'Cars', to: '/cars', permission: 'cars:READ' },
-  { label: 'Stories', to: '/stories', permission: 'media:READ' },
-  { label: 'Branches', to: '/branches', permission: 'branches:READ' },
-  { label: 'Users', to: '/users', permission: 'users:READ' },
-  { label: 'Roles', to: '/roles', permission: 'roles:READ' },
-  { label: 'Settings', to: '/settings', permission: 'settings:READ' },
-];
 
 export function AppShell() {
   const { identity, signOut } = useAuth();
@@ -66,6 +47,7 @@ export function AppShell() {
   const toggleNav = () =>
     isDesktop ? setDesktopNavOpen((open) => !open) : setMobileNavOpen((open) => !open);
 
+  const crumbs = crumbsFor(location.pathname);
   const permissions = identity?.permissions ?? [];
   const isPartner = identity?.role.key === 'partner';
 
@@ -73,10 +55,19 @@ export function AppShell() {
    * A partner has none of the admin permissions, so the filter would leave them
    * with a lone "Dashboard" pointing at a screen built for staff. They get their
    * own single destination instead, named for what it actually is.
+   *
+   * For everyone else, each group is filtered to what the role may open and
+   * then dropped if nothing survives — a heading over an empty space tells the
+   * reader only that something exists which they cannot have.
    */
-  const visible = isPartner
-    ? [{ label: 'My portal', to: '/' }]
-    : NAV.filter((item) => !item.permission || permissions.includes(item.permission));
+  const groups: NavGroup[] = isPartner
+    ? [{ label: '', items: [{ label: 'My portal', to: '/' }] }]
+    : NAV_GROUPS.map((group) => ({
+        ...group,
+        items: group.items.filter(
+          (item) => !item.permission || permissions.includes(item.permission),
+        ),
+      })).filter((group) => group.items.length > 0);
 
   const sidebar = (
     <Box
@@ -97,49 +88,73 @@ export function AppShell() {
         <Wordmark tone="light" size="sm" />
       </Box>
 
-      <List dense disablePadding sx={{ px: 1.5, pb: 3, flex: 1 }}>
-        {visible.map((item) => {
-          const selected = location.pathname === item.to;
-          return (
-            <ListItemButton
-              key={item.to}
-              component={RouterLink}
-              to={item.to}
-              selected={selected}
-              onClick={() => setMobileNavOpen(false)}
-              sx={{
-                borderRadius: 1.5,
-                color: selected ? brand.paper : '#B7BBC2',
-                '&:hover': { bgcolor: '#FFFFFF10' },
-                '&.Mui-selected': {
-                  bgcolor: '#FFFFFF14',
-                  '&:hover': { bgcolor: '#FFFFFF1A' },
-                },
-              }}
-            >
-              {selected && (
-                <Box
-                  aria-hidden
-                  sx={{
-                    position: 'absolute',
-                    left: -6,
-                    width: 3,
-                    height: 18,
-                    borderRadius: 999,
-                    bgcolor: brand.accent,
-                  }}
-                />
-              )}
-              <ListItemText
-                primary={item.label}
-                slotProps={{
-                  primary: { fontSize: '0.875rem', fontWeight: selected ? 600 : 400 },
+      <Box sx={{ px: 1.5, pb: 3, flex: 1 }}>
+        {groups.map((group, index) => (
+          <Box key={group.label || `group-${index}`}>
+            {group.label && (
+              <Typography
+                component="h2"
+                variant="overline"
+                sx={{
+                  display: 'block',
+                  px: 1.5,
+                  // Tighter above than below, so the heading reads as belonging
+                  // to what follows rather than floating between two groups.
+                  mt: 2.5,
+                  mb: 0.5,
+                  color: '#7C828C',
+                  letterSpacing: '0.08em',
                 }}
-              />
-            </ListItemButton>
-          );
-        })}
-      </List>
+              >
+                {group.label}
+              </Typography>
+            )}
+            <List dense disablePadding>
+              {group.items.map((item) => {
+                const selected = location.pathname === item.to;
+                return (
+                  <ListItemButton
+                    key={item.to}
+                    component={RouterLink}
+                    to={item.to}
+                    selected={selected}
+                    onClick={() => setMobileNavOpen(false)}
+                    sx={{
+                      borderRadius: 1.5,
+                      color: selected ? brand.paper : '#B7BBC2',
+                      '&:hover': { bgcolor: '#FFFFFF10' },
+                      '&.Mui-selected': {
+                        bgcolor: '#FFFFFF14',
+                        '&:hover': { bgcolor: '#FFFFFF1A' },
+                      },
+                    }}
+                  >
+                    {selected && (
+                      <Box
+                        aria-hidden
+                        sx={{
+                          position: 'absolute',
+                          left: -6,
+                          width: 3,
+                          height: 18,
+                          borderRadius: 999,
+                          bgcolor: brand.accent,
+                        }}
+                      />
+                    )}
+                    <ListItemText
+                      primary={item.label}
+                      slotProps={{
+                        primary: { fontSize: '0.875rem', fontWeight: selected ? 600 : 400 },
+                      }}
+                    />
+                  </ListItemButton>
+                );
+              })}
+            </List>
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
 
@@ -209,6 +224,40 @@ export function AppShell() {
           >
             <MenuIcon />
           </IconButton>
+
+          {/* Hidden below sm: on a phone the bar has room for the toggle and
+              the avatar, and a truncated trail is worse than none. */}
+          <Breadcrumbs
+            aria-label="Breadcrumb"
+            separator="/"
+            sx={{
+              display: { xs: 'none', sm: 'flex' },
+              fontSize: '0.8125rem',
+              '& .MuiBreadcrumbs-separator': { color: brand.muted, mx: 1 },
+            }}
+          >
+            {crumbs.map((crumb) =>
+              crumb.to ? (
+                <MuiLink
+                  key={crumb.label}
+                  component={RouterLink}
+                  to={crumb.to}
+                  underline="hover"
+                  sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}
+                >
+                  {crumb.label}
+                </MuiLink>
+              ) : (
+                <Typography
+                  key={crumb.label}
+                  aria-current="page"
+                  sx={{ fontSize: '0.8125rem', fontWeight: 600 }}
+                >
+                  {crumb.label}
+                </Typography>
+              ),
+            )}
+          </Breadcrumbs>
 
           <Box sx={{ flex: 1 }} />
 

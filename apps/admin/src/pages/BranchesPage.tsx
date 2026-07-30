@@ -1,30 +1,15 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Branch } from '@autoroom/api/client';
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  IconButton,
-  Menu,
-  MenuItem,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { DataTable } from '@/components/DataTable';
+import { StatusBadge } from '@/components/StatusBadge';
 import { BranchDialog } from '@/pages/branches/BranchDialog';
 import { brand, mono } from '@/theme';
 
@@ -108,115 +93,103 @@ export function BranchesPage() {
         </Alert>
       )}
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        {branchesQuery.isPending ? (
-          <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
-            <CircularProgress size={22} thickness={5} sx={{ color: 'text.secondary' }} />
-          </Box>
-        ) : branchesQuery.isError ? (
-          <Alert severity="error" sx={{ m: 3 }}>
-            {errorMessage(branchesQuery.error, 'Could not load branches.')}
-          </Alert>
-        ) : branches.length === 0 ? (
-          <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8 }}>
-            No branches yet.
-          </Typography>
-        ) : (
-          <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: 900 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ width: 76 }} />
-                  <TableCell>Branch</TableCell>
-                  <TableCell>Address</TableCell>
-                  <TableCell>Phone</TableCell>
-                  <TableCell>Hours</TableCell>
-                  <TableCell>Map</TableCell>
-                  <TableCell align="right" />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {branches.map((branch) => (
-                  <TableRow key={branch.id} hover>
-                    <TableCell>
-                      <Box
-                        sx={{
-                          width: 56,
-                          height: 40,
-                          borderRadius: 1,
-                          bgcolor: brand.surfaceLight,
-                          border: `1px solid ${brand.lineLight}`,
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {branch.photoUrl && (
-                          <Box
-                            component="img"
-                            src={branch.photoUrl}
-                            alt=""
-                            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          />
-                        )}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                        {branch.name}
-                      </Typography>
-                      <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                        {branch.city}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.875rem' }}>{branch.address}</TableCell>
-                    <TableCell sx={{ fontFamily: mono, fontSize: '0.8125rem' }}>
-                      {branch.phone}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.875rem' }}>{branch.hours}</TableCell>
-                    <TableCell>
-                      {branch.lat !== null && branch.lng !== null ? (
-                        <Chip
-                          label="Placed"
-                          size="small"
-                          sx={{
-                            height: 22,
-                            fontSize: '0.6875rem',
-                            fontWeight: 600,
-                            color: brand.success,
-                            bgcolor: `${brand.success}18`,
-                          }}
-                        />
-                      ) : (
-                        <Chip
-                          label="No pin"
-                          size="small"
-                          sx={{
-                            height: 22,
-                            fontSize: '0.6875rem',
-                            fontWeight: 600,
-                            color: brand.warn,
-                            bgcolor: `${brand.warn}18`,
-                          }}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell align="right">
-                      {(canUpdate || canDelete) && (
-                        <IconButton
-                          size="small"
-                          aria-label={`Actions for ${branch.name}`}
-                          onClick={(event) => setMenu({ anchor: event.currentTarget, branch })}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Box>
-        )}
-      </Paper>
+      <DataTable
+        rows={branches}
+        getRowId={(branch) => branch.id}
+        isPending={branchesQuery.isPending}
+        error={branchesQuery.isError ? branchesQuery.error : undefined}
+        errorMessage="Could not load branches."
+        emptyMessage="No branches yet."
+        minWidth={900}
+        columns={[
+          {
+            key: 'photo',
+            width: 76,
+            render: (branch) => (
+              <Box
+                sx={{
+                  width: 56,
+                  height: 40,
+                  borderRadius: 1,
+                  bgcolor: brand.surfaceLight,
+                  border: `1px solid ${brand.lineLight}`,
+                  overflow: 'hidden',
+                }}
+              >
+                {branch.photoUrl && (
+                  <Box
+                    component="img"
+                    src={branch.photoUrl}
+                    alt=""
+                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                )}
+              </Box>
+            ),
+          },
+          {
+            key: 'branch',
+            header: 'Branch',
+            render: (branch) => (
+              <>
+                <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                  {branch.name}
+                </Typography>
+                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                  {branch.city}
+                </Typography>
+              </>
+            ),
+          },
+          {
+            key: 'address',
+            header: 'Address',
+            render: (branch) => (
+              <Typography sx={{ fontSize: '0.875rem' }}>{branch.address}</Typography>
+            ),
+          },
+          {
+            key: 'phone',
+            header: 'Phone',
+            render: (branch) => (
+              <Typography sx={{ fontFamily: mono, fontSize: '0.8125rem' }}>
+                {branch.phone}
+              </Typography>
+            ),
+          },
+          {
+            key: 'hours',
+            header: 'Hours',
+            render: (branch) => (
+              <Typography sx={{ fontSize: '0.875rem' }}>{branch.hours}</Typography>
+            ),
+          },
+          {
+            key: 'map',
+            header: 'Map',
+            render: (branch) =>
+              branch.lat !== null && branch.lng !== null ? (
+                <StatusBadge label="Placed" tone="live" />
+              ) : (
+                <StatusBadge label="No pin" tone="pending" />
+              ),
+          },
+          {
+            key: 'actions',
+            align: 'right',
+            hidden: !canUpdate && !canDelete,
+            render: (branch) => (
+              <IconButton
+                size="small"
+                aria-label={`Actions for ${branch.name}`}
+                onClick={(event) => setMenu({ anchor: event.currentTarget, branch })}
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            ),
+          },
+        ]}
+      />
 
       <Menu anchorEl={menu?.anchor} open={Boolean(menu)} onClose={() => setMenu(null)}>
         {canUpdate && menu && (

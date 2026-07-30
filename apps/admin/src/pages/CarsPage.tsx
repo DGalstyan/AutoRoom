@@ -3,24 +3,13 @@ import { Link as RouterLink, useNavigate, useSearchParams } from 'react-router-d
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Car, CarCondition, CarListQuery, CarOrigin } from '@autoroom/api/client';
 import {
-  Alert,
   Box,
   Button,
-  Chip,
-  CircularProgress,
   IconButton,
   Menu,
   MenuItem,
-  Paper,
   Stack,
   Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
   TextField,
   Typography,
 } from '@mui/material';
@@ -32,6 +21,8 @@ import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { DataTable } from '@/components/DataTable';
+import { StatusBadge } from '@/components/StatusBadge';
 import { AssignPartnerDialog } from '@/pages/cars/AssignPartnerDialog';
 import {
   CONDITIONS,
@@ -199,285 +190,265 @@ export function CarsPage() {
         )}
       </Stack>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          spacing={1.5}
-          sx={{
-            p: 2,
-            borderBottom: `1px solid ${brand.lineLight}`,
-            alignItems: { md: 'center' },
-            flexWrap: 'wrap',
-          }}
-        >
-          <TextField
-            label="Search"
-            placeholder="Make, model, slug or VIN"
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(0);
-            }}
-            size="small"
-            sx={{ minWidth: 240, flex: 1 }}
-          />
-          <TextField
-            label="Origin"
-            value={origin}
-            onChange={(event) => {
-              setOrigin(event.target.value as CarOrigin | '');
-              setPage(0);
-            }}
-            select
-            size="small"
-            sx={{ minWidth: 140 }}
-          >
-            <MenuItem value="">Any</MenuItem>
-            {ORIGINS.map((entry) => (
-              <MenuItem key={entry.value} value={entry.value}>
-                {entry.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            label="Condition"
-            value={condition}
-            onChange={(event) => {
-              setCondition(event.target.value as CarCondition | '');
-              setPage(0);
-            }}
-            select
-            size="small"
-            sx={{ minWidth: 160 }}
-          >
-            <MenuItem value="">Any</MenuItem>
-            {CONDITIONS.map((entry) => (
-              <MenuItem key={entry.value} value={entry.value}>
-                {entry.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          {canReadPartners && (
+      <DataTable
+        rows={cars}
+        getRowId={(car) => car.id}
+        isPending={carsQuery.isPending}
+        error={carsQuery.isError ? carsQuery.error : undefined}
+        errorMessage="Could not load cars."
+        emptyMessage="No cars match these filters."
+        minWidth={900}
+        sort={{ key: sort, direction }}
+        onSortChange={(key) => sortBy(key as SortKey)}
+        pagination={{
+          page,
+          rowsPerPage,
+          total: carsQuery.data?.total ?? 0,
+          onPageChange: setPage,
+          onRowsPerPageChange: (next) => {
+            setRowsPerPage(next);
+            setPage(0);
+          },
+        }}
+        toolbar={
+          <>
             <TextField
-              label="Partner"
-              value={partnerId}
-              onChange={(event) => setPartnerFilter(event.target.value)}
-              select
-              size="small"
-              sx={{ minWidth: 180 }}
-            >
-              <MenuItem value="">Any</MenuItem>
-              <MenuItem value="none">Unassigned</MenuItem>
-              {(partnersQuery.data?.items ?? []).map((partner) => (
-                <MenuItem key={partner.id} value={partner.id}>
-                  {partner.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-          <TextField
-            label="State"
-            value={published}
-            onChange={(event) => {
-              setPublished(event.target.value as '' | 'true' | 'false');
-              setPage(0);
-            }}
-            select
-            size="small"
-            sx={{ minWidth: 150 }}
-          >
-            <MenuItem value="">Any</MenuItem>
-            <MenuItem value="true">Published</MenuItem>
-            <MenuItem value="false">Draft</MenuItem>
-          </TextField>
-          <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-            <Switch
-              checked={featured}
+              label="Search"
+              placeholder="Make, model, slug or VIN"
+              value={search}
               onChange={(event) => {
-                setFeatured(event.target.checked);
+                setSearch(event.target.value);
                 setPage(0);
               }}
               size="small"
-              inputProps={{ 'aria-label': 'Featured only' }}
+              sx={{ minWidth: 240, flex: 1 }}
             />
-            <Typography sx={{ fontSize: '0.875rem' }}>Featured only</Typography>
-          </Stack>
-        </Stack>
-
-        {carsQuery.isPending ? (
-          <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
-            <CircularProgress size={22} thickness={5} sx={{ color: 'text.secondary' }} />
-          </Box>
-        ) : carsQuery.isError ? (
-          <Alert severity="error" sx={{ m: 3 }}>
-            {errorMessage(carsQuery.error, 'Could not load cars.')}
-          </Alert>
-        ) : cars.length === 0 ? (
-          <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8 }}>
-            No cars match these filters.
-          </Typography>
-        ) : (
-          <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: 900 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ width: 64 }} />
-                  <TableCell sortDirection={sort === 'make' ? direction : false}>
-                    <TableSortLabel
-                      active={sort === 'make'}
-                      direction={sort === 'make' ? direction : 'asc'}
-                      onClick={() => sortBy('make')}
-                    >
-                      Car
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell>Origin</TableCell>
-                  <TableCell>Condition</TableCell>
-                  <TableCell sortDirection={sort === 'price' ? direction : false} align="right">
-                    <TableSortLabel
-                      active={sort === 'price'}
-                      direction={sort === 'price' ? direction : 'asc'}
-                      onClick={() => sortBy('price')}
-                    >
-                      Price
-                    </TableSortLabel>
-                  </TableCell>
-                  {canReadPartners && <TableCell>Partner</TableCell>}
-                  <TableCell align="center">Featured</TableCell>
-                  <TableCell>State</TableCell>
-                  <TableCell align="right" />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {cars.map((car) => {
-                  const cover = car.images.find((image) => image.album === 'EXTERIOR');
-                  return (
-                    <TableRow key={car.id} hover>
-                      <TableCell>
-                        <Box
-                          sx={{
-                            width: 48,
-                            height: 34,
-                            borderRadius: 1,
-                            bgcolor: brand.surfaceLight,
-                            border: `1px solid ${brand.lineLight}`,
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {cover && (
-                            <Box
-                              component="img"
-                              src={cover.url}
-                              alt=""
-                              sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                          )}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography
-                          component={RouterLink}
-                          to={`/cars/${car.id}`}
-                          sx={{
-                            fontSize: '0.875rem',
-                            fontWeight: 600,
-                            color: 'inherit',
-                            textDecoration: 'none',
-                            '&:hover': { textDecoration: 'underline' },
-                          }}
-                        >
-                          {car.make} {car.model} {car.year}
-                        </Typography>
-                        <Typography
-                          sx={{ fontFamily: mono, fontSize: '0.75rem', color: 'text.secondary' }}
-                        >
-                          {car.slug}
-                        </Typography>
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.875rem' }}>
-                        {ORIGIN_LABEL[car.origin]}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.875rem' }}>
-                        {CONDITION_LABEL[car.condition]}
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
-                        {formatMoney(car.price)}
-                      </TableCell>
-                      {canReadPartners && (
-                        <TableCell sx={{ fontSize: '0.875rem' }}>
-                          {car.partner ? (
-                            <>
-                              {car.partner.name}
-                              {car.partner.company && (
-                                <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                                  {car.partner.company}
-                                </Typography>
-                              )}
-                            </>
-                          ) : (
-                            <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
-                              Unassigned
-                            </Typography>
-                          )}
-                        </TableCell>
-                      )}
-                      <TableCell align="center">
-                        <IconButton
-                          size="small"
-                          disabled={!canUpdate || featureMutation.isPending}
-                          onClick={() => featureMutation.mutate(car)}
-                          aria-label={car.featured ? 'Remove from featured' : 'Mark as featured'}
-                        >
-                          {car.featured ? (
-                            <StarIcon fontSize="small" sx={{ color: brand.warn }} />
-                          ) : (
-                            <StarBorderIcon fontSize="small" sx={{ color: brand.muted }} />
-                          )}
-                        </IconButton>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={car.publishedAt ? 'Published' : 'Draft'}
-                          size="small"
-                          sx={{
-                            height: 22,
-                            fontSize: '0.6875rem',
-                            fontWeight: 600,
-                            color: car.publishedAt ? brand.success : brand.muted,
-                            bgcolor: `${car.publishedAt ? brand.success : brand.muted}18`,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          size="small"
-                          aria-label={`Actions for ${car.make} ${car.model}`}
-                          onClick={(event) => setMenu({ anchor: event.currentTarget, car })}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </Box>
-        )}
-
-        <TablePagination
-          component="div"
-          count={carsQuery.data?.total ?? 0}
-          page={page}
-          onPageChange={(_event, next) => setPage(next)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(event) => {
-            setRowsPerPage(Number(event.target.value));
-            setPage(0);
-          }}
-          rowsPerPageOptions={[10, 25, 50, 100]}
-        />
-      </Paper>
+            <TextField
+              label="Origin"
+              value={origin}
+              onChange={(event) => {
+                setOrigin(event.target.value as CarOrigin | '');
+                setPage(0);
+              }}
+              select
+              size="small"
+              sx={{ minWidth: 140 }}
+            >
+              <MenuItem value="">Any</MenuItem>
+              {ORIGINS.map((entry) => (
+                <MenuItem key={entry.value} value={entry.value}>
+                  {entry.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Condition"
+              value={condition}
+              onChange={(event) => {
+                setCondition(event.target.value as CarCondition | '');
+                setPage(0);
+              }}
+              select
+              size="small"
+              sx={{ minWidth: 160 }}
+            >
+              <MenuItem value="">Any</MenuItem>
+              {CONDITIONS.map((entry) => (
+                <MenuItem key={entry.value} value={entry.value}>
+                  {entry.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            {canReadPartners && (
+              <TextField
+                label="Partner"
+                value={partnerId}
+                onChange={(event) => setPartnerFilter(event.target.value)}
+                select
+                size="small"
+                sx={{ minWidth: 180 }}
+              >
+                <MenuItem value="">Any</MenuItem>
+                <MenuItem value="none">Unassigned</MenuItem>
+                {(partnersQuery.data?.items ?? []).map((partner) => (
+                  <MenuItem key={partner.id} value={partner.id}>
+                    {partner.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+            <TextField
+              label="State"
+              value={published}
+              onChange={(event) => {
+                setPublished(event.target.value as '' | 'true' | 'false');
+                setPage(0);
+              }}
+              select
+              size="small"
+              sx={{ minWidth: 150 }}
+            >
+              <MenuItem value="">Any</MenuItem>
+              <MenuItem value="true">Published</MenuItem>
+              <MenuItem value="false">Draft</MenuItem>
+            </TextField>
+            <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+              <Switch
+                checked={featured}
+                onChange={(event) => {
+                  setFeatured(event.target.checked);
+                  setPage(0);
+                }}
+                size="small"
+                inputProps={{ 'aria-label': 'Featured only' }}
+              />
+              <Typography sx={{ fontSize: '0.875rem' }}>Featured only</Typography>
+            </Stack>
+          </>
+        }
+        columns={[
+          {
+            key: 'cover',
+            width: 64,
+            render: (car) => {
+              const cover = car.images.find((image) => image.album === 'EXTERIOR');
+              return (
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 34,
+                    borderRadius: 1,
+                    bgcolor: brand.surfaceLight,
+                    border: `1px solid ${brand.lineLight}`,
+                    overflow: 'hidden',
+                  }}
+                >
+                  {cover && (
+                    <Box
+                      component="img"
+                      src={cover.url}
+                      alt=""
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  )}
+                </Box>
+              );
+            },
+          },
+          {
+            key: 'car',
+            header: 'Car',
+            sortKey: 'make',
+            render: (car) => (
+              <>
+                <Typography
+                  component={RouterLink}
+                  to={`/cars/${car.id}`}
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {car.make} {car.model} {car.year}
+                </Typography>
+                <Typography sx={{ fontFamily: mono, fontSize: '0.75rem', color: 'text.secondary' }}>
+                  {car.slug}
+                </Typography>
+              </>
+            ),
+          },
+          {
+            key: 'origin',
+            header: 'Origin',
+            render: (car) => (
+              <Typography sx={{ fontSize: '0.875rem' }}>{ORIGIN_LABEL[car.origin]}</Typography>
+            ),
+          },
+          {
+            key: 'condition',
+            header: 'Condition',
+            render: (car) => (
+              <Typography sx={{ fontSize: '0.875rem' }}>
+                {CONDITION_LABEL[car.condition]}
+              </Typography>
+            ),
+          },
+          {
+            key: 'price',
+            header: 'Price',
+            sortKey: 'price',
+            align: 'right',
+            render: (car) => (
+              <Typography sx={{ fontSize: '0.875rem' }}>{formatMoney(car.price)}</Typography>
+            ),
+          },
+          {
+            key: 'partner',
+            header: 'Partner',
+            hidden: !canReadPartners,
+            render: (car) =>
+              car.partner ? (
+                <>
+                  <Typography sx={{ fontSize: '0.875rem' }}>{car.partner.name}</Typography>
+                  {car.partner.company && (
+                    <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                      {car.partner.company}
+                    </Typography>
+                  )}
+                </>
+              ) : (
+                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                  Unassigned
+                </Typography>
+              ),
+          },
+          {
+            key: 'featured',
+            header: 'Featured',
+            align: 'center',
+            render: (car) => (
+              <IconButton
+                size="small"
+                disabled={!canUpdate || featureMutation.isPending}
+                onClick={() => featureMutation.mutate(car)}
+                aria-label={car.featured ? 'Remove from featured' : 'Mark as featured'}
+              >
+                {car.featured ? (
+                  <StarIcon fontSize="small" sx={{ color: brand.warn }} />
+                ) : (
+                  <StarBorderIcon fontSize="small" sx={{ color: brand.muted }} />
+                )}
+              </IconButton>
+            ),
+          },
+          {
+            key: 'state',
+            header: 'State',
+            render: (car) => (
+              <StatusBadge
+                label={car.publishedAt ? 'Published' : 'Draft'}
+                tone={car.publishedAt ? 'live' : 'muted'}
+              />
+            ),
+          },
+          {
+            key: 'actions',
+            align: 'right',
+            render: (car) => (
+              <IconButton
+                size="small"
+                aria-label={`Actions for ${car.make} ${car.model}`}
+                onClick={(event) => setMenu({ anchor: event.currentTarget, car })}
+              >
+                <MoreVertIcon fontSize="small" />
+              </IconButton>
+            ),
+          },
+        ]}
+      />
 
       <Menu anchorEl={menu?.anchor} open={Boolean(menu)} onClose={() => setMenu(null)}>
         <MenuItem

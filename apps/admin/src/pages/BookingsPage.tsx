@@ -5,18 +5,12 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
   IconButton,
   Menu,
   MenuItem,
   Paper,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -33,6 +27,8 @@ import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { DataTable } from '@/components/DataTable';
+import { StatusBadge } from '@/components/StatusBadge';
 import { brand, mono } from '@/theme';
 import { BookingCalendar } from '@/pages/bookings/BookingCalendar';
 import { BookingDialog, toInput } from '@/pages/bookings/BookingDialog';
@@ -138,175 +134,250 @@ export function BookingsPage() {
         )}
       </Stack>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Stack
-          direction={{ xs: 'column', sm: 'row' }}
-          spacing={1.5}
-          sx={{
-            p: 2,
-            borderBottom: `1px solid ${brand.lineLight}`,
-            alignItems: { sm: 'center' },
-          }}
-        >
-          {canReadPartners && (
+      {/* The calendar is not a table, so it does not go through DataTable —
+          forcing it through would mean a "column" abstraction that describes
+          neither. Both branches share one filter bar so switching view never
+          moves the controls. */}
+      {view === 'calendar' ? (
+        <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={1.5}
+            sx={{
+              p: 2,
+              borderBottom: `1px solid ${brand.lineLight}`,
+              alignItems: { sm: 'center' },
+            }}
+          >
+            {canReadPartners && (
+              <TextField
+                label="Partner"
+                value={partnerId}
+                onChange={(event) => setPartnerId(event.target.value)}
+                select
+                size="small"
+                sx={{ minWidth: 200 }}
+              >
+                <MenuItem value="">All partners</MenuItem>
+                {partners.map((partner) => (
+                  <MenuItem key={partner.id} value={partner.id}>
+                    {partner.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
             <TextField
-              label="Partner"
-              value={partnerId}
-              onChange={(event) => setPartnerId(event.target.value)}
+              label="Status"
+              value={status}
+              onChange={(event) => setStatus(event.target.value as BookingStatus | '')}
               select
               size="small"
-              sx={{ minWidth: 200 }}
+              sx={{ minWidth: 170 }}
             >
-              <MenuItem value="">All partners</MenuItem>
-              {partners.map((partner) => (
-                <MenuItem key={partner.id} value={partner.id}>
-                  {partner.name}
+              <MenuItem value="">Any status</MenuItem>
+              {STATUSES.map((entry) => (
+                <MenuItem key={entry.value} value={entry.value}>
+                  {entry.label}
                 </MenuItem>
               ))}
             </TextField>
+
+            <ToggleButtonGroup
+              value={view}
+              exclusive
+              size="small"
+              onChange={(_event, next: View | null) => next && setView(next)}
+              sx={{ ml: { sm: 'auto' } }}
+            >
+              <ToggleButton value="list" aria-label="List view">
+                <ViewListIcon sx={{ fontSize: 18, mr: 0.75 }} /> List
+              </ToggleButton>
+              <ToggleButton value="calendar" aria-label="Calendar view">
+                <CalendarMonthIcon sx={{ fontSize: 18, mr: 0.75 }} /> Calendar
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+          {bookingsQuery.isPending ? (
+            <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
+              <CircularProgress size={22} thickness={5} sx={{ color: 'text.secondary' }} />
+            </Box>
+          ) : bookingsQuery.isError ? (
+            <Alert severity="error" sx={{ m: 3 }}>
+              {errorMessage(bookingsQuery.error, 'Could not load bookings.')}
+            </Alert>
+          ) : (
+            <BookingCalendar
+              bookings={bookings}
+              onSelect={(booking) => canUpdate && canReadPartners && setEditing({ booking })}
+            />
           )}
-          <TextField
-            label="Status"
-            value={status}
-            onChange={(event) => setStatus(event.target.value as BookingStatus | '')}
-            select
-            size="small"
-            sx={{ minWidth: 170 }}
-          >
-            <MenuItem value="">Any status</MenuItem>
-            {STATUSES.map((entry) => (
-              <MenuItem key={entry.value} value={entry.value}>
-                {entry.label}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <ToggleButtonGroup
-            value={view}
-            exclusive
-            size="small"
-            onChange={(_event, next: View | null) => next && setView(next)}
-            sx={{ ml: { sm: 'auto' } }}
-          >
-            <ToggleButton value="list" aria-label="List view">
-              <ViewListIcon sx={{ fontSize: 18, mr: 0.75 }} /> List
-            </ToggleButton>
-            <ToggleButton value="calendar" aria-label="Calendar view">
-              <CalendarMonthIcon sx={{ fontSize: 18, mr: 0.75 }} /> Calendar
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Stack>
-
-        {bookingsQuery.isPending ? (
-          <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
-            <CircularProgress size={22} thickness={5} sx={{ color: 'text.secondary' }} />
-          </Box>
-        ) : bookingsQuery.isError ? (
-          <Alert severity="error" sx={{ m: 3 }}>
-            {errorMessage(bookingsQuery.error, 'Could not load bookings.')}
-          </Alert>
-        ) : view === 'calendar' ? (
-          <BookingCalendar
-            bookings={bookings}
-            onSelect={(booking) => canUpdate && canReadPartners && setEditing({ booking })}
-          />
-        ) : bookings.length === 0 ? (
-          <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8 }}>
-            No bookings match these filters.
-          </Typography>
-        ) : (
-          <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: 940 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>When</TableCell>
-                  <TableCell>Partner</TableCell>
-                  <TableCell>Customer</TableCell>
-                  <TableCell>Car</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell align="right" />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {bookings.map((booking) => (
-                  <TableRow key={booking.id} hover>
-                    <TableCell sx={{ fontSize: '0.875rem' }}>
-                      {formatDateTime(booking.scheduledAt)}
-                      <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.25 }}>
-                        {booking.slot
-                          ? `Slot until ${formatTime(booking.slot.endsAt)}${
-                              booking.slot.branch ? ` · ${booking.slot.branch.name}` : ''
-                            }`
-                          : 'No slot — booked directly'}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.875rem' }}>{booking.partner.name}</TableCell>
-                    <TableCell sx={{ fontSize: '0.875rem' }}>
-                      {booking.customerName ?? '—'}
-                      {booking.customerPhone && (
-                        <Typography
-                          sx={{ fontFamily: mono, fontSize: '0.75rem', color: 'text.secondary' }}
-                        >
-                          {booking.customerPhone}
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '0.875rem' }}>
-                      {booking.car
-                        ? `${booking.car.make} ${booking.car.model} ${booking.car.year}`
-                        : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <StatusChip status={booking.status} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end' }}>
-                        {/* Confirm and cancel are the two things done to a
-                            booking often enough to deserve their own buttons
-                            rather than a trip through the overflow menu. */}
-                        {canUpdate && booking.status === 'REQUESTED' && (
-                          <Tooltip title="Confirm">
-                            <IconButton
-                              size="small"
-                              aria-label="Confirm booking"
-                              disabled={statusMutation.isPending}
-                              onClick={() => statusMutation.mutate({ booking, next: 'CONFIRMED' })}
-                              sx={{ color: brand.success }}
-                            >
-                              <CheckIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        {canUpdate && booking.status !== 'CANCELLED' && (
-                          <Tooltip title="Cancel">
-                            <IconButton
-                              size="small"
-                              aria-label="Cancel booking"
-                              disabled={statusMutation.isPending}
-                              onClick={() => setCancelling(booking)}
-                            >
-                              <CloseIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        {(canUpdate || canDelete) && (
-                          <IconButton
-                            size="small"
-                            aria-label="Actions"
-                            onClick={(event) => setMenu({ anchor: event.currentTarget, booking })}
-                          >
-                            <MoreVertIcon fontSize="small" />
-                          </IconButton>
-                        )}
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
+        </Paper>
+      ) : (
+        <DataTable
+          rows={bookings}
+          getRowId={(booking) => booking.id}
+          isPending={bookingsQuery.isPending}
+          error={bookingsQuery.isError ? bookingsQuery.error : undefined}
+          errorMessage="Could not load bookings."
+          emptyMessage="No bookings match these filters."
+          minWidth={940}
+          toolbar={
+            <>
+              {canReadPartners && (
+                <TextField
+                  label="Partner"
+                  value={partnerId}
+                  onChange={(event) => setPartnerId(event.target.value)}
+                  select
+                  size="small"
+                  sx={{ minWidth: 200 }}
+                >
+                  <MenuItem value="">All partners</MenuItem>
+                  {partners.map((partner) => (
+                    <MenuItem key={partner.id} value={partner.id}>
+                      {partner.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+              <TextField
+                label="Status"
+                value={status}
+                onChange={(event) => setStatus(event.target.value as BookingStatus | '')}
+                select
+                size="small"
+                sx={{ minWidth: 170 }}
+              >
+                <MenuItem value="">Any status</MenuItem>
+                {STATUSES.map((entry) => (
+                  <MenuItem key={entry.value} value={entry.value}>
+                    {entry.label}
+                  </MenuItem>
                 ))}
-              </TableBody>
-            </Table>
-          </Box>
-        )}
-      </Paper>
+              </TextField>
+
+              <ToggleButtonGroup
+                value={view}
+                exclusive
+                size="small"
+                onChange={(_event, next: View | null) => next && setView(next)}
+                sx={{ ml: { sm: 'auto' } }}
+              >
+                <ToggleButton value="list" aria-label="List view">
+                  <ViewListIcon sx={{ fontSize: 18, mr: 0.75 }} /> List
+                </ToggleButton>
+                <ToggleButton value="calendar" aria-label="Calendar view">
+                  <CalendarMonthIcon sx={{ fontSize: 18, mr: 0.75 }} /> Calendar
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </>
+          }
+          columns={[
+            {
+              key: 'when',
+              header: 'When',
+              render: (booking) => (
+                <>
+                  <Typography sx={{ fontSize: '0.875rem' }}>
+                    {formatDateTime(booking.scheduledAt)}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.25 }}>
+                    {booking.slot
+                      ? `Slot until ${formatTime(booking.slot.endsAt)}${
+                          booking.slot.branch ? ` · ${booking.slot.branch.name}` : ''
+                        }`
+                      : 'No slot — booked directly'}
+                  </Typography>
+                </>
+              ),
+            },
+            {
+              key: 'partner',
+              header: 'Partner',
+              render: (booking) => (
+                <Typography sx={{ fontSize: '0.875rem' }}>{booking.partner.name}</Typography>
+              ),
+            },
+            {
+              key: 'customer',
+              header: 'Customer',
+              render: (booking) => (
+                <Box sx={{ fontSize: '0.875rem' }}>
+                  {booking.customerName ?? '—'}
+                  {booking.customerPhone && (
+                    <Typography
+                      sx={{ fontFamily: mono, fontSize: '0.75rem', color: 'text.secondary' }}
+                    >
+                      {booking.customerPhone}
+                    </Typography>
+                  )}
+                </Box>
+              ),
+            },
+            {
+              key: 'car',
+              header: 'Car',
+              render: (booking) => (
+                <Typography sx={{ fontSize: '0.875rem' }}>
+                  {booking.car
+                    ? `${booking.car.make} ${booking.car.model} ${booking.car.year}`
+                    : '—'}
+                </Typography>
+              ),
+            },
+            {
+              key: 'status',
+              header: 'Status',
+              render: (booking) => <StatusChip status={booking.status} />,
+            },
+            {
+              key: 'actions',
+              align: 'right',
+              render: (booking) => (
+                <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end' }}>
+                  {/* Confirm and cancel are the two things done to a booking
+                      often enough to deserve their own buttons rather than a
+                      trip through the overflow menu. */}
+                  {canUpdate && booking.status === 'REQUESTED' && (
+                    <Tooltip title="Confirm">
+                      <IconButton
+                        size="small"
+                        aria-label="Confirm booking"
+                        disabled={statusMutation.isPending}
+                        onClick={() => statusMutation.mutate({ booking, next: 'CONFIRMED' })}
+                        sx={{ color: brand.success }}
+                      >
+                        <CheckIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {canUpdate && booking.status !== 'CANCELLED' && (
+                    <Tooltip title="Cancel">
+                      <IconButton
+                        size="small"
+                        aria-label="Cancel booking"
+                        disabled={statusMutation.isPending}
+                        onClick={() => setCancelling(booking)}
+                      >
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {(canUpdate || canDelete) && (
+                    <IconButton
+                      size="small"
+                      aria-label="Actions"
+                      onClick={(event) => setMenu({ anchor: event.currentTarget, booking })}
+                    >
+                      <MoreVertIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </Stack>
+              ),
+            },
+          ]}
+        />
+      )}
 
       <Menu anchorEl={menu?.anchor} open={Boolean(menu)} onClose={() => setMenu(null)}>
         {canUpdate && canReadPartners && (
@@ -386,18 +457,6 @@ export function BookingsPage() {
 }
 
 function StatusChip({ status }: { status: BookingStatus }) {
-  const tone = statusTone(status);
-  return (
-    <Chip
-      label={tone.label}
-      size="small"
-      sx={{
-        height: 22,
-        fontSize: '0.6875rem',
-        fontWeight: 600,
-        color: tone.color,
-        bgcolor: `${tone.color}18`,
-      }}
-    />
-  );
+  const entry = statusTone(status);
+  return <StatusBadge label={entry.label} tone={entry.tone} />;
 }

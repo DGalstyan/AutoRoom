@@ -5,7 +5,6 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
   IconButton,
   Menu,
@@ -22,6 +21,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { StatusBadge } from '@/components/StatusBadge';
 import { StoryDialog } from '@/pages/stories/StoryDialog';
 import { KINDS, kindLabel } from '@/pages/stories/kinds';
 import { brand, mono } from '@/theme';
@@ -263,20 +263,10 @@ function StoryCard({ item, onMenu }: { item: Media; onMenu?: (anchor: HTMLElemen
           </Stack>
         )}
 
-        <Chip
-          label={live ? 'Live' : 'Draft'}
-          size="small"
-          sx={{
-            position: 'absolute',
-            top: 8,
-            left: 8,
-            height: 20,
-            fontSize: '0.6875rem',
-            fontWeight: 600,
-            color: live ? brand.paper : brand.ink,
-            bgcolor: live ? brand.success : brand.paper,
-          }}
-        />
+        {/* Filled, not tinted: a 12% wash over a photograph is unreadable. */}
+        <Box sx={{ position: 'absolute', top: 8, left: 8 }}>
+          <StatusBadge label={live ? 'Live' : 'Draft'} tone={live ? 'live' : 'muted'} filled />
+        </Box>
       </Box>
 
       <Stack direction="row" sx={{ p: 1.5, gap: 1, alignItems: 'flex-start' }}>
