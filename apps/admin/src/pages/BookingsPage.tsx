@@ -1,16 +1,12 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Booking, BookingInput, BookingStatus } from '@autoroom/api/client';
+import type { Booking, BookingStatus } from '@autoroom/api/client';
 import {
   Alert,
   Box,
   Button,
   Chip,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
   Menu,
   MenuItem,
@@ -22,22 +18,28 @@ import {
   TableHead,
   TableRow,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { brand, mono } from '@/theme';
+import { BookingCalendar } from '@/pages/bookings/BookingCalendar';
+import { BookingDialog, toInput } from '@/pages/bookings/BookingDialog';
+import { STATUSES, statusTone } from '@/pages/bookings/status';
+import { formatDateTime, formatTime } from '@/pages/availability/time';
 
-const STATUSES: { value: BookingStatus; label: string; color: string }[] = [
-  { value: 'REQUESTED', label: 'Requested', color: brand.warn },
-  { value: 'CONFIRMED', label: 'Confirmed', color: brand.success },
-  { value: 'COMPLETED', label: 'Completed', color: brand.info },
-  { value: 'CANCELLED', label: 'Cancelled', color: brand.muted },
-];
+type View = 'list' | 'calendar';
 
 /** Appointments, across every partner. A partner sees only their own, in the portal. */
 export function BookingsPage() {
@@ -45,11 +47,13 @@ export function BookingsPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
 
+  const [view, setView] = useState<View>('list');
   const [partnerId, setPartnerId] = useState('');
   const [status, setStatus] = useState<BookingStatus | ''>('');
   const [menu, setMenu] = useState<{ anchor: HTMLElement; booking: Booking } | null>(null);
   const [editing, setEditing] = useState<{ booking?: Booking } | null>(null);
   const [deleting, setDeleting] = useState<Booking | null>(null);
+  const [cancelling, setCancelling] = useState<Booking | null>(null);
 
   const canCreate = identity?.permissions.includes('bookings:CREATE') ?? false;
   const canUpdate = identity?.permissions.includes('bookings:UPDATE') ?? false;
@@ -72,14 +76,23 @@ export function BookingsPage() {
     enabled: canReadPartners,
   });
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ['bookings'] });
+  /**
+   * Availability is invalidated alongside bookings: confirming or cancelling
+   * changes which slots are open, and a diary still showing a freed slot as
+   * taken is the failure this screen exists to avoid.
+   */
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    void queryClient.invalidateQueries({ queryKey: ['availability'] });
+  };
 
   const statusMutation = useMutation({
     mutationFn: ({ booking, next }: { booking: Booking; next: BookingStatus }) =>
       api.bookings.update(booking.id, { ...toInput(booking), status: next }),
     onSuccess: (booking) => {
       toast(`Marked ${booking.status.toLowerCase()}.`);
-      void refresh();
+      setCancelling(null);
+      refresh();
     },
     onError: (error) => toast(errorMessage(error), 'error'),
   });
@@ -89,7 +102,7 @@ export function BookingsPage() {
     onSuccess: () => {
       toast('Booking deleted.');
       setDeleting(null);
-      void refresh();
+      refresh();
     },
     onError: (error) => toast(errorMessage(error), 'error'),
   });
@@ -129,7 +142,11 @@ export function BookingsPage() {
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           spacing={1.5}
-          sx={{ p: 2, borderBottom: `1px solid ${brand.lineLight}` }}
+          sx={{
+            p: 2,
+            borderBottom: `1px solid ${brand.lineLight}`,
+            alignItems: { sm: 'center' },
+          }}
         >
           {canReadPartners && (
             <TextField
@@ -163,6 +180,21 @@ export function BookingsPage() {
               </MenuItem>
             ))}
           </TextField>
+
+          <ToggleButtonGroup
+            value={view}
+            exclusive
+            size="small"
+            onChange={(_event, next: View | null) => next && setView(next)}
+            sx={{ ml: { sm: 'auto' } }}
+          >
+            <ToggleButton value="list" aria-label="List view">
+              <ViewListIcon sx={{ fontSize: 18, mr: 0.75 }} /> List
+            </ToggleButton>
+            <ToggleButton value="calendar" aria-label="Calendar view">
+              <CalendarMonthIcon sx={{ fontSize: 18, mr: 0.75 }} /> Calendar
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Stack>
 
         {bookingsQuery.isPending ? (
@@ -173,13 +205,18 @@ export function BookingsPage() {
           <Alert severity="error" sx={{ m: 3 }}>
             {errorMessage(bookingsQuery.error, 'Could not load bookings.')}
           </Alert>
+        ) : view === 'calendar' ? (
+          <BookingCalendar
+            bookings={bookings}
+            onSelect={(booking) => canUpdate && canReadPartners && setEditing({ booking })}
+          />
         ) : bookings.length === 0 ? (
           <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 8 }}>
             No bookings match these filters.
           </Typography>
         ) : (
           <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: 860 }}>
+            <Table sx={{ minWidth: 940 }}>
               <TableHead>
                 <TableRow>
                   <TableCell>When</TableCell>
@@ -194,7 +231,14 @@ export function BookingsPage() {
                 {bookings.map((booking) => (
                   <TableRow key={booking.id} hover>
                     <TableCell sx={{ fontSize: '0.875rem' }}>
-                      {formatWhen(booking.scheduledAt)}
+                      {formatDateTime(booking.scheduledAt)}
+                      <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary', mt: 0.25 }}>
+                        {booking.slot
+                          ? `Slot until ${formatTime(booking.slot.endsAt)}${
+                              booking.slot.branch ? ` · ${booking.slot.branch.name}` : ''
+                            }`
+                          : 'No slot — booked directly'}
+                      </Typography>
                     </TableCell>
                     <TableCell sx={{ fontSize: '0.875rem' }}>{booking.partner.name}</TableCell>
                     <TableCell sx={{ fontSize: '0.875rem' }}>
@@ -216,15 +260,45 @@ export function BookingsPage() {
                       <StatusChip status={booking.status} />
                     </TableCell>
                     <TableCell align="right">
-                      {(canUpdate || canDelete) && (
-                        <IconButton
-                          size="small"
-                          aria-label="Actions"
-                          onClick={(event) => setMenu({ anchor: event.currentTarget, booking })}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
-                      )}
+                      <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'flex-end' }}>
+                        {/* Confirm and cancel are the two things done to a
+                            booking often enough to deserve their own buttons
+                            rather than a trip through the overflow menu. */}
+                        {canUpdate && booking.status === 'REQUESTED' && (
+                          <Tooltip title="Confirm">
+                            <IconButton
+                              size="small"
+                              aria-label="Confirm booking"
+                              disabled={statusMutation.isPending}
+                              onClick={() => statusMutation.mutate({ booking, next: 'CONFIRMED' })}
+                              sx={{ color: brand.success }}
+                            >
+                              <CheckIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {canUpdate && booking.status !== 'CANCELLED' && (
+                          <Tooltip title="Cancel">
+                            <IconButton
+                              size="small"
+                              aria-label="Cancel booking"
+                              disabled={statusMutation.isPending}
+                              onClick={() => setCancelling(booking)}
+                            >
+                              <CloseIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {(canUpdate || canDelete) && (
+                          <IconButton
+                            size="small"
+                            aria-label="Actions"
+                            onClick={(event) => setMenu({ anchor: event.currentTarget, booking })}
+                          >
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -279,10 +353,23 @@ export function BookingsPage() {
           onDone={(message) => {
             setEditing(null);
             toast(message);
-            void refresh();
+            refresh();
           }}
         />
       )}
+
+      <ConfirmDialog
+        open={Boolean(cancelling)}
+        title="Cancel this booking?"
+        message="It stays on the record as cancelled, and its slot goes back on offer to other partners."
+        confirmLabel="Cancel booking"
+        destructive
+        busy={statusMutation.isPending}
+        onConfirm={() =>
+          cancelling && statusMutation.mutate({ booking: cancelling, next: 'CANCELLED' })
+        }
+        onClose={() => setCancelling(null)}
+      />
 
       <ConfirmDialog
         open={Boolean(deleting)}
@@ -298,135 +385,8 @@ export function BookingsPage() {
   );
 }
 
-function BookingDialog({
-  booking,
-  partners,
-  onClose,
-  onDone,
-}: {
-  booking?: Booking;
-  partners: { id: string; name: string }[];
-  onClose: () => void;
-  onDone: (message: string) => void;
-}) {
-  const { api } = useAuth();
-  const [draft, setDraft] = useState<BookingInput>(
-    booking
-      ? toInput(booking)
-      : {
-          partnerId: partners[0]?.id ?? '',
-          carId: null,
-          customerName: null,
-          customerPhone: null,
-          // `datetime-local` wants no timezone suffix, so trim the ISO string.
-          scheduledAt: new Date().toISOString(),
-          status: 'REQUESTED',
-          notes: null,
-        },
-  );
-  const [error, setError] = useState<string | null>(null);
-
-  const mutation = useMutation({
-    mutationFn: () =>
-      booking ? api.bookings.update(booking.id, draft) : api.bookings.create(draft),
-    onSuccess: () => onDone(booking ? 'Booking saved.' : 'Booking created.'),
-    onError: (caught) => setError(errorMessage(caught)),
-  });
-
-  function set<K extends keyof BookingInput>(key: K, value: BookingInput[K]) {
-    setDraft((current) => ({ ...current, [key]: value }));
-  }
-
-  return (
-    <Dialog open onClose={mutation.isPending ? undefined : onClose} maxWidth="xs" fullWidth>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          setError(null);
-          mutation.mutate();
-        }}
-      >
-        <DialogTitle>{booking ? 'Edit booking' : 'Add booking'}</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2.5} sx={{ pt: 1 }}>
-            {error && <Alert severity="error">{error}</Alert>}
-            <TextField
-              label="Partner"
-              value={draft.partnerId}
-              onChange={(event) => set('partnerId', event.target.value)}
-              select
-              required
-              fullWidth
-            >
-              {partners.map((partner) => (
-                <MenuItem key={partner.id} value={partner.id}>
-                  {partner.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="When"
-              type="datetime-local"
-              value={toLocalInput(draft.scheduledAt)}
-              onChange={(event) => set('scheduledAt', new Date(event.target.value).toISOString())}
-              required
-              fullWidth
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
-            <TextField
-              label="Customer name"
-              value={draft.customerName ?? ''}
-              onChange={(event) => set('customerName', event.target.value || null)}
-              fullWidth
-            />
-            <TextField
-              label="Customer phone"
-              value={draft.customerPhone ?? ''}
-              onChange={(event) => set('customerPhone', event.target.value || null)}
-              fullWidth
-            />
-            <TextField
-              label="Status"
-              value={draft.status}
-              onChange={(event) => set('status', event.target.value as BookingStatus)}
-              select
-              fullWidth
-            >
-              {STATUSES.map((entry) => (
-                <MenuItem key={entry.value} value={entry.value}>
-                  {entry.label}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="Notes"
-              value={draft.notes ?? ''}
-              onChange={(event) => set('notes', event.target.value || null)}
-              multiline
-              minRows={2}
-              fullWidth
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={onClose} disabled={mutation.isPending} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={!draft.partnerId || mutation.isPending}
-          >
-            {mutation.isPending ? 'Saving…' : 'Save'}
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
-}
-
 function StatusChip({ status }: { status: BookingStatus }) {
-  const tone = STATUSES.find((entry) => entry.value === status)!;
+  const tone = statusTone(status);
   return (
     <Chip
       label={tone.label}
@@ -440,27 +400,4 @@ function StatusChip({ status }: { status: BookingStatus }) {
       }}
     />
   );
-}
-
-function toInput(booking: Booking): BookingInput {
-  return {
-    partnerId: booking.partnerId,
-    carId: booking.carId,
-    customerName: booking.customerName,
-    customerPhone: booking.customerPhone,
-    scheduledAt: booking.scheduledAt,
-    status: booking.status,
-    notes: booking.notes,
-  };
-}
-
-function formatWhen(iso: string) {
-  return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-/** `datetime-local` needs `YYYY-MM-DDTHH:mm` in local time, not a UTC ISO string. */
-function toLocalInput(iso: string) {
-  const date = new Date(iso);
-  const offset = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }

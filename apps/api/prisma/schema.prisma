@@ -229,6 +229,8 @@ model Branch {
   /// Display order on the public site.
   position Int     @default(0)
 
+  slots AvailabilitySlot[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -411,6 +413,42 @@ model Partner {
   @@map("partners")
 }
 
+/// A bookable window of showroom time. Slots are what a partner picks from, so
+/// "when can I come in" is answered by the rows here rather than by a free-text
+/// datetime nobody checked against the diary.
+///
+/// A slot is *open* while the bookings holding it — cancelled ones excluded —
+/// number fewer than `capacity`; otherwise it is *taken*. That count is derived
+/// on read rather than stored, so a booking cancelled anywhere frees the slot
+/// without a second write that could drift out of step.
+model AvailabilitySlot {
+  id String @id @default(cuid())
+
+  /// Where the appointment happens. Optional, and `SetNull` on delete: closing a
+  /// branch should not silently take the diary with it.
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  startsAt DateTime
+  endsAt   DateTime
+
+  /// How many bookings the window holds. A branch running two bays sets 2
+  /// rather than duplicating the row.
+  capacity Int @default(1)
+
+  note String?
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // The diary is always read as a date range, usually for one branch.
+  @@index([startsAt])
+  @@index([branchId, startsAt])
+  @@map("availability_slots")
+}
+
 /// A viewing or handover appointment. `carId` is optional — a partner can book
 /// time before deciding which car it is about.
 model Booking {
@@ -420,6 +458,13 @@ model Booking {
 
   carId String?
   car   Car?    @relation(fields: [carId], references: [id], onDelete: SetNull)
+
+  /// The slot this appointment holds, when it was booked from the diary.
+  /// Optional: staff can still write an appointment straight into the calendar
+  /// for a time nobody published, and `scheduledAt` stays the single answer to
+  /// "when" either way — bound to `slot.startsAt` whenever a slot is held.
+  slotId String?
+  slot   AvailabilitySlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
 
   customerName  String?
   customerPhone String?
@@ -432,5 +477,7 @@ model Booking {
   updatedAt DateTime @updatedAt
 
   @@index([partnerId, scheduledAt])
+  // Counting what holds a slot is the hot path behind every open/taken read.
+  @@index([slotId])
   @@map("bookings")
 }

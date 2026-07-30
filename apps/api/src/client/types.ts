@@ -227,6 +227,12 @@ export interface Car {
 
   /** The partner this car is assigned to, if any. */
   partnerId: string | null;
+  /**
+   * The assigned partner, on admin responses only — the public routes do not
+   * select it. Absent means "this response carries no partner information";
+   * null means "no partner is assigned".
+   */
+  partner?: { id: string; name: string; company: string | null } | null;
 
   colors: CarColour[];
   /** Exactly four chips, or none. */
@@ -245,6 +251,8 @@ export type CarInput = Omit<Car, 'id' | 'publishedAt' | 'images' | 'createdAt' |
 export interface CarListQuery {
   origin?: CarOrigin;
   condition?: CarCondition;
+  /** A partner's id, or the literal `'none'` for cars assigned to nobody. */
+  partnerId?: string;
   featured?: boolean;
   published?: boolean;
   search?: string;
@@ -297,23 +305,109 @@ export interface Booking {
   partner: { id: string; name: string };
   carId: string | null;
   car: { id: string; slug: string; make: string; model: string; year: number } | null;
+  /** The diary slot this appointment holds, when it was booked from one. */
+  slotId: string | null;
+  slot: {
+    id: string;
+    startsAt: string;
+    endsAt: string;
+    capacity: number;
+    branch: BranchRef | null;
+  } | null;
   customerName: string | null;
   customerPhone: string | null;
-  /** ISO 8601. */
+  /** ISO 8601. Bound to the slot's `startsAt` whenever a slot is held. */
   scheduledAt: string;
   status: BookingStatus;
   notes: string | null;
   createdAt: string;
 }
 
+/**
+ * Give a `slotId` or a `scheduledAt`, not neither. With a slot the server sets
+ * the time from it, so anything sent in `scheduledAt` is ignored.
+ */
 export interface BookingInput {
   partnerId: string;
   carId?: string | null;
+  slotId?: string | null;
   customerName?: string | null;
   customerPhone?: string | null;
-  scheduledAt: string;
+  scheduledAt?: string;
   status: BookingStatus;
   notes?: string | null;
+}
+
+/* ------------------------------- availability ------------------------------- */
+
+export interface BranchRef {
+  id: string;
+  name: string;
+  city: string;
+}
+
+/** A branch as the admin lists it. Read-only until Settings owns branch CRUD. */
+export interface Branch extends BranchRef {
+  address: string;
+  phone: string;
+  hours: string;
+}
+
+/** A bookable window. `open` is derived from `bookedCount` against `capacity`. */
+export interface AvailabilitySlot {
+  id: string;
+  branchId: string | null;
+  branch: BranchRef | null;
+  /** ISO 8601. */
+  startsAt: string;
+  endsAt: string;
+  capacity: number;
+  note: string | null;
+  bookedCount: number;
+  open: boolean;
+  createdAt: string;
+}
+
+export interface AvailabilitySlotInput {
+  branchId?: string | null;
+  startsAt: string;
+  endsAt: string;
+  capacity: number;
+  note?: string | null;
+}
+
+/** Bulk fill for a date range. Times are local wall-clock at `offsetMinutes`. */
+export interface AvailabilityGenerateRequest {
+  branchId?: string | null;
+  /** `YYYY-MM-DD`, inclusive. */
+  from: string;
+  to: string;
+  /** Sunday = 0. Empty means every day in the range. */
+  weekdays?: number[];
+  /** `HH:mm` local. */
+  startTime: string;
+  endTime: string;
+  slotMinutes: number;
+  capacity?: number;
+  /** `-new Date().getTimezoneOffset()`; Yerevan is 240. Defaults to UTC. */
+  offsetMinutes?: number;
+}
+
+export interface AvailabilityGenerateResponse {
+  created: number;
+  /** Start times that already had a slot at this branch, left untouched. */
+  skipped: number;
+  items: AvailabilitySlot[];
+}
+
+export interface AvailabilityListQuery {
+  /** ISO 8601. Defaults to now → 30 days out. */
+  from?: string;
+  to?: string;
+  branchId?: string;
+  onlyOpen?: boolean;
+  take?: number;
+  skip?: number;
 }
 
 /* ---------------------------------- portal ---------------------------------- */

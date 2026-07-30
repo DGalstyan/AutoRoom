@@ -8,6 +8,7 @@ import { requireAuth } from '../middleware/auth';
 import { requirePartner } from '../middleware/partner';
 import { requirePermission } from '../middleware/rbac';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { inSlotTransaction, resolveSlotForBooking } from '../services/availability';
 import { revokeAllSessions } from '../services/session';
 
 /**
@@ -40,15 +41,28 @@ const accountSchema = z.object({
   password: z.string().min(MIN_PASSWORD_LENGTH).max(200),
 });
 
-const bookingBodySchema = z.object({
-  partnerId: z.string().min(1),
-  carId: z.string().min(1).nullish(),
-  customerName: z.string().trim().max(120).nullish(),
-  customerPhone: z.string().trim().max(40).nullish(),
-  scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()),
-  status: z.nativeEnum(BookingStatus).default(BookingStatus.REQUESTED),
-  notes: z.string().trim().max(2000).nullish(),
-});
+/**
+ * `slotId` and `scheduledAt` are two ways of answering the same question, and
+ * exactly one of them has to. When a slot is held it wins: `scheduledAt` is
+ * bound to `slot.startsAt` on write, so the diary and the appointment can never
+ * disagree about when it is. Without a slot, staff are writing a time straight
+ * into the calendar and must supply one.
+ */
+const bookingBodySchema = z
+  .object({
+    partnerId: z.string().min(1),
+    carId: z.string().min(1).nullish(),
+    slotId: z.string().min(1).nullish(),
+    customerName: z.string().trim().max(120).nullish(),
+    customerPhone: z.string().trim().max(40).nullish(),
+    scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()).optional(),
+    status: z.nativeEnum(BookingStatus).default(BookingStatus.REQUESTED),
+    notes: z.string().trim().max(2000).nullish(),
+  })
+  .refine((body) => Boolean(body.slotId) || Boolean(body.scheduledAt), {
+    message: 'Pick an availability slot, or set a time',
+    path: ['scheduledAt'],
+  });
 
 const listQuerySchema = z.object({
   search: z.string().trim().max(120).optional(),
@@ -254,15 +268,34 @@ partnersRouter.post(
   validateBody(bookingBodySchema),
   async (req, res) => {
     const body = req.body as z.infer<typeof bookingBodySchema>;
+
+    // Validation, deliberately outside the transaction below. Whether the
+    // partner exists is not part of the atomic claim, and every query held
+    // inside a Serializable transaction is time the slot stays contended.
     if (!(await prisma.partner.findUnique({ where: { id: body.partnerId } }))) {
       throw badRequest('Unknown partner');
     }
 
-    const booking = await prisma.booking.create({
-      data: { ...body, scheduledAt: new Date(body.scheduledAt) },
-      include: BOOKING_INCLUDE,
+    const booking = body.slotId
+      ? // Serializable, because claiming the last place is read-then-write: two
+        // requests reading "one place left" would otherwise both take it.
+        await inSlotTransaction(async (tx) => {
+          const slot = await resolveSlotForBooking(tx, body.slotId!, body.status);
+          return tx.booking.create({
+            data: { ...body, slotId: body.slotId, scheduledAt: slot.startsAt },
+            include: BOOKING_INCLUDE,
+          });
+        })
+      : // No slot, nothing to claim, nothing to race for — a plain insert.
+        await prisma.booking.create({
+          data: { ...body, slotId: null, scheduledAt: new Date(body.scheduledAt!) },
+          include: BOOKING_INCLUDE,
+        });
+
+    await audit(req.auth?.userId, 'booking.create', booking.id, {
+      partnerId: booking.partnerId,
+      slotId: booking.slotId,
     });
-    await audit(req.auth?.userId, 'booking.create', booking.id, { partnerId: booking.partnerId });
     res.status(201).json(serializeBooking(booking));
   },
 );
@@ -274,15 +307,32 @@ partnersRouter.put(
   validateBody(bookingBodySchema),
   async (req, res) => {
     const id = String(req.params.id ?? '');
-    if (!(await prisma.booking.findUnique({ where: { id } }))) throw notFound('Booking not found');
     const body = req.body as z.infer<typeof bookingBodySchema>;
 
-    const booking = await prisma.booking.update({
-      where: { id },
-      data: { ...body, scheduledAt: new Date(body.scheduledAt) },
-      include: BOOKING_INCLUDE,
+    if (!(await prisma.booking.findUnique({ where: { id } }))) throw notFound('Booking not found');
+
+    const booking = body.slotId
+      ? await inSlotTransaction(async (tx) => {
+          // `id` is excluded from the occupancy count: a booking already
+          // holding this slot is not its own rival, or re-saving a capacity-1
+          // appointment would always come back "taken".
+          const slot = await resolveSlotForBooking(tx, body.slotId!, body.status, id);
+          return tx.booking.update({
+            where: { id },
+            data: { ...body, slotId: body.slotId, scheduledAt: slot.startsAt },
+            include: BOOKING_INCLUDE,
+          });
+        })
+      : await prisma.booking.update({
+          where: { id },
+          data: { ...body, slotId: null, scheduledAt: new Date(body.scheduledAt!) },
+          include: BOOKING_INCLUDE,
+        });
+
+    await audit(req.auth?.userId, 'booking.update', id, {
+      status: booking.status,
+      slotId: booking.slotId,
     });
-    await audit(req.auth?.userId, 'booking.update', id, { status: booking.status });
     res.json(serializeBooking(booking));
   },
 );
@@ -365,6 +415,15 @@ partnersRouter.get('/portal/bookings', requireAuth, requirePartner, async (req, 
 const BOOKING_INCLUDE = {
   partner: { select: { id: true, name: true } },
   car: { select: { id: true, slug: true, make: true, model: true, year: true } },
+  slot: {
+    select: {
+      id: true,
+      startsAt: true,
+      endsAt: true,
+      capacity: true,
+      branch: { select: { id: true, name: true, city: true } },
+    },
+  },
 } satisfies Prisma.BookingInclude;
 
 type PartnerRow = Prisma.PartnerGetPayload<{
@@ -401,6 +460,16 @@ function serializeBooking(booking: BookingRow) {
     partner: booking.partner,
     carId: booking.carId,
     car: booking.car,
+    slotId: booking.slotId,
+    slot: booking.slot
+      ? {
+          id: booking.slot.id,
+          startsAt: booking.slot.startsAt.toISOString(),
+          endsAt: booking.slot.endsAt.toISOString(),
+          capacity: booking.slot.capacity,
+          branch: booking.slot.branch,
+        }
+      : null,
     customerName: booking.customerName,
     customerPhone: booking.customerPhone,
     scheduledAt: booking.scheduledAt.toISOString(),

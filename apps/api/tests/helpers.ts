@@ -32,7 +32,7 @@ export async function resetData() {
   // "truncate everything" would take the roles and permissions with it, and
   // those are the fixture the RBAC suite is asserting against.
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE bookings, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
+    'TRUNCATE TABLE bookings, availability_slots, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
   );
 }
 
@@ -121,6 +121,26 @@ export async function createBooking(
       partnerId,
       scheduledAt: overrides.scheduledAt ?? new Date('2026-09-01T10:00:00.000Z'),
       status: overrides.status ?? BookingStatus.CONFIRMED,
+      ...overrides,
+    },
+  });
+}
+
+/**
+ * A bookable slot. Defaults sit in the future so the portal's "open slots"
+ * route, which hides anything already past, can see it.
+ */
+export async function createSlot(
+  overrides: Partial<Prisma.AvailabilitySlotUncheckedCreateInput> = {},
+) {
+  const startsAt = overrides.startsAt
+    ? new Date(overrides.startsAt)
+    : new Date('2027-03-01T10:00:00.000Z');
+  return prisma.availabilitySlot.create({
+    data: {
+      startsAt,
+      endsAt: overrides.endsAt ?? new Date(startsAt.getTime() + 30 * 60_000),
+      capacity: overrides.capacity ?? 1,
       ...overrides,
     },
   });

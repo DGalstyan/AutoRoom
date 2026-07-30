@@ -122,6 +122,12 @@ function assertColoursAllowed(condition: CarCondition, colours: unknown[]) {
 const listQuerySchema = z.object({
   origin: z.nativeEnum(CarOrigin).optional(),
   condition: z.nativeEnum(CarCondition).optional(),
+  /**
+   * Narrow to one partner's cars. `none` is a deliberate escape hatch for the
+   * opposite question — "what is sitting unassigned" — which an id-only filter
+   * could not ask, since an empty value already means "no filter".
+   */
+  partnerId: z.string().min(1).optional(),
   featured: z
     .enum(['true', 'false'])
     .transform((value) => value === 'true')
@@ -156,6 +162,9 @@ carsRouter.get(
     const where: Prisma.CarWhereInput = {
       ...(query.origin ? { origin: query.origin } : {}),
       ...(query.condition ? { condition: query.condition } : {}),
+      ...(query.partnerId
+        ? { partnerId: query.partnerId === 'none' ? null : query.partnerId }
+        : {}),
       ...(query.featured === undefined ? {} : { featured: query.featured }),
       ...(query.published === undefined
         ? {}
@@ -177,7 +186,7 @@ carsRouter.get(
     const [items, total] = await Promise.all([
       prisma.car.findMany({
         where,
-        include: { images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] } },
+        include: ADMIN_CAR_INCLUDE,
         orderBy: { [query.sort]: query.direction },
         take: query.take,
         skip: query.skip,
@@ -192,7 +201,7 @@ carsRouter.get(
 carsRouter.get('/cars/:id', requireAuth, requirePermission('cars', 'READ'), async (req, res) => {
   const car = await prisma.car.findUnique({
     where: { id: String(req.params.id ?? '') },
-    include: { images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] } },
+    include: ADMIN_CAR_INCLUDE,
   });
   if (!car) throw notFound('Car not found');
   res.json(serializeCar(car));
@@ -213,7 +222,7 @@ carsRouter.post(
 
     const car = await prisma.car.create({
       data: toWriteData(body),
-      include: { images: true },
+      include: ADMIN_CAR_INCLUDE,
     });
 
     await audit(req.auth?.userId, 'car.create', car.id, { slug: car.slug });
@@ -242,7 +251,7 @@ carsRouter.put(
     const car = await prisma.car.update({
       where: { id },
       data: toWriteData(body),
-      include: { images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] } },
+      include: ADMIN_CAR_INCLUDE,
     });
 
     await audit(req.auth?.userId, 'car.update', car.id, { slug: car.slug });
@@ -276,7 +285,7 @@ carsRouter.post(
     const car = await prisma.car.update({
       where: { id },
       data: { publishedAt: published ? (existing.publishedAt ?? new Date()) : null },
-      include: { images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] } },
+      include: ADMIN_CAR_INCLUDE,
     });
 
     await audit(req.auth?.userId, published ? 'car.publish' : 'car.unpublish', car.id, {
@@ -299,6 +308,49 @@ carsRouter.delete(
     await prisma.car.delete({ where: { id } });
     await audit(req.auth?.userId, 'car.delete', id, { slug: car.slug });
     res.status(204).end();
+  },
+);
+
+/* --------------------------------- assignment -------------------------------- */
+
+/**
+ * Assign, reassign, or detach a car's partner.
+ *
+ * Its own endpoint rather than a trip through `PUT /cars/:id`, which replaces
+ * the whole record: reassigning from a list row would otherwise mean fetching
+ * every field just to send them all back unchanged, and any field the list did
+ * not know about would be dropped on the way through.
+ *
+ * `null` detaches. A car holds at most one partner, but a partner holds any
+ * number of cars — that is the direction the relation runs, so reassigning is
+ * simply pointing this car somewhere else, never anything the losing partner
+ * has to be updated for.
+ */
+carsRouter.patch(
+  '/cars/:id/partner',
+  requireAuth,
+  requirePermission('cars', 'UPDATE'),
+  validateBody(z.object({ partnerId: z.string().min(1).nullable() })),
+  async (req, res) => {
+    const id = String(req.params.id ?? '');
+    const { partnerId } = req.body as { partnerId: string | null };
+
+    if (!(await prisma.car.findUnique({ where: { id } }))) throw notFound('Car not found');
+    if (partnerId && !(await prisma.partner.findUnique({ where: { id: partnerId } }))) {
+      throw badRequest('Unknown partner');
+    }
+
+    const car = await prisma.car.update({
+      where: { id },
+      data: { partnerId },
+      include: ADMIN_CAR_INCLUDE,
+    });
+
+    await audit(req.auth?.userId, partnerId ? 'car.assign' : 'car.unassign', id, {
+      slug: car.slug,
+      partnerId,
+    });
+    res.json(serializeCar(car));
   },
 );
 
@@ -415,7 +467,24 @@ function audit(actorId: string | undefined, action: string, resourceId: string, 
   });
 }
 
-type CarRow = Prisma.CarGetPayload<{ include: { images: true } }>;
+/**
+ * What the admin reads. The public routes deliberately do not use this — the
+ * site has no business knowing which dealer holds a car, and the safest way to
+ * keep a field out of a response is not to select it.
+ */
+const ADMIN_CAR_INCLUDE = {
+  images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] },
+  partner: { select: { id: true, name: true, company: true } },
+} satisfies Prisma.CarInclude;
+
+/**
+ * `partner` is optional because the public rows genuinely lack it. Absent and
+ * null mean different things here: absent is "this response does not carry
+ * partner information", null is "no partner is assigned".
+ */
+type CarRow = Prisma.CarGetPayload<{ include: { images: true } }> & {
+  partner?: { id: string; name: string; company: string | null } | null;
+};
 
 function serializeCar(car: CarRow) {
   return {

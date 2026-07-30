@@ -37,6 +37,7 @@ const NAV: { label: string; to: string; permission?: string }[] = [
   { label: 'Dashboard', to: '/' },
   { label: 'Partners', to: '/partners', permission: 'partners:READ' },
   { label: 'Bookings', to: '/bookings', permission: 'bookings:READ' },
+  { label: 'Availability', to: '/availability', permission: 'availability:READ' },
   { label: 'Cars', to: '/cars', permission: 'cars:READ' },
   { label: 'Users', to: '/users', permission: 'users:READ' },
   { label: 'Roles', to: '/roles', permission: 'roles:READ' },
