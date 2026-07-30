@@ -2,7 +2,13 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { PrismaClient, SettingGroup, UserStatus, type PermissionAction } from '@prisma/client';
+import {
+  FaqTopic,
+  PrismaClient,
+  SettingGroup,
+  UserStatus,
+  type PermissionAction,
+} from '@prisma/client';
 import { ROLES, allPermissions, permissionsForRole } from '../src/rbac/permissions';
 
 /**
@@ -147,6 +153,58 @@ const BANKS = [
   { name: 'AutoRoom', loanUrl: null, inHouse: true },
 ];
 
+/**
+ * FAQ, transcribed from `references/faq.md`.
+ *
+ * The ten China questions are seeded with `answer: null` because that is the
+ * truth: the spec gives the questions verbatim and records that the content
+ * team has not written the answers. They arrive as drafts, invisible to the
+ * public site, and become visible the moment somebody writes an answer and
+ * publishes — which is exactly the workflow the screen is for.
+ *
+ * The GENERAL set is answered in the spec and is seeded published.
+ */
+const FAQ_CHINA_QUESTIONS = [
+  'Կարո՞ղ եմ պատվիրել կոնկրետ գույնով',
+  'Լիցքավորիչը ներառվա՞ծ է մեքենայի հետ',
+  'Գինը վերջնական է, թե կարող է փոխվել',
+  'Կարո՞ղ եմ մեքենան գնել ապառիկով',
+  'Որքա՞ն է տևում Չինաստանից ներմուծումը',
+  'Երաշխիք կա՞',
+  'Ինչ փաստաթղթեր են տրամադրվում',
+  'Կարո՞ղ եմ պատվիրել կոնկրետ կոմպլեկտացիա',
+  'Ինչպե՞ս է կազմակերպվում մաքսազերծումը',
+  'Ի՞նչ է լինում, եթե ճանապարհին ուշացում է լինում',
+];
+
+const FAQ_GENERAL: { question: string; answer: string }[] = [
+  {
+    question: 'Որքա՞ն ժամանակում կժամանի մեքենան, եթե պատվիրեմ Չինաստանից։',
+    answer:
+      'Մեքենայի ժամկետը կախված է տեղափոխման եղանակից․ ավտոկուզով տեղափոխման դեպքում ժամկետը սովորաբար ավելի արագ է լինում, իսկ էվակուատորով՝ ըստ երթուղու և կազմակերպման պայմանների։ Վերջնական ժամկետը հաստատվում է պատվերի և տեղափոխման տարբերակի ընտրությունից հետո: Սովորաբար տևում է մոտ 1 ամիս:',
+  },
+  {
+    question: 'Ինչպե՞ս է կատարվում վճարումը։',
+    answer:
+      'Վճարումը սովորաբար կատարվում է փուլերով՝ ըստ ծառայության ընթացքի և պայմանավորված կարգի։ Մեքենայի ներմուծման վճարման փուլերն են՝\nՓՈՒԼ 1 - Նախնական՝ ձեռքբերման գումար (արժեքի մոտ 60%-ի չափով)\nՓՈՒԼ 2 - Տեղափոխման վճար + ընկերության ծառայության գումար\nՓՈՒԼ 3 - Մաքսազերծման վճար',
+  },
+  {
+    question: 'Ինչպե՞ս է կնքվում պայմանագիրը՝ ֆիրմայի և անհատի դեպքում։',
+    answer:
+      'Պայմանագիրը կարող է կնքվել թե՛ իրավաբանական անձի, թե՛ անհատի հետ՝ համապատասխան տվյալների և փաստաթղթերի հիման վրա։ Պայմանագրի ձևաչափը ընտրվում է հաճախորդի իրավական կարգավիճակից ելնելով:',
+  },
+  {
+    question: 'Ինչպե՞ս է ձևավորվում գինը։',
+    answer:
+      'Գինը հաշվարկվում է՝ կախված մեքենայի մոդելից, ձեռքբերման երկրից, տեղափոխման եղանակից և լրացուցիչ ծառայություններից։ Մոտավոր վերջնական արժեքը կարող ես նախապես հաշվարկել կայքի մաքսազերծման հաշվիչի միջոցով, իսկ ճշգրիտ առաջարկը մեր մասնագետը կտրամադրի անհատապես՝ բոլոր ծախսերը ներառելով:',
+  },
+  {
+    question: 'Արդյո՞ք մեքենայի վերանորոգումը ներառված է գնի մեջ։',
+    answer:
+      'Վերանորոգումը սովորաբար չի ներառվում հիմնական արժեքի մեջ, եթե դա առանձին չի համաձայնեցվել։ AutoRoom-ը կարող է առաջարկել վերանորոգման կամ նախապատրաստման ծառայություններ՝ ըստ անհրաժեշտության:',
+  },
+];
+
 const SETTINGS: { key: string; group: SettingGroup; value: unknown }[] = [
   {
     key: 'branding.identity',
@@ -287,6 +345,57 @@ async function seedBranchesAndBanks() {
   console.log(`  branches: ${BRANCHES.length}, banks: ${BANKS.length}`);
 }
 
+/**
+ * Matched on the question text, since that is what identifies an entry before
+ * it has an id anywhere. Existing rows keep their answer and publish state —
+ * re-running the seed must never unpublish something an editor wrote.
+ */
+async function seedFaq() {
+  const entries = [
+    ...FAQ_CHINA_QUESTIONS.map((question, index) => ({
+      topic: FaqTopic.CHINA,
+      question,
+      answer: null as string | null,
+      position: index,
+      publish: false,
+    })),
+    ...FAQ_GENERAL.map((entry, index) => ({
+      topic: FaqTopic.GENERAL,
+      question: entry.question,
+      answer: entry.answer as string | null,
+      position: index,
+      publish: true,
+    })),
+  ];
+
+  for (const entry of entries) {
+    const existing = await prisma.faq.findFirst({
+      where: { topic: entry.topic, question: entry.question },
+    });
+
+    if (existing) {
+      await prisma.faq.update({
+        where: { id: existing.id },
+        data: { position: entry.position },
+      });
+      continue;
+    }
+
+    await prisma.faq.create({
+      data: {
+        topic: entry.topic,
+        question: entry.question,
+        answer: entry.answer,
+        position: entry.position,
+        publishedAt: entry.publish && entry.answer ? new Date() : null,
+      },
+    });
+  }
+
+  const drafts = await prisma.faq.count({ where: { publishedAt: null } });
+  console.log(`  faq: ${entries.length} (${drafts} awaiting an answer)`);
+}
+
 /* ------------------------------------ main ------------------------------------- */
 
 async function main() {
@@ -295,6 +404,7 @@ async function main() {
   await seedSuperAdmin();
   await seedSettings();
   await seedBranchesAndBanks();
+  await seedFaq();
 
   await prisma.auditLog.create({
     data: {

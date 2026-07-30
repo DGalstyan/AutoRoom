@@ -17,6 +17,7 @@ import { PartnersPage } from '@/pages/PartnersPage';
 import { BookingsPage } from '@/pages/BookingsPage';
 import { AvailabilityPage } from '@/pages/AvailabilityPage';
 import { BranchesPage } from '@/pages/BranchesPage';
+import { FaqPage } from '@/pages/FaqPage';
 import { StoriesPage } from '@/pages/StoriesPage';
 
 const queryClient = new QueryClient({
@@ -57,6 +58,7 @@ export function App() {
                     <Route path="/bookings" element={<BookingsPage />} />
                     <Route path="/availability" element={<AvailabilityPage />} />
                     <Route path="/branches" element={<BranchesPage />} />
+                    <Route path="/faq" element={<FaqPage />} />
                     <Route path="/stories" element={<StoriesPage />} />
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/roles" element={<RolesPage />} />

@@ -362,6 +362,34 @@ export interface Branch extends BranchRef {
 
 export type BranchInput = Omit<Branch, 'id'>;
 
+/* ------------------------------------ faq ----------------------------------- */
+
+/**
+ * `GENERAL` covers the answered set that belongs to neither country page — how
+ * payment is staged, how the contract is signed, where the branches are.
+ */
+export type FaqTopic = 'CHINA' | 'USA' | 'GENERAL';
+
+export interface Faq {
+  id: string;
+  topic: FaqTopic;
+  question: string;
+  /** Null while the answer is still to be written. Such a row cannot publish. */
+  answer: string | null;
+  position: number;
+  /** Null means draft — the public endpoint does not return it. */
+  publishedAt: string | null;
+  createdAt: string;
+}
+
+export interface FaqInput {
+  topic: FaqTopic;
+  question: string;
+  answer?: string | null;
+  position: number;
+  published: boolean;
+}
+
 /* ----------------------------------- media ---------------------------------- */
 
 export type MediaKind = 'FOUNDER' | 'CUSTOMER_STORY' | 'GUIDE_REEL';

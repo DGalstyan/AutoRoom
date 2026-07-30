@@ -16,6 +16,9 @@ import type {
   CarListResponse,
   CreateUserRequest,
   ErrorCode,
+  Faq,
+  FaqInput,
+  FaqTopic,
   HealthResponse,
   ImageAlbum,
   LoginRequest,
@@ -332,6 +335,30 @@ export function createApiClient(options: ApiClientOptions) {
       /** Unauthenticated — the map, footer and Contact page read this. */
       public: (init?: RequestOptions) =>
         request<{ items: Branch[]; total: number }>('GET', '/public/branches', init),
+    },
+
+    /** Homepage S9 and the China/USA page sections. */
+    faq: {
+      list: (
+        query: { topic?: FaqTopic; published?: boolean; take?: number; skip?: number } = {},
+        init?: RequestOptions,
+      ) =>
+        request<{ items: Faq[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/faq${toSearch(query)}`,
+          init,
+        ),
+      create: (body: FaqInput, init?: RequestOptions) =>
+        request<Faq>('POST', '/faq', { ...init, body }),
+      update: (id: string, body: FaqInput, init?: RequestOptions) =>
+        request<Faq>('PUT', `/faq/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/faq/${id}`, init),
+      /** Separate from `update` because `faq:PUBLISH` is its own permission. */
+      setPublished: (id: string, published: boolean, init?: RequestOptions) =>
+        request<Faq>('POST', `/faq/${id}/publish`, { ...init, body: { published } }),
+      /** Unauthenticated. No topic means the homepage's aggregated set. */
+      public: (query: { topic?: FaqTopic } = {}, init?: RequestOptions) =>
+        request<{ items: Faq[]; total: number }>('GET', `/public/faq${toSearch(query)}`, init),
     },
 
     /**

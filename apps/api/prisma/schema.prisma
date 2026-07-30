@@ -237,6 +237,42 @@ model Branch {
   @@map("branches")
 }
 
+/// Which FAQ a question belongs to.
+///
+/// `references/admin.md` names only china and usa. `GENERAL` is added for the
+/// answered set in `references/faq.md` that belongs to neither — how payment is
+/// staged, how the contract is signed, where the branches are. Filing those
+/// under CHINA would make the USA page either repeat them or lose them.
+enum FaqTopic {
+  CHINA
+  USA
+  GENERAL
+}
+
+/// A question and its answer — Homepage S9, and the China/USA page sections.
+///
+/// The answer is nullable because that is the real state of this content: the
+/// spec lists ten China questions whose answers the content team has not
+/// written yet, and a screen that cannot hold a question without an answer
+/// would force someone to invent one. Publishing is what requires both.
+model Faq {
+  id       String   @id @default(cuid())
+  topic    FaqTopic
+  question String
+  answer   String?
+
+  /// Display order within a topic.
+  position Int @default(0)
+  /// Null means draft — the public endpoint never returns it.
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([topic, position])
+  @@map("faq")
+}
+
 /// What a piece of video is for. The Story Wall reads `CUSTOMER_STORY`; the
 /// homepage founder film and the guide reels share the table because they are
 /// the same thing to an editor — a titled video with a poster frame.
