@@ -15,8 +15,10 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  API_IMAGE: ghcr.io/${{ github.repository_owner }}/autoroom-api
-  ADMIN_IMAGE: ghcr.io/${{ github.repository_owner }}/autoroom-admin
+  # Docker image names must be lowercase; the GitHub owner/repo casing isn't
+  # guaranteed to be, so these are spelled out rather than interpolated.
+  API_IMAGE: ghcr.io/dgalstyan/autoroom-api
+  ADMIN_IMAGE: ghcr.io/dgalstyan/autoroom-admin
   # Baked into the admin build — see apps/admin/Dockerfile.
   VITE_API_URL: https://admin.autoroom.am/api
 
