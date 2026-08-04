@@ -22,6 +22,10 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY apps/api/package.json ./apps/api/package.json
+# prisma/seed.ts imports from ../src (it isn't compiled — tsconfig.build.json
+# only includes src/**/*.ts) and is run directly via tsx, so the source has
+# to be here too, not just the compiled dist.
+COPY --from=builder /app/apps/api/src ./apps/api/src
 
 WORKDIR /app/apps/api
 EXPOSE 4000
