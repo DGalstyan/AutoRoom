@@ -2,6 +2,7 @@ import type { BrandingTheme, SettingRecord } from '@autoroom/api/client';
 import { Box, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import { SectionCard } from '@/pages/settings/SectionCard';
 import { BrandPreview } from '@/pages/settings/BrandPreview';
+import { UploadField } from '@/components/UploadField';
 import { useSettingSection } from '@/pages/settings/useSettingSection';
 
 /** Grouped so the grid reads as "what it is" rather than 13 equal swatches. */
@@ -30,7 +31,7 @@ export function BrandingSettings({
       <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0, width: '100%' }}>
         <SectionCard
           title="Identity"
-          description="The brand name and marks the site renders. Assets are referenced by URL — the panel has no uploader yet."
+          description="The brand name and marks the site renders."
           dirty={identity.dirty}
           saving={identity.saving}
           readOnly={readOnly}
@@ -47,34 +48,59 @@ export function BrandingSettings({
               disabled={readOnly}
               fullWidth
             />
-            <TextField
+            <UploadField
               label="Logo — light backgrounds"
-              value={identity.value.logoLightUrl ?? ''}
-              onChange={(event) => identity.patch({ logoLightUrl: event.target.value || null })}
-              error={Boolean(identity.fieldErrors.logoLightUrl)}
-              helperText={
-                identity.fieldErrors.logoLightUrl ?? 'Full URL. Leave blank to use the wordmark.'
-              }
+              accept="image/*"
+              value={identity.value.logoLightUrl ?? null}
+              onChange={(url) => identity.patch({ logoLightUrl: url })}
+              helperText={identity.fieldErrors.logoLightUrl ?? 'Leave blank to use the wordmark.'}
               disabled={readOnly}
-              fullWidth
+              preview={(url) => (
+                <Box
+                  component="img"
+                  src={url}
+                  alt=""
+                  sx={{ width: '100%', maxHeight: 120, objectFit: 'contain', display: 'block' }}
+                />
+              )}
             />
-            <TextField
+            <UploadField
               label="Logo — dark backgrounds"
-              value={identity.value.logoDarkUrl ?? ''}
-              onChange={(event) => identity.patch({ logoDarkUrl: event.target.value || null })}
-              error={Boolean(identity.fieldErrors.logoDarkUrl)}
+              accept="image/*"
+              value={identity.value.logoDarkUrl ?? null}
+              onChange={(url) => identity.patch({ logoDarkUrl: url })}
               helperText={identity.fieldErrors.logoDarkUrl}
               disabled={readOnly}
-              fullWidth
+              preview={(url) => (
+                <Box
+                  component="img"
+                  src={url}
+                  alt=""
+                  sx={{
+                    width: '100%',
+                    maxHeight: 120,
+                    objectFit: 'contain',
+                    display: 'block',
+                    bgcolor: '#1a1a1a',
+                  }}
+                />
+              )}
             />
-            <TextField
+            <UploadField
               label="Favicon"
-              value={identity.value.faviconUrl ?? ''}
-              onChange={(event) => identity.patch({ faviconUrl: event.target.value || null })}
-              error={Boolean(identity.fieldErrors.faviconUrl)}
+              accept="image/png,image/x-icon,image/svg+xml"
+              value={identity.value.faviconUrl ?? null}
+              onChange={(url) => identity.patch({ faviconUrl: url })}
               helperText={identity.fieldErrors.faviconUrl}
               disabled={readOnly}
-              fullWidth
+              preview={(url) => (
+                <Box
+                  component="img"
+                  src={url}
+                  alt=""
+                  sx={{ width: 32, height: 32, objectFit: 'contain', display: 'block', m: 1.5 }}
+                />
+              )}
             />
           </Stack>
         </SectionCard>

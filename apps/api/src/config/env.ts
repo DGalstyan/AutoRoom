@@ -49,6 +49,13 @@ const schema = z.object({
    * served under `/admin`, so the base includes that segment.
    */
   APP_URL: z.string().url().default('http://localhost:3000/admin'),
+  /**
+   * This API's own public origin, used to build absolute URLs for uploaded
+   * files (see routes/uploads.ts). Not derivable from the request: behind the
+   * reverse proxy, the API is reached at `<domain>/api`, and the app has no
+   * way to know that external prefix from `req` alone.
+   */
+  PUBLIC_API_URL: z.string().url().default('http://localhost:4000'),
   /** Leave unset for host-only cookies; set to share across subdomains. */
   COOKIE_DOMAIN: z.string().optional(),
 });

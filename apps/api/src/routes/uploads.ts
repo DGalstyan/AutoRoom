@@ -33,6 +33,9 @@ const ALLOWED = new Map([
   ['image/webp', '.webp'],
   ['image/avif', '.avif'],
   ['image/gif', '.gif'],
+  ['image/svg+xml', '.svg'],
+  ['image/x-icon', '.ico'],
+  ['image/vnd.microsoft.icon', '.ico'],
   ['video/mp4', '.mp4'],
   ['video/webm', '.webm'],
 ]);
@@ -90,9 +93,8 @@ uploadsRouter.post(
 
     // Absolute so the admin — served from a different origin — can render it
     // without knowing where the API lives.
-    const origin = env.CORS_ORIGINS.length > 0 ? `http://localhost:${env.PORT}` : '';
     res.status(201).json({
-      url: `${origin}/uploads/${file.filename}`,
+      url: `${env.PUBLIC_API_URL}/uploads/${file.filename}`,
       filename: file.filename,
       size: file.size,
       mimeType: file.mimetype,
