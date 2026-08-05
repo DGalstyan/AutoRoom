@@ -28,6 +28,49 @@ export function makeClient(accessToken?: string | null) {
 /** Client for the calls made before a token exists: login, refresh, reset. */
 export const anonymousClient = makeClient();
 
+/**
+ * Wraps a token-bound client so a request that hits a 401 — the access token
+ * expired between the scheduled rotation and this call, e.g. after the laptop
+ * slept through it — transparently rotates and retries once, instead of
+ * surfacing the error to whatever screen happened to be mid-request.
+ *
+ * A deep proxy rather than per-method wiring: the client is a nested object of
+ * async functions (`api.cars.list`, `api.auth.me`, ...), and re-listing every
+ * one here would drift the moment a new resource is added.
+ */
+export function withReauth<T extends object>(client: T, rotate: () => Promise<string | null>): T {
+  function wrap<V extends object>(target: V, path: PropertyKey[]): V {
+    return new Proxy(target, {
+      get(obj, prop, receiver) {
+        const value = Reflect.get(obj, prop, receiver);
+        if (typeof value === 'function') {
+          return async (...args: unknown[]) => {
+            try {
+              return await (value as (...a: unknown[]) => unknown).apply(obj, args);
+            } catch (error) {
+              if (!(error instanceof ApiError) || error.status !== 401) throw error;
+
+              const freshToken = await rotate();
+              if (!freshToken) throw error;
+
+              // Re-resolve the same method off a client built from the new
+              // token — retried once, not wrapped again, so a second 401
+              // (refresh itself came back stale) surfaces rather than loops.
+              let resolved: unknown = makeClient(freshToken);
+              for (const key of path) resolved = (resolved as Record<PropertyKey, unknown>)[key];
+              return await (resolved as (...a: unknown[]) => unknown)(...args);
+            }
+          };
+        }
+        if (value && typeof value === 'object') return wrap(value, [...path, prop]);
+        return value;
+      },
+    });
+  }
+
+  return wrap(client, []);
+}
+
 /** Turns an API failure into something worth showing a person. */
 export function errorMessage(error: unknown, fallback = 'Something went wrong. Try again.') {
   if (error instanceof ApiError) return error.message;

@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { AuthContext as Identity } from '@autoroom/api/client';
-import { ApiError, makeClient } from '@/lib/api';
+import { ApiError, makeClient, withReauth } from '@/lib/api';
 
 /**
  * Session state for the whole admin.
@@ -50,8 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<Status>('loading');
   const refreshTimer = useRef<number | null>(null);
   const inFlightRefresh = useRef<Promise<string | null> | null>(null);
-
-  const api = useMemo(() => makeClient(token), [token]);
 
   const clearTimer = useCallback(() => {
     if (refreshTimer.current !== null) {
@@ -101,6 +99,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     inFlightRefresh.current = attempt;
     return attempt;
   }, [clearTimer]);
+
+  // Retries a request once, after rotating, if it comes back 401 — the token
+  // expiring between the scheduled rotation and the request landing (e.g. the
+  // laptop slept through the timer) shouldn't surface as a broken screen.
+  const api = useMemo(() => withReauth(makeClient(token), rotate), [token, rotate]);
 
   const loadIdentity = useCallback(async (accessToken: string) => {
     const client = makeClient(accessToken);

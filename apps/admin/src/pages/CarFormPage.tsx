@@ -3,9 +3,11 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CarCondition,
+  CarImage,
   CarInput,
   CarOrigin,
   CarStatusBadge,
+  ImageAlbum,
   Powertrain,
 } from '@autoroom/api/client';
 import {
@@ -27,7 +29,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useAuth } from '@/auth/AuthProvider';
 import { ApiError, errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
-import { ImageAlbums } from '@/pages/cars/ImageAlbums';
+import { ImageAlbums, type StagedImage } from '@/pages/cars/ImageAlbums';
 import { ColourEditor } from '@/pages/cars/ColourEditor';
 import { PriceJourneyEditor } from '@/pages/cars/PriceJourneyEditor';
 import { CONDITIONS, ORIGINS, POWERTRAINS, STATUS_BADGES, slugify } from '@/pages/cars/carOptions';
@@ -69,11 +71,11 @@ const BLANK: CarInput = {
 /**
  * Create and edit one car.
  *
- * Images live outside the form's draft because they are their own endpoints —
- * an upload takes effect immediately, and pretending otherwise would mean
- * holding files in memory until someone remembers to press Save. So the albums
- * appear only once the car exists, and a new car is created from the fields
- * first.
+ * Images are their own endpoints — a file lands on `/uploads` the moment it is
+ * picked, not on Save — so while creating, uploads are staged in local state
+ * (`pendingImages`) rather than lost until a car id exists to attach them to.
+ * Once `cars.create` returns one, the staged uploads are attached in the same
+ * flow the edit view uses one at a time, and the draft is cleared.
  */
 export function CarFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -108,6 +110,7 @@ export function CarFormPage() {
   const [draft, setDraft] = useState<CarInput>(BLANK);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [slugTouched, setSlugTouched] = useState(false);
+  const [pendingImages, setPendingImages] = useState<StagedImage[]>([]);
 
   useEffect(() => {
     if (carQuery.data) {
@@ -134,9 +137,20 @@ export function CarFormPage() {
 
   const saveMutation = useMutation({
     mutationFn: (body: CarInput) => (creating ? api.cars.create(body) : api.cars.update(id!, body)),
-    onSuccess: (car) => {
+    onSuccess: async (car) => {
       setFieldErrors({});
-      toast(creating ? 'Car created. Add its photos next.' : 'Saved.');
+
+      // Staged during creation, attached now that the car has an id — one at a
+      // time, same as the edit view, so a mid-batch failure leaves the rest
+      // still staged rather than silently dropped.
+      if (creating && pendingImages.length > 0) {
+        for (const image of pendingImages) {
+          await api.cars.addImage(car.id, { album: image.album, url: image.url });
+        }
+        setPendingImages([]);
+      }
+
+      toast(creating ? 'Car created.' : 'Saved.');
       void queryClient.invalidateQueries({ queryKey: ['cars'] });
       void queryClient.invalidateQueries({ queryKey: ['car', car.id] });
       if (creating) navigate(`/cars/${car.id}`, { replace: true });
@@ -146,6 +160,28 @@ export function CarFormPage() {
       toast(errorMessage(error, 'Could not save.'), 'error');
     },
   });
+
+  async function handleAddImage(album: ImageAlbum, file: File) {
+    const uploaded = await api.upload(file);
+    if (creating) {
+      setPendingImages((current) => [
+        ...current,
+        { id: crypto.randomUUID(), album, url: uploaded.url },
+      ]);
+      return;
+    }
+    await api.cars.addImage(id!, { album, url: uploaded.url });
+    await queryClient.invalidateQueries({ queryKey: ['car', id] });
+  }
+
+  async function handleRemoveImage(image: CarImage | StagedImage) {
+    if (creating) {
+      setPendingImages((current) => current.filter((staged) => staged.id !== image.id));
+      return;
+    }
+    await api.cars.removeImage(id!, image.id);
+    await queryClient.invalidateQueries({ queryKey: ['car', id] });
+  }
 
   const publishMutation = useMutation({
     mutationFn: (published: boolean) => api.cars.setPublished(id!, published),
@@ -562,14 +598,18 @@ export function CarFormPage() {
           />
         </Section>
 
-        <Section title="Photos and video">
-          {creating ? (
-            <Alert severity="info">
-              Create the car first — photos attach to it, so they need somewhere to attach to.
-            </Alert>
-          ) : (
-            <ImageAlbums carId={car!.id} images={car!.images} readOnly={readOnly} />
-          )}
+        <Section
+          title="Photos and video"
+          description={
+            creating ? 'Uploaded now, attached to the car as soon as it is created.' : undefined
+          }
+        >
+          <ImageAlbums
+            images={creating ? pendingImages : car!.images}
+            readOnly={readOnly}
+            onAdd={handleAddImage}
+            onRemove={handleRemoveImage}
+          />
         </Section>
       </Stack>
 

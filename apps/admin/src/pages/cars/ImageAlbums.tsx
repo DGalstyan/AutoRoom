@@ -1,48 +1,54 @@
 import { useRef, useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import type { CarImage, ImageAlbum } from '@autoroom/api/client';
 import { Alert, Box, Button, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import UploadIcon from '@mui/icons-material/CloudUploadOutlined';
-import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ALBUMS } from '@/pages/cars/carOptions';
 import { brand } from '@/theme';
 
+/** A file uploaded before the car exists to attach it to — not a `CarImage` yet. */
+export interface StagedImage {
+  /** Client-only id: this row has no server counterpart until the car is created. */
+  id: string;
+  album: ImageAlbum;
+  url: string;
+}
+
 /**
  * The seven photo albums, each an independent drop target.
  *
- * Upload and attach are two calls — the file goes to `/uploads` and the
- * returned URL is attached to the car — so the same uploader serves machinery
- * and order documents later without either knowing about the other. It also
- * means an attach that fails leaves an orphaned file rather than a car row
- * pointing at nothing, which is the better of the two failures.
- *
- * Only available once the car exists: images hang off a car id, and inventing
- * one before the first save would mean reconciling uploads against a car that
- * might never be created.
+ * `onAdd`/`onRemove` are injected rather than calling the API directly, so the
+ * same component serves two situations: attaching to a car that already
+ * exists, and staging uploads for one that doesn't yet (the file still goes to
+ * `/uploads` immediately — only the "attach to a car row" step is deferred).
  */
 export function ImageAlbums({
-  carId,
   images,
   readOnly,
+  onAdd,
+  onRemove,
 }: {
-  carId: string;
-  images: CarImage[];
+  images: (CarImage | StagedImage)[];
   readOnly: boolean;
+  /** Uploads one file and attaches it to the given album. */
+  onAdd: (album: ImageAlbum, file: File) => Promise<void>;
+  onRemove: (image: CarImage | StagedImage) => Promise<void>;
 }) {
   return (
     <Stack spacing={3}>
       {ALBUMS.map((album) => (
         <AlbumRow
           key={album.value}
-          carId={carId}
           album={album.value}
           label={album.label}
           hint={album.hint}
           images={images.filter((image) => image.album === album.value)}
           readOnly={readOnly}
+          onAdd={onAdd}
+          onRemove={onRemove}
         />
       ))}
     </Stack>
@@ -50,51 +56,40 @@ export function ImageAlbums({
 }
 
 function AlbumRow({
-  carId,
   album,
   label,
   hint,
   images,
   readOnly,
+  onAdd,
+  onRemove,
 }: {
-  carId: string;
   album: ImageAlbum;
   label: string;
   hint: string;
-  images: CarImage[];
+  images: (CarImage | StagedImage)[];
   readOnly: boolean;
+  onAdd: (album: ImageAlbum, file: File) => Promise<void>;
+  onRemove: (image: CarImage | StagedImage) => Promise<void>;
 }) {
-  const { api } = useAuth();
   const toast = useToast();
-  const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
-
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ['car', carId] });
 
   const uploadMutation = useMutation({
     mutationFn: async (files: File[]) => {
       // Sequential rather than parallel: a dropped folder of 30 photos would
       // otherwise open 30 sockets and the progress would be a lie.
-      for (const file of files) {
-        const uploaded = await api.upload(file);
-        await api.cars.addImage(carId, { album, url: uploaded.url });
-      }
+      for (const file of files) await onAdd(album, file);
       return files.length;
     },
-    onSuccess: (count) => {
-      toast(`${count} file${count === 1 ? '' : 's'} added to ${label}.`);
-      void refresh();
-    },
+    onSuccess: (count) => toast(`${count} file${count === 1 ? '' : 's'} added to ${label}.`),
     onError: (error) => toast(errorMessage(error, 'Upload failed.'), 'error'),
   });
 
   const removeMutation = useMutation({
-    mutationFn: (imageId: string) => api.cars.removeImage(carId, imageId),
-    onSuccess: () => {
-      toast('Removed.');
-      void refresh();
-    },
+    mutationFn: onRemove,
+    onSuccess: () => toast('Removed.'),
     onError: (error) => toast(errorMessage(error), 'error'),
   });
 
@@ -178,7 +173,7 @@ function AlbumRow({
                     size="small"
                     aria-label="Remove"
                     disabled={removeMutation.isPending}
-                    onClick={() => removeMutation.mutate(image.id)}
+                    onClick={() => removeMutation.mutate(image)}
                     sx={{
                       position: 'absolute',
                       top: 4,
