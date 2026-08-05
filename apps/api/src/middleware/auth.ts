@@ -21,6 +21,8 @@ export interface AuthContext {
   role: { key: string; name: string };
   /** `resource:action` strings, e.g. `cars:UPDATE`. */
   permissions: string[];
+  /** True on a system-issued password the client must gate the panel behind. */
+  mustChangePassword: boolean;
 }
 
 declare global {
@@ -60,6 +62,7 @@ export async function loadAuthContext(userId: string): Promise<AuthContext> {
     permissions: user.role.permissions.map(
       (grant) => `${grant.permission.resource}:${grant.permission.action}`,
     ),
+    mustChangePassword: user.mustChangePassword,
   };
 }
 

@@ -3,7 +3,7 @@ import { BookingStatus, Prisma, UserStatus } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict, notFound } from '../lib/errors';
-import { MIN_PASSWORD_LENGTH, hashPassword } from '../lib/password';
+import { generateTemporaryPassword, hashPassword } from '../lib/password';
 import { requireAuth } from '../middleware/auth';
 import { requirePartner } from '../middleware/partner';
 import { requirePermission } from '../middleware/rbac';
@@ -38,7 +38,6 @@ const partnerBodySchema = z.object({
 const accountSchema = z.object({
   email: z.string().email().max(254).toLowerCase().trim(),
   name: z.string().trim().min(1).max(120).optional(),
-  password: z.string().min(MIN_PASSWORD_LENGTH).max(200),
 });
 
 /**
@@ -186,6 +185,13 @@ partnersRouter.delete(
  * as well as `partners:UPDATE` — it is an account being created, and the
  * permission that governs that should not be side-stepped by coming at it from
  * the partners screen.
+ *
+ * The password is generated here rather than taken from the request: it only
+ * needs to survive one login, `mustChangePassword` forces the partner to
+ * replace it immediately after, and a staff member typing (or reusing) a
+ * password on someone else's behalf is worse than the API picking a random
+ * one. It is returned once in the response — this is the only time it exists
+ * in plaintext outside the partner's head.
  */
 partnersRouter.post(
   '/partners/:id/account',
@@ -208,13 +214,15 @@ partnersRouter.post(
     const role = await prisma.role.findUnique({ where: { key: 'partner' } });
     if (!role) throw badRequest('The partner role is missing. Run the seed.');
 
+    const temporaryPassword = generateTemporaryPassword();
     const user = await prisma.user.create({
       data: {
         email: body.email,
         name: body.name ?? partner.name,
-        passwordHash: await hashPassword(body.password),
+        passwordHash: await hashPassword(temporaryPassword),
         status: UserStatus.ACTIVE,
         roleId: role.id,
+        mustChangePassword: true,
       },
     });
 
@@ -228,7 +236,7 @@ partnersRouter.post(
     });
 
     await audit(req.auth?.userId, 'partner.account.create', id, { email: user.email });
-    res.status(201).json(serializePartner(updated));
+    res.status(201).json({ ...serializePartner(updated), temporaryPassword });
   },
 );
 

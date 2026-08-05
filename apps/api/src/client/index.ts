@@ -14,6 +14,7 @@ import type {
   CarInput,
   CarListQuery,
   CarListResponse,
+  ChangePasswordRequest,
   CreateUserRequest,
   ErrorCode,
   Faq,
@@ -30,6 +31,7 @@ import type {
   BookingInput,
   Partner,
   PartnerAccountRequest,
+  PartnerAccountResponse,
   PartnerInput,
   PermissionCatalogue,
   PermissionPair,
@@ -202,6 +204,9 @@ export function createApiClient(options: ApiClientOptions) {
         request<{ message: string }>('POST', '/auth/reset', { ...init, body }),
 
       me: (init?: RequestOptions) => request<AuthContext>('GET', '/auth/me', init),
+
+      changePassword: (body: ChangePasswordRequest, init?: RequestOptions) =>
+        request<{ message: string }>('POST', '/auth/change-password', { ...init, body }),
     },
 
     roles: {
@@ -300,9 +305,13 @@ export function createApiClient(options: ApiClientOptions) {
         request<Partner>('PUT', `/partners/${id}`, { ...init, body }),
       remove: (id: string, init?: RequestOptions) =>
         request<void>('DELETE', `/partners/${id}`, init),
-      /** Issues the portal login. Needs `users:CREATE` as well as `partners:UPDATE`. */
+      /**
+       * Issues the portal login. Needs `users:CREATE` as well as
+       * `partners:UPDATE`. The response carries `temporaryPassword` exactly
+       * once — nothing later re-exposes it.
+       */
       createAccount: (id: string, body: PartnerAccountRequest, init?: RequestOptions) =>
-        request<Partner>('POST', `/partners/${id}/account`, { ...init, body }),
+        request<PartnerAccountResponse>('POST', `/partners/${id}/account`, { ...init, body }),
     },
 
     bookings: {

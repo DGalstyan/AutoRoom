@@ -49,6 +49,11 @@ const resetSchema = z.object({
   password: passwordSchema,
 });
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required').max(200),
+  newPassword: passwordSchema,
+});
+
 /* --------------------------------- register --------------------------------- */
 
 authRouter.post(
@@ -290,6 +295,47 @@ authRouter.post(
     clearAuthCookies(res);
 
     res.json({ message: 'Password updated. Sign in with your new password.' });
+  },
+);
+
+/* ------------------------------ change password ------------------------------ */
+
+/**
+ * Self-service change for a signed-in user — most visibly the forced step
+ * after a system-issued (partner invite) password, but not restricted to
+ * that: `mustChangePassword` merely stops being true afterwards.
+ *
+ * Requires the current password despite the request already being
+ * authenticated: a bearer token alone (e.g. from a stolen access token) should
+ * not be enough to lock the real owner out by rotating their credential.
+ */
+authRouter.post(
+  '/auth/change-password',
+  requireAuth,
+  validateBody(changePasswordSchema),
+  async (req, res) => {
+    const { currentPassword, newPassword } = req.body as z.infer<typeof changePasswordSchema>;
+
+    const user = await prisma.user.findUnique({ where: { id: req.auth!.userId } });
+    if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
+      throw unauthorized('Current password is incorrect');
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: await hashPassword(newPassword), mustChangePassword: false },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        actorId: user.id,
+        action: 'auth.password_change',
+        resource: 'users',
+        resourceId: user.id,
+      },
+    });
+
+    res.json({ message: 'Password updated.' });
   },
 );
 

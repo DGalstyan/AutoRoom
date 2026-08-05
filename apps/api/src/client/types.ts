@@ -100,6 +100,13 @@ export interface AuthContext {
   role: RoleRef;
   /** `resource:action`, e.g. `cars:UPDATE`. Hide UI the role cannot use. */
   permissions: string[];
+  /** True on a system-issued password — the client gates the panel behind `/auth/change-password`. */
+  mustChangePassword: boolean;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
 /* ------------------------------ roles & users ------------------------------ */
@@ -296,8 +303,10 @@ export type PartnerInput = Pick<
 export interface PartnerAccountRequest {
   email: string;
   name?: string;
-  password: string;
 }
+
+/** The temporary password is present exactly once, in this response. */
+export type PartnerAccountResponse = Partner & { temporaryPassword: string };
 
 export interface Booking {
   id: string;

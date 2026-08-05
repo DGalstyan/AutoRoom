@@ -20,6 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
@@ -27,7 +28,6 @@ import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DataTable } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
-import { PasswordField } from '@/components/PasswordField';
 import { brand, mono } from '@/theme';
 
 const BLANK: PartnerInput = {
@@ -449,64 +449,100 @@ function AccountDialog({
   onDone: (message: string) => void;
 }) {
   const { api } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState(partner.email ?? '');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  /** Set once creation succeeds — switches the dialog to the reveal-once view. */
+  const [issued, setIssued] = useState<string | null>(null);
+  const doneMessage = `${partner.name} can now sign in to the portal.`;
 
   const mutation = useMutation({
-    mutationFn: () => api.partners.createAccount(partner.id, { email, password }),
-    onSuccess: () => onDone(`${partner.name} can now sign in to the portal.`),
+    mutationFn: () => api.partners.createAccount(partner.id, { email }),
+    onSuccess: (created) => setIssued(created.temporaryPassword),
     onError: (caught) => setError(errorMessage(caught)),
   });
 
+  function copyPassword() {
+    if (!issued) return;
+    void navigator.clipboard.writeText(issued).then(() => toast('Copied.'));
+  }
+
   return (
-    <Dialog open onClose={mutation.isPending ? undefined : onClose} maxWidth="xs" fullWidth>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          setError(null);
-          mutation.mutate();
-        }}
-      >
-        <DialogTitle>Give portal access</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
-            Creates a login with the Partner role. They will see the cars assigned to them and their
-            bookings, and nothing else. Pass the password on directly — no email is sent.
-          </DialogContentText>
-          <Stack spacing={2.5}>
-            {error && <Alert severity="error">{error}</Alert>}
+    <Dialog
+      open
+      onClose={mutation.isPending ? undefined : issued ? () => onDone(doneMessage) : onClose}
+      maxWidth="xs"
+      fullWidth
+    >
+      {issued ? (
+        <>
+          <DialogTitle>Portal login created</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
+              Send this password to {partner.name} outside the panel — it is shown only this once.
+              They will be asked to set their own the moment they sign in.
+            </DialogContentText>
             <TextField
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              autoFocus
+              label="Temporary password"
+              value={issued}
               fullWidth
+              slotProps={{
+                input: {
+                  readOnly: true,
+                  sx: { fontFamily: mono },
+                  endAdornment: (
+                    <IconButton onClick={copyPassword} edge="end" size="small" aria-label="Copy">
+                      <ContentCopyOutlined fontSize="small" />
+                    </IconButton>
+                  ),
+                },
+              }}
             />
-            <PasswordField
-              label="Password"
-              value={password}
-              onChange={setPassword}
-              autoComplete="new-password"
-              required
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2.5 }}>
-          <Button onClick={onClose} disabled={mutation.isPending} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={!email || !password || mutation.isPending}
-          >
-            {mutation.isPending ? 'Creating…' : 'Create login'}
-          </Button>
-        </DialogActions>
-      </form>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button variant="contained" onClick={() => onDone(doneMessage)}>
+              Done
+            </Button>
+          </DialogActions>
+        </>
+      ) : (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            setError(null);
+            mutation.mutate();
+          }}
+        >
+          <DialogTitle>Give portal access</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
+              Creates a login with the Partner role. They will see the cars assigned to them and
+              their bookings, and nothing else. A temporary password is generated for you to pass on
+              — no email is sent.
+            </DialogContentText>
+            <Stack spacing={2.5}>
+              {error && <Alert severity="error">{error}</Alert>}
+              <TextField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                autoFocus
+                fullWidth
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button onClick={onClose} disabled={mutation.isPending} color="inherit">
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" disabled={!email || mutation.isPending}>
+              {mutation.isPending ? 'Creating…' : 'Create login'}
+            </Button>
+          </DialogActions>
+        </form>
+      )}
     </Dialog>
   );
 }

@@ -98,6 +98,11 @@ model User {
   status       UserStatus @default(PENDING)
   lastLoginAt  DateTime?
 
+  /// Set on a system-issued password (partner portal invites today) and
+  /// cleared by `POST /auth/change-password`. The client gates the rest of
+  /// the panel behind that screen while this is true.
+  mustChangePassword Boolean @default(false)
+
   /// Consecutive failed logins; reset to 0 on success.
   failedLoginAttempts Int       @default(0)
   /// Set when `failedLoginAttempts` crosses the threshold. Login is refused

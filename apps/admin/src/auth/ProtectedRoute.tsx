@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
+import { ChangePasswordPage } from '@/pages/ChangePasswordPage';
 
 /**
  * Gate for everything behind sign-in.
@@ -10,9 +11,13 @@ import { useAuth } from '@/auth/AuthProvider';
  * otherwise every reload would flash the login screen at an already-signed-in
  * user. The attempted path rides along in router state so sign-in can return
  * them to where they were headed.
+ *
+ * A system-issued password (partner invites) renders `ChangePasswordPage`
+ * here instead of the outlet — one choke point rather than a route per
+ * screen, so nothing downstream has to remember to check.
  */
 export function ProtectedRoute() {
-  const { status } = useAuth();
+  const { status, identity } = useAuth();
   const location = useLocation();
 
   if (status === 'loading') {
@@ -32,6 +37,8 @@ export function ProtectedRoute() {
   if (status === 'anonymous') {
     return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   }
+
+  if (identity?.mustChangePassword) return <ChangePasswordPage />;
 
   return <Outlet />;
 }
