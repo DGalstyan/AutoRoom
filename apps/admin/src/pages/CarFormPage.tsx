@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useAuth } from '@/auth/AuthProvider';
-import { ApiError, errorMessage } from '@/lib/api';
+import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ImageAlbums, type StagedImage } from '@/pages/cars/ImageAlbums';
 import { ColourEditor } from '@/pages/cars/ColourEditor';
@@ -670,11 +670,4 @@ function Grid({ children }: { children: React.ReactNode }) {
       {children}
     </Box>
   );
-}
-
-function extractFieldErrors(error: unknown): Record<string, string> {
-  if (!(error instanceof ApiError)) return {};
-  const details = error.details as { fields?: { path: string; message: string }[] } | undefined;
-  if (!details?.fields) return {};
-  return Object.fromEntries(details.fields.map((field) => [field.path, field.message]));
 }

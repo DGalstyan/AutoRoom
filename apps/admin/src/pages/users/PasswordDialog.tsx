@@ -13,7 +13,7 @@ import {
   Stack,
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
-import { errorMessage } from '@/lib/api';
+import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { PasswordField } from '@/components/PasswordField';
 
 /**
@@ -36,6 +36,7 @@ export function PasswordDialog({
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const isSelf = user.id === identity?.userId;
 
@@ -48,7 +49,10 @@ export function PasswordDialog({
       // minutes of half-valid access. End it cleanly instead.
       if (isSelf) void signOut();
     },
-    onError: (caught) => setError(errorMessage(caught)),
+    onError: (caught) => {
+      setFieldErrors(extractFieldErrors(caught));
+      setError(errorMessage(caught));
+    },
   });
 
   const tooShort = password.length > 0 && password.length < MIN_PASSWORD_LENGTH;
@@ -58,6 +62,7 @@ export function PasswordDialog({
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
+    setFieldErrors({});
     mutation.mutate();
   }
 
@@ -81,8 +86,11 @@ export function PasswordDialog({
               onChange={setPassword}
               autoComplete="new-password"
               required
-              error={tooShort}
-              helperText={tooShort ? `At least ${MIN_PASSWORD_LENGTH} characters.` : undefined}
+              error={tooShort || Boolean(fieldErrors.password)}
+              helperText={
+                fieldErrors.password ??
+                (tooShort ? `At least ${MIN_PASSWORD_LENGTH} characters.` : undefined)
+              }
             />
 
             <PasswordField

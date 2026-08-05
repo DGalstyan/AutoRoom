@@ -80,3 +80,16 @@ export function errorMessage(error: unknown, fallback = 'Something went wrong. T
   }
   return fallback;
 }
+
+/**
+ * A 400 from `validateBody` (or settings' own dynamic-schema validation)
+ * carries `details: { fields: [{ path, message }] }` — this reads that back
+ * keyed by field path, so a form can mark the offending input instead of
+ * showing one generic banner.
+ */
+export function extractFieldErrors(error: unknown): Record<string, string> {
+  if (!(error instanceof ApiError)) return {};
+  const details = error.details as { fields?: { path: string; message: string }[] } | undefined;
+  if (!details?.fields) return {};
+  return Object.fromEntries(details.fields.map((field) => [field.path, field.message]));
+}

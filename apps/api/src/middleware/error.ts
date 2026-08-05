@@ -30,10 +30,16 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
       error: {
         code: 'VALIDATION_ERROR',
         message: 'Request validation failed',
-        details: error.issues.map((issue) => ({
-          path: issue.path.join('.'),
-          message: issue.message,
-        })),
+        // `{ fields }`, not a bare array — this is what `extractFieldErrors`
+        // on the admin side reads to mark the offending input rather than
+        // showing one generic banner. Keep in sync with the same shape
+        // `routes/settings.ts` builds by hand for its dynamic-schema case.
+        details: {
+          fields: error.issues.map((issue) => ({
+            path: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
       },
     };
     res.status(400).json(body);

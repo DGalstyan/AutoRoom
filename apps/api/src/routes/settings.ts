@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { z } from 'zod';
-import { badRequest, notFound } from '../lib/errors';
+import { notFound } from '../lib/errors';
 import { getAllSettings, getPublicSettings, isSettingKey, writeSetting } from '../lib/settings';
 import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
@@ -45,21 +44,10 @@ settingsRouter.put(
     const key = String(req.params.key ?? '');
     if (!isSettingKey(key)) throw notFound(`Unknown setting "${key}"`);
 
-    try {
-      const value = await writeSetting(key, req.body, req.auth?.userId);
-      res.json({ key, value });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Field-addressed messages so the form can mark the offending input
-        // rather than showing one generic banner.
-        throw badRequest('Some values are not valid', {
-          fields: error.issues.map((issue) => ({
-            path: issue.path.join('.'),
-            message: issue.message,
-          })),
-        });
-      }
-      throw error;
-    }
+    // A thrown ZodError (the schema is per-key, so it can't be bound to
+    // `validateBody`) reaches the shared error handler, which shapes it the
+    // same `{ fields }` way as every other route's validation failures.
+    const value = await writeSetting(key, req.body, req.auth?.userId);
+    res.json({ key, value });
   },
 );
