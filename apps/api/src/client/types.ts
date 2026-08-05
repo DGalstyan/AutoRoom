@@ -15,10 +15,10 @@
  * drifts — the two disagreeing shows up as a form that submits happily and
  * comes back 400.
  *
- * Set deliberately low during development. See `lib/password.ts` for what that
- * costs.
+ * 10, not a complexity rule: length is worth more entropy than forcing a
+ * digit or a symbol, and the panel is reachable from the public internet.
  */
-export const MIN_PASSWORD_LENGTH = 3;
+export const MIN_PASSWORD_LENGTH = 10;
 
 export type ErrorCode =
   | 'VALIDATION_ERROR'
