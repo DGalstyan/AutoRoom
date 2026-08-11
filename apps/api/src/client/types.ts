@@ -379,12 +379,20 @@ export type BranchInput = Omit<Branch, 'id'>;
  */
 export type FaqTopic = 'CHINA' | 'USA' | 'GENERAL';
 
+/**
+ * A question or answer, keyed by locale. `hy` (Armenian) is the one language
+ * every question must carry — it's the site's default and only
+ * guaranteed-enabled locale (see `LocalizationLocales`); `ru`/`en` fill in as
+ * translations are written.
+ */
+export type LocalizedText = Partial<Record<Locale, string>>;
+
 export interface Faq {
   id: string;
   topic: FaqTopic;
-  question: string;
-  /** Null while the answer is still to be written. Such a row cannot publish. */
-  answer: string | null;
+  question: LocalizedText;
+  /** Null while the Armenian answer is still to be written. Such a row cannot publish. */
+  answer: LocalizedText | null;
   position: number;
   /** Null means draft — the public endpoint does not return it. */
   publishedAt: string | null;
@@ -393,8 +401,8 @@ export interface Faq {
 
 export interface FaqInput {
   topic: FaqTopic;
-  question: string;
-  answer?: string | null;
+  question: LocalizedText;
+  answer?: LocalizedText | null;
   position: number;
   published: boolean;
 }

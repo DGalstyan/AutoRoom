@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import {
   FaqTopic,
+  Prisma,
   PrismaClient,
   SettingGroup,
   UserStatus,
@@ -369,8 +370,11 @@ async function seedFaq() {
   ];
 
   for (const entry of entries) {
+    // Every row's `question` is `{ hy, ru?, en? }` (see the `Faq` model doc);
+    // the seed only ever writes Armenian, so matching on `hy` is matching on
+    // the question this list gives.
     const existing = await prisma.faq.findFirst({
-      where: { topic: entry.topic, question: entry.question },
+      where: { topic: entry.topic, question: { path: ['hy'], equals: entry.question } },
     });
 
     if (existing) {
@@ -384,8 +388,8 @@ async function seedFaq() {
     await prisma.faq.create({
       data: {
         topic: entry.topic,
-        question: entry.question,
-        answer: entry.answer,
+        question: { hy: entry.question },
+        answer: entry.answer ? { hy: entry.answer } : Prisma.DbNull,
         position: entry.position,
         publishedAt: entry.publish && entry.answer ? new Date() : null,
       },

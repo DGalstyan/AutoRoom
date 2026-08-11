@@ -6,6 +6,7 @@ import { badRequest, notFound } from '../lib/errors';
 import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
 import { validateBody, validateQuery } from '../middleware/validate';
+import { SUPPORTED_LOCALES } from '../lib/settings';
 
 /**
  * FAQ — Homepage S9, and the China and USA page sections.
@@ -23,19 +24,50 @@ export const faqRouter = Router();
 
 /* --------------------------------- schemas --------------------------------- */
 
+/** Every language a question or answer may be written in, keyed the way the
+ * `LOCALIZATION` setting keys them — `hy` is the one the site guarantees. */
+export type LocalizedText = Partial<Record<(typeof SUPPORTED_LOCALES)[number], string>>;
+
+/** Empty means "not translated yet" for a secondary language, not a string
+ * worth storing — so it drops to `undefined` rather than `''`. */
+const optionalLocaleText = (max: number) =>
+  z
+    .union([z.string().trim().max(max), z.literal('')])
+    .optional()
+    .transform((value) => (value ? value : undefined));
+
+/** Armenian is required — it's the site's default and only guaranteed-enabled
+ * locale. Russian and English fill in as translations are written. */
+const questionSchema = z.object({
+  hy: z.string().trim().min(1, 'An Armenian question is required').max(300),
+  ru: optionalLocaleText(300),
+  en: optionalLocaleText(300),
+});
+
+/** Nullable as a whole, the same way the single-language `answer` used to be:
+ * a row with nothing written in any language has no answer, full stop. */
+const answerSchema = z
+  .object({
+    hy: optionalLocaleText(4000),
+    ru: optionalLocaleText(4000),
+    en: optionalLocaleText(4000),
+  })
+  .nullable()
+  .default(null)
+  .transform((value) => (value && (value.hy || value.ru || value.en) ? value : null));
+
 const faqBodySchema = z
   .object({
     topic: z.nativeEnum(FaqTopic),
-    question: z.string().trim().min(1, 'A question is required').max(300),
-    answer: z
-      .union([z.string().trim().max(4000), z.literal(''), z.null()])
-      .transform((value) => (value === '' ? null : value))
-      .nullish(),
+    question: questionSchema,
+    answer: answerSchema,
     position: z.number().int().min(0).max(999).default(0),
     published: z.boolean().default(false),
   })
-  .refine((body) => !body.published || Boolean(body.answer), {
-    message: 'Write an answer before publishing this question',
+  // Specifically the Armenian answer — that's the locale the site is
+  // guaranteed to serve, so it's the one publishing can't go out without.
+  .refine((body) => !body.published || Boolean(body.answer?.hy), {
+    message: 'Write an Armenian answer before publishing this question',
     path: ['answer'],
   });
 
@@ -138,8 +170,8 @@ faqRouter.post(
 
     // The same rule the body schema enforces, applied on the path that does not
     // go through it. A guard only one route honours is not a guard.
-    if (published && !existing.answer) {
-      throw badRequest('Write an answer before publishing this question');
+    if (published && !(existing.answer as LocalizedText | null)?.hy) {
+      throw badRequest('Write an Armenian answer before publishing this question');
     }
 
     const item = await prisma.faq.update({
@@ -182,7 +214,7 @@ faqRouter.get(
     const items = await prisma.faq.findMany({
       where: {
         publishedAt: { not: null },
-        answer: { not: null },
+        answer: { not: Prisma.DbNull },
         ...(topic ? { topic } : {}),
       },
       orderBy: [{ topic: 'asc' }, ...ORDER],
@@ -205,7 +237,7 @@ function toWriteData(body: z.infer<typeof faqBodySchema>) {
   return {
     topic: body.topic,
     question: body.question,
-    answer: body.answer ?? null,
+    answer: body.answer ?? Prisma.DbNull,
     position: body.position,
     publishedAt: body.published ? new Date() : null,
   };
@@ -215,8 +247,8 @@ function serializeFaq(item: Prisma.FaqGetPayload<object>) {
   return {
     id: item.id,
     topic: item.topic,
-    question: item.question,
-    answer: item.answer,
+    question: item.question as LocalizedText,
+    answer: item.answer as LocalizedText | null,
     position: item.position,
     publishedAt: item.publishedAt?.toISOString() ?? null,
     createdAt: item.createdAt.toISOString(),

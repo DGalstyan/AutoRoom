@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { z } from 'zod';
-import type { Faq, FaqTopic } from '@autoroom/api/client';
+import type { Faq, FaqTopic, Locale } from '@autoroom/api/client';
 import {
   Alert,
   Button,
@@ -12,30 +12,54 @@ import {
   MenuItem,
   Stack,
   Switch,
+  Tab,
+  Tabs,
   TextField,
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
 import { useZodForm } from '@/components/form/useZodForm';
 import { TOPICS, topicHint } from '@/pages/faq/topics';
 
+/** The site's languages, in the order the dialog offers them. Armenian is
+ * required — it's the site's default and only guaranteed-enabled locale
+ * (see the `LOCALIZATION` setting); Russian and English are translations. */
+const LANGUAGES: { value: Locale; label: string; required?: boolean }[] = [
+  { value: 'hy', label: 'Armenian', required: true },
+  { value: 'ru', label: 'Russian' },
+  { value: 'en', label: 'English' },
+];
+
 /**
- * The one rule that matters here — a question cannot publish without an answer
- * — written once, as a schema, rather than scattered across `disabled`
- * expressions. It is the same rule the API enforces, so the two cannot drift,
- * and it reports against the answer field whichever side catches it.
+ * The one rule that matters here — a question cannot publish without an
+ * Armenian answer — written once, as a schema, rather than scattered across
+ * `disabled` expressions. It is the same rule the API enforces, so the two
+ * cannot drift, and it reports against the Armenian answer tab whichever side
+ * catches it.
  */
 const schema = z
   .object({
     topic: z.enum(['CHINA', 'USA', 'GENERAL']),
-    question: z.string().trim().min(1, 'A question is required').max(300),
-    answer: z.string().trim().max(4000),
+    question: z.object({
+      hy: z.string().trim().min(1, 'An Armenian question is required').max(300),
+      ru: z.string().trim().max(300),
+      en: z.string().trim().max(300),
+    }),
+    answer: z.object({
+      hy: z.string().trim().max(4000),
+      ru: z.string().trim().max(4000),
+      en: z.string().trim().max(4000),
+    }),
     position: z.number().int().min(0).max(999),
     published: z.boolean(),
   })
-  .refine((value) => !value.published || value.answer.length > 0, {
-    message: 'Write an answer before publishing this question',
-    path: ['answer'],
+  .refine((value) => !value.published || value.answer.hy.trim().length > 0, {
+    message: 'Write an Armenian answer before publishing this question',
+    path: ['answer', 'hy'],
   });
+
+/** Undefined rather than `''`, so a language nobody has translated yet is
+ * absent from the record instead of stored as an empty string. */
+const trimOrUndefined = (value: string) => value.trim() || undefined;
 
 /** Add or edit a question. The first form built on `useZodForm`. */
 export function FaqDialog({
@@ -52,28 +76,47 @@ export function FaqDialog({
   onDone: (message: string) => void;
 }) {
   const { api } = useAuth();
+  const [language, setLanguage] = useState<Locale>('hy');
 
   const initialValues = useMemo(
     () => ({
       topic: (item?.topic ?? defaultTopic) as 'CHINA' | 'USA' | 'GENERAL',
-      question: item?.question ?? '',
-      answer: item?.answer ?? '',
+      question: {
+        hy: item?.question.hy ?? '',
+        ru: item?.question.ru ?? '',
+        en: item?.question.en ?? '',
+      },
+      answer: {
+        hy: item?.answer?.hy ?? '',
+        ru: item?.answer?.ru ?? '',
+        en: item?.answer?.en ?? '',
+      },
       position: item?.position ?? nextPosition,
       published: Boolean(item?.publishedAt),
     }),
     [item, defaultTopic, nextPosition],
   );
 
-  const { values, setValue, field, formError, submitting, handleSubmit } = useZodForm({
+  const { values, setValue, errors, formError, submitting, handleSubmit } = useZodForm({
     schema,
     initialValues,
     onSubmit: async (parsed) => {
+      const answer = {
+        hy: trimOrUndefined(parsed.answer.hy),
+        ru: trimOrUndefined(parsed.answer.ru),
+        en: trimOrUndefined(parsed.answer.en),
+      };
       const body = {
         topic: parsed.topic,
-        question: parsed.question,
-        // Empty means "not written yet", which is a real state here — not a
-        // blank string the site would render as an empty accordion.
-        answer: parsed.answer || null,
+        question: {
+          hy: parsed.question.hy,
+          ru: trimOrUndefined(parsed.question.ru),
+          en: trimOrUndefined(parsed.question.en),
+        },
+        // Empty in every language means "not written yet", which is a real
+        // state here — not a blank string the site would render as an empty
+        // accordion.
+        answer: answer.hy || answer.ru || answer.en ? answer : null,
         position: parsed.position,
         published: parsed.published,
       };
@@ -82,7 +125,8 @@ export function FaqDialog({
     },
   });
 
-  const answerField = field('answer');
+  const questionError = errors[`question.${language}`];
+  const answerError = errors[`answer.${language}`];
 
   return (
     <Dialog open onClose={submitting ? undefined : onClose} maxWidth="sm" fullWidth>
@@ -107,25 +151,51 @@ export function FaqDialog({
               ))}
             </TextField>
 
+            <Tabs
+              value={language}
+              onChange={(_event, value: Locale) => setLanguage(value)}
+              variant="fullWidth"
+              sx={{ minHeight: 38 }}
+            >
+              {LANGUAGES.map((entry) => (
+                <Tab
+                  key={entry.value}
+                  value={entry.value}
+                  label={entry.required ? `${entry.label} *` : entry.label}
+                  sx={{ minHeight: 38 }}
+                />
+              ))}
+            </Tabs>
+
             <TextField
               label="Question"
-              value={values.question}
-              onChange={(event) => setValue('question', event.target.value)}
+              value={values.question[language]}
+              onChange={(event) =>
+                setValue('question', { ...values.question, [language]: event.target.value })
+              }
               fullWidth
-              {...field('question')}
+              error={Boolean(questionError)}
+              helperText={
+                questionError ??
+                (language !== 'hy' ? 'Leave empty to keep this language untranslated.' : undefined)
+              }
             />
 
             <TextField
               label="Answer"
-              value={values.answer}
-              onChange={(event) => setValue('answer', event.target.value)}
+              value={values.answer[language]}
+              onChange={(event) =>
+                setValue('answer', { ...values.answer, [language]: event.target.value })
+              }
               multiline
               minRows={4}
               fullWidth
-              error={answerField.error}
+              error={Boolean(answerError)}
               helperText={
-                answerField.helperText ??
-                'Leave empty to keep this as a question awaiting an answer.'
+                answerError ??
+                (language === 'hy'
+                  ? 'Leave empty to keep this as a question awaiting an answer.'
+                  : 'Leave empty to keep this language untranslated.')
               }
             />
 

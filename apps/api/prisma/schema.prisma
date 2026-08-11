@@ -256,15 +256,23 @@ enum FaqTopic {
 
 /// A question and its answer — Homepage S9, and the China/USA page sections.
 ///
+/// `question` and `answer` are JSON, not `String`, because a question can be
+/// written in more than one of the site's languages (see `LOCALIZATION`
+/// settings): `{ "hy": "...", "ru": "...", "en": "..." }`. Armenian (`hy`) is
+/// the one language every row must carry — it's the site's default and only
+/// guaranteed-enabled locale; `ru`/`en` are filled in as translations land.
+///
 /// The answer is nullable because that is the real state of this content: the
 /// spec lists ten China questions whose answers the content team has not
 /// written yet, and a screen that cannot hold a question without an answer
-/// would force someone to invent one. Publishing is what requires both.
+/// would force someone to invent one. Publishing is what requires both — and
+/// specifically requires the Armenian answer, since that is the locale the
+/// site is guaranteed to serve.
 model Faq {
   id       String   @id @default(cuid())
   topic    FaqTopic
-  question String
-  answer   String?
+  question Json
+  answer   Json?
 
   /// Display order within a topic.
   position Int @default(0)

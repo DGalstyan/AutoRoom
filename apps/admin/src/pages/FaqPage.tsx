@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Faq, FaqTopic } from '@autoroom/api/client';
+import type { Faq, FaqTopic, LocalizedText } from '@autoroom/api/client';
 import {
   Alert,
   Box,
@@ -76,7 +76,10 @@ export function FaqPage() {
   });
 
   const items = faqQuery.data?.items ?? [];
-  const unanswered = items.filter((item) => !item.answer).length;
+  // The Armenian answer specifically — that's the locale the site is
+  // guaranteed to serve, so a question missing only its Armenian answer still
+  // counts as unanswered even if a translation was written first.
+  const unanswered = items.filter((item) => !item.answer?.hy).length;
 
   return (
     <Box sx={{ maxWidth: 1180 }}>
@@ -157,7 +160,7 @@ export function FaqPage() {
             render: (item) => (
               <>
                 <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                  {item.question}
+                  {item.question.hy}
                 </Typography>
                 <Typography
                   sx={{
@@ -170,8 +173,13 @@ export function FaqPage() {
                     overflow: 'hidden',
                   }}
                 >
-                  {item.answer ?? 'No answer written yet.'}
+                  {item.answer?.hy ?? 'No answer written yet.'}
                 </Typography>
+                {otherLanguages(item.question, item.answer) && (
+                  <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled', mt: 0.25 }}>
+                    Also in: {otherLanguages(item.question, item.answer)}
+                  </Typography>
+                )}
               </>
             ),
           },
@@ -188,7 +196,7 @@ export function FaqPage() {
             render: (item) =>
               item.publishedAt ? (
                 <StatusBadge label="Published" tone="live" />
-              ) : item.answer ? (
+              ) : item.answer?.hy ? (
                 <StatusBadge label="Draft" tone="muted" />
               ) : (
                 <StatusBadge label="Needs answer" tone="pending" />
@@ -201,7 +209,7 @@ export function FaqPage() {
             render: (item) => (
               <IconButton
                 size="small"
-                aria-label={`Actions for ${item.question}`}
+                aria-label={`Actions for ${item.question.hy}`}
                 onClick={(event) => setMenu({ anchor: event.currentTarget, item })}
               >
                 <MoreVertIcon fontSize="small" />
@@ -219,7 +227,7 @@ export function FaqPage() {
               setMenu(null);
             }}
           >
-            {menu.item.answer ? 'Edit' : 'Write answer'}
+            {menu.item.answer?.hy ? 'Edit' : 'Write answer'}
           </MenuItem>
         )}
         {canPublish &&
@@ -236,10 +244,10 @@ export function FaqPage() {
               Unpublish
             </MenuItem>
           ) : (
-            <Tooltip title={menu.item.answer ? '' : 'Write an answer first'}>
+            <Tooltip title={menu.item.answer?.hy ? '' : 'Write an Armenian answer first'}>
               <span>
                 <MenuItem
-                  disabled={!menu.item.answer}
+                  disabled={!menu.item.answer?.hy}
                   onClick={() => {
                     publishMutation.mutate({ item: menu.item, published: true });
                     setMenu(null);
@@ -282,7 +290,7 @@ export function FaqPage() {
         title="Remove this question?"
         message={
           deleting
-            ? `“${deleting.question}” will be removed from the FAQ. This cannot be undone.`
+            ? `“${deleting.question.hy}” will be removed from the FAQ. This cannot be undone.`
             : ''
         }
         confirmLabel="Remove"
@@ -293,4 +301,12 @@ export function FaqPage() {
       />
     </Box>
   );
+}
+
+/** A quick "also translated into" hint for the list — `null` when there's
+ * nothing beyond the required Armenian text, so the row stays quiet. */
+function otherLanguages(question: LocalizedText, answer: LocalizedText | null): string | null {
+  const labels: Record<'ru' | 'en', string> = { ru: 'RU', en: 'EN' };
+  const present = (['ru', 'en'] as const).filter((locale) => question[locale] || answer?.[locale]);
+  return present.length > 0 ? present.map((locale) => labels[locale]).join(', ') : null;
 }

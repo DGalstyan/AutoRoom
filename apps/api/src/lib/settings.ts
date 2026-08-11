@@ -101,7 +101,9 @@ const featureToggles = z.object({
   maintenanceMode: z.boolean(),
 });
 
-const SUPPORTED_LOCALES = ['hy', 'ru', 'en'] as const;
+/** The site's full locale set — reused by anything that stores per-language
+ * content (e.g. `Faq.question`/`answer`), not just this `LOCALIZATION` setting. */
+export const SUPPORTED_LOCALES = ['hy', 'ru', 'en'] as const;
 
 const localizationLocales = z
   .object({
