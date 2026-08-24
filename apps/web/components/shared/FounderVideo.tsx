@@ -17,7 +17,9 @@ export function FounderVideo() {
   return (
     <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
       <div>
-        <p className="text-caption font-semibold uppercase tracking-wide text-accent">{t.eyebrow}</p>
+        <p className="text-caption font-semibold uppercase tracking-wide text-accent">
+          {t.eyebrow}
+        </p>
         <h2 className="mt-2 font-display text-h2 font-bold text-white">{t.heading}</h2>
         <p className="mt-3 max-w-md text-body text-white/60">{t.text}</p>
       </div>

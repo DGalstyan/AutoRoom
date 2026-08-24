@@ -37,12 +37,19 @@ export function useLeadWidgets(): LeadWidgetContextValue {
   return ctx;
 }
 
-const INITIAL_UNIVERSAL = { open: false, sourceCta: '' } satisfies { open: boolean } & OpenUniversalOptions;
+const INITIAL_UNIVERSAL = { open: false, sourceCta: '' } satisfies {
+  open: boolean;
+} & OpenUniversalOptions;
 
 export function LeadWidgetProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [universal, setUniversal] = useState<{ open: boolean } & OpenUniversalOptions>(INITIAL_UNIVERSAL);
-  const [quiz, setQuiz] = useState<{ open: boolean; sourceCta: string }>({ open: false, sourceCta: '' });
+  const [universal, setUniversal] = useState<{ open: boolean } & OpenUniversalOptions>(
+    INITIAL_UNIVERSAL,
+  );
+  const [quiz, setQuiz] = useState<{ open: boolean; sourceCta: string }>({
+    open: false,
+    sourceCta: '',
+  });
 
   const openUniversal = useCallback((opts: OpenUniversalOptions) => {
     setQuiz((prev) => ({ ...prev, open: false }));

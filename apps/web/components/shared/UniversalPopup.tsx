@@ -162,7 +162,12 @@ export function UniversalPopup({
     <Dialog open={open} onClose={onClose} titleId={titleId} closeLabel={t.close}>
       {status === 'success' ? (
         <div role="status" aria-live="polite">
-          <h2 id={titleId} ref={headingRef} tabIndex={-1} className="font-display text-h3 font-bold text-ink outline-none">
+          <h2
+            id={titleId}
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-display text-h3 font-bold text-ink outline-none"
+          >
             {t.successHeading}
           </h2>
           <p className="mt-3 text-body text-ink/80">{successText}</p>
@@ -208,7 +213,10 @@ export function UniversalPopup({
                   className="h-12 w-16 rounded-sm object-cover"
                 />
               ) : (
-                <div className="h-12 w-16 shrink-0 rounded-sm bg-gradient-to-br from-ink to-muted" aria-hidden="true" />
+                <div
+                  className="h-12 w-16 shrink-0 rounded-sm bg-gradient-to-br from-ink to-muted"
+                  aria-hidden="true"
+                />
               )}
               <div>
                 <p className="font-display font-semibold text-ink">{car.name}</p>
@@ -273,7 +281,8 @@ export function UniversalPopup({
               <p className="text-small text-muted">{t.encouraging}</p>
 
               {car ? (
-                car.colors && car.colors.length > 0 && (
+                car.colors &&
+                car.colors.length > 0 && (
                   <ChipGroup
                     label={t.colorLabel}
                     options={car.colors.map((c) => ({ key: c, label: c }))}
@@ -338,7 +347,12 @@ export function UniversalPopup({
 
           <div className="mt-6 flex items-center justify-between gap-3">
             {step > 1 ? (
-              <Button type="button" variant="ghost" className="text-ink" onClick={() => setStep((step - 1) as Step)}>
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-ink"
+                onClick={() => setStep((step - 1) as Step)}
+              >
                 {t.back}
               </Button>
             ) : (
@@ -389,7 +403,11 @@ function ChipGroup<K extends string>({
       <legend className="mb-2 text-small font-medium text-ink">{label}</legend>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
-          <Chip key={option.key} selected={value === option.key} onClick={() => onChange(option.key)}>
+          <Chip
+            key={option.key}
+            selected={value === option.key}
+            onClick={() => onChange(option.key)}
+          >
             {option.label}
           </Chip>
         ))}

@@ -17,7 +17,14 @@ interface DialogProps {
  * overlay, body-scroll lock, restores focus to the trigger on close, X
  * top-right. `UniversalPopup` and `QuizPopup` compose their content inside.
  */
-export function Dialog({ open, onClose, titleId, children, closeLabel, className = '' }: DialogProps) {
+export function Dialog({
+  open,
+  onClose,
+  titleId,
+  children,
+  closeLabel,
+  className = '',
+}: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef, open, onClose);
 

@@ -173,7 +173,10 @@ function MobileHotspot({ title, text }: { title: string; text: string }) {
         className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-3 text-left"
       >
         <span className="font-display font-semibold text-white">{title}</span>
-        <span aria-hidden="true" className={`text-accent transition-transform ${open ? 'rotate-45' : ''}`}>
+        <span
+          aria-hidden="true"
+          className={`text-accent transition-transform ${open ? 'rotate-45' : ''}`}
+        >
           +
         </span>
       </button>

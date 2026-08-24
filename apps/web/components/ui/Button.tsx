@@ -29,8 +29,7 @@ interface CommonProps {
   children: ReactNode;
 }
 
-type ButtonAsButton = CommonProps &
-  ButtonHTMLAttributes<HTMLButtonElement> & { href?: undefined };
+type ButtonAsButton = CommonProps & ButtonHTMLAttributes<HTMLButtonElement> & { href?: undefined };
 
 type ButtonAsLink = CommonProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & { href: string };

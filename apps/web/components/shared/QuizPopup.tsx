@@ -107,7 +107,12 @@ export function QuizPopup({ open, onClose, sourceCta, onOpenUniversal }: QuizPop
   const currentKey = QUESTION_ORDER[step];
 
   return (
-    <Dialog open={open} onClose={onClose} titleId={titleId} closeLabel={messages.common.popup.close}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      titleId={titleId}
+      closeLabel={messages.common.popup.close}
+    >
       {!isResult && currentKey ? (
         <QuizQuestion
           questionKey={currentKey}

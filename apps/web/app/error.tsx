@@ -4,7 +4,13 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { messages } from '@/lib/messages';
 
-export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   useEffect(() => {
     console.error(error);
   }, [error]);
