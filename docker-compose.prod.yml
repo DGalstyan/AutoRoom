@@ -40,6 +40,13 @@ services:
       - '127.0.0.1:8081:80'
     networks: [internal]
 
+  web:
+    image: ghcr.io/dgalstyan/autoroom-web:latest
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3000:3000'
+    networks: [internal]
+
 networks:
   internal:
 

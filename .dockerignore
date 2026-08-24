@@ -1,6 +1,7 @@
 node_modules
 **/node_modules
 apps/*/dist
+apps/*/.next
 apps/api/uploads
 apps/*/.env
 apps/*/.env.*

@@ -8,11 +8,12 @@
   "scripts": {
     "dev": "npm run dev --workspace apps/admin",
     "dev:api": "npm run dev --workspace apps/api",
+    "dev:web": "npm run dev --workspace apps/web",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:migrate": "npm run db:migrate --workspace apps/api",
     "db:seed": "npm run db:seed --workspace apps/api",
-    "build": "npm run build --workspace apps/api && npm run build --workspace apps/admin",
+    "build": "npm run build --workspace apps/api && npm run build --workspace apps/admin && npm run build --workspace apps/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write .",
