@@ -3,6 +3,7 @@ package-lock.json
 apps/api/dist
 apps/api/prisma/migrations
 apps/admin/dist
+apps/web/.next
 autoroom-claude-kit
 .claude
 
