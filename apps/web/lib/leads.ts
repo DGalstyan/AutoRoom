@@ -3,7 +3,7 @@
  * See `.claude/skills/autoroom-website/references/components.md` → `UniversalPopup`.
  */
 
-export type LeadInterest = 'usa' | 'china' | 'in-stock' | 'machinery' | 'undecided';
+export type LeadInterest = 'usa' | 'china' | 'in-stock' | 'undecided';
 export type LeadBudget = 'lt10k' | '10-20k' | '20-35k' | '35k+';
 export type LeadFinancing = 'need' | 'no' | 'unsure';
 export type LeadTiming = 'now' | '1-3m' | 'browsing';
