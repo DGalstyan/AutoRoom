@@ -20,7 +20,14 @@ export function FooterCta({ label }: { label: string }) {
 
 function ArrowGlyph() {
   return (
-    <svg width={28} height={28} viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0">
+    <svg
+      width={28}
+      height={28}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      className="shrink-0"
+    >
       <path
         d="M4 12 12 4M12 4H5M12 4v7"
         stroke="currentColor"

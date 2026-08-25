@@ -122,7 +122,9 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-container flex-col gap-2 px-4 py-6 text-caption text-white/50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>
-            {footer.rights.includes('©') ? footer.rights : `© ${new Date().getFullYear()} Autoroom — ${footer.rights}`}
+            {footer.rights.includes('©')
+              ? footer.rights
+              : `© ${new Date().getFullYear()} Autoroom — ${footer.rights}`}
           </p>
           <div className="flex gap-5">
             <a href="#" className="hover:text-white">
@@ -146,12 +148,7 @@ function CarGlyph() {
         stroke="currentColor"
         strokeWidth="1.5"
       />
-      <path
-        d="M2 22h68M8 18h56"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <path d="M2 22h68M8 18h56" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="16" cy="22" r="4" stroke="currentColor" strokeWidth="1.5" />
       <circle cx="46" cy="22" r="4" stroke="currentColor" strokeWidth="1.5" />
     </svg>
@@ -160,7 +157,14 @@ function CarGlyph() {
 
 function ArrowGlyph({ size = 20 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      className="shrink-0"
+    >
       <path
         d="M4 12 12 4M12 4H5M12 4v7"
         stroke="currentColor"

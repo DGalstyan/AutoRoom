@@ -31,7 +31,13 @@ export function DirectionCard({ href, title, image, imageAlt }: DirectionCardPro
         </span>
       </div>
       <div className="relative mt-6 aspect-[597/258] w-full">
-        <Image src={image} alt={imageAlt} fill sizes="(min-width: 640px) 50vw, 100vw" className="object-contain" />
+        <Image
+          src={image}
+          alt={imageAlt}
+          fill
+          sizes="(min-width: 640px) 50vw, 100vw"
+          className="object-contain"
+        />
       </div>
     </Link>
   );
