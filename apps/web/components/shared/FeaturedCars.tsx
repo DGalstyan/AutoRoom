@@ -17,19 +17,11 @@ export function FeaturedCars() {
 
   return (
     <div>
-      <h2 className="sr-only">{t.heading}</h2>
-      <p aria-hidden="true" className="font-display text-home-h2 font-light text-ink">
-        {t.heading}
-      </p>
+      <h2 className="font-display text-home-h2 font-light text-ink">{t.heading}</h2>
 
       <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
-        {cars.map((car, index) => (
-          <MiniCarCard
-            key={car.id}
-            car={car}
-            imageSrc={car.images[0]?.url}
-            priority={index === 0}
-          />
+        {cars.map((car) => (
+          <MiniCarCard key={car.id} car={car} imageSrc={car.images[0]?.url} />
         ))}
       </div>
     </div>
