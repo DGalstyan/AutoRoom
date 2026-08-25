@@ -613,7 +613,6 @@ export interface ContactsMessengers {
 }
 
 export interface FeatureToggles {
-  machinery: boolean;
   blog: boolean;
   quiz: boolean;
   registrationInviteOnly: boolean;

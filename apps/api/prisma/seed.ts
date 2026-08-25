@@ -292,7 +292,6 @@ const SETTINGS: { key: string; group: SettingGroup; value: unknown }[] = [
     key: 'features.toggles',
     group: SettingGroup.FEATURES,
     value: {
-      machinery: true,
       blog: true,
       quiz: true,
       registrationInviteOnly: false,

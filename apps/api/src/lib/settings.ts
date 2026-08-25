@@ -94,7 +94,6 @@ const financeCalculator = z.object({
 });
 
 const featureToggles = z.object({
-  machinery: z.boolean(),
   blog: z.boolean(),
   quiz: z.boolean(),
   registrationInviteOnly: z.boolean(),
@@ -209,12 +208,10 @@ export const SETTINGS = {
   'features.toggles': define({
     group: SettingGroup.FEATURES,
     schema: featureToggles,
-    // Public: the site needs to know whether the machinery section or the quiz
-    // popup exists at all.
+    // Public: the site needs to know whether the quiz popup exists at all.
     isPublic: true,
     label: 'Feature toggles',
     defaults: {
-      machinery: true,
       blog: true,
       quiz: true,
       registrationInviteOnly: false,

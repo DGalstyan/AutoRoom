@@ -5,11 +5,6 @@ import { useSettingSection } from '@/pages/settings/useSettingSection';
 import { brand } from '@/theme';
 
 const TOGGLES: { key: keyof FeatureToggles; label: string; description: string }[] = [
-  {
-    key: 'machinery',
-    label: 'Construction machinery',
-    description: 'Shows the Շինտեխնիկա section and its pages on the public site.',
-  },
   { key: 'blog', label: 'Blog', description: 'Shows the blog and its entry in the navigation.' },
   {
     key: 'quiz',

@@ -63,7 +63,7 @@ const upload = multer({
 
 /**
  * Gated on `media:CREATE` rather than `cars:UPDATE`: the same endpoint will
- * serve machinery, offers and order documents, and each of those has its own
+ * serve offers and order documents too, and each of those has its own
  * resource permission. Holding any of them should not imply the others.
  */
 uploadsRouter.post(
