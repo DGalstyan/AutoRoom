@@ -46,9 +46,10 @@ export function Header({ logo = null }: HeaderProps = {}) {
   // whichever single variant an admin has actually uploaded.
   const logoSrc = logo?.logoLightUrl ?? logo?.logoDarkUrl ?? null;
 
-  // Close the drawer automatically if the viewport grows past the mobile breakpoint.
+  // Close the drawer automatically if the viewport grows past the mobile
+  // breakpoint (kept in sync with the `xl:` classes below).
   useEffect(() => {
-    const mql = window.matchMedia('(min-width: 1024px)');
+    const mql = window.matchMedia('(min-width: 1280px)');
     const onChange = () => setDrawerOpen(false);
     mql.addEventListener('change', onChange);
     return () => mql.removeEventListener('change', onChange);
@@ -105,23 +106,28 @@ export function Header({ logo = null }: HeaderProps = {}) {
         </Link>
 
         {/*
-          Item gap (`gap-6` = 24px) matches `itemSpacing: 24` on Figma's nav
-          frame (`9321:6396`). Text style — 16px/regular/white at full
-          opacity — is read from that frame's own "Menu item" text override
-          (`I9321:6397;6357:2047`: fontSize 16, fontWeight 400, fill
-          rgb(255,255,255) @ 100%, componentId `9201:11274` = the "Menu
-          item" component set's `State=Default` variant). Figma's Default
-          variant is already full-opacity white, so `hover:text-accent`
-          (rather than a no-op white→white) is this component's judgment
-          call for a visible hover state — the sibling `State=Hover` variant
-          (`9201:11277`) wasn't fetched.
+          Text style (16px/regular/white) and 24px item spacing match Figma's
+          nav frame (`9321:6396`, "Menu item" component `9201:11274`) — but
+          that frame draws only 6 top-level items, each with a chevron-down
+          implying a dropdown that groups sub-items (per figma-bridge's
+          earlier note). This component intentionally uses the skill's
+          8-item *flat* link contract instead (no dropdown behavior built),
+          which is measurably wider than what Figma's 6-item design was
+          spaced for — 8 flat items at 24px gaps/16px text does not fit
+          within `max-w-header` even at the full 1440px design width
+          (verified by rendering at fixed widths, not guessed). Tightened
+          gap and reduced to `text-small` to make the flat-list contract
+          actually fit; `whitespace-nowrap` prevents the alternative failure
+          mode (a multi-word label wrapping mid-item) if it's ever still
+          tight. Revisit sizing if/when dropdown grouping is built to match
+          Figma's real item count.
         */}
-        <nav aria-label={nav.primaryNav} className="hidden items-center gap-6 lg:flex">
+        <nav aria-label={nav.primaryNav} className="hidden items-center gap-4 xl:flex">
           {NAV_LINKS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-body font-normal text-white transition-colors duration-micro hover:text-accent"
+              className="whitespace-nowrap text-small font-normal text-white transition-colors duration-micro hover:text-accent"
             >
               {nav[item.key]}
             </Link>
@@ -131,7 +137,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
         <button
           type="button"
           onClick={() => openUniversal({ sourceCta: 'header-cta' })}
-          className="hidden h-12 shrink-0 items-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:inline-flex"
+          className="hidden h-12 shrink-0 items-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent xl:inline-flex"
         >
           {nav.headerCta}
           <ArrowGlyph />
@@ -139,7 +145,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
 
         <button
           type="button"
-          className="flex h-11 w-11 items-center justify-center rounded-pill text-white lg:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-pill text-white xl:hidden"
           aria-expanded={drawerOpen}
           aria-controls={drawerId}
           aria-label={drawerOpen ? nav.menuClose : nav.menuOpen}
@@ -152,7 +158,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
       </div>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 xl:hidden">
           <button
             type="button"
             aria-label={nav.menuClose}
