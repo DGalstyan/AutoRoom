@@ -5,6 +5,7 @@ import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { StickyCta } from '@/components/shared/StickyCta';
 import { LeadWidgetProvider } from '@/components/shared/LeadWidgetProvider';
+import { getBrandingLogos } from '@/lib/branding';
 
 const sora = Sora({
   variable: '--font-sora',
@@ -32,7 +33,12 @@ export const metadata: Metadata = {
     'Ներմուծում ենք ավտոմեքենաներ ԱՄՆ-ից, Չինաստանից, Եվրոպայից և այլ միջազգային շուկաներից։',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Server-side only: never throws (see `getBrandingLogos`), so an
+  // unreachable API at build/render time still yields a normal page with the
+  // Header's text-wordmark fallback rather than a broken build.
+  const logo = await getBrandingLogos();
+
   return (
     <html
       lang="hy"
@@ -40,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="flex min-h-full flex-col bg-surface-light font-body text-body text-ink">
         <LeadWidgetProvider>
-          <Header />
+          <Header logo={logo} />
           <main className="flex-1">{children}</main>
           <Footer />
           <StickyCta />

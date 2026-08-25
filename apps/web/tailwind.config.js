@@ -69,7 +69,15 @@ module.exports = {
         body: ['var(--font-inter)', 'var(--font-noto-am)', 'sans-serif'],
       },
       transitionTimingFunction: { expo: 'cubic-bezier(0.16,1,0.3,1)' },
-      maxWidth: { container: '1280px' },
+      maxWidth: {
+        container: '1280px',
+        // Header "pill" frame width measured directly off Figma node
+        // `9321:6395` (Header, inside Homepage "Light" `9321:6135`):
+        // absoluteBoundingBox.width = 1408 on a 1440-wide page frame, i.e. a
+        // 16px gutter on each side — deliberately wider than the 1280px body
+        // content column above.
+        header: '1408px',
+      },
       boxShadow: {
         card: '0 8px 30px rgba(0,0,0,.12)',
       },
