@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="hy"
       className={`${sora.variable} ${inter.variable} ${notoSansArmenian.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-bg font-body text-body text-white">
+      <body className="flex min-h-full flex-col bg-surface-light font-body text-body text-ink">
         <LeadWidgetProvider>
           <Header />
           <main className="flex-1">{children}</main>

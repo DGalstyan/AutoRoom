@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import { messages } from '@/lib/messages';
@@ -9,28 +10,78 @@ import { messages } from '@/lib/messages';
  * (6 variants: list/offer/compare/etc.) is out of scope for the Homepage-only
  * build; this is intentionally the smaller Homepage-appropriate stand-in,
  * reused by both `FeaturedCars` and the `QuizPopup` results screen.
+ *
+ * `imageSrc` matches the Figma "Featured Cars" card treatment (full-bleed
+ * photo, bottom-left price/model over a dark scrim, circular arrow link
+ * bottom-right) when supplied; falls back to the glyph placeholder where no
+ * real photo exists yet (e.g. quiz results for mock cars without art).
  */
-export function MiniCarCard({ car }: { car: Car }) {
+export function MiniCarCard({
+  car,
+  imageSrc,
+  priority = false,
+}: {
+  car: Car;
+  imageSrc?: string;
+  priority?: boolean;
+}) {
   return (
     <Link
       href={carHref(car)}
-      className="group block overflow-hidden rounded-lg border border-line-light bg-white shadow-card transition-transform duration-standard ease-expo hover:-translate-y-1"
+      className="group relative block aspect-[3/2] w-full overflow-hidden rounded-xl bg-neutral-800 shadow-card transition-transform duration-standard ease-expo hover:-translate-y-1"
     >
+      {imageSrc ? (
+        <Image
+          src={imageSrc}
+          alt={`${car.make} ${car.model}`}
+          fill
+          priority={priority}
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover"
+        />
+      ) : (
+        <div
+          className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ink via-surface to-muted/60 text-white/70"
+          aria-hidden="true"
+        >
+          <CarGlyph />
+        </div>
+      )}
       <div
-        className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-ink via-surface to-muted/60 text-white/70"
+        className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/20 to-transparent"
         aria-hidden="true"
-      >
-        <CarGlyph />
-      </div>
-      <div className="p-4">
-        <p className="font-display text-lead font-semibold text-ink">
-          {car.make} {car.model}
-        </p>
-        <p className="mt-1 text-body text-muted">
-          {messages.common.carCard.fromPrice} {formatUsd(car.price)}
-        </p>
+      />
+      <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-6">
+        <div>
+          <p className="text-small font-medium text-white/90">
+            {messages.common.carCard.fromPrice} {formatUsd(car.price)}
+          </p>
+          <p className="font-display text-home-card-title font-normal text-white">
+            {car.make} {car.model}
+          </p>
+        </div>
+        <span
+          aria-hidden="true"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-pill bg-white/15 text-white backdrop-blur transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
+        >
+          <ArrowGlyph />
+        </span>
       </div>
     </Link>
+  );
+}
+
+function ArrowGlyph() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M4 12 12 4M12 4H5M12 4v7"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

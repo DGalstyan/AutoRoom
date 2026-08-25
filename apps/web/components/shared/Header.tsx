@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useScrolled } from '@/lib/hooks/useScrolled';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
+import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { messages } from '@/lib/messages';
 
 const nav = messages.common.nav;
@@ -26,6 +27,7 @@ export function Header() {
   const drawerId = useId();
   const drawerRef = useRef<HTMLDivElement>(null);
   useFocusTrap(drawerRef, drawerOpen, () => setDrawerOpen(false));
+  const { openUniversal } = useLeadWidgets();
 
   // Close the drawer automatically if the viewport grows past the mobile breakpoint.
   useEffect(() => {
@@ -37,17 +39,17 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-30 border-b border-line bg-bg/95 backdrop-blur transition-[padding] duration-standard ease-expo ${
-        scrolled ? 'py-2' : 'py-4'
-      }`}
+      className={`fixed inset-x-0 z-30 px-4 transition-[top] duration-standard ease-expo sm:px-6 ${scrolled ? 'top-2' : 'top-4'}`}
     >
-      <div className="mx-auto flex max-w-container items-center justify-between gap-6 px-4 sm:px-6">
-        <Link
-          href="/"
-          aria-label={nav.home}
-          className="font-display text-lead font-bold tracking-tight text-white"
-        >
-          {brand}
+      <div
+        className={`mx-auto flex max-w-container items-center justify-between gap-4 rounded-pill border border-white/10 bg-bg/60 px-3 py-2 shadow-card backdrop-blur-lg transition-colors duration-standard sm:px-4 ${
+          scrolled ? 'bg-bg/85' : ''
+        }`}
+      >
+        <Link href="/" aria-label={nav.home} className="flex items-center gap-2 pl-2">
+          <span className="font-display text-lead font-bold uppercase tracking-tight text-white">
+            {brand}
+          </span>
         </Link>
 
         <nav aria-label={nav.primaryNav} className="hidden items-center gap-6 lg:flex">
@@ -64,7 +66,15 @@ export function Header() {
 
         <button
           type="button"
-          className="flex h-11 w-11 items-center justify-center rounded-md text-white lg:hidden"
+          onClick={() => openUniversal({ sourceCta: 'header-cta' })}
+          className="hidden min-h-11 shrink-0 items-center rounded-pill bg-accent px-6 py-3 text-small font-semibold text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent lg:inline-flex"
+        >
+          {nav.headerCta}
+        </button>
+
+        <button
+          type="button"
+          className="flex h-11 w-11 items-center justify-center rounded-pill text-white lg:hidden"
           aria-expanded={drawerOpen}
           aria-controls={drawerId}
           aria-label={drawerOpen ? nav.menuClose : nav.menuOpen}
