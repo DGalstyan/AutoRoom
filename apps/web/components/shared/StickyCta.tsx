@@ -19,10 +19,10 @@ export function StickyCta() {
       <button
         type="button"
         onClick={() => openQuiz({ sourceCta: 'sticky-cta' })}
-        className="flex min-h-11 max-w-full items-center gap-3 rounded-pill bg-accent px-5 py-3 text-left text-small font-semibold text-white shadow-card transition-transform duration-standard ease-expo hover:-translate-y-0.5 hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-body"
+        className="flex min-h-11 max-w-full items-center gap-4 rounded-pill border border-white/10 bg-bg/90 py-2 pl-5 pr-2 text-left text-small font-medium text-white shadow-card backdrop-blur-lg transition-transform duration-standard ease-expo hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:text-body"
       >
         <span className="line-clamp-2 sm:line-clamp-1">{t.label}</span>
-        <span className="hidden shrink-0 rounded-pill bg-white/20 px-3 py-1 text-caption uppercase tracking-wide sm:inline">
+        <span className="shrink-0 rounded-pill bg-accent px-5 py-3 text-small font-normal text-ink">
           {t.button}
         </span>
       </button>
