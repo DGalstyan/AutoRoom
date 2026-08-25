@@ -48,7 +48,7 @@ export interface UniversalPopupProps {
 type Step = 1 | 2 | 3;
 type Status = 'idle' | 'submitting' | 'success';
 
-const INTEREST_KEYS: LeadInterest[] = ['usa', 'china', 'in-stock', 'machinery', 'undecided'];
+const INTEREST_KEYS: LeadInterest[] = ['usa', 'china', 'in-stock', 'undecided'];
 const BUDGET_KEYS: LeadBudget[] = ['lt10k', '10-20k', '20-35k', '35k+'];
 const FINANCING_KEYS: LeadFinancing[] = ['need', 'no', 'unsure'];
 const TIMING_KEYS: LeadTiming[] = ['now', '1-3m', 'browsing'];
