@@ -45,10 +45,10 @@ services:
     restart: unless-stopped
     depends_on: [api]
     environment:
-      # Server-only fetch (branding logo, theme colors, etc.) — reaches the
-      # api container directly over the internal network, not through the
-      # public admin.autoroom.am/api proxy.
-      SETTINGS_API_URL: http://api:4000
+      # Server-only fetches (branding logo, theme colors, featured cars,
+      # etc.) — reaches the api container directly over the internal
+      # network, not through the public admin.autoroom.am/api proxy.
+      API_INTERNAL_URL: http://api:4000
     ports:
       - '127.0.0.1:3000:3000'
     networks: [internal]
