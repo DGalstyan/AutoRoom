@@ -36,7 +36,7 @@ export async function getBrandingLogos(): Promise<BrandingLogos> {
   // runs in the RSC render, never in the browser bundle. Dev-friendly default
   // matches the API's own `PUBLIC_API_URL` default; the production value is
   // wired via `docker-compose.prod.yml`, not here.
-  const base = process.env.SETTINGS_API_URL ?? 'http://localhost:4000';
+  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 
   try {
     const res = await fetch(`${base}/settings/public`, { next: { revalidate: 60 } });
