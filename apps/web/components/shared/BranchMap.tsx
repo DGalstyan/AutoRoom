@@ -35,7 +35,10 @@ export function BranchMap() {
             className="object-cover"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/10 to-bg/40" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-bg via-bg/10 to-bg/40"
+          aria-hidden="true"
+        />
       </div>
 
       <div className="mt-8 flex justify-center">
@@ -47,7 +50,10 @@ export function BranchMap() {
         </a>
       </div>
 
-      <div id={listId} className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+      <div
+        id={listId}
+        className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
+      >
         <ul className="space-y-3" aria-label={t.selectPrompt}>
           {BRANCHES.map((branch) => {
             const isActive = branch.id === activeId;
@@ -74,7 +80,11 @@ export function BranchMap() {
           })}
         </ul>
 
-        <div id={panelId} className="rounded-xl border border-white/10 bg-white/5 p-6" aria-live="polite">
+        <div
+          id={panelId}
+          className="rounded-xl border border-white/10 bg-white/5 p-6"
+          aria-live="polite"
+        >
           <div
             className="mb-5 flex aspect-[16/9] w-full items-center justify-center rounded-md bg-gradient-to-br from-surface via-bg to-black text-white/70"
             role="img"
