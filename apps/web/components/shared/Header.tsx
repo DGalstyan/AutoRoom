@@ -1,16 +1,15 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useScrolled } from '@/lib/hooks/useScrolled';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
+import { BrandLogo } from '@/components/shared/BrandLogo';
 import { messages } from '@/lib/messages';
 import type { BrandingLogos } from '@/lib/branding';
 
 const nav = messages.common.nav;
-const brand = messages.common.brand;
 
 const NAV_LINKS: { key: keyof typeof nav; href: string }[] = [
   { key: 'china', href: '/china' },
@@ -35,16 +34,6 @@ export function Header({ logo = null }: HeaderProps = {}) {
   const drawerRef = useRef<HTMLDivElement>(null);
   useFocusTrap(drawerRef, drawerOpen, () => setDrawerOpen(false));
   const { openUniversal } = useLeadWidgets();
-
-  // Confirmed against Figma node `9321:6395` (Header) → `9321:6404`
-  // (`logo_vector 1`): the header sits on a dark, translucent glass pill
-  // (fill rgb(13,13,13) @ 30% opacity) and every vector in the placeholder
-  // logo mark has `fills: [{ r:1, g:1, b:1 }]` — i.e. the mockup logo is pure
-  // white. So the *light-on-dark* logo variant — `logoLightUrl`, despite the
-  // field name being easy to misread as "logo for light mode" — is correct
-  // in both the expanded and scrolled/condensed states. Falls back to
-  // whichever single variant an admin has actually uploaded.
-  const logoSrc = logo?.logoLightUrl ?? logo?.logoDarkUrl ?? null;
 
   // Close the drawer automatically if the viewport grows past the mobile
   // breakpoint (kept in sync with the `xl:` classes below).
@@ -78,31 +67,13 @@ export function Header({ logo = null }: HeaderProps = {}) {
         }`}
       >
         <Link href="/" aria-label={nav.home} className="flex items-center gap-2 pl-2">
-          {logoSrc ? (
-            // Fixed-size box so an unknown-aspect-ratio uploaded logo never
-            // causes layout shift; `unoptimized` because the admin-uploaded
-            // URL's host isn't known at build time (see `apps/api`'s local
-            // disk upload storage), so it can't be added to
-            // `images.remotePatterns` ahead of time.
-            // Box aspect ratio (96×36 ≈ 2.67:1) matches the placeholder logo
-            // mark's own bounding box in Figma (121×46 ≈ 2.63:1, node
-            // `9321:6404`) closely enough that `object-contain` won't
-            // noticeably letterbox a real uploaded logo of similar proportions.
-            <span className="relative block h-9 w-24">
-              <Image
-                src={logoSrc}
-                alt={brand}
-                fill
-                sizes="96px"
-                unoptimized
-                className="object-contain object-left"
-              />
-            </span>
-          ) : (
-            <span className="font-display text-lead font-bold uppercase tracking-tight text-white">
-              {brand}
-            </span>
-          )}
+          {/*
+            Box aspect ratio (96×36 ≈ 2.67:1) matches the logo mark's own
+            bounding box in Figma (121×46 ≈ 2.63:1, node `9321:6404`) closely
+            enough that `object-contain` won't noticeably letterbox an
+            admin-uploaded logo of similar proportions.
+          */}
+          <BrandLogo logo={logo} className="h-9 w-24" sizes="96px" />
         </Link>
 
         {/*

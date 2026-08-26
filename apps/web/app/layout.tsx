@@ -35,8 +35,8 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Server-side only: never throws (see `getBrandingLogos`), so an
-  // unreachable API at build/render time still yields a normal page with the
-  // Header's text-wordmark fallback rather than a broken build.
+  // unreachable API at build/render time still yields a normal page with
+  // `BrandLogo`'s bundled-default fallback rather than a broken build.
   const logo = await getBrandingLogos();
 
   return (
@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <LeadWidgetProvider>
           <Header logo={logo} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <Footer logo={logo} />
           <StickyCta />
         </LeadWidgetProvider>
       </body>
