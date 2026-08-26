@@ -19,7 +19,9 @@ describe('Footer', () => {
   });
 
   it('renders the admin-uploaded logo once one exists, matching Header', () => {
-    render(<Footer logo={{ logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null }} />);
+    render(
+      <Footer logo={{ logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null }} />,
+    );
     expect(screen.getByAltText(messages.common.brand)).toHaveAttribute(
       'src',
       'https://cdn.example.com/logo.png',
@@ -52,9 +54,9 @@ describe('Footer', () => {
     render(<Footer />);
     const expectedHrefs = ['/', '/china', '/usa', '/offers', '/partners', '/about', '/contact'];
     for (const href of expectedHrefs) {
-      expect(
-        screen.getAllByRole('link').some((link) => link.getAttribute('href') === href),
-      ).toBe(true);
+      expect(screen.getAllByRole('link').some((link) => link.getAttribute('href') === href)).toBe(
+        true,
+      );
     }
   });
 

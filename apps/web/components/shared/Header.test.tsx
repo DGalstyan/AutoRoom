@@ -36,11 +36,16 @@ describe('Header', () => {
 
   it("renders the site's real logo mark by default, not admin-upload-only", () => {
     render(<Header />);
-    expect(screen.getByAltText(messages.common.brand)).toHaveAttribute('src', '/brand/logo-mark.svg');
+    expect(screen.getByAltText(messages.common.brand)).toHaveAttribute(
+      'src',
+      '/brand/logo-mark.svg',
+    );
   });
 
   it('renders an admin-uploaded logo when one is provided', () => {
-    render(<Header logo={{ logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null }} />);
+    render(
+      <Header logo={{ logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null }} />,
+    );
     expect(screen.getByAltText(messages.common.brand)).toHaveAttribute(
       'src',
       'https://cdn.example.com/logo.png',

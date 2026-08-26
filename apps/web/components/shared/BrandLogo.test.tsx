@@ -20,13 +20,17 @@ describe('BrandLogo', () => {
   });
 
   it('prefers an admin-uploaded logoLightUrl once one exists', () => {
-    render(<BrandLogo logo={{ logoLightUrl: 'https://cdn.example.com/light.png', logoDarkUrl: null }} />);
+    render(
+      <BrandLogo logo={{ logoLightUrl: 'https://cdn.example.com/light.png', logoDarkUrl: null }} />,
+    );
     const img = screen.getByAltText(brand);
     expect(img).toHaveAttribute('src', 'https://cdn.example.com/light.png');
   });
 
   it('falls back to logoDarkUrl if only that variant was uploaded', () => {
-    render(<BrandLogo logo={{ logoLightUrl: null, logoDarkUrl: 'https://cdn.example.com/dark.png' }} />);
+    render(
+      <BrandLogo logo={{ logoLightUrl: null, logoDarkUrl: 'https://cdn.example.com/dark.png' }} />,
+    );
     const img = screen.getByAltText(brand);
     expect(img).toHaveAttribute('src', 'https://cdn.example.com/dark.png');
   });
