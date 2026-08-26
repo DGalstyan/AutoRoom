@@ -5,11 +5,10 @@ import { FeaturedCars } from '@/components/shared/FeaturedCars';
 import { FounderVideo } from '@/components/shared/FounderVideo';
 import { CustomerStoryWall } from '@/components/shared/CustomerStoryWall';
 import { BranchMap } from '@/components/shared/BranchMap';
-import { Faq } from '@/components/shared/Faq';
+import { HomeFaq } from '@/components/shared/HomeFaq';
 import { HomeFinalCta } from '@/components/shared/HomeFinalCta';
 import { DirectionCard } from '@/components/shared/DirectionCard';
 import { HowItWorksStep } from '@/components/shared/HowItWorksStep';
-import { HOMEPAGE_FAQ } from '@/lib/data/faq';
 import { messages } from '@/lib/messages';
 
 const hero = messages.home.hero;
@@ -170,9 +169,9 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* S9 — FAQ (Homepage aggregated set, verbatim) */}
+      {/* S9 — FAQ (admin-managed, GENERAL topic — see lib/faq.ts) */}
       <Section tone="light">
-        <Faq items={HOMEPAGE_FAQ} hideHeading />
+        <HomeFaq />
       </Section>
 
       {/* S10 — Final CTA (Quiz Popup, not Universal) */}

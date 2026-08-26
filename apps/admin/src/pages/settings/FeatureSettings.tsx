@@ -5,7 +5,6 @@ import { useSettingSection } from '@/pages/settings/useSettingSection';
 import { brand } from '@/theme';
 
 const TOGGLES: { key: keyof FeatureToggles; label: string; description: string }[] = [
-  { key: 'blog', label: 'Blog', description: 'Shows the blog and its entry in the navigation.' },
   {
     key: 'quiz',
     label: 'Quiz popup',

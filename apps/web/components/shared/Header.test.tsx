@@ -20,7 +20,6 @@ const EXPECTED_NAV_HREFS = [
   '/usa',
   '/offers',
   '/partners',
-  '/blog',
   '/partners/portal',
   '/about',
   '/contact',
