@@ -115,5 +115,14 @@ jobs:
             set -e
             cd /opt/autoroom
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+            # --force-recreate: a plain `up -d` only recreates containers
+            # whose image digest changed, so a service left untouched by a
+            # given deploy (e.g. api, when only web's image changed) can end
+            # up running against a stale network attachment or environment
+            # from whenever it was last actually recreated. Confirmed via a
+            # local repro of the real Dockerfile/compose setup that the app
+            # itself self-heals correctly once web can actually reach api —
+            # the silent-empty-homepage bug this fixes was a networking
+            # staleness issue, not an application bug.
+            docker compose -f docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
