@@ -105,6 +105,29 @@ jobs:
     needs: [build-api, build-admin, build-web]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      # This job previously had no checkout and no copy step at all — every
+      # deploy ran `docker compose` against whatever docker-compose.prod.yml
+      # already happened to be sitting in /opt/autoroom, completely
+      # disconnected from git. Editing this file (e.g. adding a new service,
+      # an env var, a network) had silently never been taking effect in
+      # production; only image updates (the `pull`) ever actually landed.
+      # This is what let the web→api connectivity bug (every admin-managed
+      # homepage section silently falling back to empty) go unnoticed across
+      # several deploys — confirmed by locally reproducing the real
+      # Dockerfile/compose setup, where the app self-heals correctly once it
+      # can actually reach the API, and by this job never checking out or
+      # transferring the file that config lives in.
+      - name: Sync docker-compose.prod.yml to the server
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'docker-compose.prod.yml'
+          target: '/opt/autoroom'
+
       - name: Pull and restart on the server
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -117,12 +140,8 @@ jobs:
             docker compose -f docker-compose.prod.yml pull
             # --force-recreate: a plain `up -d` only recreates containers
             # whose image digest changed, so a service left untouched by a
-            # given deploy (e.g. api, when only web's image changed) can end
-            # up running against a stale network attachment or environment
-            # from whenever it was last actually recreated. Confirmed via a
-            # local repro of the real Dockerfile/compose setup that the app
-            # itself self-heals correctly once web can actually reach api —
-            # the silent-empty-homepage bug this fixes was a networking
-            # staleness issue, not an application bug.
+            # given deploy (e.g. api, when only web's image changed) won't
+            # pick up a docker-compose.prod.yml change (like the sync step
+            # above just introduced) on its own.
             docker compose -f docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
