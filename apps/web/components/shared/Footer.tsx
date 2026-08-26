@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { BRANCHES, branchTelHref } from '@/lib/data/branches';
 import { messages } from '@/lib/messages';
 import { FooterCta } from '@/components/shared/FooterCta';
+import { BrandLogo } from '@/components/shared/BrandLogo';
+import type { BrandingLogos } from '@/lib/branding';
 
 const nav = messages.common.nav;
 const footer = messages.common.footer;
@@ -29,16 +31,21 @@ const SOCIALS = [
   { name: 'Linkedin', href: '#' },
 ];
 
-export function Footer() {
+interface FooterProps {
+  /** Same admin-managed branding logo `layout.tsx` passes to `Header`; falls back to the bundled mark until one is uploaded. */
+  logo?: BrandingLogos | null;
+}
+
+export function Footer({ logo = null }: FooterProps = {}) {
   return (
     <footer className="bg-bg text-white">
       <div className="mx-auto max-w-container px-4 pb-16 pt-16 sm:px-6 sm:pt-20">
         <div className="flex flex-col justify-between gap-12 sm:flex-row sm:items-start">
           <Link href="/" aria-label={nav.home} className="inline-block">
-            {/* TODO(design-system): swap for the real AutoRoom wordmark/car-outline
-                SVG (Figma node 9321:6290) once it can be exported — a text lockup
-                approximates the logo's proportions in the meantime. */}
-            <CarGlyph />
+            {/* Box aspect ratio matches the logo mark's real bounding box
+                (121×46 ≈ 2.63:1, Figma node 9321:6404 / footer instance
+                2001:1772) scaled up for the footer's larger presence. */}
+            <BrandLogo logo={logo} className="h-12 w-[126px]" sizes="126px" />
             <p className="mt-2 font-display text-h2 font-extrabold uppercase leading-none tracking-tight text-white">
               {messages.common.brand}
             </p>
@@ -137,21 +144,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function CarGlyph() {
-  return (
-    <svg width="72" height="28" viewBox="0 0 72 28" fill="none" aria-hidden="true">
-      <path
-        d="M4 22l4-9a4 4 0 0 1 3.6-2.2h33a4 4 0 0 1 3.7 2.5L52 22"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path d="M2 22h68M8 18h56" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="16" cy="22" r="4" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="46" cy="22" r="4" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
   );
 }
 
