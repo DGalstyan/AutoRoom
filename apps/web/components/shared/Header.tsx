@@ -16,7 +16,6 @@ const NAV_LINKS: { key: keyof typeof nav; href: string }[] = [
   { key: 'usa', href: '/usa' },
   { key: 'offers', href: '/offers' },
   { key: 'partners', href: '/partners' },
-  { key: 'blog', href: '/blog' },
   { key: 'login', href: '/partners/portal' },
   { key: 'about', href: '/about' },
   { key: 'contact', href: '/contact' },
@@ -82,9 +81,11 @@ export function Header({ logo = null }: HeaderProps = {}) {
           that frame draws only 6 top-level items, each with a chevron-down
           implying a dropdown that groups sub-items (per figma-bridge's
           earlier note). This component intentionally uses the skill's
-          8-item *flat* link contract instead (no dropdown behavior built),
-          which is measurably wider than what Figma's 6-item design was
-          spaced for — 8 flat items at 24px gaps/16px text does not fit
+          7-item *flat* link contract instead (no dropdown behavior built;
+          Blog was an 8th item removed once it turned out to have nothing
+          behind it — see the removal commit), which is measurably wider
+          than what Figma's 6-item design was spaced for — flat items at
+          24px gaps/16px text does not fit
           within `max-w-header` even at the full 1440px design width
           (verified by rendering at fixed widths, not guessed). Tightened
           gap and reduced to `text-small` to make the flat-list contract
