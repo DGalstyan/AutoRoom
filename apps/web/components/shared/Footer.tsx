@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { BRANCHES, branchTelHref } from '@/lib/data/branches';
+import { branchTelHref } from '@/lib/data/branches';
 import { messages } from '@/lib/messages';
 import { FooterCta } from '@/components/shared/FooterCta';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import type { BrandingLogos } from '@/lib/branding';
+import type { GeneralContacts, SocialLinks } from '@/lib/contacts';
 
 const nav = messages.common.nav;
 const footer = messages.common.footer;
@@ -23,20 +24,36 @@ const FOOTER_LINKS: { key: keyof typeof nav; href: string }[] = [
 // footer rather than AutoRoom-authored content. Site nav + branch addresses
 // are still surfaced below (smaller, secondary) since Footer is global and
 // every other page needs that wayfinding; see report for the full rationale.
-const SOCIALS = [
-  { name: 'Instagram', href: '#' },
-  { name: 'Pinterest', href: '#' },
-  { name: 'Facebook', href: '#' },
-  { name: 'Youtube', href: '#' },
-  { name: 'Linkedin', href: '#' },
+//
+// Labels only, deliberately — hrefs come from admin-managed `contacts.social`
+// (see `SocialList` below), which only has these four platforms. No
+// Pinterest/Youtube field exists on the backend, so they're not listed here
+// rather than shipped as permanently-dead '#' links.
+const SOCIAL_LABELS: { key: keyof SocialLinks; name: string }[] = [
+  { key: 'instagram', name: 'Instagram' },
+  { key: 'facebook', name: 'Facebook' },
+  { key: 'tiktok', name: 'TikTok' },
+  { key: 'linkedin', name: 'Linkedin' },
 ];
 
 interface FooterProps {
   /** Same admin-managed branding logo `layout.tsx` passes to `Header`; falls back to the bundled mark until one is uploaded. */
   logo?: BrandingLogos | null;
+  /** Admin-managed general contact info/socials; a field renders nothing (not a placeholder) until an admin fills it in. */
+  contacts?: { general: GeneralContacts; social: SocialLinks };
 }
 
-export function Footer({ logo = null }: FooterProps = {}) {
+const NO_CONTACTS: GeneralContacts = { email: null, phones: [] };
+const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
+
+export function Footer({
+  logo = null,
+  contacts = { general: NO_CONTACTS, social: NO_SOCIAL },
+}: FooterProps = {}) {
+  const { general, social } = contacts;
+  const email = general.email;
+  const phone = general.phones[0] ?? null;
+  const socialLinks = SOCIAL_LABELS.filter(({ key }) => social[key]);
   return (
     <footer className="bg-bg text-white">
       <div className="mx-auto max-w-container px-4 pb-16 pt-16 sm:px-6 sm:pt-20">
@@ -61,50 +78,60 @@ export function Footer({ logo = null }: FooterProps = {}) {
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-10 sm:grid-cols-3">
-          <div>
-            <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-              {footer.socialHeading}
-            </p>
-            <ul className="mt-4 space-y-3">
-              {SOCIALS.map((social) => (
-                <li key={social.name}>
-                  <a
-                    href={social.href}
-                    className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                  >
-                    <ArrowGlyph size={14} />
-                    {social.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {socialLinks.length > 0 && (
+            <div>
+              <p className="text-small font-semibold uppercase tracking-wide text-white/50">
+                {footer.socialHeading}
+              </p>
+              <ul className="mt-4 space-y-3">
+                {socialLinks.map(({ key, name }) => (
+                  <li key={key}>
+                    <a
+                      href={social[key]!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
+                    >
+                      <ArrowGlyph size={14} />
+                      {name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-          <div>
-            <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-              {footer.contactHeading}
-            </p>
-            <ul className="mt-4 space-y-3">
-              <li>
-                <a
-                  href="mailto:hello@autoroom.co"
-                  className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                >
-                  <ArrowGlyph size={14} />
-                  hello@autoroom.co
-                </a>
-              </li>
-              <li>
-                <a
-                  href={branchTelHref(BRANCHES[0].phone)}
-                  className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                >
-                  <ArrowGlyph size={14} />
-                  {BRANCHES[0].phone}
-                </a>
-              </li>
-            </ul>
-          </div>
+          {(email || phone) && (
+            <div>
+              <p className="text-small font-semibold uppercase tracking-wide text-white/50">
+                {footer.contactHeading}
+              </p>
+              <ul className="mt-4 space-y-3">
+                {email && (
+                  <li>
+                    <a
+                      href={`mailto:${email}`}
+                      className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
+                    >
+                      <ArrowGlyph size={14} />
+                      {email}
+                    </a>
+                  </li>
+                )}
+                {phone && (
+                  <li>
+                    <a
+                      href={branchTelHref(phone)}
+                      className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
+                    >
+                      <ArrowGlyph size={14} />
+                      {phone}
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
 
           <div>
             <p className="text-small font-semibold uppercase tracking-wide text-white/50">
