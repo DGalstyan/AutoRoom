@@ -119,13 +119,18 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* S5 — AutoRoom Ecosystem: photo + overlapping glass list (node
-          9321:6269 / 9321:6642). No visible heading in Figma — kept as an
-          sr-only heading for the a11y outline. */}
+      {/* S5 — AutoRoom Ecosystem: photo + overlapping glass list. Pixel-matched
+          to Figma node 2001:1750/2001:1753 (jH6kcLvNyo77Zeqk381hNJ): a
+          32px-radius photo with a bottom-heavy dark gradient (transparent to
+          89%-black), and a 32%-opacity white glass panel — not the ~85-90%
+          opaque card this used to be — positioned near the photo's top-right
+          rather than vertically centered, with a plain 12px-gap item list
+          (no dividers) at 20px/28px type. No visible heading in Figma — kept
+          as an sr-only heading for the a11y outline. */}
       <Section tone="light">
         <h2 className="sr-only">{ecosystem.heading}</h2>
-        <div className="relative overflow-hidden rounded-xl">
-          <div className="relative aspect-[16/9] w-full sm:aspect-[980/551]">
+        <div className="relative overflow-visible rounded-[32px]">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551]">
             <Image
               src="/images/home/ecosystem-strip.jpg"
               alt="AutoRoom-ի մեքենան ճանապարհին"
@@ -133,14 +138,15 @@ export default function HomePage() {
               sizes="(min-width: 1024px) 980px, 100vw"
               className="object-cover"
             />
+            <div
+              className="absolute inset-0 bg-gradient-to-b from-black/0 to-[95.372%] to-black/[0.89]"
+              aria-hidden="true"
+            />
           </div>
-          <div className="p-4 sm:absolute sm:right-6 sm:top-1/2 sm:w-[360px] sm:-translate-y-1/2 sm:p-0">
-            <ul className="rounded-xl bg-white/90 p-6 shadow-card backdrop-blur sm:bg-white/85">
+          <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4">
+            <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
               {ecosystem.items.map((item) => (
-                <li
-                  key={item}
-                  className="border-b border-line-light py-3 text-home-label font-normal text-ink last:border-b-0"
-                >
+                <li key={item} className="text-home-label font-normal leading-[28px] text-ink">
                   {item.trim()}
                 </li>
               ))}
