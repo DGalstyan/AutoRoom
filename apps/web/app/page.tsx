@@ -159,7 +159,7 @@ export default function HomePage() {
         <CustomerStoryWall />
       </Section>
 
-      {/* S8 — "Միշտ քո կողքին" branches, dark world-map band (node 9332:7854) */}
+      {/* S8 — "Միշտ քո կողքին" branches, real Armenia map with animated pins (node 9332:7854) */}
       <Section tone="dark" className="bg-bg">
         <h2 className="text-center font-display text-home-h2 font-light text-white">
           {branches.heading}
