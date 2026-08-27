@@ -18,7 +18,7 @@ describe('getHomepageFaq', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/public/faq?topic=GENERAL'),
-      expect.objectContaining({ next: { revalidate: 60 } }),
+      expect.objectContaining({ cache: 'no-store' }),
     );
   });
 
