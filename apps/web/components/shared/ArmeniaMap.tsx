@@ -14,15 +14,19 @@ interface ArmeniaMapProps {
 }
 
 /**
- * Real Armenia outline (see `lib/data/armeniaMap.ts` for provenance) with an
- * animated pin per branch. Each pin is a focusable button carrying the full
- * name/city/address in its `aria-label` — the floating tooltip is purely
- * visual (`aria-hidden`) and only ever duplicates what's already accessible
+ * Real Armenia outline (see `lib/data/armeniaMap.ts` for provenance), filled
+ * with the same dot-matrix pattern as the site's other "presence map"
+ * treatment (`public/images/home/world-map.jpg` — a world map silhouette
+ * built from a grid of dots, not a solid or line-stroked shape), so the two
+ * don't read as two different map styles. One animated pin per branch on
+ * top. Each pin is a focusable button carrying the full name/city/address
+ * in its `aria-label` — the floating tooltip is purely visual
+ * (`aria-hidden`) and only ever duplicates what's already accessible
  * without it, so nothing is lost if it doesn't render.
  */
 export function ArmeniaMap({ activeId, onSelect }: ArmeniaMapProps) {
   const [openId, setOpenId] = useState<Branch['id'] | null>(null);
-  const gradientId = useId();
+  const patternId = useId();
 
   return (
     <div className="relative mx-auto aspect-[397/440] w-full max-w-sm">
@@ -32,19 +36,11 @@ export function ArmeniaMap({ activeId, onSelect }: ArmeniaMapProps) {
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="white" stopOpacity="0.03" />
-            <stop offset="100%" stopColor="white" stopOpacity="0.08" />
-          </linearGradient>
+          <pattern id={patternId} width="2.4" height="2.4" patternUnits="userSpaceOnUse">
+            <circle cx="1.2" cy="1.2" r="0.62" fill="white" fillOpacity="0.55" />
+          </pattern>
         </defs>
-        <path
-          d={ARMENIA_OUTLINE_PATH}
-          fill={`url(#${gradientId})`}
-          stroke="white"
-          strokeOpacity="0.35"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
+        <path d={ARMENIA_OUTLINE_PATH} fill={`url(#${patternId})`} />
       </svg>
 
       {BRANCHES.map((branch) => {
@@ -85,7 +81,9 @@ export function ArmeniaMap({ activeId, onSelect }: ArmeniaMapProps) {
               <span
                 aria-hidden="true"
                 className={`relative inline-flex size-3 rounded-full ring-2 ring-bg ${
-                  isActive ? 'bg-accent' : 'bg-white'
+                  isActive
+                    ? 'bg-accent shadow-[0_0_10px_2px_rgba(200,162,74,0.85)]'
+                    : 'bg-white shadow-[0_0_8px_1px_rgba(255,255,255,0.6)]'
                 }`}
               />
             </button>
