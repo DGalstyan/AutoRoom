@@ -3,7 +3,6 @@ import { Inter, Noto_Sans_Armenian, Sora } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
-import { StickyCta } from '@/components/shared/StickyCta';
 import { LeadWidgetProvider } from '@/components/shared/LeadWidgetProvider';
 import { getBrandingLogos } from '@/lib/branding';
 import { getContacts } from '@/lib/contacts';
@@ -52,7 +51,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Header logo={logo} />
           <main className="flex-1">{children}</main>
           <Footer logo={logo} contacts={contacts} />
-          <StickyCta />
+          {/* StickyCta removed for now, per request — component untouched,
+              just not mounted here. Re-add <StickyCta /> to bring it back. */}
         </LeadWidgetProvider>
       </body>
     </html>
