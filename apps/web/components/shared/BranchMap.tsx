@@ -1,10 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import { useId, useState } from 'react';
 import { BRANCHES, branchTelHref, type Branch } from '@/lib/data/branches';
 import { messages, interpolate } from '@/lib/messages';
 import { Button } from '@/components/ui/Button';
+import { ArmeniaMap } from '@/components/shared/ArmeniaMap';
 
 const t = messages.common.branchMap;
 
@@ -12,10 +12,10 @@ const t = messages.common.branchMap;
  * Figma's Homepage branches section (node `9332:7854`) is a dark band with a
  * decorative world map graphic and a single CTA — no per-branch pins (the
  * source asset is a generic placeholder screenshot with pins over the US/AU,
- * not AutoRoom's real Armenia locations; see report). We keep that visual
- * treatment as ambient background texture and preserve the real
- * "pick a branch → see photo/address/phone/hours" contract underneath with
- * the actual 3 Armenia branches.
+ * not AutoRoom's real Armenia locations; see report). Since then, replaced
+ * that placeholder with a real Armenia outline and an animated, tooltipped
+ * pin per branch (see `ArmeniaMap`) — clicking a pin drives the same
+ * `activeId` selection as the list below, so both stay in sync.
  */
 export function BranchMap() {
   const [activeId, setActiveId] = useState<Branch['id']>(BRANCHES[0].id);
@@ -25,21 +25,7 @@ export function BranchMap() {
 
   return (
     <div>
-      <div className="relative mx-auto max-w-4xl overflow-hidden rounded-xl">
-        <div className="relative aspect-[852/514] w-full opacity-60 grayscale">
-          <Image
-            src="/images/home/world-map.jpg"
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 852px, 100vw"
-            className="object-cover"
-          />
-        </div>
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-bg via-bg/10 to-bg/40"
-          aria-hidden="true"
-        />
-      </div>
+      <ArmeniaMap activeId={activeId} onSelect={setActiveId} />
 
       <div className="mt-8 flex justify-center">
         <a
