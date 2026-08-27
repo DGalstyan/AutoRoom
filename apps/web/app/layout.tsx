@@ -6,6 +6,7 @@ import { Footer } from '@/components/shared/Footer';
 import { StickyCta } from '@/components/shared/StickyCta';
 import { LeadWidgetProvider } from '@/components/shared/LeadWidgetProvider';
 import { getBrandingLogos } from '@/lib/branding';
+import { getContacts } from '@/lib/contacts';
 
 const sora = Sora({
   variable: '--font-sora',
@@ -34,10 +35,12 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Server-side only: never throws (see `getBrandingLogos`), so an
-  // unreachable API at build/render time still yields a normal page with
-  // `BrandLogo`'s bundled-default fallback rather than a broken build.
+  // Server-side only: never throws (see `getBrandingLogos`/`getContacts`),
+  // so an unreachable API at build/render time still yields a normal page
+  // with `BrandLogo`'s bundled-default fallback and an empty contacts block
+  // rather than a broken build.
   const logo = await getBrandingLogos();
+  const contacts = await getContacts();
 
   return (
     <html
@@ -48,7 +51,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <LeadWidgetProvider>
           <Header logo={logo} />
           <main className="flex-1">{children}</main>
-          <Footer logo={logo} />
+          <Footer logo={logo} contacts={contacts} />
           <StickyCta />
         </LeadWidgetProvider>
       </body>

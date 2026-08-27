@@ -11,10 +11,7 @@ const t = messages.home.anatomy;
  *
  * - 3 always-visible white/80%-opacity pill badges (dark text) over the
  *   photo, each at Figma's exact left/top/width box (`ml-*`/`mt-*`/`w-*` in
- *   the export). Only the "10+ տարվա փորձ" badge (bottom-right) has a
- *   connector dot + line in Figma's own data — the other two are plain
- *   floating pills with no connector, matching the source exactly rather
- *   than adding decoration to all three for visual symmetry.
+ *   the export). No connector dot/line — removed per feedback.
  * - The 4-stat column: flex column, exact 64px gap, each number at its
  *   exact `leading-[56px]` with `-10px` bottom margin against the label
  *   (Figma's own spacing between number and label), both number and label
@@ -40,7 +37,7 @@ export function CarAnatomy() {
             sizes="(min-width: 1024px) 65vw, 100vw"
             className="object-contain"
           />
-          {t.imageHotspots.map((hotspot, index) => (
+          {t.imageHotspots.map((hotspot) => (
             <Hotspot
               key={hotspot.text}
               text={hotspot.text}
@@ -48,9 +45,6 @@ export function CarAnatomy() {
               top={hotspot.top}
               width={hotspot.width}
               height={hotspot.height}
-              // Only Figma's third pin ("10+ տարվա փորձ") carries a
-              // connector dot + line down to the photo.
-              withConnector={index === 2}
             />
           ))}
         </div>
@@ -79,7 +73,6 @@ interface HotspotProps {
   top: string;
   width: string;
   height: string;
-  withConnector: boolean;
 }
 
 /**
@@ -87,24 +80,12 @@ interface HotspotProps {
  * center-anchored point) matching Figma's own `ml`/`mt`/`w`/`h` — not a
  * hover target.
  */
-function Hotspot({ text, left, top, width, height, withConnector }: HotspotProps) {
+function Hotspot({ text, left, top, width, height }: HotspotProps) {
   return (
     <div className="absolute" style={{ left, top, width, height }}>
       <div className="flex h-full items-center justify-center rounded-[72.323px] bg-white/80 px-[17.357px] py-[11.572px] text-center shadow-card">
         <p className="text-[11.572px] font-medium leading-[14.465px] text-ink">{text}</p>
       </div>
-      {withConnector && (
-        <>
-          <span
-            aria-hidden="true"
-            className="absolute left-[calc(50%-33px)] top-full h-[137px] w-px bg-accent/60"
-          />
-          <span
-            aria-hidden="true"
-            className="absolute left-[calc(50%-33px)] top-[calc(100%+137px)] size-[21px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/80"
-          />
-        </>
-      )}
     </div>
   );
 }
