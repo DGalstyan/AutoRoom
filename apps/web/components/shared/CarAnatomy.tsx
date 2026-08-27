@@ -1,18 +1,19 @@
-'use client';
-
 import Image from 'next/image';
-import { useId, useState } from 'react';
 import { messages } from '@/lib/messages';
 
 const t = messages.home.anatomy;
 
 /**
  * "Ինչո՞ւ ընտրել AutoRoom-ը" — Figma's actual Homepage treatment (node
- * `9321:6155`) is a single static hero photo with a few connector-line
- * hotspot labels plus a 4-stat column, not the full scroll-driven exploded
- * view described in `components.md`. This rebuild matches what's actually in
- * the design; hotspot hover/focus tooltips and a mobile fallback list keep
- * the same accessibility contract the fuller spec calls for.
+ * `2001:1635`) is a single static hero photo with three *always-visible*
+ * white/80%-opacity pill badges (dark text, small/medium weight) pinned to
+ * points on the photo via a short connector line, plus a 4-stat column —
+ * not the full scroll-driven exploded view described in `components.md`,
+ * and not a hover-triggered tooltip either (an earlier version of this
+ * component used a dark-background/white-text hover tooltip, which had both
+ * the interaction model and the colors backwards relative to the design).
+ * Badges render real text, so no separate sr-only fallback list is needed —
+ * there's nothing hidden behind hover to duplicate.
  */
 export function CarAnatomy() {
   return (
@@ -33,55 +34,37 @@ export function CarAnatomy() {
           ))}
         </div>
 
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-1">
+        <dl className="flex flex-col gap-10 lg:gap-14">
           {t.stats.map((stat) => (
             <div key={stat.label}>
               <dt className="sr-only">{stat.label}</dt>
               <dd className="font-display text-home-stat-sm font-bold text-ink">{stat.value}</dd>
-              <p className="mt-1 font-display text-home-label font-bold text-ink">{stat.label}</p>
+              <p className="mt-1 font-display text-home-label font-normal text-ink">{stat.label}</p>
             </div>
           ))}
         </dl>
       </div>
-
-      {/* Screen-reader / keyboard fallback: same copy as the hover tooltips,
-          always available without relying on hover precision over the photo. */}
-      <ul className="sr-only">
-        {t.imageHotspots.map((hotspot) => (
-          <li key={hotspot.text}>{hotspot.text}</li>
-        ))}
-      </ul>
     </div>
   );
 }
 
+/**
+ * A pin (small accent-colored dot + short connector line) anchoring an
+ * always-visible label badge — not a hover target. `top`/`left` mark the
+ * pin's point on the photo; the badge sits just above it.
+ */
 function Hotspot({ text, top, left }: { text: string; top: string; left: string }) {
-  const [open, setOpen] = useState(false);
-  const tooltipId = useId();
-
   return (
-    <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ top, left }}>
-      <button
-        type="button"
-        aria-describedby={tooltipId}
-        aria-expanded={open}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex h-6 w-6 items-center justify-center rounded-pill border-2 border-accent bg-white/90 shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      >
-        <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
-      </button>
-      <div
-        id={tooltipId}
-        role="tooltip"
-        className={`absolute left-1/2 top-full z-10 mt-2 w-48 -translate-x-1/2 rounded-md bg-ink p-3 text-left shadow-card transition-opacity duration-micro ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
-      >
-        <p className="text-caption text-white">{text}</p>
+    <div className="absolute -translate-x-1/2" style={{ top, left }}>
+      <div className="flex flex-col items-center">
+        <div className="max-w-[220px] rounded-pill bg-white/80 px-4 py-2.5 text-center shadow-card backdrop-blur-sm">
+          <p className="text-caption font-medium text-ink">{text}</p>
+        </div>
+        <span aria-hidden="true" className="h-4 w-px bg-accent/70" />
+        <span
+          aria-hidden="true"
+          className="-mt-1 size-2 rounded-full bg-accent ring-2 ring-white/80"
+        />
       </div>
     </div>
   );
