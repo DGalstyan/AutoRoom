@@ -7,11 +7,19 @@
  * separate, page-specific list meant for the future `/china` page, not the
  * Homepage — fetching without a topic filter would pull in whatever gets
  * published under the China topic too, which isn't what Homepage content
- * should show. `GET /public/faq` is unauthenticated, published-rows-only,
- * and mirrors `lib/branding.ts`'s cache lifetime — `next: { revalidate: 60 }`.
- * Never throws: an unreachable API or zero published questions both resolve
- * to an empty array, and callers should render nothing (not the old
- * hardcoded list) when empty, matching `lib/cars.ts`'s contract.
+ * should show.
+ *
+ * `cache: 'no-store'`, deliberately not ISR (`next: { revalidate }`): a
+ * publish/unpublish in admin must show up on the very next page load, not
+ * within some caching window — an editor unpublishing something they just
+ * noticed was wrong shouldn't still see it live moments later. This does
+ * mean every request to `/` now calls the API live for this data (and, as a
+ * side effect of Next's per-route caching model, for Featured Cars and the
+ * branding logo too, since one dynamic fetch on a route makes the whole
+ * route render dynamically instead of serving an ISR-cached page). Never
+ * throws: an unreachable API or zero published questions both resolve to an
+ * empty array, and callers should render nothing (not the old hardcoded
+ * list) when empty, matching `lib/cars.ts`'s contract.
  */
 
 import type { FaqItem } from '@/lib/data/faq';
@@ -35,7 +43,7 @@ export async function getHomepageFaq(): Promise<FaqItem[]> {
 
   try {
     const res = await fetch(`${base}/public/faq?topic=GENERAL`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     });
     if (!res.ok) return [];
 
