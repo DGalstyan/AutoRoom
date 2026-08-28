@@ -6,6 +6,7 @@ import { env } from './config/env';
 import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
 import { availabilityRouter } from './routes/availability';
+import { banksRouter } from './routes/banks';
 import { branchesRouter } from './routes/branches';
 import { carsRouter } from './routes/cars';
 import { faqRouter } from './routes/faq';
@@ -63,6 +64,7 @@ export function createApp(): Express {
   app.use(healthRouter);
   app.use(authRouter);
   app.use(availabilityRouter);
+  app.use(banksRouter);
   app.use(branchesRouter);
   app.use(carsRouter);
   app.use(faqRouter);

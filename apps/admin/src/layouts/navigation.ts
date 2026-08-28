@@ -41,6 +41,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Cars', to: '/cars', permission: 'cars:READ' },
       { label: 'Stories', to: '/stories', permission: 'media:READ' },
       { label: 'Branches', to: '/branches', permission: 'branches:READ' },
+      { label: 'Banks', to: '/banks', permission: 'banks:READ' },
       { label: 'FAQ', to: '/faq', permission: 'faq:READ' },
     ],
   },

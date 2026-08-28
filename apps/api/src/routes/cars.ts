@@ -137,11 +137,42 @@ const listQuerySchema = z.object({
     .transform((value) => value === 'true')
     .optional(),
   search: z.string().trim().max(120).optional(),
+  /**
+   * Exact-match facets for the China/USA listing filters (`Մակնիշ`/`Մոդել`) —
+   * deliberately separate from `search`, which is a fuzzy OR-match across
+   * several columns and unsuitable for a dropdown driven by known values.
+   */
+  make: z.string().trim().min(1).max(60).optional(),
+  model: z.string().trim().min(1).max(60).optional(),
+  priceMin: z.coerce.number().int().min(0).optional(),
+  priceMax: z.coerce.number().int().min(0).optional(),
   sort: z.enum(['createdAt', 'price', 'year', 'make']).default('createdAt'),
   direction: z.enum(['asc', 'desc']).default('desc'),
   take: z.coerce.number().int().min(1).max(100).default(25),
   skip: z.coerce.number().int().min(0).default(0),
 });
+
+/**
+ * `make`/`model`/price-range facets, shared verbatim by the admin `/cars`
+ * list and the public China/USA listing — pulled out so the two routes
+ * cannot drift on how a filter is applied.
+ */
+function facetWhere(
+  query: Pick<z.infer<typeof listQuerySchema>, 'make' | 'model' | 'priceMin' | 'priceMax'>,
+): Prisma.CarWhereInput {
+  return {
+    ...(query.make ? { make: { equals: query.make, mode: 'insensitive' } } : {}),
+    ...(query.model ? { model: { equals: query.model, mode: 'insensitive' } } : {}),
+    ...(query.priceMin !== undefined || query.priceMax !== undefined
+      ? {
+          price: {
+            ...(query.priceMin !== undefined ? { gte: query.priceMin } : {}),
+            ...(query.priceMax !== undefined ? { lte: query.priceMax } : {}),
+          },
+        }
+      : {}),
+  };
+}
 
 const imageSchema = z.object({
   album: z.nativeEnum(ImageAlbum),
@@ -181,6 +212,7 @@ carsRouter.get(
             ],
           }
         : {}),
+      ...facetWhere(query),
     };
 
     const [items, total] = await Promise.all([
@@ -416,6 +448,7 @@ carsRouter.get('/public/cars', validateQuery(listQuerySchema), async (req, res) 
     ...(query.origin ? { origin: query.origin } : {}),
     ...(query.condition ? { condition: query.condition } : {}),
     ...(query.featured === undefined ? {} : { featured: query.featured }),
+    ...facetWhere(query),
   };
 
   const [items, total] = await Promise.all([
