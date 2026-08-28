@@ -81,6 +81,21 @@ export interface Car {
   updatedAt: string;
 }
 
+/** `finance.calculator` admin setting — drives `LoanCalculator`. */
+export interface FinanceCalculator {
+  termMonths: number;
+  /** Percent, e.g. `15.9`. */
+  nominalRate: number;
+  effectiveRateMin: number;
+  effectiveRateMax: number;
+  /** Fraction of car price, e.g. `0.1` for 10%. */
+  minDownPaymentRatio: number;
+  maxDownPaymentRatio: number;
+  defaultDownPaymentRatio: number;
+  usdToAmd: number;
+  disclaimer: string | null;
+}
+
 /** Where a `CarCard`/`FeaturedCars` link should point (future car-detail routes). */
 export function carHref(car: Pick<Car, 'origin' | 'condition' | 'slug'>): string {
   if (car.origin === 'CHINA') return `/china/${car.slug}`;
