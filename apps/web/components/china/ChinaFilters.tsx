@@ -56,7 +56,7 @@ export function ChinaFilters({ makeModels }: { makeModels: Record<string, string
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-pill bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+    <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-[70px]">
       <div className="flex items-center gap-3 rounded-pill bg-neutral-25 px-4 py-3">
         <TabButton active={condition === ''} onClick={() => updateParams({ condition: null })}>
           {t.tabAll}
