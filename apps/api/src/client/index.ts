@@ -7,6 +7,8 @@ import type {
   AvailabilityListQuery,
   AvailabilitySlot,
   AvailabilitySlotInput,
+  Bank,
+  BankInput,
   Branch,
   BranchInput,
   Car,
@@ -344,6 +346,20 @@ export function createApiClient(options: ApiClientOptions) {
       /** Unauthenticated — the map, footer and Contact page read this. */
       public: (init?: RequestOptions) =>
         request<{ items: Branch[]; total: number }>('GET', '/public/branches', init),
+    },
+
+    /** The partner-bank grid behind the China/USA financing section. */
+    banks: {
+      list: (init?: RequestOptions) =>
+        request<{ items: Bank[]; total: number }>('GET', '/banks', init),
+      create: (body: BankInput, init?: RequestOptions) =>
+        request<Bank>('POST', '/banks', { ...init, body }),
+      update: (id: string, body: BankInput, init?: RequestOptions) =>
+        request<Bank>('PUT', `/banks/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/banks/${id}`, init),
+      /** Unauthenticated — the China/USA financing sections read this. */
+      public: (init?: RequestOptions) =>
+        request<{ items: Bank[]; total: number }>('GET', '/public/banks', init),
     },
 
     /** Homepage S9 and the China/USA page sections. */

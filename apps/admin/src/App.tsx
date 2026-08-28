@@ -17,6 +17,7 @@ import { PartnersPage } from '@/pages/PartnersPage';
 import { BookingsPage } from '@/pages/BookingsPage';
 import { AvailabilityPage } from '@/pages/AvailabilityPage';
 import { BranchesPage } from '@/pages/BranchesPage';
+import { BanksPage } from '@/pages/BanksPage';
 import { FaqPage } from '@/pages/FaqPage';
 import { StoriesPage } from '@/pages/StoriesPage';
 
@@ -58,6 +59,7 @@ export function App() {
                     <Route path="/bookings" element={<BookingsPage />} />
                     <Route path="/availability" element={<AvailabilityPage />} />
                     <Route path="/branches" element={<BranchesPage />} />
+                    <Route path="/banks" element={<BanksPage />} />
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/stories" element={<StoriesPage />} />
                     <Route path="/users" element={<UsersPage />} />

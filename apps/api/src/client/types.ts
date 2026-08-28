@@ -263,6 +263,11 @@ export interface CarListQuery {
   featured?: boolean;
   published?: boolean;
   search?: string;
+  /** Exact-match facets for the China/USA listing filters. */
+  make?: string;
+  model?: string;
+  priceMin?: number;
+  priceMax?: number;
   sort?: 'createdAt' | 'price' | 'year' | 'make';
   direction?: 'asc' | 'desc';
   take?: number;
@@ -370,6 +375,24 @@ export interface Branch extends BranchRef {
 }
 
 export type BranchInput = Omit<Branch, 'id'>;
+
+/* ----------------------------------- banks ----------------------------------- */
+
+/**
+ * A partner bank in the China/USA financing grid. `inHouse` marks AutoRoom's
+ * own pre-arrival offer — it has no `loanUrl` (nothing to open a new tab to)
+ * and the page opens the financing detail popup for it instead.
+ */
+export interface Bank {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+  loanUrl: string | null;
+  inHouse: boolean;
+  position: number;
+}
+
+export type BankInput = Omit<Bank, 'id'>;
 
 /* ------------------------------------ faq ----------------------------------- */
 
