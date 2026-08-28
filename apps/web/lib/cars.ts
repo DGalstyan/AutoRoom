@@ -89,6 +89,41 @@ export async function listCars(filters: CarListFilters = {}): Promise<{
 }
 
 /**
+ * One published car by its public-site slug — the car-detail page's only
+ * data source. `null` covers both "no such car" and "not published"
+ * identically (the API's own `/public/cars/:slug` already refuses to leak an
+ * unpublished row), so the page can 404 either way without distinguishing.
+ */
+export async function getCarBySlug(slug: string): Promise<Car | null> {
+  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+
+  try {
+    const res = await fetch(`${base}/public/cars/${encodeURIComponent(slug)}`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as Car;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * "Նմանատիպ առաջարկներ" — 3–4 cars of the same origin/powertrain in a similar
+ * price band, current car excluded. A single unfiltered-by-price fetch (same
+ * origin+powertrain) filtered and ranked by price distance client-side, since
+ * the public list endpoint has no "closest price" sort of its own.
+ */
+export async function listSimilarCars(car: Car, limit = 4): Promise<Car[]> {
+  const { items } = await listCars({ origin: car.origin, take: 100 });
+
+  return items
+    .filter((candidate) => candidate.id !== car.id && candidate.powertrain === car.powertrain)
+    .sort((a, b) => Math.abs(a.price - car.price) - Math.abs(b.price - car.price))
+    .slice(0, limit);
+}
+
+/**
  * The full make → model set for one origin, used to populate the `Մակնիշ`/
  * `Մոդել` filter dropdowns from what is actually in stock rather than a
  * hardcoded brand list — an admin adding a new make shows up here with no

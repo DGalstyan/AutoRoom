@@ -635,6 +635,21 @@ export interface ContactsMessengers {
   telegram: string | null;
 }
 
+/** `apps/api/src/lib/settings.ts`'s `finance.calculator` — drives the public `LoanCalculator`. */
+export interface FinanceCalculator {
+  termMonths: number;
+  /** Percent, e.g. `15.9`. */
+  nominalRate: number;
+  effectiveRateMin: number;
+  effectiveRateMax: number;
+  /** Fraction of car price, e.g. `0.1` for 10%. */
+  minDownPaymentRatio: number;
+  maxDownPaymentRatio: number;
+  defaultDownPaymentRatio: number;
+  usdToAmd: number;
+  disclaimer: string | null;
+}
+
 export interface FeatureToggles {
   blog: boolean;
   quiz: boolean;
@@ -655,7 +670,7 @@ export interface SettingValues {
   'contacts.general': ContactsGeneral;
   'contacts.social': ContactsSocial;
   'contacts.messengers': ContactsMessengers;
-  'finance.calculator': Record<string, unknown>;
+  'finance.calculator': FinanceCalculator;
   'features.toggles': FeatureToggles;
   'localization.locales': LocalizationLocales;
 }
