@@ -115,8 +115,15 @@ export function CarFormPage() {
 
   useEffect(() => {
     if (carQuery.data) {
-      const { id: _id, publishedAt, images, createdAt, updatedAt, similarCars, ...input } =
-        carQuery.data;
+      const {
+        id: _id,
+        publishedAt,
+        images,
+        createdAt,
+        updatedAt,
+        similarCars,
+        ...input
+      } = carQuery.data;
       void _id;
       void publishedAt;
       void images;
