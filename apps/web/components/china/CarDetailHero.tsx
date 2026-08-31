@@ -13,17 +13,16 @@ import { messages } from '@/lib/messages';
 const t = messages.china.detail;
 
 /**
- * China (and later USA) car-detail S3.1–3.3 + 3.6b: the sticky name/price
- * title bar with the two CTAs, the image gallery, the order-only colour
- * picker (only `ON_ORDER` cars carry meaningful `car.colors` — an in-stock
- * car is one specific physical car in one specific colour, per
+ * China (and later USA) car-detail S3.1–3.3 + 3.6b: the name/price title
+ * bar with the two CTAs, the image gallery, the order-only colour picker
+ * (only `ON_ORDER` cars carry meaningful `car.colors` — an in-stock car is
+ * one specific physical car in one specific colour, per
  * `apps/api/prisma/schema.prisma`'s `colors` comment) and the compact
  * `BuyWithLoan` bank grid. One client component because the colour picker,
  * gallery and both CTAs all share the same `selectedColor` state. Pixel-
  * matched to Figma node 102:476 (file 9Lq4XpWusTJj1VnM6laAZr):
- * - the title bar is a white `sticky` pill (offset below the site's own
- *   `fixed` Header, which the Figma frame has no equivalent of and isn't
- *   itself `sticky` in this design system);
+ * - the title bar is a plain white pill, not `sticky` — it scrolls away with
+ *   the rest of the hero like everything else on the page;
  * - neither a condition nor a delivery-ETA badge sits next to the price here
  *   — both already live in the spec table below, and this frame doesn't
  *   repeat them;
@@ -47,7 +46,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
 
   return (
     <div className="flex flex-col gap-9">
-      <div className="sticky top-24 z-10 flex items-center justify-between gap-4 rounded-xl bg-white px-6 py-3">
+      <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-6 py-3">
         <div className="flex flex-wrap items-center gap-6 whitespace-nowrap">
           <h1 className="font-display text-[36px] font-bold leading-[56px] text-neutral-900">
             {car.make} {car.model}
