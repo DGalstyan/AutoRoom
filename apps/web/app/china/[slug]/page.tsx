@@ -28,9 +28,7 @@ export async function generateMetadata({
 /**
  * China car detail `/china/[slug]` — `references/pages.md` "China car
  * detail" (S3.1–3.6b), pixel-matched to Figma node 102:195/102:476/102:220
- * (file 9Lq4XpWusTJj1VnM6laAZr; the Figma quota was exhausted mid-session, so
- * this is built from the pulled node metadata + the existing verified design
- * tokens rather than a fresh screenshot — flagged for a follow-up pixel pass).
+ * (file 9Lq4XpWusTJj1VnM6laAZr) via `get_design_context` + screenshot.
  *
  * `notFound()` covers both "no such car" and "not yet published" identically,
  * since `getCarBySlug` already can't distinguish them (the public API
@@ -65,18 +63,17 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
         <CarDetailHero car={car} banks={banks} />
       </Section>
 
-      {car.priceJourney.length > 0 && (
-        <Section tone="light">
-          <PriceJourney chips={car.priceJourney} finalAmount={finalAmount} car={carContext} />
-        </Section>
-      )}
-
+      {/* One Section for the three lower blocks — Figma's own 150px gap
+          between them (node 102:220's `gap-[150px]`) is a single frame, not
+          three independently-padded sections. */}
       <Section tone="light">
-        <LoanCalculator car={car} finance={finance} />
-      </Section>
-
-      <Section tone="light">
-        <SimilarOffers cars={similarCars} />
+        <div className="flex flex-col gap-24 sm:gap-[150px]">
+          {car.priceJourney.length > 0 && (
+            <PriceJourney chips={car.priceJourney} finalAmount={finalAmount} car={carContext} />
+          )}
+          <LoanCalculator car={car} finance={finance} />
+          <SimilarOffers cars={similarCars} />
+        </div>
       </Section>
     </>
   );

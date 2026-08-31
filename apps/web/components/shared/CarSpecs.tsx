@@ -10,7 +10,9 @@ const conditionLabels = messages.china.carCard.conditions;
  * rows whose value is null/absent for this car are skipped rather than shown
  * empty, since not every spec applies to every powertrain (an EV has no
  * `transmission`, a benzin car has no `range`/`battery`). No hooks — safe to
- * render from a Server Component.
+ * render from a Server Component. Each row is its own white card (Figma node
+ * 102:510) — not a divided list — so it reads against the section's off-white
+ * backdrop the same way every other row-card on this page does.
  */
 export function CarSpecs({ car }: { car: Car }) {
   const rows: { label: string; value: string }[] = [
@@ -39,15 +41,22 @@ export function CarSpecs({ car }: { car: Car }) {
   ].filter((row): row is { label: string; value: string } => row !== null);
 
   return (
-    <div>
-      <h2 className="font-display text-[24px] font-semibold leading-[32px] text-ink">
+    <div className="flex flex-col gap-4">
+      <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
         {t.heading}
       </h2>
-      <div className="mt-3 flex flex-col divide-y divide-line-light">
+      <div className="flex flex-col gap-2">
         {rows.map((row) => (
-          <div key={row.label} className="flex items-center justify-between gap-4 py-3">
-            <span className="text-[16px] text-muted">{row.label}</span>
-            <span className="text-right text-[14px] font-medium text-ink">{row.value}</span>
+          <div
+            key={row.label}
+            className="flex items-center justify-between gap-4 rounded-md bg-white p-3"
+          >
+            <span className="w-[221px] shrink-0 text-[16px] leading-[24px] text-neutral-700">
+              {row.label}
+            </span>
+            <span className="flex-1 text-right text-[16px] font-medium leading-[20px] text-neutral-800">
+              {row.value}
+            </span>
           </div>
         ))}
       </div>

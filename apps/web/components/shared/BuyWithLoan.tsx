@@ -11,10 +11,12 @@ const t = messages.china.detail.buyWithLoan;
 /**
  * China/USA car-detail S3.6b right-column card — a compact, single-bank-per-
  * row variant of the listing page's `ChinaFinancing` grid (Figma node
- * 102:558/102:560: 4 stacked full-width rows, not the 2×2 grid
- * `components.md` sketches in the abstract). Partner banks open their
- * online auto-loan application in a new tab; the in-house row opens the
- * per-car `UniversalPopup` instead of leaving the site.
+ * 102:558/102:560: 4 plain white stacked rows — no subline under the
+ * heading, no special border on the in-house row, both of which
+ * `components.md`'s abstract sketch implies but this actual frame doesn't
+ * have). Partner banks open their online auto-loan application in a new tab;
+ * the in-house row opens the per-car `UniversalPopup` instead of leaving the
+ * site.
  */
 export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopupCarContext }) {
   const { openUniversal } = useLeadWidgets();
@@ -22,13 +24,12 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
   if (banks.length === 0) return null;
 
   return (
-    <div>
-      <h2 className="font-display text-[24px] font-semibold leading-[32px] text-ink">
+    <div className="flex flex-col gap-4">
+      <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
         {t.heading}
       </h2>
-      <p className="mt-1 text-[14px] text-muted">{t.subline}</p>
 
-      <div className="mt-4 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
         {banks.map((bank) =>
           bank.inHouse ? (
             <button
@@ -37,7 +38,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
               onClick={() =>
                 openUniversal({ sourceCta: 'china-detail-buy-with-loan-in-house', car })
               }
-              className="flex h-[90px] items-center justify-center rounded-xl border-2 border-accent bg-white p-3 transition-transform duration-standard hover:-translate-y-0.5"
+              className="flex h-[90px] items-center justify-center rounded-md bg-white p-3 transition-transform duration-standard hover:-translate-y-0.5"
             >
               {bank.logoUrl ? (
                 <Image
@@ -57,7 +58,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
               href={bank.loanUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-[90px] items-center justify-center rounded-xl bg-white p-3 transition-transform duration-standard hover:-translate-y-0.5"
+              className="flex h-[90px] items-center justify-center rounded-md bg-white p-3 transition-transform duration-standard hover:-translate-y-0.5"
             >
               {bank.logoUrl ? (
                 <Image
@@ -74,7 +75,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
           ) : (
             <div
               key={bank.id}
-              className="flex h-[90px] items-center justify-center rounded-xl bg-white p-3"
+              className="flex h-[90px] items-center justify-center rounded-md bg-white p-3"
             >
               {bank.logoUrl ? (
                 <Image
