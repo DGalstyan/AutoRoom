@@ -3,6 +3,7 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   CarCondition,
+  CarSummary,
   CarImage,
   CarInput,
   CarOrigin,
@@ -12,6 +13,7 @@ import type {
 } from '@autoroom/api/client';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -112,6 +114,35 @@ export function CarFormPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [slugTouched, setSlugTouched] = useState(false);
   const [pendingImages, setPendingImages] = useState<StagedImage[]>([]);
+
+  // The "Similar cars" picker's candidate pool — scoped to the same origin
+  // as the car being edited, since a China car being "similar to" a USA one
+  // isn't a comparison the public detail page's own automatic fallback ever
+  // makes either. Only fetched once editing is possible (read-only viewers
+  // never see the picker), and only when `cars:READ` is held.
+  const canReadCars = identity?.permissions.includes('cars:READ') ?? false;
+  const similarCandidatesQuery = useQuery({
+    queryKey: ['cars', 'similar-candidates', draft.origin],
+    queryFn: () => api.cars.list({ origin: draft.origin, take: 100 }),
+    enabled: canReadCars && !readOnly,
+  });
+  const similarCandidates = (similarCandidatesQuery.data?.items ?? []).filter(
+    (candidate) => candidate.id !== id,
+  );
+  // The fresh candidate query is capped at 100 and scoped to the current
+  // origin — a car already curated before the origin changed, or one that
+  // just falls outside the cap, still needs to render a real label rather
+  // than a bare id, so its own record (from the car this page loaded) is
+  // merged in too.
+  const similarLookup = new Map<string, CarSummary>();
+  for (const car of similarCandidates) similarLookup.set(car.id, car);
+  for (const car of carQuery.data?.similarCars ?? []) {
+    if (!similarLookup.has(car.id)) similarLookup.set(car.id, car);
+  }
+  const similarOptions = Array.from(similarLookup.values());
+  const selectedSimilarCars = draft.similarCarIds
+    .map((carId) => similarLookup.get(carId))
+    .filter((car): car is CarSummary => Boolean(car));
 
   useEffect(() => {
     if (carQuery.data) {
@@ -604,6 +635,51 @@ export function CarFormPage() {
             onChange={(colours) => set('colors', colours)}
             enabled={draft.condition === 'ON_ORDER'}
             readOnly={readOnly}
+          />
+        </Section>
+
+        <Section
+          title="Similar cars"
+          description="Shown as “Նմանատիպ առաջարկներ” on this car's detail page. Leave empty to fall back to the automatic same-powertrain, closest-price match."
+        >
+          <Autocomplete
+            multiple
+            options={similarOptions}
+            value={selectedSimilarCars}
+            loading={similarCandidatesQuery.isFetching}
+            disabled={readOnly}
+            getOptionLabel={(candidate) =>
+              `${candidate.make} ${candidate.model} (${candidate.year})`
+            }
+            isOptionEqualToValue={(a, b) => a.id === b.id}
+            onChange={(_event, selected) =>
+              set(
+                'similarCarIds',
+                selected.map((candidate) => candidate.id),
+              )
+            }
+            renderTags={(value, getTagProps) =>
+              value.map((candidate, index) => (
+                <Chip
+                  label={`${candidate.make} ${candidate.model}`}
+                  size="small"
+                  {...getTagProps({ index })}
+                  key={candidate.id}
+                />
+              ))
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder={
+                  selectedSimilarCars.length === 0 ? 'Search by make or model…' : undefined
+                }
+                helperText={
+                  fieldErrors.similarCarIds ?? `${selectedSimilarCars.length}/8 selected, in order`
+                }
+                error={Boolean(fieldErrors.similarCarIds)}
+              />
+            )}
           />
         </Section>
 
