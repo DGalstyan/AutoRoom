@@ -10,13 +10,19 @@ import { messages } from '@/lib/messages';
 const t = messages.china.detail.priceJourney;
 
 /**
- * "Գնի ճանապարհը" — China (and later USA) car-detail S3.5. Horizontal route
- * Չինաստան → Հայաստան with each `car.priceJourney` chip revealing in
- * sequence once scrolled into view, ending in a summing counter for the
- * total. `references/components.md` describes this as scroll-driven with a
- * mobile vertical-timeline fallback; both are the same flex layout here,
- * just re-oriented by breakpoint, since the reveal logic (stagger + count-up)
- * doesn't depend on axis. Figma node 102:222.
+ * "Գնի ճանապարհը" — China (and later USA) car-detail S3.5. A left-aligned
+ * heading over a two-column layout: a vertical stack of numbered white-card
+ * steps (each `car.priceJourney` chip) ending in a formula-style total row,
+ * next to a decorative China→Armenia route panel. Figma node 102:221/102:222.
+ *
+ * The route panel (node 102:255 "Map-area") is a static stock map image with
+ * hand-placed pin vectors — pure decoration with no real data behind it, so
+ * it's approximated here as a stylised gradient + route dots rather than
+ * reproduced pixel-for-pixel; nothing on this page depends on it.
+ *
+ * Rows still reveal on scroll with a summing counter into the final total —
+ * `components.md`'s documented interaction for this component, which this
+ * frame's static screenshot can't show either way but doesn't contradict.
  */
 export function PriceJourney({
   chips,
@@ -50,10 +56,6 @@ export function PriceJourney({
 
   useEffect(() => {
     if (!inView) return;
-    // Reduced motion: one frame at progress=1, landing on the final value
-    // immediately rather than animating a count-up. Still routed through
-    // rAF (not a synchronous setState in the effect body) so there is
-    // exactly one state-update path to reason about.
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const durationMs = reduceMotion ? 0 : 900;
     const start = performance.now();
@@ -69,55 +71,104 @@ export function PriceJourney({
 
   if (chips.length === 0) return null;
 
+  const formula = `${chips.map((chip) => formatUsd(chip.amount)).join(' + ')} = ${formatUsd(displayedTotal)}`;
+
   return (
-    <div ref={ref} className="flex flex-col gap-14">
-      <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+    <div ref={ref} className="flex flex-col gap-16">
+      <h2 className="font-display text-home-h2 font-light text-neutral-900">{t.heading}</h2>
 
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch sm:gap-0">
-        {chips.map((chip, index) => (
-          <div key={chip.label} className="flex flex-1 items-center sm:flex-col">
-            <div
-              className={`flex-1 rounded-[20px] border border-dashed border-line-light bg-white p-5 transition-all duration-500 ease-out ${
-                inView ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
-              }`}
-              style={{ transitionDelay: `${index * 150}ms` }}
-            >
-              <p className="text-[14px] text-muted">{chip.label}</p>
-              <p className="mt-1 font-display text-[20px] font-semibold text-ink">
-                {formatUsd(chip.amount)}
-              </p>
-              {chip.note && <p className="mt-1 text-[12px] text-muted">{chip.note}</p>}
-            </div>
-            {index < chips.length - 1 && (
+      <div className="flex flex-col gap-12 lg:flex-row lg:items-stretch">
+        <div className="flex flex-col justify-between gap-3 lg:flex-[715]">
+          <div className="flex flex-col gap-3">
+            {chips.map((chip, index) => (
               <div
-                className="hidden h-px flex-1 shrink-0 border-t border-dashed border-line-light sm:block"
-                aria-hidden="true"
-              />
-            )}
+                key={chip.label}
+                className={`flex items-center gap-3 rounded-[20px] bg-white px-4 py-6 transition-all duration-500 ease-out ${
+                  index === 0 ? 'shadow-card' : ''
+                } ${inView ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}
+                style={{ transitionDelay: `${index * 120}ms` }}
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[16px] font-bold text-neutral-900">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <div className="flex flex-1 flex-col gap-1">
+                  <p className="text-[16px] font-medium text-neutral-900">{chip.label}</p>
+                  <p className="text-[16px] font-bold text-neutral-800">{formatUsd(chip.amount)}</p>
+                  {chip.note && <p className="text-[12px] text-neutral-700">{chip.note}</p>}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div
-        className={`flex flex-col items-center gap-1 rounded-[20px] bg-ink px-8 py-6 text-center transition-opacity duration-500 ${
-          inView ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <span className="text-[16px] text-white/70">{t.finalLabel}</span>
-        <span className="font-display text-[32px] font-bold text-white">
-          {formatUsd(displayedTotal)}
-        </span>
+          <div className="rounded-[20px] bg-white px-4 py-6">
+            <p className="text-[16px] text-neutral-900">{t.finalLabel}</p>
+            <p className="mt-3 text-[20px] font-bold text-neutral-800">{formula}</p>
+          </div>
+        </div>
+
+        <div
+          className="relative min-h-[300px] flex-1 overflow-hidden rounded-xl border-[5px] border-white bg-gradient-to-br from-info/20 via-surface-light to-success/10 lg:flex-[589]"
+          aria-hidden="true"
+        >
+          <RoutePins />
+        </div>
       </div>
 
       <div className="flex justify-center">
         <button
           type="button"
           onClick={() => openUniversal({ sourceCta: 'china-detail-price-journey', car })}
-          className="inline-flex items-center gap-1 rounded-pill bg-accent px-6 py-4 text-[14px] font-bold text-ink transition-colors duration-standard hover:bg-accent-600"
+          className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-4 text-[20px] text-neutral-800 transition-colors duration-standard hover:bg-accent-600"
         >
           {t.cta}
+          <span className="flex size-6 rotate-45 items-center justify-center" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M4 12 12 4M12 4H5M12 4v7"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
         </button>
       </div>
     </div>
+  );
+}
+
+/** A stylised route line + three stops standing in for the Figma mock's stock map image. */
+function RoutePins() {
+  return (
+    <svg
+      viewBox="0 0 400 300"
+      className="absolute inset-0 h-full w-full"
+      preserveAspectRatio="none"
+    >
+      <path
+        d="M40 240 C 140 260, 160 120, 260 100 S 360 40, 370 30"
+        fill="none"
+        stroke="white"
+        strokeWidth="3"
+        strokeDasharray="2 10"
+        strokeLinecap="round"
+      />
+      {[
+        [40, 240],
+        [230, 110],
+        [370, 30],
+      ].map(([cx, cy]) => (
+        <circle
+          key={`${cx}-${cy}`}
+          cx={cx}
+          cy={cy}
+          r="7"
+          fill="white"
+          stroke="#B23A48"
+          strokeWidth="3"
+        />
+      ))}
+    </svg>
   );
 }

@@ -8,20 +8,27 @@ import { BuyWithLoan } from '@/components/shared/BuyWithLoan';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import type { Bank } from '@/lib/banks';
-import { interpolate, messages } from '@/lib/messages';
+import { messages } from '@/lib/messages';
 
 const t = messages.china.detail;
-const conditionLabels = messages.china.carCard.conditions;
 
 /**
- * China (and later USA) car-detail S3.1–3.3 + 3.6b: name/price hero with the
- * two sticky-style CTAs, the image gallery, the order-only colour picker
- * (only `ON_ORDER` cars carry meaningful `car.colors` — an in-stock car is
- * one specific physical car in one specific colour, per
+ * China (and later USA) car-detail S3.1–3.3 + 3.6b: the sticky name/price
+ * title bar with the two CTAs, the image gallery, the order-only colour
+ * picker (only `ON_ORDER` cars carry meaningful `car.colors` — an in-stock
+ * car is one specific physical car in one specific colour, per
  * `apps/api/prisma/schema.prisma`'s `colors` comment) and the compact
  * `BuyWithLoan` bank grid. One client component because the colour picker,
- * gallery and both CTAs all share the same `selectedColor` state. Figma node
- * 102:476.
+ * gallery and both CTAs all share the same `selectedColor` state. Pixel-
+ * matched to Figma node 102:476 (file 9Lq4XpWusTJj1VnM6laAZr):
+ * - the title bar is a white `sticky` pill (offset below the site's own
+ *   `fixed` Header, which the Figma frame has no equivalent of and isn't
+ *   itself `sticky` in this design system);
+ * - neither a condition nor a delivery-ETA badge sits next to the price here
+ *   — both already live in the spec table below, and this frame doesn't
+ *   repeat them;
+ * - the gallery+specs block sits on its own slightly-off-white backdrop,
+ *   not the page's plain background.
  */
 export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
   const { openUniversal } = useLeadWidgets();
@@ -39,62 +46,56 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="font-display text-[40px] font-light leading-[48px] text-ink sm:text-[56px] sm:leading-[64px]">
+    <div className="flex flex-col gap-9">
+      <div className="sticky top-24 z-10 flex items-center justify-between gap-4 rounded-xl bg-white px-6 py-3">
+        <div className="flex flex-wrap items-center gap-6 whitespace-nowrap">
+          <h1 className="font-display text-[36px] font-bold leading-[56px] text-neutral-900">
             {car.make} {car.model}
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="font-display text-[24px] font-semibold text-ink sm:text-[32px]">
-              {formatUsd(car.price)}
-            </span>
-            <span className="rounded-pill border border-line-light px-3 py-1 text-[13px] font-medium text-muted">
-              {conditionLabels[car.condition]}
-            </span>
-            {car.deliveryEtaDays && (
-              <span className="rounded-pill border border-line-light px-3 py-1 text-[13px] font-medium text-muted">
-                {interpolate(t.specs.deliveryEtaValue, { days: String(car.deliveryEtaDays) })}
-              </span>
-            )}
-          </div>
+          <span className="font-display text-[24px] font-light leading-[36px] text-neutral-900">
+            {formatUsd(car.price)}
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <a
             href="#loan-calculator"
-            className="inline-flex min-h-11 items-center justify-center rounded-pill border border-ink px-6 py-3 text-[14px] font-bold text-ink transition-colors duration-standard hover:bg-ink hover:text-white"
+            className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
           >
             {t.ctaLoan}
+            <ArrowGlyph />
           </a>
           <button
             type="button"
             onClick={() =>
               openUniversal({ sourceCta: 'china-detail-per-car-offer', car: carContext })
             }
-            className="inline-flex min-h-11 items-center justify-center rounded-pill bg-accent px-6 py-3 text-[14px] font-bold text-ink transition-colors duration-standard hover:bg-accent-600"
+            className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-accent-600"
           >
-            {interpolate(t.ctaOffer, { model: `${car.make} ${car.model}` })}
+            {t.ctaOffer}
+            <ArrowGlyph />
           </button>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[850fr_471fr]">
-        <CarGallery
-          images={car.images}
-          colorImageUrl={selectedColorImage}
-          alt={`${car.make} ${car.model}`}
-        />
+      <div className="flex flex-col gap-6 bg-surface-light py-12 lg:flex-row lg:items-start">
+        <div className="lg:flex-[850]">
+          <CarGallery
+            images={car.images}
+            colorImageUrl={selectedColorImage}
+            alt={`${car.make} ${car.model}`}
+          />
+        </div>
 
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-9 lg:flex-[471]">
           <CarSpecs car={car} />
 
           {colors.length > 0 && (
-            <div>
-              <h2 className="font-display text-[24px] font-semibold leading-[32px] text-ink">
+            <div className="flex flex-col gap-4">
+              <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
                 {t.colorPicker.heading}
               </h2>
-              <div className="mt-4 flex flex-wrap gap-3">
+              <div className="flex w-full items-center justify-between">
                 {colors.map((color) => (
                   <button
                     key={color.name}
@@ -106,10 +107,12 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
                         current === color.name ? undefined : color.name,
                       )
                     }
-                    className={`size-12 rounded-full border-2 transition-transform duration-standard ${
+                    className={`size-12 rounded-md transition-colors duration-standard ${
                       selectedColor === color.name
-                        ? 'border-accent scale-110'
-                        : 'border-line-light hover:scale-105'
+                        ? 'border-2 border-neutral-800'
+                        : isPaleColor(color.hex)
+                          ? 'border border-neutral-500'
+                          : 'border-2 border-transparent'
                     }`}
                     style={{ backgroundColor: color.hex }}
                   />
@@ -122,5 +125,33 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** Near-white swatches need a hairline border to stay visible against a light backdrop. */
+function isPaleColor(hex: string): boolean {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!match) return false;
+  const value = parseInt(match[1], 16);
+  const r = (value >> 16) & 255;
+  const g = (value >> 8) & 255;
+  const b = value & 255;
+  // Perceptual luminance; matches how a human eye picks "too pale to see" over raw averaging.
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 230;
+}
+
+function ArrowGlyph() {
+  return (
+    <span className="flex size-5 rotate-45 items-center justify-center" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M4 12 12 4M12 4H5M12 4v7"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
   );
 }
