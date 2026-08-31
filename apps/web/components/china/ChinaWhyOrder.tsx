@@ -1,7 +1,5 @@
 import Image from 'next/image';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.whyOrder;
+import { getServerMessages } from '@/lib/i18n';
 
 /**
  * China S4b — "Ինչո՞ւ Չինաստանից պատվիրել AutoRoom-ի միջոցով": a light
@@ -12,7 +10,10 @@ const t = messages.china.whyOrder;
  * section wrappers rather than being dropped inside `<Section>`, since the
  * second half deliberately breaks out of the page's usual 1280px column.
  */
-export function ChinaWhyOrder() {
+export async function ChinaWhyOrder() {
+  const { messages } = await getServerMessages();
+  const t = messages.china.whyOrder;
+
   return (
     <>
       <section className="bg-surface-light px-4 py-14 text-ink sm:px-6 sm:py-24">

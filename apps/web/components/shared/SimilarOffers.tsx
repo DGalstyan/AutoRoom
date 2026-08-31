@@ -1,8 +1,6 @@
 import type { Car } from '@/lib/types/car';
 import { CarCard } from '@/components/shared/CarCard';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.detail.similarOffers;
+import { getServerMessages } from '@/lib/i18n';
 
 /**
  * "Նմանատիպ առաջարկներ" — China (and later USA) car-detail S3.6. Reuses the
@@ -13,8 +11,10 @@ const t = messages.china.detail.similarOffers;
  * heading and a 48px grid gap, matching the other left-aligned S3.5/S3.6b
  * headings on this page (Figma node 102:332/102:334-335).
  */
-export function SimilarOffers({ cars }: { cars: Car[] }) {
+export async function SimilarOffers({ cars }: { cars: Car[] }) {
   if (cars.length === 0) return null;
+  const { messages } = await getServerMessages();
+  const t = messages.china.detail.similarOffers;
 
   return (
     <div className="flex flex-col gap-12">

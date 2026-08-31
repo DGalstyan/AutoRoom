@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { Footer } from '@/components/shared/Footer';
-import { messages } from '@/lib/messages';
+import { renderWithLocale } from '@/lib/test-utils';
+import { getMessagesForLocale } from '@/lib/i18n';
+
+const messages = getMessagesForLocale('hy');
 
 const FILLED_CONTACTS = {
   general: { email: 'hello@autoroom.co', phones: ['+374 94 077757', '+374 77 838750'] },
@@ -20,16 +23,36 @@ vi.mock('@/components/shared/LeadWidgetProvider', () => ({
   useLeadWidgets: () => ({ openUniversal: vi.fn(), openQuiz: vi.fn(), isAnyOpen: false }),
 }));
 
+// `Footer` is an async Server Component (it calls `getServerMessages()`,
+// which reads the request's cookies via `next/headers`) — there's no request
+// scope in a plain Vitest/jsdom run, so `next/headers` is stubbed out here
+// and `getServerMessages` is pinned to `hy`, matching every assertion below.
+// Each test calls `await Footer(props)` directly (a plain async function
+// call, not JSX) to resolve the element tree before handing it to `render`.
+vi.mock('@/lib/i18n', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/i18n')>();
+  return {
+    ...actual,
+    getServerMessages: async () => ({
+      locale: 'hy' as const,
+      messages: actual.getMessagesForLocale('hy'),
+      enabledLocales: ['hy' as const],
+    }),
+  };
+});
+
 describe('Footer', () => {
-  it("renders the site's real logo mark by default, not a placeholder glyph", () => {
-    render(<Footer />);
+  it("renders the site's real logo mark by default, not a placeholder glyph", async () => {
+    renderWithLocale(await Footer());
     const img = screen.getByAltText(messages.common.brand);
     expect(img).toHaveAttribute('src', '/brand/logo-mark.svg');
   });
 
-  it('renders the admin-uploaded logo once one exists, matching Header', () => {
-    render(
-      <Footer logo={{ logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null }} />,
+  it('renders the admin-uploaded logo once one exists, matching Header', async () => {
+    renderWithLocale(
+      await Footer({
+        logo: { logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null },
+      }),
     );
     expect(screen.getByAltText(messages.common.brand)).toHaveAttribute(
       'src',
@@ -37,8 +60,8 @@ describe('Footer', () => {
     );
   });
 
-  it('links the logo home', () => {
-    render(<Footer />);
+  it('links the logo home', async () => {
+    renderWithLocale(await Footer());
     // The footer's nav-links list also renders a "home" link with the same
     // accessible name, so `getByRole` would be ambiguous here — walk up from
     // the logo image itself instead of matching by name.
@@ -46,8 +69,8 @@ describe('Footer', () => {
     expect(logoLink).toHaveAttribute('href', '/');
   });
 
-  it('renders the admin-managed email and first phone as click-to-contact links', () => {
-    render(<Footer contacts={FILLED_CONTACTS} />);
+  it('renders the admin-managed email and first phone as click-to-contact links', async () => {
+    renderWithLocale(await Footer({ contacts: FILLED_CONTACTS }));
     expect(screen.getByRole('link', { name: /hello@autoroom\.co/ })).toHaveAttribute(
       'href',
       'mailto:hello@autoroom.co',
@@ -63,13 +86,13 @@ describe('Footer', () => {
     expect(screen.queryByText(FILLED_CONTACTS.general.phones[1])).not.toBeInTheDocument();
   });
 
-  it('renders nothing in the contact column when no email or phone is set', () => {
-    render(<Footer />);
+  it('renders nothing in the contact column when no email or phone is set', async () => {
+    renderWithLocale(await Footer());
     expect(screen.queryByText(messages.common.footer.contactHeading)).not.toBeInTheDocument();
   });
 
-  it('renders only the social platforms the backend actually has a link for', () => {
-    render(<Footer contacts={FILLED_CONTACTS} />);
+  it('renders only the social platforms the backend actually has a link for', async () => {
+    renderWithLocale(await Footer({ contacts: FILLED_CONTACTS }));
     const facebookLink = screen.getByRole('link', { name: 'Facebook' });
     expect(facebookLink).toHaveAttribute('href', FILLED_CONTACTS.social.facebook);
     expect(facebookLink).toHaveAttribute('target', '_blank');
@@ -80,13 +103,13 @@ describe('Footer', () => {
     expect(screen.queryByRole('link', { name: 'Linkedin' })).not.toBeInTheDocument();
   });
 
-  it('renders nothing in the social column when no platform is set', () => {
-    render(<Footer />);
+  it('renders nothing in the social column when no platform is set', async () => {
+    renderWithLocale(await Footer());
     expect(screen.queryByText(messages.common.footer.socialHeading)).not.toBeInTheDocument();
   });
 
-  it('renders every site nav link', () => {
-    render(<Footer />);
+  it('renders every site nav link', async () => {
+    renderWithLocale(await Footer());
     const expectedHrefs = ['/', '/china', '/usa', '/offers', '/partners', '/about', '/contact'];
     for (const href of expectedHrefs) {
       expect(screen.getAllByRole('link').some((link) => link.getAttribute('href') === href)).toBe(
@@ -95,8 +118,8 @@ describe('Footer', () => {
     }
   });
 
-  it('shows the copyright row', () => {
-    render(<Footer />);
+  it('shows the copyright row', async () => {
+    renderWithLocale(await Footer());
     expect(screen.getByText(messages.common.footer.cookiePolicy)).toBeInTheDocument();
     expect(screen.getByText(messages.common.footer.privacyPolicy)).toBeInTheDocument();
   });

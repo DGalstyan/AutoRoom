@@ -4,9 +4,7 @@ import Image from 'next/image';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { MOCK_STORIES, type CustomerStory } from '@/lib/data/mockStories';
-import { messages } from '@/lib/messages';
-
-const t = messages.home.stories;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * Video wall — grid of real portrait stills (real 60–90s videos pending from
@@ -15,6 +13,7 @@ const t = messages.home.stories;
  * as an sr-only `h2` for the a11y outline.
  */
 export function CustomerStoryWall() {
+  const t = useMessages().home.stories;
   const [active, setActive] = useState<CustomerStory | null>(null);
 
   return (
@@ -60,6 +59,7 @@ export function CustomerStoryWall() {
 }
 
 function StoryLightbox({ story, onClose }: { story: CustomerStory; onClose: () => void }) {
+  const messages = useMessages();
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useFocusTrap(panelRef, true, onClose);

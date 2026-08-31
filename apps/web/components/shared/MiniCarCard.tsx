@@ -1,8 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
-import { messages } from '@/lib/messages';
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * Minimal car card — model name + total price only, per the Homepage/Featured
@@ -15,6 +17,11 @@ import { messages } from '@/lib/messages';
  * photo, bottom-left price/model over a dark scrim, circular arrow link
  * bottom-right) when supplied; falls back to the glyph placeholder where no
  * real photo exists yet (e.g. quiz results for mock cars without art).
+ *
+ * A client component because `QuizPopup.tsx` — a client component — renders
+ * it inline alongside `FeaturedCars.tsx` (a Server Component); a Client
+ * Component may only import Server Components via composition, never
+ * directly, so this stays client-safe for both callers.
  */
 export function MiniCarCard({
   car,
@@ -25,6 +32,8 @@ export function MiniCarCard({
   imageSrc?: string;
   priority?: boolean;
 }) {
+  const t = useMessages().common.carCard;
+
   return (
     <Link
       href={carHref(car)}
@@ -54,7 +63,7 @@ export function MiniCarCard({
       <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-6">
         <div>
           <p className="text-small font-medium text-white/90">
-            {messages.common.carCard.fromPrice} {formatUsd(car.price)}
+            {t.fromPrice} {formatUsd(car.price)}
           </p>
           <p className="font-display text-home-card-title font-normal text-white">
             {car.make} {car.model}

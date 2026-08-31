@@ -1,8 +1,6 @@
 import { MiniCarCard } from '@/components/shared/MiniCarCard';
 import { getFeaturedCars } from '@/lib/cars';
-import { messages } from '@/lib/messages';
-
-const t = messages.home.featured;
+import { getServerMessages } from '@/lib/i18n';
 
 /**
  * Real inventory — `getFeaturedCars` reads `GET /public/cars?featured=true`,
@@ -17,7 +15,8 @@ const t = messages.home.featured;
  * an oddly long single column.
  */
 export async function FeaturedCars() {
-  const cars = await getFeaturedCars(24);
+  const [cars, { messages }] = await Promise.all([getFeaturedCars(24), getServerMessages()]);
+  const t = messages.home.featured;
   if (cars.length === 0) return null;
 
   return (

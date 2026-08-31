@@ -6,11 +6,10 @@ import { Chip } from '@/components/ui/Chip';
 import { Button } from '@/components/ui/Button';
 import { MiniCarCard } from '@/components/shared/MiniCarCard';
 import { MOCK_CARS } from '@/lib/data/mockCars';
-import { interpolate, messages } from '@/lib/messages';
+import { interpolate } from '@/lib/messages';
+import { useMessages } from '@/components/shared/LocaleProvider';
 import type { Car } from '@/lib/types/car';
 import type { LeadBudget, LeadInterest } from '@/lib/leads';
-
-const t = messages.common.quiz;
 
 type Fuel = 'ev' | 'hybrid' | 'benzin';
 type Usage = 'city' | 'family' | 'travel';
@@ -63,6 +62,8 @@ export interface QuizPopupProps {
 }
 
 export function QuizPopup({ open, onClose, sourceCta, onOpenUniversal }: QuizPopupProps) {
+  const messages = useMessages();
+  const t = messages.common.quiz;
   const titleId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [step, setStep] = useState(0); // 0..4 questions, 5 = result
@@ -177,6 +178,7 @@ function QuizQuestion({
   onSelect: (value: string) => void;
   onBack?: () => void;
 }) {
+  const t = useMessages().common.quiz;
   const question = t.questions[questionKey];
   const options = Object.entries(question.options) as [string, string][];
 

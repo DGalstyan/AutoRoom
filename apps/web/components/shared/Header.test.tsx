@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Header } from '@/components/shared/Header';
-import { messages } from '@/lib/messages';
+import { renderWithLocale } from '@/lib/test-utils';
+import { getMessagesForLocale } from '@/lib/i18n';
 
+const messages = getMessagesForLocale('hy');
 const nav = messages.common.nav;
 
 // Header only needs `openUniversal`/`openQuiz` from the lead-widget context —
@@ -27,14 +29,14 @@ const EXPECTED_NAV_HREFS = [
 
 describe('Header', () => {
   it('renders the home logo link', () => {
-    render(<Header />);
+    renderWithLocale(<Header />);
     const homeLink = screen.getByRole('link', { name: nav.home });
     expect(homeLink).toHaveAttribute('href', '/');
     expect(screen.getByAltText(messages.common.brand)).toBeInTheDocument();
   });
 
   it("renders the site's real logo mark by default, not admin-upload-only", () => {
-    render(<Header />);
+    renderWithLocale(<Header />);
     expect(screen.getByAltText(messages.common.brand)).toHaveAttribute(
       'src',
       '/brand/logo-mark.svg',
@@ -42,7 +44,7 @@ describe('Header', () => {
   });
 
   it('renders an admin-uploaded logo when one is provided', () => {
-    render(
+    renderWithLocale(
       <Header logo={{ logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null }} />,
     );
     expect(screen.getByAltText(messages.common.brand)).toHaveAttribute(
@@ -52,7 +54,7 @@ describe('Header', () => {
   });
 
   it('renders every nav link with its expected href, in order', () => {
-    render(<Header />);
+    renderWithLocale(<Header />);
     const navEl = screen.getByRole('navigation', { name: nav.primaryNav });
     const links = Array.from(navEl.querySelectorAll('a')).map((a) => a.getAttribute('href'));
     expect(links).toEqual(EXPECTED_NAV_HREFS);
@@ -60,14 +62,14 @@ describe('Header', () => {
 
   it('opens the Universal Popup from the header CTA with the right source', async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderWithLocale(<Header />);
     await user.click(screen.getByRole('button', { name: nav.headerCta }));
     expect(openUniversal).toHaveBeenCalledWith({ sourceCta: 'header-cta' });
   });
 
   it('opens the drawer and closes it again via its own toggle button', async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderWithLocale(<Header />);
     const toggle = screen.getByRole('button', { name: nav.menuOpen });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
@@ -85,7 +87,7 @@ describe('Header', () => {
 
   it('closes the drawer by clicking the backdrop scrim', async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderWithLocale(<Header />);
     await user.click(screen.getByRole('button', { name: nav.menuOpen }));
     const [, scrim] = screen.getAllByRole('button', { name: nav.menuClose });
     await user.click(scrim);
@@ -94,7 +96,7 @@ describe('Header', () => {
 
   it('closes the drawer on Escape and restores focus to the toggle button', async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderWithLocale(<Header />);
     const toggle = screen.getByRole('button', { name: nav.menuOpen });
     await user.click(toggle);
     expect(screen.getByRole('dialog')).toBeInTheDocument();

@@ -2,9 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { messages } from '@/lib/messages';
-
-const t = messages.home.founder;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * Founder storytelling video (≤1.5 min). Figma (node `9321:6212`) shows a
@@ -16,6 +14,7 @@ const t = messages.home.founder;
  * currently reveals a stand-in; swapping in the real asset is a one-line change.
  */
 export function FounderVideo() {
+  const t = useMessages().home.founder;
   const [playing, setPlaying] = useState(false);
 
   return (

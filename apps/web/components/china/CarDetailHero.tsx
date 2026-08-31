@@ -8,9 +8,7 @@ import { BuyWithLoan } from '@/components/shared/BuyWithLoan';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import type { Bank } from '@/lib/banks';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.detail;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * China (and later USA) car-detail S3.1–3.3 + 3.6b: the name/price title
@@ -30,6 +28,7 @@ const t = messages.china.detail;
  *   not the page's plain background.
  */
 export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
+  const t = useMessages().china.detail;
   const { openUniversal } = useLeadWidgets();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
 

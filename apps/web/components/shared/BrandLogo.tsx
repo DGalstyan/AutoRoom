@@ -1,8 +1,8 @@
-import Image from 'next/image';
-import { messages } from '@/lib/messages';
-import type { BrandingLogos } from '@/lib/branding';
+'use client';
 
-const brand = messages.common.brand;
+import Image from 'next/image';
+import { useMessages } from '@/components/shared/LocaleProvider';
+import type { BrandingLogos } from '@/lib/branding';
 
 // The real AutoRoom logo mark, exported from Figma (node `9321:6404`
 // `logo_vector 1` / the footer's larger `2001:1772` "Layer_x0020_1" instance —
@@ -31,8 +31,15 @@ interface BrandLogoProps {
  * dark band) it currently appears on — see Header's original sourcing note
  * for why `logoLightUrl` (not `logoDarkUrl`) is the correct field to read on
  * those surfaces despite the easy-to-misread field name.
+ *
+ * A client component (not a Server Component reading `getServerMessages()`
+ * directly) because `Header.tsx` — a client component — renders it inline;
+ * a Client Component may only import Server Components that are handed to it
+ * via composition (`children`/props from a Server ancestor), never imported
+ * and instantiated directly.
  */
 export function BrandLogo({ logo = null, className = 'h-9 w-24', sizes = '96px' }: BrandLogoProps) {
+  const brand = useMessages().common.brand;
   const logoSrc = logo?.logoLightUrl ?? logo?.logoDarkUrl ?? DEFAULT_LOGO_SRC;
 
   return (

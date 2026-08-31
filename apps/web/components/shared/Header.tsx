@@ -6,12 +6,12 @@ import { useScrolled } from '@/lib/hooks/useScrolled';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { BrandLogo } from '@/components/shared/BrandLogo';
-import { messages } from '@/lib/messages';
+import { LanguageSwitcher } from '@/components/shared/LanguageSwitcher';
+import { useMessages } from '@/components/shared/LocaleProvider';
+import type { Messages } from '@/lib/i18n';
 import type { BrandingLogos } from '@/lib/branding';
 
-const nav = messages.common.nav;
-
-const NAV_LINKS: { key: keyof typeof nav; href: string }[] = [
+const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string }[] = [
   { key: 'china', href: '/china' },
   { key: 'usa', href: '/usa' },
   { key: 'offers', href: '/offers' },
@@ -27,6 +27,7 @@ interface HeaderProps {
 }
 
 export function Header({ logo = null }: HeaderProps = {}) {
+  const nav = useMessages().common.nav;
   const scrolled = useScrolled();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerId = useId();
@@ -106,14 +107,17 @@ export function Header({ logo = null }: HeaderProps = {}) {
           ))}
         </nav>
 
-        <button
-          type="button"
-          onClick={() => openUniversal({ sourceCta: 'header-cta' })}
-          className="hidden h-12 shrink-0 items-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent xl:inline-flex"
-        >
-          {nav.headerCta}
-          <ArrowGlyph />
-        </button>
+        <div className="hidden items-center gap-3 xl:flex">
+          <LanguageSwitcher />
+          <button
+            type="button"
+            onClick={() => openUniversal({ sourceCta: 'header-cta' })}
+            className="inline-flex h-12 shrink-0 items-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            {nav.headerCta}
+            <ArrowGlyph />
+          </button>
+        </div>
 
         <button
           type="button"
@@ -156,6 +160,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
                 {nav[item.key]}
               </Link>
             ))}
+            <LanguageSwitcher className="mt-4 w-fit" />
           </div>
         </div>
       )}

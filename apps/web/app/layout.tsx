@@ -4,8 +4,10 @@ import './globals.css';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { LeadWidgetProvider } from '@/components/shared/LeadWidgetProvider';
+import { LocaleProvider } from '@/components/shared/LocaleProvider';
 import { getBrandingLogos } from '@/lib/branding';
 import { getContacts } from '@/lib/contacts';
+import { getServerMessages } from '@/lib/i18n';
 
 const sora = Sora({
   variable: '--font-sora',
@@ -40,20 +42,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // rather than a broken build.
   const logo = await getBrandingLogos();
   const contacts = await getContacts();
+  const { locale, messages, enabledLocales } = await getServerMessages();
 
   return (
     <html
-      lang="hy"
+      lang={locale}
       className={`${sora.variable} ${inter.variable} ${notoSansArmenian.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-surface-light font-body text-body text-ink">
-        <LeadWidgetProvider>
-          <Header logo={logo} />
-          <main className="flex-1">{children}</main>
-          <Footer logo={logo} contacts={contacts} />
-          {/* StickyCta removed for now, per request — component untouched,
-              just not mounted here. Re-add <StickyCta /> to bring it back. */}
-        </LeadWidgetProvider>
+        <LocaleProvider locale={locale} messages={messages} enabledLocales={enabledLocales}>
+          <LeadWidgetProvider>
+            <Header logo={logo} />
+            <main className="flex-1">{children}</main>
+            <Footer logo={logo} contacts={contacts} />
+            {/* StickyCta removed for now, per request — component untouched,
+                just not mounted here. Re-add <StickyCta /> to bring it back. */}
+          </LeadWidgetProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

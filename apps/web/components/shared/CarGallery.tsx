@@ -3,17 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import type { CarImage, ImageAlbum } from '@/lib/types/car';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.detail.gallery;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 const ALBUM_ORDER: ImageAlbum[] = ['EXTERIOR', 'INTERIOR', 'DETAILS', 'VIDEO'];
-const ALBUM_LABELS: Partial<Record<ImageAlbum, string>> = {
-  EXTERIOR: t.exterior,
-  INTERIOR: t.interior,
-  DETAILS: t.details,
-  VIDEO: t.video,
-};
 
 /**
  * China (and later USA) car-detail S3.2 — image tabs (Exterior / Interior /
@@ -36,6 +28,14 @@ export function CarGallery({
   colorImageUrl?: string | null;
   alt: string;
 }) {
+  const t = useMessages().china.detail.gallery;
+  const ALBUM_LABELS: Partial<Record<ImageAlbum, string>> = {
+    EXTERIOR: t.exterior,
+    INTERIOR: t.interior,
+    DETAILS: t.details,
+    VIDEO: t.video,
+  };
+
   const albums = useMemo(
     () => ALBUM_ORDER.filter((album) => images.some((image) => image.album === album)),
     [images],

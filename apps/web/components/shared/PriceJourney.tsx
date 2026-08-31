@@ -5,9 +5,7 @@ import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import type { PriceChip } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.detail.priceJourney;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * "Գնի ճանապարհը" — China (and later USA) car-detail S3.5. A left-aligned
@@ -33,6 +31,7 @@ export function PriceJourney({
   finalAmount: number;
   car: UniversalPopupCarContext;
 }) {
+  const t = useMessages().china.detail.priceJourney;
   const { openUniversal } = useLeadWidgets();
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);

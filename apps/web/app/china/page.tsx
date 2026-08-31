@@ -8,7 +8,7 @@ import { ChinaFaq } from '@/components/china/ChinaFaq';
 import { ChinaFinalCta } from '@/components/china/ChinaFinalCta';
 import { listCars, listMakeModelFacets } from '@/lib/cars';
 import { getBanks } from '@/lib/banks';
-import { messages } from '@/lib/messages';
+import { getServerMessages } from '@/lib/i18n';
 import type { CarCondition } from '@/lib/types/car';
 
 export const metadata: Metadata = {
@@ -47,10 +47,11 @@ export default async function ChinaPage({
   const priceMin = one(sp.priceMin) ? Number(one(sp.priceMin)) : undefined;
   const priceMax = one(sp.priceMax) ? Number(one(sp.priceMax)) : undefined;
 
-  const [{ items: cars }, facets, banks] = await Promise.all([
+  const [{ items: cars }, facets, banks, { messages }] = await Promise.all([
     listCars({ origin: 'CHINA', condition, make, model, priceMin, priceMax, take: 24 }),
     listMakeModelFacets('CHINA'),
     getBanks(),
+    getServerMessages(),
   ]);
 
   const makeModels = Object.fromEntries(
