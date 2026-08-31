@@ -144,8 +144,8 @@ model RefreshToken {
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash String @unique
 
-  expiresAt DateTime
-  revokedAt DateTime?
+  expiresAt    DateTime
+  revokedAt    DateTime?
   /// The token issued when this one was rotated.
   replacedById String?
 
@@ -187,7 +187,7 @@ model Setting {
   valueJson Json
 
   updatedById String?
-  updatedBy   User?   @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedBy   User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
   updatedAt   DateTime @updatedAt
 
   @@index([group])
@@ -275,7 +275,7 @@ model Faq {
   answer   Json?
 
   /// Display order within a topic.
-  position Int @default(0)
+  position    Int       @default(0)
   /// Null means draft — the public endpoint never returns it.
   publishedAt DateTime?
 
@@ -303,14 +303,16 @@ enum MediaKind {
 /// validated by the database nor filtered on. They are nullable because a
 /// founder film has no "why they chose us".
 model Media {
-  id   String    @id @default(cuid())
-  kind MediaKind
-  title String
+  id        String    @id @default(cuid())
+  kind      MediaKind
+  title     String
   videoUrl  String
   /// Still frame shown before play. Without one a video wall is a grid of black.
   posterUrl String?
 
-  /* ---- customer story ---- */
+  /**
+   * ---- customer story ----
+   */
   customerName String?
   /// Free text, not a Car relation: the story outlives the listing, and most of
   /// these cars were delivered long before the catalogue existed.
@@ -334,12 +336,12 @@ model Media {
 /// Financing partners behind the "Գնել Վարկով" grid. `inHouse` marks AutoRoom's
 /// own offer, which opens in place instead of linking out.
 model Bank {
-  id      String  @id @default(cuid())
-  name    String  @unique
-  logoUrl String?
-  loanUrl String?
-  inHouse Boolean @default(false)
-  position Int    @default(0)
+  id       String  @id @default(cuid())
+  name     String  @unique
+  logoUrl  String?
+  loanUrl  String?
+  inHouse  Boolean @default(false)
+  position Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -347,7 +349,9 @@ model Bank {
   @@map("banks")
 }
 
-/* ------------------------------- catalogue (B1) ------------------------------ */
+/**
+ * ------------------------------- catalogue (B1) ------------------------------
+ */
 
 enum CarOrigin {
   CHINA
@@ -421,17 +425,17 @@ model Car {
   /// Estimated final price delivered in Armenia.
   estFinalPriceAM Int?
 
-  condition        CarCondition
-  statusBadge      CarStatusBadge?
-  deliveryEtaDays  Int?
-  location         String?
-  damageHistory    String?
-  financingAvailable Boolean @default(true)
-  featured           Boolean @default(false)
+  condition          CarCondition
+  statusBadge        CarStatusBadge?
+  deliveryEtaDays    Int?
+  location           String?
+  damageHistory      String?
+  financingAvailable Boolean         @default(true)
+  featured           Boolean         @default(false)
 
   /// `[{ name, hex, imageUrl? }]`. Only meaningful for ON_ORDER cars — an
   /// in-stock car is one specific car in one specific colour.
-  colors Json @default("[]")
+  colors       Json @default("[]")
   /// `[{ label, amount, note? }]` — the four chips breaking down the price.
   priceJourney Json @default("[]")
 
@@ -446,6 +450,16 @@ model Car {
   images   CarImage[]
   bookings Booking[]
 
+  /// Admin-curated "Նմանատիպ առաջարկներ" for this car, ordered by
+  /// `CarSimilar.position`. The public China car-detail page falls back to
+  /// an automatic same-origin/powertrain/price-distance match
+  /// (`apps/web/lib/cars.ts`'s `listSimilarCars`) when this is empty.
+  similarAsSource CarSimilar[] @relation("CarSimilarSource")
+  /// Reverse side — which cars list *this* car as one of their curated
+  /// picks. Not surfaced anywhere; exists only so a deleted car cascades out
+  /// of every other car's list rather than leaving a dangling row.
+  similarAsTarget CarSimilar[] @relation("CarSimilarTarget")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -456,14 +470,31 @@ model Car {
   @@map("cars")
 }
 
+/// A car's admin-curated "similar offers" list. One row per (car, pick) —
+/// directional and hand-ordered, not the automatic symmetric relation an
+/// implicit many-to-many would give: an admin picks *this* car's similar
+/// cars explicitly, and picking A→B does not imply B→A.
+model CarSimilar {
+  carId        String
+  car          Car    @relation("CarSimilarSource", fields: [carId], references: [id], onDelete: Cascade)
+  similarCarId String
+  similarCar   Car    @relation("CarSimilarTarget", fields: [similarCarId], references: [id], onDelete: Cascade)
+  /// Display order within the source car's curated list.
+  position     Int    @default(0)
+
+  @@id([carId, similarCarId])
+  @@index([similarCarId])
+  @@map("car_similar")
+}
+
 model CarImage {
-  id    String     @id @default(cuid())
-  carId String
-  car   Car        @relation(fields: [carId], references: [id], onDelete: Cascade)
-  album ImageAlbum
-  url   String
+  id       String     @id @default(cuid())
+  carId    String
+  car      Car        @relation(fields: [carId], references: [id], onDelete: Cascade)
+  album    ImageAlbum
+  url      String
   /// Display order within its album.
-  position Int @default(0)
+  position Int        @default(0)
 
   createdAt DateTime @default(now())
 
@@ -471,7 +502,9 @@ model CarImage {
   @@map("car_images")
 }
 
-/* -------------------------------- partners (C3) ------------------------------- */
+/**
+ * -------------------------------- partners (C3) -------------------------------
+ */
 
 enum BookingStatus {
   REQUESTED

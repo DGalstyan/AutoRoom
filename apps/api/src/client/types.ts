@@ -245,6 +245,17 @@ export interface Car {
   /** Exactly four chips, or none. */
   priceJourney: PriceChip[];
 
+  /**
+   * Admin-curated "Նմանատիպ առաջարկներ" pick list, in display order. Always
+   * present (never `undefined`) but only ever populated on a single-car
+   * response (`GET /cars/:id`, create/update, `GET /public/cars/:slug`) —
+   * list routes (`GET /cars`, `GET /public/cars`) leave it `[]` on every row
+   * rather than fetching a full nested car per row per row for a grid of up
+   * to 100. The public detail route silently drops any pick that's since
+   * been unpublished.
+   */
+  similarCars: CarSummary[];
+
   /** Null means draft — the public API does not return it. */
   publishedAt: string | null;
   images: CarImage[];
@@ -252,8 +263,25 @@ export interface Car {
   updatedAt: string;
 }
 
-/** The writable fields. Images and publish state have their own endpoints. */
-export type CarInput = Omit<Car, 'id' | 'publishedAt' | 'images' | 'createdAt' | 'updatedAt'>;
+/**
+ * One similar-cars pick, as embedded in `Car.similarCars` — everything a
+ * `Car` has except its own nested `similarCars` (the API never recurses into
+ * a similar car's own similar cars).
+ */
+export type CarSummary = Omit<Car, 'similarCars'>;
+
+/**
+ * The writable fields. Images and publish state have their own endpoints;
+ * `similarCarIds` (an ordered list of car ids, ≤8) replaces `similarCars`
+ * (the read shape) as the write shape — the server resolves ids into the
+ * full `CarSummary[]` it hands back.
+ */
+export type CarInput = Omit<
+  Car,
+  'id' | 'publishedAt' | 'images' | 'createdAt' | 'updatedAt' | 'similarCars'
+> & {
+  similarCarIds: string[];
+};
 
 export interface CarListQuery {
   origin?: CarOrigin;

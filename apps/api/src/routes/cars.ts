@@ -104,6 +104,11 @@ const carBodySchema = z.object({
 
   colors: z.array(colourSchema).max(20).default([]),
   priceJourney: priceJourneySchema.default([]),
+
+  /// Admin-curated "Նմանատիպ առաջարկներ" pick list, in display order. The
+  /// public car-detail page falls back to an automatic match when this is
+  /// empty — see `CarSimilar` in schema.prisma.
+  similarCarIds: z.array(z.string().min(1)).max(8).default([]),
 });
 
 /**
@@ -117,6 +122,49 @@ function assertColoursAllowed(condition: CarCondition, colours: unknown[]) {
       fields: [{ path: 'colors', message: 'Only ON_ORDER cars can offer colour choices' }],
     });
   }
+}
+
+/**
+ * Every id must be a real, distinct car, and (on update, where the row
+ * already exists) not the car itself — "similar to itself" isn't a
+ * meaningful pick and would also violate `CarSimilar`'s `@@id`.
+ */
+async function assertSimilarCarIdsValid(similarCarIds: string[], selfId?: string) {
+  if (similarCarIds.length === 0) return;
+
+  if (selfId && similarCarIds.includes(selfId)) {
+    throw badRequest('A car cannot be listed as similar to itself', {
+      fields: [{ path: 'similarCarIds', message: 'Remove the car itself from its own list' }],
+    });
+  }
+  if (new Set(similarCarIds).size !== similarCarIds.length) {
+    throw badRequest('Duplicate car in similarCarIds', {
+      fields: [{ path: 'similarCarIds', message: 'Each car may appear at most once' }],
+    });
+  }
+
+  const found = await prisma.car.count({ where: { id: { in: similarCarIds } } });
+  if (found !== similarCarIds.length) {
+    throw badRequest('One or more cars in similarCarIds do not exist', {
+      fields: [{ path: 'similarCarIds', message: 'One or more selected cars were not found' }],
+    });
+  }
+}
+
+/** Replaces a car's curated similar-cars list wholesale — small (≤8), so delete-and-recreate is simpler than diffing. */
+function writeSimilarCars(tx: Prisma.TransactionClient, carId: string, similarCarIds: string[]) {
+  return Promise.all([
+    tx.carSimilar.deleteMany({ where: { carId } }),
+    similarCarIds.length > 0
+      ? tx.carSimilar.createMany({
+          data: similarCarIds.map((similarCarId, index) => ({
+            carId,
+            similarCarId,
+            position: index,
+          })),
+        })
+      : Promise.resolve(),
+  ]);
 }
 
 const listQuerySchema = z.object({
@@ -247,14 +295,16 @@ carsRouter.post(
   async (req, res) => {
     const body = req.body as z.infer<typeof carBodySchema>;
     assertColoursAllowed(body.condition, body.colors);
+    await assertSimilarCarIdsValid(body.similarCarIds);
 
     if (await prisma.car.findUnique({ where: { slug: body.slug } })) {
       throw conflict(`A car with the slug "${body.slug}" already exists`);
     }
 
-    const car = await prisma.car.create({
-      data: toWriteData(body),
-      include: ADMIN_CAR_INCLUDE,
+    const car = await prisma.$transaction(async (tx) => {
+      const created = await tx.car.create({ data: toWriteData(body) });
+      await writeSimilarCars(tx, created.id, body.similarCarIds);
+      return tx.car.findUniqueOrThrow({ where: { id: created.id }, include: ADMIN_CAR_INCLUDE });
     });
 
     await audit(req.auth?.userId, 'car.create', car.id, { slug: car.slug });
@@ -271,6 +321,7 @@ carsRouter.put(
     const id = String(req.params.id ?? '');
     const body = req.body as z.infer<typeof carBodySchema>;
     assertColoursAllowed(body.condition, body.colors);
+    await assertSimilarCarIdsValid(body.similarCarIds, id);
 
     const existing = await prisma.car.findUnique({ where: { id } });
     if (!existing) throw notFound('Car not found');
@@ -280,10 +331,10 @@ carsRouter.put(
       if (taken) throw conflict(`A car with the slug "${body.slug}" already exists`);
     }
 
-    const car = await prisma.car.update({
-      where: { id },
-      data: toWriteData(body),
-      include: ADMIN_CAR_INCLUDE,
+    const car = await prisma.$transaction(async (tx) => {
+      await tx.car.update({ where: { id }, data: toWriteData(body) });
+      await writeSimilarCars(tx, id, body.similarCarIds);
+      return tx.car.findUniqueOrThrow({ where: { id }, include: ADMIN_CAR_INCLUDE });
     });
 
     await audit(req.auth?.userId, 'car.update', car.id, { slug: car.slug });
@@ -469,7 +520,7 @@ carsRouter.get('/public/cars', validateQuery(listQuerySchema), async (req, res) 
 carsRouter.get('/public/cars/:slug', async (req, res) => {
   const car = await prisma.car.findFirst({
     where: { slug: String(req.params.slug ?? ''), publishedAt: { not: null } },
-    include: { images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] } },
+    include: PUBLIC_CAR_INCLUDE,
   });
   if (!car) throw notFound('Car not found');
 
@@ -480,7 +531,7 @@ carsRouter.get('/public/cars/:slug', async (req, res) => {
 /* --------------------------------- helpers --------------------------------- */
 
 function toWriteData(body: z.infer<typeof carBodySchema>) {
-  const { colors, priceJourney, ...rest } = body;
+  const { colors, priceJourney, similarCarIds: _similarCarIds, ...rest } = body;
   return {
     ...rest,
     colors: colors as unknown as Prisma.InputJsonValue,
@@ -500,26 +551,85 @@ function audit(actorId: string | undefined, action: string, resourceId: string, 
   });
 }
 
+// Not `satisfies`-typed against a Prisma-generated arg type of its own — the
+// generated name for "the shape of the `similarAsSource` include field" is
+// an awkward internal type (`Car$similarAsSourceArgs`) to reference directly.
+// `as const` on every literal keeps them narrow (not widened to `string`) so
+// this still validates correctly once spread into `ADMIN_CAR_INCLUDE`/
+// `PUBLIC_CAR_INCLUDE`'s own `satisfies Prisma.CarInclude`.
+const SIMILAR_CARS_INCLUDE = {
+  orderBy: { position: 'asc' as const },
+  include: {
+    similarCar: {
+      include: { images: { orderBy: [{ album: 'asc' as const }, { position: 'asc' as const }] } },
+    },
+  },
+};
+
 /**
- * What the admin reads. The public routes deliberately do not use this — the
- * site has no business knowing which dealer holds a car, and the safest way to
- * keep a field out of a response is not to select it.
+ * What the admin reads for one car (the edit form, and create/update
+ * responses) — full detail including the curated similar-cars pick list, so
+ * the form can show which cars are currently selected. The public routes
+ * deliberately do not use `partner` — the site has no business knowing
+ * which dealer holds a car, and the safest way to keep a field out of a
+ * response is not to select it.
+ */
+/**
+ * What the admin reads — both the list view and one car. Deliberately the
+ * *same* include for both, even though the list view never renders a row's
+ * own similar-cars sub-list: the admin UI's "quick toggle" actions (feature/
+ * unfeature from the list) round-trip a fetched `Car` straight back through
+ * `PUT /cars/:id` as its own update body (`toInput()` in `CarsPage.tsx`). If
+ * the list route fetched a leaner shape that left `similarCars` empty, that
+ * round-trip would silently blank out a car's real curated picks on every
+ * unrelated quick-toggle — a genuine data-loss bug, not just wasted payload.
+ * A few extra nested rows on an admin-only, ≤100-row list is the cheaper
+ * mistake to make.
  */
 const ADMIN_CAR_INCLUDE = {
   images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] },
   partner: { select: { id: true, name: true, company: true } },
+  similarAsSource: SIMILAR_CARS_INCLUDE,
 } satisfies Prisma.CarInclude;
 
 /**
- * `partner` is optional because the public rows genuinely lack it. Absent and
- * null mean different things here: absent is "this response does not carry
- * partner information", null is "no partner is assigned".
+ * The public car-detail route's include — no `partner`, and a curated
+ * similar car that has since been unpublished quietly drops out rather than
+ * leaking a draft row. The public *list* route keeps its own leaner include
+ * (below `/public/cars`) — unlike the admin side, nothing on the public list
+ * ever round-trips a fetched row back through a write, so there's no
+ * equivalent data-loss risk to the admin one explained above.
  */
+const PUBLIC_CAR_INCLUDE = {
+  images: { orderBy: [{ album: 'asc' }, { position: 'asc' }] },
+  similarAsSource: {
+    ...SIMILAR_CARS_INCLUDE,
+    where: { similarCar: { publishedAt: { not: null } } },
+  },
+} satisfies Prisma.CarInclude;
+
+/**
+ * `partner` is optional because the public rows genuinely lack it, and
+ * `similarAsSource` is optional because list endpoints deliberately don't
+ * fetch it (a grid of up to 100 cars each carrying its own full nested
+ * similar-cars sub-list would be pure waste — nothing renders it there).
+ * Absent and empty mean different things for `partner`: absent is "this
+ * response does not carry partner information", null is "no partner is
+ * assigned". For `similarAsSource`, absent and empty both simply serialize
+ * to `similarCars: []`, since nothing distinguishes "not fetched" from
+ * "fetched, curated list is empty" for a caller that didn't ask either way.
+ */
+type SimilarCarRow = Prisma.CarSimilarGetPayload<{
+  include: { similarCar: { include: { images: true } } };
+}>;
+
 type CarRow = Prisma.CarGetPayload<{ include: { images: true } }> & {
   partner?: { id: string; name: string; company: string | null } | null;
+  similarAsSource?: SimilarCarRow[];
 };
 
-function serializeCar(car: CarRow) {
+/** Everything about a car except its own `similarCars` — what a similar-cars pick is serialized as, to avoid recursing into *its* similar cars. */
+function serializeCarBase(car: Omit<CarRow, 'similarAsSource'>) {
   return {
     ...car,
     colors: car.colors ?? [],
@@ -528,6 +638,13 @@ function serializeCar(car: CarRow) {
     createdAt: car.createdAt.toISOString(),
     updatedAt: car.updatedAt.toISOString(),
     images: car.images.map(serializeImage),
+  };
+}
+
+function serializeCar(car: CarRow) {
+  return {
+    ...serializeCarBase(car),
+    similarCars: (car.similarAsSource ?? []).map((row) => serializeCarBase(row.similarCar)),
   };
 }
 

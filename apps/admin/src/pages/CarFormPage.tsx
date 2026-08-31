@@ -66,6 +66,7 @@ const BLANK: CarInput = {
   partnerId: null,
   colors: [],
   priceJourney: [],
+  similarCarIds: [],
 };
 
 /**
@@ -114,13 +115,14 @@ export function CarFormPage() {
 
   useEffect(() => {
     if (carQuery.data) {
-      const { id: _id, publishedAt, images, createdAt, updatedAt, ...input } = carQuery.data;
+      const { id: _id, publishedAt, images, createdAt, updatedAt, similarCars, ...input } =
+        carQuery.data;
       void _id;
       void publishedAt;
       void images;
       void createdAt;
       void updatedAt;
-      setDraft(input);
+      setDraft({ ...input, similarCarIds: similarCars.map((car) => car.id) });
       setSlugTouched(true);
     }
   }, [carQuery.data]);

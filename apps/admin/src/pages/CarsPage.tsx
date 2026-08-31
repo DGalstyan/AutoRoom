@@ -528,11 +528,11 @@ export function CarsPage() {
 
 /** Strips the server-owned fields so a car can be sent back as an update. */
 function toInput(car: Car) {
-  const { id, publishedAt, images, createdAt, updatedAt, ...input } = car;
+  const { id, publishedAt, images, createdAt, updatedAt, similarCars, ...input } = car;
   void id;
   void publishedAt;
   void images;
   void createdAt;
   void updatedAt;
-  return input;
+  return { ...input, similarCarIds: similarCars.map((similar) => similar.id) };
 }
