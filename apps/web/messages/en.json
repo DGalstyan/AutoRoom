@@ -1,0 +1,440 @@
+{
+  "common": {
+    "brand": "AvtoRoom",
+    "loading": "Loading…",
+    "errorHeading": "Something went wrong",
+    "errorRetry": "Try again",
+    "nav": {
+      "home": "HOME",
+      "china": "China",
+      "usa": "USA",
+      "offers": "Special offers",
+      "partners": "Become a partner",
+      "login": "Log in",
+      "about": "About us",
+      "contact": "Contact",
+      "menuOpen": "Open menu",
+      "menuClose": "Close menu",
+      "primaryNav": "Primary navigation",
+      "headerCta": "Get an offer"
+    },
+    "stickyCta": {
+      "label": "Haven't found your car? Let's find it together",
+      "button": "Choose"
+    },
+    "footer": {
+      "tagline": "We import trust, not just cars.",
+      "navHeading": "Site",
+      "branchesHeading": "Branches",
+      "socialHeading": "Follow us",
+      "contactHeading": "Contact",
+      "ctaHeading": "Ready to start?",
+      "ctaButton": "Let's talk",
+      "rights": "All rights reserved.",
+      "cookiePolicy": "Cookie Policy",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "popup": {
+      "close": "Close",
+      "step": "Step {current} / {total}",
+      "step1Title": "Tell us how to reach you",
+      "nameLabel": "Name",
+      "namePlaceholder": "Full name",
+      "phoneLabel": "Phone",
+      "next": "Next",
+      "back": "Back",
+      "skip": "Skip",
+      "submit": "Submit",
+      "submitPerCar": "Submit request",
+      "sending": "Sending…",
+      "encouraging": "These 20 seconds will save you 2 phone calls 🙂",
+      "step2Title": "A few questions for a more precise offer",
+      "interestLabel": "What are you looking for?",
+      "interestOptions": {
+        "usa": "A car from the USA",
+        "china": "A car from China",
+        "in-stock": "In-stock car",
+        "undecided": "Not sure yet"
+      },
+      "budgetLabel": "Budget",
+      "budgetOptions": {
+        "lt10k": "up to $10,000",
+        "10-20k": "$10,000–20,000",
+        "20-35k": "$20,000–35,000",
+        "35k+": "$35,000+"
+      },
+      "financingLabel": "Financing",
+      "financingOptions": {
+        "need": "Needed",
+        "no": "Not needed",
+        "unsure": "Not sure yet"
+      },
+      "timingLabel": "When are you planning to buy?",
+      "timingOptions": {
+        "now": "Now",
+        "1-3m": "In 1–3 months",
+        "browsing": "Just browsing"
+      },
+      "channelLabel": "Preferred contact method",
+      "channelOptions": {
+        "call": "Call",
+        "whatsapp": "WhatsApp",
+        "viber": "Viber",
+        "telegram": "Telegram"
+      },
+      "colorLabel": "Preferred color",
+      "step3Title": "Tell us more (optional)",
+      "commentLabel": "Comment / link to a specific car or lot",
+      "commentPlaceholder": "e.g. a link to a specific car or lot number",
+      "successHeading": "Request received",
+      "successTemplate": "Thank you, {name}. Our specialist will reach you by {channel}",
+      "successChannelDefault": "shortly",
+      "perCarTitle": "Inquiry — {model}",
+      "perCarSuccessTemplate": "Thank you, {name}. Our specialist will contact you about {model}'s price, timeline and financing options",
+      "errors": {
+        "nameRequired": "Please enter your name",
+        "phoneRequired": "Please enter your phone number",
+        "phoneInvalid": "The phone number must have 8 digits after +374"
+      },
+      "closeDialog": "Close dialog"
+    },
+    "quiz": {
+      "title": "Find your car in 60 seconds",
+      "step": "Question {current} / {total}",
+      "back": "Back",
+      "next": "Next",
+      "questions": {
+        "budget": {
+          "label": "Budget",
+          "options": {
+            "lt10k": "up to $10,000",
+            "10-20k": "$10,000–20,000",
+            "20-35k": "$20,000–35,000",
+            "35k+": "$35,000+"
+          }
+        },
+        "fuel": {
+          "label": "Fuel",
+          "options": { "ev": "EV", "hybrid": "Hybrid", "benzin": "Petrol" }
+        },
+        "usage": {
+          "label": "Usage",
+          "options": { "city": "city", "family": "family", "travel": "travel" }
+        },
+        "country": {
+          "label": "Country",
+          "options": { "usa": "USA", "china": "China", "any": "doesn't matter" }
+        },
+        "timing": {
+          "label": "When do you want to buy?",
+          "options": { "now": "now", "1-3m": "1–3 months", "browsing": "just browsing" }
+        }
+      },
+      "resultTitle": "Cars recommended for you",
+      "resultSubtitle": "Based on your answers, these might suit you",
+      "resultCta": "Get an offer for these cars",
+      "restart": "Start over",
+      "resultCommentPrefix": "Cars selected from the quiz: "
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "expand": "Show answer",
+      "collapse": "Hide answer"
+    },
+    "branchMap": {
+      "cta": "Visit the nearest branch",
+      "hoursLabel": "Working hours",
+      "phoneLabel": "Phone",
+      "addressLabel": "Address",
+      "selectPrompt": "Choose a branch",
+      "photoAlt": "Photo of the {name} branch"
+    },
+    "carCard": {
+      "cta": "See details",
+      "fromPrice": "Price:"
+    },
+    "carAnatomy": {
+      "hotspots": [
+        { "title": "Engine", "text": "10+ years of experience" },
+        { "title": "Body", "text": "10,000+ cars imported" },
+        { "title": "Wheels", "text": "98% successful deliveries" },
+        { "title": "Doors", "text": "A transparent process: open pricing, clear costs" },
+        { "title": "Steering wheel", "text": "100% turnkey service" },
+        { "title": "Headlights", "text": "Fast response, constant contact" },
+        {
+          "title": "Documents",
+          "text": "International network: USA • China • Europe • Korea • Japan"
+        },
+        { "title": "Key", "text": "3 branches in Armenia" }
+      ]
+    }
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "AvtoRoom",
+      "h1": "We import cars from the USA, China, Europe and other international markets",
+      "stats": [
+        { "value": "50+", "label": "international partner network" },
+        { "value": "10+", "label": "years of experience" },
+        { "value": "10,000+", "label": "cars imported" }
+      ],
+      "pickerHeading": "Choose your next car",
+      "usaCard": { "title": "USA", "cta": "View USA cars" },
+      "chinaCard": { "title": "China", "cta": "View China cars" }
+    },
+    "featured": {
+      "eyebrow": "Handpicked by our team",
+      "heading": "This week's best offers",
+      "cta": "Get an offer"
+    },
+    "anatomy": {
+      "eyebrow": "Why AutoRoom",
+      "heading": "Why choose AutoRoom",
+      "imageHotspots": [
+        {
+          "text": "A transparent process: open pricing, clear costs",
+          "left": "55.13%",
+          "top": "2.474%",
+          "width": "31.07%",
+          "height": "9.375%"
+        },
+        {
+          "text": "98% successful deliveries",
+          "left": "17.95%",
+          "top": "77.604%",
+          "width": "18.78%",
+          "height": "6.771%"
+        },
+        {
+          "text": "10+ years of experience",
+          "left": "69%",
+          "top": "91.015%",
+          "width": "14.48%",
+          "height": "6.771%"
+        }
+      ],
+      "stats": [
+        { "value": "10+", "label": "years of experience" },
+        { "value": "98%", "label": "successful deliveries" },
+        { "value": "100%", "label": "turnkey service" },
+        { "value": "3", "label": "branches in Armenia" }
+      ],
+      "finalLine": "Every detail is in its place — that's how we work",
+      "cta": "Start choosing",
+      "mobileHint": "Tap the dots to see details"
+    },
+    "howItWorks": {
+      "eyebrow": "Process",
+      "heading": "The car's journey — from choice to handover",
+      "steps": [
+        {
+          "title": "Inquiry and consultation",
+          "text": "Send an inquiry — our specialist will get in touch and help choose the car and country."
+        },
+        {
+          "title": "Order confirmation",
+          "text": "We agree on the model, color and terms, and sign the contract."
+        },
+        {
+          "title": "Purchase and payment",
+          "text": "The car is purchased, with payment made in stages."
+        },
+        {
+          "title": "Transport to the port",
+          "text": "The car is delivered to the nearest port for onward shipping."
+        },
+        {
+          "title": "International shipping",
+          "text": "The car travels via Turkey/Greece/Georgia on its way to Armenia."
+        },
+        {
+          "title": "Armenia and customs clearance (Gyumri)",
+          "text": "The car enters Armenia and clears customs in Gyumri."
+        },
+        {
+          "title": "Car handover",
+          "text": "You receive the car ready to drive, with all documents."
+        }
+      ]
+    },
+    "ecosystem": {
+      "eyebrow": "AutoRoom Ecosystem",
+      "heading": "One partner for the whole process",
+      "items": [
+        "Car importing",
+        "Auctions",
+        "Chinese cars",
+        "Logistics",
+        "Customs clearance",
+        "Financing",
+        "B2B partnerships",
+        "International freight"
+      ]
+    },
+    "founder": {
+      "eyebrow": "Our story",
+      "heading": "How it all started",
+      "text": "The founder's short story — from the first imported car to AutoRoom today.",
+      "playLabel": "Watch the video",
+      "posterAlt": "AutoRoom's founder — video cover"
+    },
+    "stories": {
+      "eyebrow": "In our customers' words",
+      "heading": "Customer stories",
+      "sub": "Real stories — from choosing a car to handover",
+      "playLabel": "Watch the story",
+      "lightboxTitle": "Customer story"
+    },
+    "branches": {
+      "eyebrow": "Our branches",
+      "heading": "Always by your side"
+    },
+    "faqSection": {
+      "eyebrow": "Got questions?"
+    },
+    "finalCta": {
+      "heading": "Haven't found your car?",
+      "text": "Leave your details, and our specialist will help you find the best option.",
+      "cta": "Get started"
+    }
+  },
+  "china": {
+    "filters": {
+      "tabAll": "All",
+      "tabOnOrder": "On order",
+      "tabInStock": "In stock",
+      "allMakes": "Make: All",
+      "makePrefix": "Make",
+      "model": "Model",
+      "price": "Price",
+      "priceFrom": "From",
+      "priceTo": "To"
+    },
+    "carCard": {
+      "conditions": {
+        "IN_STOCK": "In stock",
+        "ON_ORDER": "On order",
+        "ON_ROAD": "On the road",
+        "AUCTION": "At auction"
+      },
+      "financingAvailable": "Financing available"
+    },
+    "empty": "No cars match these filters yet.",
+    "financing": {
+      "heading": "Financing and installment options",
+      "text": "We partner with Armenia's leading banks so you can choose the auto loan or financing option that suits you.",
+      "partnersHeading": "Partner banks",
+      "inHouseText": "Through AutoRoom, financing is available before the car even reaches Armenia — for up to 2 months and up to 70% of the car's value.",
+      "cta": "Details"
+    },
+    "whyOrder": {
+      "heading": "Why order from China through AutoRoom",
+      "ecosystem": [
+        "Supplier verification",
+        "Spec confirmation",
+        "Cars from China",
+        "Open price breakdown",
+        "Document oversight",
+        "Full support through to handover"
+      ],
+      "features": [
+        {
+          "title": "Master Account support",
+          "text": [
+            "Full smart-car management, right from your phone. Most functions of modern Chinese smart cars are controlled through a mobile app. With AutoRoom you get more than just a car — a complete solution, with support for Master Account access and activation."
+          ]
+        },
+        {
+          "title": "100% transparent pricing",
+          "text": [
+            "Unlike the risks of an individual import, AutoRoom gives you a clear breakdown of the final price up front. The price includes every component — the car, logistics, insurance and customs clearance."
+          ]
+        },
+        {
+          "title": "Professional guidance",
+          "text": [
+            "Our team is guided by real numbers and technical facts. We help you find the best car within your budget based on your actual needs, not common market stereotypes."
+          ]
+        },
+        {
+          "title": "Financial support (auto loan)",
+          "text": [
+            "Your preferred car can be yours more easily. By partnering with Armenia's leading banks, we help arrange an auto loan with the most flexible, favorable rates."
+          ]
+        },
+        {
+          "title": "Exclusive privileges",
+          "text": [
+            "Extra services at prices well below market rate.",
+            "Being an AutoRoom customer pays off — through our partner network, you get special, discounted rates for your car's additional services:",
+            "PPF wrap (paint protection film) and detailing",
+            "Original chargers and accessories",
+            "Other care and maintenance services"
+          ]
+        }
+      ]
+    },
+    "faqSection": {
+      "heading": "Frequently asked questions"
+    },
+    "finalCta": {
+      "heading": "Your next car is already in China — let's get started",
+      "text": "Leave your details, get an offer",
+      "cta": "Get started"
+    },
+    "detail": {
+      "ctaOffer": "Personal offer",
+      "ctaLoan": "Loan terms",
+      "gallery": {
+        "exterior": "Exterior",
+        "interior": "Interior",
+        "details": "Details",
+        "video": "Video"
+      },
+      "specs": {
+        "heading": "General specifications",
+        "make": "Make",
+        "condition": "Condition",
+        "deliveryEta": "Delivery time",
+        "deliveryEtaValue": "{days} days",
+        "year": "Year",
+        "trim": "Trim",
+        "fuel": "Fuel type",
+        "powertrain": {
+          "EV": "Electric (BEV)",
+          "HYBRID": "Hybrid",
+          "BENZIN": "Petrol"
+        },
+        "range": "Range per charge",
+        "rangeValue": "up to {km} km (WLTP)",
+        "battery": "Battery",
+        "engine": "Engine",
+        "drivetrain": "Drivetrain",
+        "seats": "Seats",
+        "warranty": "Warranty"
+      },
+      "colorPicker": {
+        "heading": "Choose a color"
+      },
+      "buyWithLoan": {
+        "heading": "Buy on credit"
+      },
+      "priceJourney": {
+        "heading": "The price journey",
+        "finalLabel": "Final price in Armenia",
+        "cta": "Get an exact quote"
+      },
+      "loanCalculator": {
+        "heading": "Loan terms",
+        "downPayment": "Down payment",
+        "term": "Term (months)",
+        "nominalRate": "Nominal rate (subject to confirmation)",
+        "effectiveRate": "Effective rate (subject to confirmation)",
+        "monthly": "Monthly payment"
+      },
+      "similarOffers": {
+        "heading": "Similar offers"
+      }
+    }
+  }
+}

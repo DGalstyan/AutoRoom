@@ -5,9 +5,7 @@ import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.detail.loanCalculator;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * China (and later USA) car-detail S3.6b — "Վարկի պայմաններ" real-time
@@ -27,6 +25,7 @@ export function LoanCalculator({
   car: Pick<Car, 'price' | 'images'>;
   finance: FinanceCalculator;
 }) {
+  const t = useMessages().china.detail.loanCalculator;
   const min = useMemo(
     () => Math.round(car.price * finance.minDownPaymentRatio),
     [car.price, finance.minDownPaymentRatio],

@@ -1,12 +1,11 @@
 'use client';
 
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.finalCta;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /** China S7 — the closing CTA, opens the (non-per-car) UniversalPopup. Pixel-matched to Figma node 101:132. */
 export function ChinaFinalCta() {
+  const t = useMessages().china.finalCta;
   const { openUniversal } = useLeadWidgets();
 
   return (

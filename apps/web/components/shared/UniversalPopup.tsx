@@ -16,9 +16,8 @@ import {
   type LeadInterest,
   type LeadTiming,
 } from '@/lib/leads';
-import { interpolate, messages } from '@/lib/messages';
-
-const t = messages.common.popup;
+import { interpolate } from '@/lib/messages';
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 export interface UniversalPopupCarContext {
   name: string;
@@ -64,6 +63,7 @@ export function UniversalPopup({
   prefilledComment,
   quizAnswers,
 }: UniversalPopupProps) {
+  const t = useMessages().common.popup;
   const titleId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
 

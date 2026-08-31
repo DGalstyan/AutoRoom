@@ -1,12 +1,11 @@
 'use client';
 
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
-import { messages } from '@/lib/messages';
-
-const t = messages.home.finalCta;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /** S10 — the other of the two spots that opens the Quiz, not the Universal popup. */
 export function HomeFinalCta() {
+  const t = useMessages().home.finalCta;
   const { openQuiz } = useLeadWidgets();
 
   return (

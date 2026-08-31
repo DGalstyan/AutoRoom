@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import { branchTelHref } from '@/lib/data/branches';
-import { messages } from '@/lib/messages';
+import { getServerMessages } from '@/lib/i18n';
+import type { Messages } from '@/lib/i18n';
 import { FooterCta } from '@/components/shared/FooterCta';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import type { BrandingLogos } from '@/lib/branding';
 import type { GeneralContacts, SocialLinks } from '@/lib/contacts';
 
-const nav = messages.common.nav;
-const footer = messages.common.footer;
-
-const FOOTER_LINKS: { key: keyof typeof nav; href: string }[] = [
+const FOOTER_LINKS: { key: keyof Messages['common']['nav']; href: string }[] = [
   { key: 'home', href: '/' },
   { key: 'china', href: '/china' },
   { key: 'usa', href: '/usa' },
@@ -46,10 +44,13 @@ interface FooterProps {
 const NO_CONTACTS: GeneralContacts = { email: null, phones: [] };
 const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
 
-export function Footer({
+export async function Footer({
   logo = null,
   contacts = { general: NO_CONTACTS, social: NO_SOCIAL },
 }: FooterProps = {}) {
+  const { messages } = await getServerMessages();
+  const nav = messages.common.nav;
+  const footer = messages.common.footer;
   const { general, social } = contacts;
   const email = general.email;
   const phone = general.phones[0] ?? null;

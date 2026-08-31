@@ -1,20 +1,27 @@
-import type { Car } from '@/lib/types/car';
-import { interpolate, messages } from '@/lib/messages';
+'use client';
 
-const t = messages.china.detail.specs;
-const conditionLabels = messages.china.carCard.conditions;
+import type { Car } from '@/lib/types/car';
+import { interpolate } from '@/lib/messages';
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * China (and later USA) car-detail S3.4 — "Ընդհանուր տվյալներ" spec table.
  * Every row maps to a real `Car` column (`apps/api/prisma/schema.prisma`);
  * rows whose value is null/absent for this car are skipped rather than shown
  * empty, since not every spec applies to every powertrain (an EV has no
- * `transmission`, a benzin car has no `range`/`battery`). No hooks — safe to
- * render from a Server Component. Each row is its own white card (Figma node
- * 102:510) — not a divided list — so it reads against the section's off-white
- * backdrop the same way every other row-card on this page does.
+ * `transmission`, a benzin car has no `range`/`battery`). A client component
+ * (not a Server Component) because `CarDetailHero.tsx` — a client component —
+ * renders it inline; a Client Component may only import Server Components
+ * that are handed to it via composition, never imported and instantiated
+ * directly. Each row is its own white card (Figma node 102:510) — not a
+ * divided list — so it reads against the section's off-white backdrop the
+ * same way every other row-card on this page does.
  */
 export function CarSpecs({ car }: { car: Car }) {
+  const messages = useMessages();
+  const t = messages.china.detail.specs;
+  const conditionLabels = messages.china.carCard.conditions;
+
   const rows: { label: string; value: string }[] = [
     { label: t.make, value: car.make },
     { label: t.condition, value: conditionLabels[car.condition] },

@@ -1,15 +1,14 @@
 'use client';
 
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
-import { messages } from '@/lib/messages';
-
-const t = messages.common.stickyCta;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * Global persistent CTA — opens the QUIZ popup (never Universal), per the
  * skill's lead-widget rule. Hides while any popup is open.
  */
 export function StickyCta() {
+  const t = useMessages().common.stickyCta;
   const { openQuiz, isAnyOpen } = useLeadWidgets();
 
   if (isAnyOpen) return null;

@@ -1,7 +1,5 @@
 import Image from 'next/image';
-import { messages } from '@/lib/messages';
-
-const t = messages.home.anatomy;
+import { getServerMessages } from '@/lib/i18n';
 
 /**
  * "Ինչո՞ւ ընտրել AutoRoom-ը" — pixel-matched to Figma node `2001:1635`.
@@ -23,7 +21,10 @@ const t = messages.home.anatomy;
  * a dark-background/white-text hover tooltip, which had both the
  * interaction model and the palette backwards relative to the design).
  */
-export function CarAnatomy() {
+export async function CarAnatomy() {
+  const { messages } = await getServerMessages();
+  const t = messages.home.anatomy;
+
   return (
     <div>
       <h2 className="font-display text-home-h2 font-light text-neutral-800">{t.heading}</h2>

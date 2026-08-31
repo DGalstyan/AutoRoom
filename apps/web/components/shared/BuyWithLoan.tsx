@@ -4,9 +4,7 @@ import Image from 'next/image';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { Bank } from '@/lib/banks';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.detail.buyWithLoan;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * China/USA car-detail S3.6b right-column card — a compact, single-bank-per-
@@ -19,6 +17,7 @@ const t = messages.china.detail.buyWithLoan;
  * site.
  */
 export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopupCarContext }) {
+  const t = useMessages().china.detail.buyWithLoan;
   const { openUniversal } = useLeadWidgets();
 
   if (banks.length === 0) return null;

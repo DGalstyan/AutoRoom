@@ -2,11 +2,10 @@
 
 import { useId, useState } from 'react';
 import { BRANCHES, branchTelHref, type Branch } from '@/lib/data/branches';
-import { messages, interpolate } from '@/lib/messages';
+import { interpolate } from '@/lib/messages';
+import { useMessages } from '@/components/shared/LocaleProvider';
 import { Button } from '@/components/ui/Button';
 import { ArmeniaMap } from '@/components/shared/ArmeniaMap';
-
-const t = messages.common.branchMap;
 
 /**
  * Figma's Homepage branches section (node `9332:7854`) is a dark band with a
@@ -18,6 +17,7 @@ const t = messages.common.branchMap;
  * `activeId` selection as the list below, so both stay in sync.
  */
 export function BranchMap() {
+  const t = useMessages().common.branchMap;
   const [activeId, setActiveId] = useState<Branch['id']>(BRANCHES[0].id);
   const panelId = useId();
   const listId = useId();

@@ -3,9 +3,7 @@
 import Image from 'next/image';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { Bank } from '@/lib/banks';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.financing;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * China S4 — partner-bank grid + AutoRoom's own in-house offer. `banks` is
@@ -14,6 +12,7 @@ const t = messages.china.financing;
  * logo. Pixel-matched to Figma node 101:403.
  */
 export function ChinaFinancing({ banks }: { banks: Bank[] }) {
+  const t = useMessages().china.financing;
   const { openUniversal } = useLeadWidgets();
 
   if (banks.length === 0) return null;

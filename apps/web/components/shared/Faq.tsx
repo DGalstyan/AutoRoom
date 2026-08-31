@@ -2,9 +2,7 @@
 
 import { useId, useState } from 'react';
 import type { FaqItem } from '@/lib/data/faq';
-import { messages } from '@/lib/messages';
-
-const t = messages.common.faq;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 export interface FaqProps {
   items: readonly FaqItem[];
@@ -17,14 +15,15 @@ export interface FaqProps {
 }
 
 /** Accordion — each row is its own rounded card; a real button with `aria-expanded`. */
-export function Faq({ items, heading = t.heading, hideHeading = false }: FaqProps) {
+export function Faq({ items, heading, hideHeading = false }: FaqProps) {
+  const t = useMessages().common.faq;
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const baseId = useId();
 
   return (
     <div>
       <h2 className={hideHeading ? 'sr-only' : 'font-display text-home-h2 font-light text-ink'}>
-        {heading}
+        {heading ?? t.heading}
       </h2>
       <div className={`mx-auto max-w-3xl space-y-3 ${hideHeading ? '' : 'mt-8'}`}>
         {items.map((item, index) => {

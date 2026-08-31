@@ -2,9 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.carCard;
+import { getServerMessages } from '@/lib/i18n';
 
 /**
  * The full listing-grid car card — China (and later USA) page S2. Distinct
@@ -14,7 +12,9 @@ const t = messages.china.carCard;
  * `references/pages.md` China S2 and `components.md`'s `CarCard` "China
  * list" variant. Pixel-matched to Figma node 101:279 (file 9Lq4XpWusTJj1VnM6laAZr).
  */
-export function CarCard({ car, priority = false }: { car: Car; priority?: boolean }) {
+export async function CarCard({ car, priority = false }: { car: Car; priority?: boolean }) {
+  const { messages } = await getServerMessages();
+  const t = messages.china.carCard;
   const imageSrc = car.images[0]?.url;
   const infoPills = [
     car.year ? String(car.year) : null,

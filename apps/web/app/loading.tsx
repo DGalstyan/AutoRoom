@@ -1,6 +1,17 @@
-import { messages } from '@/lib/messages';
+import { cookies } from 'next/headers';
+import { getMessagesForLocale, isLocale, LOCALE_COOKIE } from '@/lib/i18n';
 
-export default function Loading() {
+export default async function Loading() {
+  // Reads the locale cookie directly rather than `getServerMessages()`
+  // (which also fetches the admin `localization.locales` setting): this is
+  // the instant Suspense fallback shown while the real page streams in, so
+  // it must never itself wait on a network round trip.
+  const store = await cookies();
+  const cookieLocale = store.get(LOCALE_COOKIE)?.value;
+  const messages = getMessagesForLocale(
+    cookieLocale && isLocale(cookieLocale) ? cookieLocale : 'hy',
+  );
+
   return (
     <div
       role="status"

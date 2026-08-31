@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { messages } from '@/lib/messages';
-
-const t = messages.china.filters;
+import { useMessages } from '@/components/shared/LocaleProvider';
 
 const PRICE_MIN = 1_000;
 const PRICE_MAX = 500_000;
@@ -21,6 +19,7 @@ const PRICE_MAX = 500_000;
  * new make shows up here with no code change.
  */
 export function ChinaFilters({ makeModels }: { makeModels: Record<string, string[]> }) {
+  const t = useMessages().china.filters;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -152,6 +151,7 @@ function PriceRangeDropdown({
   onChange: (min: number, max: number) => void;
   onCommit: (min: number, max: number) => void;
 }) {
+  const t = useMessages().china.filters;
   const [open, setOpen] = useState(false);
 
   return (

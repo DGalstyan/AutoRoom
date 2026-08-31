@@ -9,12 +9,7 @@ import { HomeFaq } from '@/components/shared/HomeFaq';
 import { HomeFinalCta } from '@/components/shared/HomeFinalCta';
 import { DirectionCard } from '@/components/shared/DirectionCard';
 import { HowItWorksStep } from '@/components/shared/HowItWorksStep';
-import { messages } from '@/lib/messages';
-
-const hero = messages.home.hero;
-const howItWorks = messages.home.howItWorks;
-const ecosystem = messages.home.ecosystem;
-const branches = messages.home.branches;
+import { getServerMessages } from '@/lib/i18n';
 
 // How-it-works photo row — matches Figma's 7-card strip (one wide "hero" card
 // with the full step-1 copy, six narrow numbered strips after it).
@@ -28,7 +23,13 @@ const STEP_PHOTOS = [
   '/images/home/step-7.jpg',
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { messages } = await getServerMessages();
+  const hero = messages.home.hero;
+  const howItWorks = messages.home.howItWorks;
+  const ecosystem = messages.home.ecosystem;
+  const branches = messages.home.branches;
+
   return (
     <>
       {/* S1 — Hero. Full-bleed desert photo (LCP image), dark scrim for the
