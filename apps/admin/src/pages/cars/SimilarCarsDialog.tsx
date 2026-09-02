@@ -127,7 +127,9 @@ export function SimilarCarsDialog({
                 <TextField
                   {...params}
                   placeholder={selected.length === 0 ? 'Search by make or model…' : undefined}
-                  helperText={fieldErrors.similarCarIds ?? `${selected.length}/8 selected, in order`}
+                  helperText={
+                    fieldErrors.similarCarIds ?? `${selected.length}/8 selected, in order`
+                  }
                   error={Boolean(fieldErrors.similarCarIds)}
                   autoFocus
                 />

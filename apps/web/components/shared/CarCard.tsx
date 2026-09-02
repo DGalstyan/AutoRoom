@@ -12,13 +12,7 @@ import { getServerMessages } from '@/lib/i18n';
  * `references/pages.md` China S2 and `components.md`'s `CarCard` "China
  * list" variant. Pixel-matched to Figma node 101:279 (file 9Lq4XpWusTJj1VnM6laAZr).
  */
-export async function CarCard({
-  car,
-  priority = false,
-}: {
-  car: CarSummary;
-  priority?: boolean;
-}) {
+export async function CarCard({ car, priority = false }: { car: CarSummary; priority?: boolean }) {
   const { messages } = await getServerMessages();
   const t = messages.china.carCard;
   const imageSrc = car.images[0]?.url;
