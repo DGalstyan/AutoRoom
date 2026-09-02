@@ -28,13 +28,21 @@ import {
   Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ImageAlbums, type StagedImage } from '@/pages/cars/ImageAlbums';
 import { ColourEditor } from '@/pages/cars/ColourEditor';
 import { PriceJourneyEditor } from '@/pages/cars/PriceJourneyEditor';
-import { CONDITIONS, ORIGINS, POWERTRAINS, STATUS_BADGES, slugify } from '@/pages/cars/carOptions';
+import {
+  CONDITIONS,
+  ORIGINS,
+  POWERTRAINS,
+  STATUS_BADGES,
+  publicCarUrl,
+  slugify,
+} from '@/pages/cars/carOptions';
 import { brand, mono } from '@/theme';
 
 const BLANK: CarInput = {
@@ -320,6 +328,18 @@ export function CarFormPage() {
         </Box>
 
         <Stack direction="row" spacing={1.5} sx={{ flex: 'none' }}>
+          {!creating && published && (
+            <Button
+              component="a"
+              href={publicCarUrl(draft)}
+              target="_blank"
+              rel="noopener noreferrer"
+              startIcon={<OpenInNewIcon sx={{ fontSize: 16 }} />}
+              color="inherit"
+            >
+              View on site
+            </Button>
+          )}
           {!creating && canPublish && (
             <Button
               onClick={() => publishMutation.mutate(!published)}
