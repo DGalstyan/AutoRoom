@@ -35,9 +35,9 @@ export async function ChinaWhyOrder() {
               />
             </div>
             <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4">
-              <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.42] p-8">
+              <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
                 {t.ecosystem.map((item) => (
-                  <li key={item} className="text-[20px] font-normal leading-[28px] text-ink">
+                  <li key={item} className="text-home-label font-normal leading-[28px] text-ink">
                     {item}
                   </li>
                 ))}
