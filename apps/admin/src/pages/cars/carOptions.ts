@@ -83,6 +83,24 @@ export function formatMoney(amount: number | null | undefined, currency = '$') {
  * car (the list's featured toggle, the similar-cars picker) without routing
  * the viewer through the full edit form.
  */
+const WEB_URL = import.meta.env.VITE_WEB_URL ?? 'http://localhost:3000';
+
+/**
+ * Where this car appears on the public site — mirrors `apps/web`'s own
+ * `carHref` (China → `/china/:slug`, USA → `/usa/auctions|available/:slug`
+ * by condition). Kept alongside `toCarInput` rather than imported from the
+ * web app, since the two are separate deployables with no shared runtime.
+ */
+export function publicCarUrl(car: Pick<CarInput, 'origin' | 'condition' | 'slug'>): string {
+  const path =
+    car.origin === 'CHINA'
+      ? `/china/${car.slug}`
+      : car.condition === 'AUCTION'
+        ? `/usa/auctions/${car.slug}`
+        : `/usa/available/${car.slug}`;
+  return `${WEB_URL}${path}`;
+}
+
 export function toCarInput(car: Car): CarInput {
   const { id, publishedAt, images, createdAt, updatedAt, similarCars, ...input } = car;
   void id;

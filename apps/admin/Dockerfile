@@ -13,9 +13,12 @@ COPY apps/admin apps/admin
 COPY apps/api/src apps/api/src
 
 # Baked in at build time: a Vite SPA has no server to read env vars from at
-# request time, so the API origin must be known before `vite build` runs.
+# request time, so the API and public-site origins must be known before
+# `vite build` runs.
 ARG VITE_API_URL
+ARG VITE_WEB_URL
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_WEB_URL=$VITE_WEB_URL
 RUN npm run build --workspace apps/admin
 
 FROM nginx:1.27-alpine AS runtime
