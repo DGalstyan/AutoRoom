@@ -68,7 +68,10 @@ export default async function ChinaPage({
         <ChinaFilters makeModels={makeModels} />
       </Section>
 
-      <Section tone="light">
+      {/* pt override: Figma has this grid sitting just 5px below the filter
+          bar above it, not the Section default's full 56/96px top rhythm —
+          bottom padding keeps that default since nothing here overrides it. */}
+      <Section tone="light" className="pt-[5px] sm:pt-[5px]">
         {cars.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {cars.map((car, index) => (
