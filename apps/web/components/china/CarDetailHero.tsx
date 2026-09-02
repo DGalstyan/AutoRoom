@@ -93,7 +93,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
               <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
                 {t.colorPicker.heading}
               </h2>
-              <div className="flex w-full items-center justify-between">
+              <div className="flex flex-wrap items-center gap-3">
                 {colors.map((color) => (
                   <button
                     key={color.name}
