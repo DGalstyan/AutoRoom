@@ -1,5 +1,7 @@
 import type {
+  Car,
   CarCondition,
+  CarInput,
   CarOrigin,
   CarStatusBadge,
   ImageAlbum,
@@ -72,4 +74,21 @@ export function slugify(input: string): string {
 export function formatMoney(amount: number | null | undefined, currency = '$') {
   if (amount === null || amount === undefined) return '—';
   return `${currency}${amount.toLocaleString('en-US')}`;
+}
+
+/**
+ * Strips the server-owned fields so a full `Car` can be sent back through
+ * `update`, which — unlike `setPartner`/`setPublished` — takes the whole
+ * record. Shared by every screen that patches one field of an already-loaded
+ * car (the list's featured toggle, the similar-cars picker) without routing
+ * the viewer through the full edit form.
+ */
+export function toCarInput(car: Car): CarInput {
+  const { id, publishedAt, images, createdAt, updatedAt, similarCars, ...input } = car;
+  void id;
+  void publishedAt;
+  void images;
+  void createdAt;
+  void updatedAt;
+  return { ...input, similarCarIds: similarCars.map((similar) => similar.id) };
 }
