@@ -1,4 +1,4 @@
-import type { Car } from '@/lib/types/car';
+import type { CarSummary } from '@/lib/types/car';
 import { CarCard } from '@/components/shared/CarCard';
 import { getServerMessages } from '@/lib/i18n';
 
@@ -11,7 +11,7 @@ import { getServerMessages } from '@/lib/i18n';
  * heading and a 48px grid gap, matching the other left-aligned S3.5/S3.6b
  * headings on this page (Figma node 102:332/102:334-335).
  */
-export async function SimilarOffers({ cars }: { cars: Car[] }) {
+export async function SimilarOffers({ cars }: { cars: CarSummary[] }) {
   if (cars.length === 0) return null;
   const { messages } = await getServerMessages();
   const t = messages.china.detail.similarOffers;

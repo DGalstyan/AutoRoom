@@ -72,6 +72,21 @@ const BLANK: CarInput = {
 };
 
 /**
+ * Scrolls the field with `id={`field-${key}`}` into view and focuses it —
+ * `key` is the dotted path the API reports (`colors.0.name`), matched to the
+ * id every error-bearing field in this form is given. Deferred to the next
+ * frame because the error just landed in state and the field re-renders
+ * (error styling, a helper-text line pushing layout down) in the same tick.
+ */
+function scrollToField(key: string) {
+  requestAnimationFrame(() => {
+    const field = document.getElementById(`field-${key}`);
+    field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    field?.focus();
+  });
+}
+
+/**
  * Create and edit one car.
  *
  * Images are their own endpoints — a file lands on `/uploads` the moment it is
@@ -196,8 +211,16 @@ export function CarFormPage() {
       if (creating) navigate(`/cars/${car.id}`, { replace: true });
     },
     onError: (error) => {
-      setFieldErrors(extractFieldErrors(error));
-      toast(errorMessage(error, 'Could not save.'), 'error');
+      const fields = extractFieldErrors(error);
+      setFieldErrors(fields);
+
+      // A field error already says exactly what's wrong, right where it's
+      // wrong — a "Request validation failed" banner on top of that repeats
+      // nothing useful. Only fall back to the toast when the failure has no
+      // field to sit on (a conflict, a 500, a dead network).
+      const [firstInvalidField] = Object.keys(fields);
+      if (firstInvalidField) scrollToField(firstInvalidField);
+      else toast(errorMessage(error, 'Could not save.'), 'error');
     },
   });
 
@@ -328,6 +351,7 @@ export function CarFormPage() {
         <Section title="Identity">
           <Grid>
             <TextField
+              id="field-make"
               label="Make"
               value={draft.make}
               onChange={(event) => set('make', event.target.value)}
@@ -337,6 +361,7 @@ export function CarFormPage() {
               required
             />
             <TextField
+              id="field-model"
               label="Model"
               value={draft.model}
               onChange={(event) => set('model', event.target.value)}
@@ -346,6 +371,7 @@ export function CarFormPage() {
               required
             />
             <TextField
+              id="field-year"
               label="Year"
               type="number"
               value={draft.year}
@@ -375,6 +401,7 @@ export function CarFormPage() {
               ))}
             </TextField>
             <TextField
+              id="field-slug"
               label="URL slug"
               value={draft.slug}
               onChange={(event) => {
@@ -460,6 +487,7 @@ export function CarFormPage() {
         <Section title="Pricing">
           <Grid>
             <TextField
+              id="field-price"
               label="Price (USD)"
               type="number"
               value={draft.price}
@@ -635,6 +663,7 @@ export function CarFormPage() {
             onChange={(colours) => set('colors', colours)}
             enabled={draft.condition === 'ON_ORDER'}
             readOnly={readOnly}
+            fieldErrors={fieldErrors}
           />
         </Section>
 
@@ -671,6 +700,7 @@ export function CarFormPage() {
             renderInput={(params) => (
               <TextField
                 {...params}
+                id="field-similarCarIds"
                 placeholder={
                   selectedSimilarCars.length === 0 ? 'Search by make or model…' : undefined
                 }

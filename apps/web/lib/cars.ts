@@ -13,7 +13,7 @@
  * (not a placeholder grid pretending to be real inventory) when empty.
  */
 
-import type { Car, CarCondition, CarOrigin } from '@/lib/types/car';
+import type { Car, CarCondition, CarOrigin, CarSummary } from '@/lib/types/car';
 
 interface PublicCarsResponse {
   items: Car[];
@@ -109,12 +109,17 @@ export async function getCarBySlug(slug: string): Promise<Car | null> {
 }
 
 /**
- * "Նմանատիպ առաջարկներ" — 3–4 cars of the same origin/powertrain in a similar
- * price band, current car excluded. A single unfiltered-by-price fetch (same
- * origin+powertrain) filtered and ranked by price distance client-side, since
- * the public list endpoint has no "closest price" sort of its own.
+ * "Նմանատիպ առաջարկներ" — an admin can hand-pick this car's `similarCars`
+ * from the car's edit form in the admin panel, in display order, up to 8.
+ * When they haven't (the common case), falls back to same-origin/powertrain
+ * cars ranked by closest price, current car excluded — a single
+ * unfiltered-by-price fetch filtered and ranked client-side, since the
+ * public list endpoint has no "closest price" sort of its own. Matches the
+ * admin form's own "leave empty to fall back to the automatic match" copy.
  */
-export async function listSimilarCars(car: Car, limit = 4): Promise<Car[]> {
+export async function listSimilarCars(car: Car, limit = 4): Promise<CarSummary[]> {
+  if (car.similarCars.length > 0) return car.similarCars.slice(0, limit);
+
   const { items } = await listCars({ origin: car.origin, take: 100 });
 
   return items

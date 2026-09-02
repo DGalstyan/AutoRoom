@@ -30,7 +30,9 @@ import {
   ORIGINS,
   ORIGIN_LABEL,
   formatMoney,
+  toCarInput,
 } from '@/pages/cars/carOptions';
+import { SimilarCarsDialog } from '@/pages/cars/SimilarCarsDialog';
 import { brand, mono } from '@/theme';
 
 type SortKey = NonNullable<CarListQuery['sort']>;
@@ -69,6 +71,7 @@ export function CarsPage() {
   const [menu, setMenu] = useState<{ anchor: HTMLElement; car: Car } | null>(null);
   const [deleting, setDeleting] = useState<Car | null>(null);
   const [assigning, setAssigning] = useState<Car | null>(null);
+  const [curatingSimilar, setCuratingSimilar] = useState<Car | null>(null);
 
   const canCreate = identity?.permissions.includes('cars:CREATE') ?? false;
   const canUpdate = identity?.permissions.includes('cars:UPDATE') ?? false;
@@ -122,7 +125,8 @@ export function CarsPage() {
   };
 
   const featureMutation = useMutation({
-    mutationFn: (car: Car) => api.cars.update(car.id, { ...toInput(car), featured: !car.featured }),
+    mutationFn: (car: Car) =>
+      api.cars.update(car.id, { ...toCarInput(car), featured: !car.featured }),
     onSuccess: (car) => {
       toast(car.featured ? `${car.make} ${car.model} is now featured.` : 'Removed from featured.');
       void refresh();
@@ -471,6 +475,17 @@ export function CarsPage() {
           </MenuItem>
         )}
 
+        {canUpdate && menu && (
+          <MenuItem
+            onClick={() => {
+              setCuratingSimilar(menu.car);
+              setMenu(null);
+            }}
+          >
+            Similar cars
+          </MenuItem>
+        )}
+
         {canPublish && menu && (
           <MenuItem
             onClick={() => {
@@ -508,6 +523,18 @@ export function CarsPage() {
         />
       )}
 
+      {curatingSimilar && (
+        <SimilarCarsDialog
+          car={curatingSimilar}
+          onClose={() => setCuratingSimilar(null)}
+          onDone={(message) => {
+            setCuratingSimilar(null);
+            toast(message);
+            refresh();
+          }}
+        />
+      )}
+
       <ConfirmDialog
         open={Boolean(deleting)}
         title="Delete this car?"
@@ -524,15 +551,4 @@ export function CarsPage() {
       />
     </Box>
   );
-}
-
-/** Strips the server-owned fields so a car can be sent back as an update. */
-function toInput(car: Car) {
-  const { id, publishedAt, images, createdAt, updatedAt, similarCars, ...input } = car;
-  void id;
-  void publishedAt;
-  void images;
-  void createdAt;
-  void updatedAt;
-  return { ...input, similarCarIds: similarCars.map((similar) => similar.id) };
 }

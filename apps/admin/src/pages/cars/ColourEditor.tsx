@@ -23,11 +23,14 @@ export function ColourEditor({
   onChange,
   enabled,
   readOnly,
+  fieldErrors = {},
 }: {
   colours: CarColour[];
   onChange: (colours: CarColour[]) => void;
   enabled: boolean;
   readOnly: boolean;
+  /** Server-side `colors.<index>.<field>` errors, keyed the way the API reports them. */
+  fieldErrors?: Record<string, string>;
 }) {
   if (!enabled) {
     return (
@@ -57,6 +60,9 @@ export function ColourEditor({
           readOnly={readOnly}
           onChange={(changes) => update(index, changes)}
           onRemove={() => onChange(colours.filter((_, i) => i !== index))}
+          fieldId={`colors.${index}`}
+          nameError={fieldErrors[`colors.${index}.name`]}
+          hexError={fieldErrors[`colors.${index}.hex`]}
         />
       ))}
 
@@ -80,11 +86,18 @@ function ColourRow({
   readOnly,
   onChange,
   onRemove,
+  fieldId,
+  nameError,
+  hexError,
 }: {
   colour: CarColour;
   readOnly: boolean;
   onChange: (changes: Partial<CarColour>) => void;
   onRemove: () => void;
+  /** This row's `colors.<index>` prefix — ids the Name/Hex fields as `field-<fieldId>.<key>`. */
+  fieldId: string;
+  nameError?: string;
+  hexError?: string;
 }) {
   const { api } = useAuth();
   const toast = useToast();
@@ -127,21 +140,25 @@ function ColourRow({
       </Box>
 
       <TextField
+        id={`field-${fieldId}.name`}
         label="Name"
         value={colour.name}
         onChange={(event) => onChange({ name: event.target.value })}
         disabled={readOnly}
         size="small"
+        error={Boolean(nameError)}
+        helperText={nameError}
         sx={{ flex: 1, minWidth: 140 }}
       />
 
       <TextField
+        id={`field-${fieldId}.hex`}
         label="Hex"
         value={colour.hex}
         onChange={(event) => onChange({ hex: event.target.value })}
         disabled={readOnly}
-        error={!validHex}
-        helperText={validHex ? undefined : 'e.g. #9FB8A6'}
+        error={!validHex || Boolean(hexError)}
+        helperText={hexError ?? (validHex ? undefined : 'e.g. #9FB8A6')}
         size="small"
         sx={{ width: 150 }}
         slotProps={{

@@ -76,10 +76,22 @@ export interface Car {
   priceJourney: PriceChip[];
   images: CarImage[];
 
+  /**
+   * Admin-curated "Նմանատիպ առաջարկներ" picks, in the order set on the car's
+   * edit form — empty when the admin hasn't chosen any, in which case
+   * `listSimilarCars` falls back to an automatic match. Never nests its own
+   * `similarCars` (the API strips that a level down to avoid unbounded
+   * recursion), hence the separate `CarSummary` type.
+   */
+  similarCars: CarSummary[];
+
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
+
+/** A `Car` as it appears inside another car's `similarCars` — everything but that field. */
+export type CarSummary = Omit<Car, 'similarCars'>;
 
 /** `finance.calculator` admin setting — drives `LoanCalculator`. */
 export interface FinanceCalculator {

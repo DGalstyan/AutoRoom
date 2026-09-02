@@ -40,6 +40,7 @@ export const MOCK_CARS: readonly Car[] = [
       { name: 'Սև', hex: '#0B0B0F' },
     ],
     priceJourney: [],
+    similarCars: [],
     images: [
       {
         id: 'mock-1-1',
@@ -84,6 +85,7 @@ export const MOCK_CARS: readonly Car[] = [
     featured: true,
     colors: [],
     priceJourney: [],
+    similarCars: [],
     images: [
       {
         id: 'mock-2-1',
@@ -131,6 +133,7 @@ export const MOCK_CARS: readonly Car[] = [
       { name: 'Կապույտ', hex: '#2F6BFF' },
     ],
     priceJourney: [],
+    similarCars: [],
     images: [
       {
         id: 'mock-3-1',
@@ -175,6 +178,7 @@ export const MOCK_CARS: readonly Car[] = [
     featured: true,
     colors: [],
     priceJourney: [],
+    similarCars: [],
     images: [],
     publishedAt: '2026-01-01T00:00:00.000Z',
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -215,6 +219,7 @@ export const MOCK_CARS: readonly Car[] = [
       { name: 'Սև', hex: '#0B0B0F' },
     ],
     priceJourney: [],
+    similarCars: [],
     images: [
       {
         id: 'mock-5-1',
