@@ -121,17 +121,23 @@ export default async function HomePage() {
       </Section>
 
       {/* S5 — AutoRoom Ecosystem: photo + overlapping glass list. Pixel-matched
-          to Figma node 2001:1750/2001:1753 (jH6kcLvNyo77Zeqk381hNJ): a
-          32px-radius photo with a bottom-heavy dark gradient (transparent to
-          89%-black), and a 32%-opacity white glass panel — not the ~85-90%
-          opaque card this used to be — positioned near the photo's top-right
-          rather than vertically centered, with a plain 12px-gap item list
-          (no dividers) at 20px/28px type. No visible heading in Figma — kept
-          as an sr-only heading for the a11y outline. */}
+          to Figma node 110:517/110:520 (9Lq4XpWusTJj1VnM6laAZr, verified via
+          get_design_context/get_metadata): a 32px-radius photo with a
+          bottom-heavy dark gradient (transparent to 89%-black), and a
+          32%-opacity white glass panel — not the ~85-90% opaque card this
+          used to be — positioned near the photo's top-right rather than
+          vertically centered, with a plain 12px-gap item list (no dividers)
+          at 20px/28px type. No visible heading in Figma — kept as an
+          sr-only heading for the a11y outline.
+          The photo (980px) is only 72.917% of Figma's 1344px content
+          column, not full-bleed — the panel's `right-0` is (and was
+          already) anchored to this whole wrapper, not the photo itself, so
+          shrinking the photo lets the panel sit mostly past its right edge
+          like Figma, instead of being capped flush with it. */}
       <Section tone="light">
         <h2 className="sr-only">{ecosystem.heading}</h2>
         <div className="relative overflow-visible rounded-[32px]">
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551]">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
             <Image
               src="/images/home/ecosystem-strip.jpg"
               alt="AutoRoom-ի մեքենան ճանապարհին"
