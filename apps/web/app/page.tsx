@@ -145,13 +145,21 @@ export default async function HomePage() {
             />
           </div>
           <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4">
-            <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
-              {ecosystem.items.map((item) => (
-                <li key={item} className="text-home-label font-normal leading-[28px] text-ink">
-                  {item.trim()}
-                </li>
+            {/* Two columns on desktop (Figma's "Frame 1597885879": row, 161px
+                gap) — a flat flex-col of both halves collapses back into one
+                column on mobile for free, since the outer gap matches each
+                half's own inner gap exactly. */}
+            <div className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md sm:flex-row sm:gap-[161px]">
+              {[ecosystem.items.slice(0, 4), ecosystem.items.slice(4)].map((column, index) => (
+                <ul key={index} className="flex flex-col gap-3">
+                  {column.map((item) => (
+                    <li key={item} className="text-home-label font-normal leading-[28px] text-ink">
+                      {item.trim()}
+                    </li>
+                  ))}
+                </ul>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </Section>
