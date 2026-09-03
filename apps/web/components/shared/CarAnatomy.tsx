@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { getServerMessages } from '@/lib/i18n';
 
 /**
- * "Ինչո՞ւ ընտրել AutoRoom-ը" — pixel-matched to Figma node `2001:1635`.
+ * "Ինչո՞ւ ընտրել AutoRoom-ը" — pixel-matched to Figma node `110:402`.
  * Every position/size below is taken directly from that node's own layout
  * data (percentages of the 971×555.437 photo, or literal px for anything
  * Figma sized in px) — not eyeballed:
@@ -50,7 +50,7 @@ export async function CarAnatomy() {
           ))}
         </div>
 
-        <dl className="flex flex-col gap-[64px]">
+        <dl className="flex flex-col gap-[60px]">
           {t.stats.map((stat) => (
             <div key={stat.label}>
               <dt className="sr-only">{stat.label}</dt>
@@ -85,7 +85,9 @@ function Hotspot({ text, left, top, width, height }: HotspotProps) {
   return (
     <div className="absolute" style={{ left, top, width, height }}>
       <div className="flex h-full items-center justify-center rounded-[72.323px] bg-white/80 px-[17.357px] py-[11.572px] text-center shadow-card">
-        <p className="text-[11.572px] font-medium leading-[14.465px] text-ink">{text}</p>
+        <p className="font-display text-[11.572px] font-medium leading-[14.465px] text-ink">
+          {text}
+        </p>
       </div>
     </div>
   );
