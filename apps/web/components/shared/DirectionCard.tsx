@@ -6,18 +6,26 @@ interface DirectionCardProps {
   title: string;
   image: string;
   imageAlt: string;
+  /** Figma's two cards aren't identically shaped (597/258 for ԱՄՆ, 588/264 for Չինաստան) — defaults to the ԱՄՆ ratio. */
+  imageAspect?: string;
 }
 
 /**
  * Homepage hero direction picker card ("ԱՄՆ" / "Չինաստան") — white rounded
  * card, title + circular arrow top, car render bottom. Matches Figma node
- * `9321:6266` ("Country" instances).
+ * `110:515`/`110:516` ("Country" instances, verified via get_design_context).
  */
-export function DirectionCard({ href, title, image, imageAlt }: DirectionCardProps) {
+export function DirectionCard({
+  href,
+  title,
+  image,
+  imageAlt,
+  imageAspect = '597/258',
+}: DirectionCardProps) {
   return (
     <Link
       href={href}
-      className="group flex flex-col justify-between rounded-xl bg-white p-6 shadow-card transition-transform duration-standard ease-expo hover:-translate-y-1 sm:p-8"
+      className="group flex flex-col justify-between rounded-[48px] bg-white p-6 shadow-card transition-transform duration-standard ease-expo hover:-translate-y-1 sm:p-8"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="font-display text-home-card-title font-bold text-neutral-800">
@@ -25,12 +33,12 @@ export function DirectionCard({ href, title, image, imageAlt }: DirectionCardPro
         </span>
         <span
           aria-hidden="true"
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-pill bg-surface-light text-ink transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
+          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-pill bg-surface-light text-ink transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
         >
           <ArrowGlyph />
         </span>
       </div>
-      <div className="relative mt-6 aspect-[597/258] w-full">
+      <div className="relative mt-6 w-full" style={{ aspectRatio: imageAspect }}>
         <Image
           src={image}
           alt={imageAlt}
