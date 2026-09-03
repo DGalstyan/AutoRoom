@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * Founder storytelling video (≤1.5 min). Figma (node `9321:6212`) shows a
+ * Founder storytelling video (≤1.5 min). Figma (node `110:459`) shows a
  * full embed-style player chrome (title overlay, scrubber, time, volume,
  * fullscreen…) around a real poster frame — we keep the poster + a single
  * accessible play affordance and let the browser's native `<video>` controls
@@ -35,7 +35,7 @@ export function FounderVideo() {
               className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/40"
               aria-hidden="true"
             />
-            <p className="absolute left-4 top-4 max-w-[80%] font-display text-lead font-normal text-white sm:left-8 sm:top-8 sm:text-h3">
+            <p className="absolute left-4 top-4 max-w-[80%] font-display text-lead font-normal text-white sm:left-8 sm:top-14 sm:text-[29.4px] sm:leading-[1.3]">
               {t.heading}
             </p>
             <button
