@@ -4,11 +4,17 @@ import { getServerMessages } from '@/lib/i18n';
 /**
  * China S4b — "Ինչո՞ւ Չինաստանից պատվիրել AutoRoom-ի միջոցով": a light
  * section (heading + photo/glass-panel checklist, same treatment as the
- * Homepage Ecosystem section — Figma node 101:437/101:440) followed by a
- * full-bleed dark numbered 01–05 feature list (node 101:450, `w-full` at the
- * page's own width in Figma, not container-constrained). Manages its own
- * section wrappers rather than being dropped inside `<Section>`, since the
- * second half deliberately breaks out of the page's usual 1280px column.
+ * Homepage Ecosystem section — Figma node 101:437/101:440, verified via
+ * get_metadata) followed by a full-bleed dark numbered 01–05 feature list
+ * (node 101:450, `w-full` at the page's own width in Figma, not
+ * container-constrained). Manages its own section wrappers rather than
+ * being dropped inside `<Section>`, since the second half deliberately
+ * breaks out of the page's usual 1280px column.
+ * The photo (980px) is only 72.917% of Figma's 1344px content column, not
+ * full-bleed — same fix as the Homepage ecosystem panel (110:517/110:520):
+ * the glass panel's `right-0` is anchored to this whole wrapper, not the
+ * photo itself, so shrinking the photo lets the panel sit mostly past its
+ * right edge instead of being capped flush with it.
  */
 export async function ChinaWhyOrder() {
   const { messages } = await getServerMessages();
@@ -21,7 +27,7 @@ export async function ChinaWhyOrder() {
           <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
 
           <div className="relative overflow-visible rounded-[32px]">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551]">
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
               <Image
                 src="/images/china/ecosystem-strip.jpg"
                 alt=""
