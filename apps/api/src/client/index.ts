@@ -48,6 +48,8 @@ import type {
   SettingKey,
   SettingRecord,
   SettingValues,
+  TeamMember,
+  TeamMemberInput,
   UploadResponse,
   UpdateUserRequest,
   UserListResponse,
@@ -360,6 +362,20 @@ export function createApiClient(options: ApiClientOptions) {
       /** Unauthenticated — the China/USA financing sections read this. */
       public: (init?: RequestOptions) =>
         request<{ items: Bank[]; total: number }>('GET', '/public/banks', init),
+    },
+
+    /** The "Մեր թիմը" grid on the About page. */
+    team: {
+      list: (init?: RequestOptions) =>
+        request<{ items: TeamMember[]; total: number }>('GET', '/team', init),
+      create: (body: TeamMemberInput, init?: RequestOptions) =>
+        request<TeamMember>('POST', '/team', { ...init, body }),
+      update: (id: string, body: TeamMemberInput, init?: RequestOptions) =>
+        request<TeamMember>('PUT', `/team/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/team/${id}`, init),
+      /** Unauthenticated — the About page's team section reads this. */
+      public: (init?: RequestOptions) =>
+        request<{ items: TeamMember[]; total: number }>('GET', '/public/team', init),
     },
 
     /** Homepage S9 and the China/USA page sections. */

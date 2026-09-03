@@ -422,6 +422,17 @@ export interface Bank {
 
 export type BankInput = Omit<Bank, 'id'>;
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  title: string;
+  photoUrl: string | null;
+  linkedinUrl: string | null;
+  position: number;
+}
+
+export type TeamMemberInput = Omit<TeamMember, 'id'>;
+
 /* ------------------------------------ faq ----------------------------------- */
 
 /**
