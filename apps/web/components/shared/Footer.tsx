@@ -17,7 +17,7 @@ const FOOTER_LINKS: { key: keyof Messages['common']['nav']; href: string }[] = [
   { key: 'contact', href: '/contact' },
 ];
 
-// Figma's Homepage footer (node `9321:6288`) only shows socials + contact +
+// Figma's Homepage footer (node `110:536`) only shows socials + contact +
 // a big "let's talk" CTA — no nav/branch columns, matching an agency-template
 // footer rather than AutoRoom-authored content. Site nav + branch addresses
 // are still surfaced below (smaller, secondary) since Footer is global and
@@ -56,7 +56,7 @@ export async function Footer({
   const phone = general.phones[0] ?? null;
   const socialLinks = SOCIAL_LABELS.filter(({ key }) => social[key]);
   return (
-    <footer className="bg-bg text-white">
+    <footer className="border-t border-white/10 bg-bg text-white">
       <div className="mx-auto max-w-container px-4 pb-16 pt-16 sm:px-6 sm:pt-20">
         <div className="flex flex-col justify-between gap-12 sm:flex-row sm:items-start">
           <Link href="/" aria-label={nav.home} className="inline-block">

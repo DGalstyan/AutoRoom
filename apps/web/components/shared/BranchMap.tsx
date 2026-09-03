@@ -27,7 +27,7 @@ export function BranchMap() {
     <div>
       <ArmeniaMap activeId={activeId} onSelect={setActiveId} />
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-12 flex justify-center">
         <a
           href={`#${listId}`}
           className="inline-flex min-h-11 items-center justify-center rounded-pill bg-white/10 px-7 py-3 text-home-label font-normal text-white transition-colors duration-standard hover:bg-white/20"

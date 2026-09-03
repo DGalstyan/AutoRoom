@@ -7,7 +7,7 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 export interface FaqProps {
   items: readonly FaqItem[];
   heading?: string;
-  /** Figma's Homepage FAQ (node `9321:6655`) has no visible heading above the
+  /** Figma's Homepage FAQ (node `110:503`) has no visible heading above the
    * accordion — pass `hideHeading` there and keep a real `h2` for the a11y
    * outline (and for pages that DO want the heading shown, e.g. a dedicated
    * FAQ/Contact section, this defaults to visible). */
@@ -25,7 +25,7 @@ export function Faq({ items, heading, hideHeading = false }: FaqProps) {
       <h2 className={hideHeading ? 'sr-only' : 'font-display text-home-h2 font-light text-ink'}>
         {heading ?? t.heading}
       </h2>
-      <div className={`mx-auto max-w-3xl space-y-3 ${hideHeading ? '' : 'mt-8'}`}>
+      <div className={`mx-auto max-w-3xl space-y-4 ${hideHeading ? '' : 'mt-8'}`}>
         {items.map((item, index) => {
           const isOpen = openIndex === index;
           const buttonId = `${baseId}-q-${index}`;
@@ -39,12 +39,12 @@ export function Faq({ items, heading, hideHeading = false }: FaqProps) {
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="flex min-h-11 w-full items-center justify-between gap-4 px-5 py-4 text-left text-home-label font-normal text-ink sm:px-6"
+                  className="flex min-h-11 w-full items-center justify-between gap-4 px-5 py-4 text-left text-[16px] font-medium leading-[20px] text-ink sm:px-6"
                 >
                   <span>{item.q}</span>
                   <span
                     aria-hidden="true"
-                    className={`shrink-0 text-accent transition-transform duration-standard ease-expo ${
+                    className={`shrink-0 text-neutral-800 transition-transform duration-standard ease-expo ${
                       isOpen ? '-rotate-180' : ''
                     }`}
                   >

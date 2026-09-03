@@ -9,8 +9,10 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 /**
  * Video wall — grid of real portrait stills (real 60–90s videos pending from
  * the content team; see `lib/data/mockStories.ts`). Matches Figma's 4x2
- * grid (node `9321:6185`), which carries no visible section heading — kept
- * as an sr-only `h2` for the a11y outline.
+ * grid (node `110:432`, verified via get_design_context: cards are
+ * edge-to-edge with square corners, and the play icon is 122px, not a
+ * smaller pill), which carries no visible section heading — kept as an
+ * sr-only `h2` for the a11y outline.
  */
 export function CustomerStoryWall() {
   const t = useMessages().home.stories;
@@ -20,13 +22,13 @@ export function CustomerStoryWall() {
     <div>
       <h2 className="sr-only">{t.heading}</h2>
 
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-0 md:grid-cols-4">
         {MOCK_STORIES.map((story, index) => (
           <button
             key={story.id}
             type="button"
             onClick={() => setActive(story)}
-            className="group relative aspect-[336/502] w-full overflow-hidden rounded-xl transition-transform duration-standard ease-expo hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="group relative aspect-[336/502] w-full overflow-hidden transition-transform duration-standard ease-expo hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <Image
               src={story.image}
@@ -42,9 +44,9 @@ export function CustomerStoryWall() {
             />
             <span
               aria-hidden="true"
-              className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-white/20 text-white backdrop-blur transition-transform duration-standard group-hover:scale-110"
+              className="absolute left-1/2 top-1/2 flex h-[122px] w-[122px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-white/20 text-white backdrop-blur transition-transform duration-standard group-hover:scale-110"
             >
-              <PlayGlyph />
+              <PlayGlyph size={36} />
             </span>
             <span className="sr-only">
               {story.customerName} — {story.car}, {t.playLabel}

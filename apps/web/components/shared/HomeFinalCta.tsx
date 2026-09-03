@@ -18,7 +18,7 @@ export function HomeFinalCta() {
         <button
           type="button"
           onClick={() => openQuiz({ sourceCta: 'home-s10-final-cta' })}
-          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-pill bg-accent px-8 py-4 text-home-label font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-pill border border-white/20 bg-transparent px-8 py-4 text-home-label font-normal text-white transition-colors duration-standard ease-expo hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           {t.cta}
         </button>
