@@ -43,6 +43,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Branches', to: '/branches', permission: 'branches:READ' },
       { label: 'Banks', to: '/banks', permission: 'banks:READ' },
       { label: 'FAQ', to: '/faq', permission: 'faq:READ' },
+      { label: 'Team', to: '/team', permission: 'team:READ' },
     ],
   },
   {

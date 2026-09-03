@@ -20,6 +20,7 @@ import { BranchesPage } from '@/pages/BranchesPage';
 import { BanksPage } from '@/pages/BanksPage';
 import { FaqPage } from '@/pages/FaqPage';
 import { StoriesPage } from '@/pages/StoriesPage';
+import { TeamPage } from '@/pages/TeamPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,6 +63,7 @@ export function App() {
                     <Route path="/banks" element={<BanksPage />} />
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/stories" element={<StoriesPage />} />
+                    <Route path="/team" element={<TeamPage />} />
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/roles" element={<RolesPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
