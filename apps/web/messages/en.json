@@ -436,5 +436,14 @@
         "heading": "Similar offers"
       }
     }
+  },
+  "about": {
+    "meta": {
+      "title": "About us — AutoRoom",
+      "description": "AutoRoom's story, team and mission — safe, transparent car imports from the USA, China and Europe."
+    },
+    "team": {
+      "heading": "Our Team"
+    }
   }
 }
