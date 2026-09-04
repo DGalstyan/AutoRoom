@@ -33,4 +33,11 @@ EXPOSE 4000
 # `migrate deploy` applies committed migrations and fails on drift — the same
 # command CI proves against an empty database. Safe to re-run on every
 # restart: it is a no-op once the schema is up to date.
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+#
+# `db:seed` is equally safe to re-run — every write in prisma/seed.ts is an
+# upsert or an existence check (roles, settings, branches, banks, team, FAQ;
+# `seedSuperAdmin` explicitly leaves an existing account's password
+# untouched). Deliberately does NOT touch `cars` — that table already holds
+# real, admin-entered inventory in production, and a seed script has no
+# business injecting synthetic listings into it.
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run db:seed && node dist/server.js"]
