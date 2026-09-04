@@ -154,6 +154,18 @@ const BANKS = [
   { name: 'AutoRoom', loanUrl: null, inHouse: true },
 ];
 
+// TODO(client): real names, titles and photos for the About page's "Մեր
+// թիմը" grid — placeholder names/titles only, same convention as Figma's own
+// mock content for this card (a stock photo + a plausible name). No photo is
+// seeded (none exist yet); the admin panel's "missing photo" warning already
+// flags this until a real one is uploaded.
+const TEAM_MEMBERS = [
+  { name: 'Դավիթ Պետրոսյան', title: 'CEO' },
+  { name: 'Անի Սարգսյան', title: 'COO' },
+  { name: 'Արամ Հակոբյան', title: 'Head of Logistics' },
+  { name: 'Լիլիթ Ղազարյան', title: 'Customer Success' },
+];
+
 /**
  * FAQ, transcribed from `references/faq.md`.
  *
@@ -346,6 +358,25 @@ async function seedBranchesAndBanks() {
 }
 
 /**
+ * Matched on name, same as branches — there is no unique constraint on
+ * `TeamMember.name` (two people can share one), but this seed list only
+ * ever contains one of each, so `findFirst` is enough to keep re-running
+ * idempotent without clobbering a photo an admin has since uploaded.
+ */
+async function seedTeam() {
+  for (const [index, member] of TEAM_MEMBERS.entries()) {
+    const existing = await prisma.teamMember.findFirst({ where: { name: member.name } });
+    if (existing) {
+      await prisma.teamMember.update({ where: { id: existing.id }, data: { position: index } });
+    } else {
+      await prisma.teamMember.create({ data: { ...member, position: index } });
+    }
+  }
+
+  console.log(`  team: ${TEAM_MEMBERS.length}`);
+}
+
+/**
  * Matched on the question text, since that is what identifies an entry before
  * it has an id anywhere. Existing rows keep their answer and publish state —
  * re-running the seed must never unpublish something an editor wrote.
@@ -407,6 +438,7 @@ async function main() {
   await seedSuperAdmin();
   await seedSettings();
   await seedBranchesAndBanks();
+  await seedTeam();
   await seedFaq();
 
   await prisma.auditLog.create({

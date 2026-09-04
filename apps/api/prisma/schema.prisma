@@ -349,6 +349,23 @@ model Bank {
   @@map("banks")
 }
 
+/// The "Մեր թիմը" grid on the About page — one card per person, `position`
+/// controls display order. `linkedinUrl` is optional per the Figma card,
+/// which only shows the icon for people who have one.
+model TeamMember {
+  id          String  @id @default(cuid())
+  name        String
+  title       String
+  photoUrl    String?
+  linkedinUrl String?
+  position    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("team_members")
+}
+
 /**
  * ------------------------------- catalogue (B1) ------------------------------
  */

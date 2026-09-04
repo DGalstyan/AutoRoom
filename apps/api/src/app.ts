@@ -14,6 +14,7 @@ import { mediaRouter } from './routes/media';
 import { partnersRouter } from './routes/partners';
 import { rolesRouter } from './routes/roles';
 import { settingsRouter } from './routes/settings';
+import { teamRouter } from './routes/team';
 import { uploadsRouter, UPLOAD_DIR } from './routes/uploads';
 import { usersRouter } from './routes/users';
 import { errorHandler, notFoundHandler } from './middleware/error';
@@ -72,6 +73,7 @@ export function createApp(): Express {
   app.use(partnersRouter);
   app.use(rolesRouter);
   app.use(settingsRouter);
+  app.use(teamRouter);
   app.use(uploadsRouter);
   app.use(usersRouter);
 
