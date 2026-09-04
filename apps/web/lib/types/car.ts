@@ -63,6 +63,8 @@ export interface Car {
   price: number;
   oldPrice?: number | null;
   estFinalPriceAM?: number | null;
+  /** Set alongside `oldPrice` to run this car as a time-limited "Ակցիա" on /offers. */
+  promoDeadline?: string | null;
 
   condition: CarCondition;
   statusBadge?: CarStatusBadge | null;

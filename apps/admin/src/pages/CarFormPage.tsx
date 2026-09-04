@@ -66,6 +66,7 @@ const BLANK: CarInput = {
   price: 0,
   oldPrice: null,
   estFinalPriceAM: null,
+  promoDeadline: null,
   condition: 'ON_ORDER',
   statusBadge: null,
   deliveryEtaDays: null,
@@ -92,6 +93,14 @@ function scrollToField(key: string) {
     field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     field?.focus();
   });
+}
+
+/** ISO string → the local, second-less format `<input type="datetime-local">` expects. */
+function toDatetimeLocal(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 /**
@@ -535,6 +544,20 @@ export function CarFormPage() {
                 set('estFinalPriceAM', event.target.value ? Number(event.target.value) : null)
               }
               disabled={readOnly}
+            />
+            <TextField
+              label="Promo deadline"
+              type="datetime-local"
+              value={toDatetimeLocal(draft.promoDeadline)}
+              onChange={(event) =>
+                set(
+                  'promoDeadline',
+                  event.target.value ? new Date(event.target.value).toISOString() : null,
+                )
+              }
+              disabled={readOnly}
+              slotProps={{ inputLabel: { shrink: true } }}
+              helperText="With old price above, runs this car as a countdown “Ակցիա” on /offers until this moment, then a grayscale “Ավարտված” card."
             />
           </Grid>
 
