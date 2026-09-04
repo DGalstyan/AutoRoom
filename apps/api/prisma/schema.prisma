@@ -441,6 +441,12 @@ model Car {
   oldPrice        Int?
   /// Estimated final price delivered in Armenia.
   estFinalPriceAM Int?
+  /// Set alongside `oldPrice` to run this car as a time-limited "Ակցիա" on
+  /// the /offers page — a countdown while in the future, a grayscale
+  /// "Ավարտված" card once past. Null means this car is never a promotion,
+  /// regardless of `oldPrice` (a struck-through price with no deadline is
+  /// just a permanent discount, not a promo).
+  promoDeadline   DateTime?
 
   condition          CarCondition
   statusBadge        CarStatusBadge?

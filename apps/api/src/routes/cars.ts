@@ -90,6 +90,7 @@ const carBodySchema = z.object({
   price: z.number().int().min(0),
   oldPrice: z.number().int().min(0).nullish(),
   estFinalPriceAM: z.number().int().min(0).nullish(),
+  promoDeadline: z.string().datetime({ offset: true }).or(z.string().datetime()).nullish(),
 
   condition: z.nativeEnum(CarCondition),
   statusBadge: z.nativeEnum(CarStatusBadge).nullish(),
@@ -637,6 +638,7 @@ function serializeCarBase(car: Omit<CarRow, 'similarAsSource'>) {
     publishedAt: car.publishedAt?.toISOString() ?? null,
     createdAt: car.createdAt.toISOString(),
     updatedAt: car.updatedAt.toISOString(),
+    promoDeadline: car.promoDeadline?.toISOString() ?? null,
     images: car.images.map(serializeImage),
   };
 }
