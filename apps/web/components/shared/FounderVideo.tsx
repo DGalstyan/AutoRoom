@@ -12,14 +12,20 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * take over once playing, rather than hand-rolling a fragile custom YouTube
  * chrome. No real video file has been delivered yet (see report), so playing
  * currently reveals a stand-in; swapping in the real asset is a one-line change.
+ *
+ * `heading` overrides the overlay title only — About reuses this component
+ * (Figma node `123:401`, file `9Lq4XpWusTJj1VnM6laAZr`) with its own
+ * "Ինչպես սկսվեց AutoRoom-ը" wording instead of Homepage's phrasing, same
+ * video treatment otherwise.
  */
-export function FounderVideo() {
+export function FounderVideo({ heading }: { heading?: string } = {}) {
   const t = useMessages().home.founder;
   const [playing, setPlaying] = useState(false);
+  const displayHeading = heading ?? t.heading;
 
   return (
     <div>
-      <h2 className="sr-only">{t.heading}</h2>
+      <h2 className="sr-only">{displayHeading}</h2>
       <div className="relative mx-auto aspect-video w-full overflow-hidden rounded-xl bg-bg shadow-card">
         <Image
           src="/images/home/founder-poster.jpg"
@@ -36,7 +42,7 @@ export function FounderVideo() {
               aria-hidden="true"
             />
             <p className="absolute left-4 top-4 max-w-[80%] font-display text-lead font-normal text-white sm:left-8 sm:top-14 sm:text-[29.4px] sm:leading-[1.3]">
-              {t.heading}
+              {displayHeading}
             </p>
             <button
               type="button"
