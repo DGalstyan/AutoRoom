@@ -129,6 +129,27 @@ export async function listSimilarCars(car: Car, limit = 4): Promise<CarSummary[]
 }
 
 /**
+ * "Ընթացիկ ակցիաներ" — the /offers page's promotions grid: every published
+ * car an admin has given both an `oldPrice` and a `promoDeadline` (either
+ * still ahead, rendered as an "Ակցիա" countdown card, or already past,
+ * rendered grayscale — `CarCard` itself decides which from `promoDeadline`).
+ * Origin-agnostic by design (across China and USA both) — a single
+ * unfiltered-by-origin fetch, since there is no dedicated "has a promo"
+ * query param on the public list endpoint and the catalogue is small enough
+ * that filtering client-side, same as `listSimilarCars`, is the simplest fit.
+ * Sorted soonest-deadline-first so an about-to-expire deal surfaces before a
+ * newer one with more time left.
+ */
+export async function listPromoCars(limit = 8): Promise<Car[]> {
+  const { items } = await listCars({ take: 100 });
+
+  return items
+    .filter((car) => car.oldPrice != null && car.oldPrice > car.price && car.promoDeadline)
+    .sort((a, b) => new Date(a.promoDeadline!).getTime() - new Date(b.promoDeadline!).getTime())
+    .slice(0, limit);
+}
+
+/**
  * The full make → model set for one origin, used to populate the `Մակնիշ`/
  * `Մոդել` filter dropdowns from what is actually in stock rather than a
  * hardcoded brand list — an admin adding a new make shows up here with no

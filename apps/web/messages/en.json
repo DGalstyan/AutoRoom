@@ -317,7 +317,9 @@
         "ON_ROAD": "On the road",
         "AUCTION": "At auction"
       },
-      "financingAvailable": "Financing available"
+      "financingAvailable": "Financing available",
+      "promo": "Deal",
+      "promoEnded": "Ended"
     },
     "empty": "No cars match these filters yet.",
     "financing": {
@@ -444,6 +446,27 @@
     },
     "team": {
       "heading": "Our Team"
+    }
+  },
+  "offers": {
+    "meta": {
+      "title": "Special Offers — AutoRoom",
+      "description": "This week's best deals and current promotions from AutoRoom — cars from the USA, China and Europe."
+    },
+    "featured": {
+      "heading": "This week's best deals"
+    },
+    "promotions": {
+      "heading": "Current Promotions",
+      "tabCurrent": "Current",
+      "tabPast": "Past",
+      "emptyCurrent": "No active promotions right now.",
+      "emptyPast": "No finished promotions yet."
+    },
+    "finalCta": {
+      "heading": "Couldn't find a deal that fits?",
+      "text": "Leave your details",
+      "cta": "Submit"
     }
   }
 }
