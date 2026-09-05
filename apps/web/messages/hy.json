@@ -468,5 +468,52 @@
       "text": "Թող տվյալներդ",
       "cta": "Լրացնել"
     }
+  },
+  "contact": {
+    "meta": {
+      "title": "Կապ մեզ հետ — AutoRoom",
+      "description": "Զանգահարեք, գրեք կամ այցելեք մեր մասնաճյուղերից որևէ մեկը՝ Երևանում, Արմավիրում կամ Էջմիածնում։"
+    },
+    "heading": "Կոնտակտներ և կապի ձև",
+    "info": {
+      "hoursLabel": "Աշխատանքային ժամեր",
+      "followUs": "Հետևեք մեզ"
+    },
+    "form": {
+      "nameLabel": "Անուն",
+      "namePlaceholder": "Պողոս Պողոսյան",
+      "emailLabel": "Էլ. հասցե",
+      "emailPlaceholder": "example@email.com",
+      "phoneLabel": "Հեռախոսահամար",
+      "topicLabel": "Թեմա",
+      "topicPlaceholder": "Ընտրիր թեման",
+      "topicOptions": {
+        "usa": "Մեքենա ԱՄՆ-ից",
+        "china": "Մեքենա Չինաստանից",
+        "machinery": "Շինտեխնիկա",
+        "financing": "Ֆինանսավորում",
+        "partnership": "Գործընկերություն",
+        "other": "Այլ"
+      },
+      "commentLabel": "Մեկնաբանություն",
+      "commentPlaceholder": "Գրիր մի քանի խոսք քո հարցի մասին",
+      "submit": "Ուղարկել",
+      "sending": "Ուղարկվում է…",
+      "successHeading": "Ուղարկված է",
+      "successTemplate": "Շնորհակալություն, {name}։ Կկապվենք քեզ հետ շուտով",
+      "errors": {
+        "nameRequired": "Խնդրում ենք նշել անունը",
+        "phoneInvalid": "Խնդրում ենք նշել վավեր հեռախոսահամար",
+        "emailInvalid": "Խնդրում ենք նշել վավեր էլ. հասցե"
+      }
+    },
+    "branches": {
+      "heading": "Մասնաճյուղեր",
+      "hoursPrefix": "Աշխ. ժամեր",
+      "cta": "Ուղղություն"
+    },
+    "faq": {
+      "seeAll": "Տես բոլոր հարցերը"
+    }
   }
 }

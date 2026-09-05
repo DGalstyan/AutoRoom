@@ -7,7 +7,11 @@ import { getMessagesForLocale } from '@/lib/i18n';
 const messages = getMessagesForLocale('hy');
 
 const FILLED_CONTACTS = {
-  general: { email: 'hello@autoroom.co', phones: ['+374 94 077757', '+374 77 838750'] },
+  general: {
+    email: 'hello@autoroom.co',
+    phones: ['+374 94 077757', '+374 77 838750'],
+    workingHours: '10:00–22:00',
+  },
   social: {
     facebook: 'https://facebook.com/autoroom',
     instagram: 'https://instagram.com/autoroom',

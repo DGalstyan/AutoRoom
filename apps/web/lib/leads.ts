@@ -22,6 +22,13 @@ export interface LeadCarContext {
 export interface LeadAnswers {
   name: string;
   phone: string;
+  /** Contact page's static form only — not asked anywhere else. */
+  email?: string;
+  /** Contact page's static form's "Թեմա" dropdown — a free-form topic label,
+   * distinct from `interest` (Universal popup's fixed chip set) since it
+   * covers options `interest` doesn't (Շինտեխնիկա, Ֆինանսավորում,
+   * Գործընկերություն, Այլ). */
+  topic?: string;
   interest?: LeadInterest;
   budget?: LeadBudget;
   financing?: LeadFinancing;

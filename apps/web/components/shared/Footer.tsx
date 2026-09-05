@@ -41,7 +41,7 @@ interface FooterProps {
   contacts?: { general: GeneralContacts; social: SocialLinks };
 }
 
-const NO_CONTACTS: GeneralContacts = { email: null, phones: [] };
+const NO_CONTACTS: GeneralContacts = { email: null, phones: [], workingHours: null };
 const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
 
 export async function Footer({

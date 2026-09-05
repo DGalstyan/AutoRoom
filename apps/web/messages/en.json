@@ -468,5 +468,52 @@
       "text": "Leave your details",
       "cta": "Submit"
     }
+  },
+  "contact": {
+    "meta": {
+      "title": "Contact us — AutoRoom",
+      "description": "Call, message, or visit one of our branches in Yerevan, Armavir, or Ejmiatsin."
+    },
+    "heading": "Contacts and contact form",
+    "info": {
+      "hoursLabel": "Working hours",
+      "followUs": "Follow us"
+    },
+    "form": {
+      "nameLabel": "Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "example@email.com",
+      "phoneLabel": "Phone number",
+      "topicLabel": "Topic",
+      "topicPlaceholder": "Choose a topic",
+      "topicOptions": {
+        "usa": "Car from the USA",
+        "china": "Car from China",
+        "machinery": "Construction machinery",
+        "financing": "Financing",
+        "partnership": "Partnership",
+        "other": "Other"
+      },
+      "commentLabel": "Comment",
+      "commentPlaceholder": "Tell us a bit about your question",
+      "submit": "Send",
+      "sending": "Sending…",
+      "successHeading": "Sent",
+      "successTemplate": "Thank you, {name}. We'll be in touch soon",
+      "errors": {
+        "nameRequired": "Please enter your name",
+        "phoneInvalid": "Please enter a valid phone number",
+        "emailInvalid": "Please enter a valid email address"
+      }
+    },
+    "branches": {
+      "heading": "Branches",
+      "hoursPrefix": "Hours",
+      "cta": "Directions"
+    },
+    "faq": {
+      "seeAll": "See all questions"
+    }
   }
 }

@@ -471,5 +471,52 @@
       "text": "Оставьте свои данные",
       "cta": "Отправить"
     }
+  },
+  "contact": {
+    "meta": {
+      "title": "Связаться с нами — AutoRoom",
+      "description": "Позвоните, напишите или посетите один из наших филиалов — в Ереване, Армавире или Эчмиадзине."
+    },
+    "heading": "Контакты и форма связи",
+    "info": {
+      "hoursLabel": "Часы работы",
+      "followUs": "Подписывайтесь на нас"
+    },
+    "form": {
+      "nameLabel": "Имя",
+      "namePlaceholder": "Иван Иванов",
+      "emailLabel": "Эл. почта",
+      "emailPlaceholder": "example@email.com",
+      "phoneLabel": "Номер телефона",
+      "topicLabel": "Тема",
+      "topicPlaceholder": "Выберите тему",
+      "topicOptions": {
+        "usa": "Автомобиль из США",
+        "china": "Автомобиль из Китая",
+        "machinery": "Спецтехника",
+        "financing": "Финансирование",
+        "partnership": "Партнёрство",
+        "other": "Другое"
+      },
+      "commentLabel": "Комментарий",
+      "commentPlaceholder": "Расскажите немного о своём вопросе",
+      "submit": "Отправить",
+      "sending": "Отправка…",
+      "successHeading": "Отправлено",
+      "successTemplate": "Спасибо, {name}. Мы скоро свяжемся с вами",
+      "errors": {
+        "nameRequired": "Пожалуйста, укажите имя",
+        "phoneInvalid": "Пожалуйста, укажите корректный номер телефона",
+        "emailInvalid": "Пожалуйста, укажите корректный адрес эл. почты"
+      }
+    },
+    "branches": {
+      "heading": "Филиалы",
+      "hoursPrefix": "Часы работы",
+      "cta": "Маршрут"
+    },
+    "faq": {
+      "seeAll": "Смотреть все вопросы"
+    }
   }
 }

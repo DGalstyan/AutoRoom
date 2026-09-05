@@ -192,8 +192,10 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      {/* S9 — FAQ (admin-managed, GENERAL topic — see lib/faq.ts) */}
-      <Section tone="light">
+      {/* S9 — FAQ (admin-managed, GENERAL topic — see lib/faq.ts). `id="faq"`
+          is the anchor Contact's `ContactFaq` "Տես բոլոր հարցերը" link
+          points at (`/#faq`). */}
+      <Section id="faq" tone="light">
         <HomeFaq />
       </Section>
 

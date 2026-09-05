@@ -11,11 +11,17 @@
  * Never throws: an unreachable API or a setting nobody has filled in yet
  * both resolve to null/empty, and callers should render nothing for that
  * field (not a hardcoded placeholder) when empty.
+ *
+ * `workingHours` was already coming back from `/settings/public` but never
+ * made it past `PublicSettingsResponse` — added to `GeneralContacts` because
+ * the Contact page's S1 needs it (`references/pages.md` "8. Contact" S1:
+ * "working hours" alongside phone/email/socials).
  */
 
 export interface GeneralContacts {
   email: string | null;
   phones: string[];
+  workingHours: string | null;
 }
 
 export interface SocialLinks {
@@ -30,7 +36,7 @@ interface PublicSettingsResponse {
   'contacts.social'?: SocialLinks;
 }
 
-const NO_CONTACTS: GeneralContacts = { email: null, phones: [] };
+const NO_CONTACTS: GeneralContacts = { email: null, phones: [], workingHours: null };
 const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
 
 export async function getContacts(): Promise<{ general: GeneralContacts; social: SocialLinks }> {
@@ -45,7 +51,9 @@ export async function getContacts(): Promise<{ general: GeneralContacts; social:
     const social = data['contacts.social'];
 
     return {
-      general: general ? { email: general.email, phones: general.phones } : NO_CONTACTS,
+      general: general
+        ? { email: general.email, phones: general.phones, workingHours: general.workingHours || null }
+        : NO_CONTACTS,
       social: social ?? NO_SOCIAL,
     };
   } catch {
