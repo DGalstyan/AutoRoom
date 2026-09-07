@@ -9,6 +9,7 @@ import { HomeFaq } from '@/components/shared/HomeFaq';
 import { HomeFinalCta } from '@/components/shared/HomeFinalCta';
 import { DirectionCard } from '@/components/shared/DirectionCard';
 import { HowItWorksStep } from '@/components/shared/HowItWorksStep';
+import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
 import { getBranches } from '@/lib/branches';
 
@@ -58,11 +59,11 @@ export default async function HomePage() {
         />
 
         <div className="relative mx-auto max-w-container px-4 sm:px-6">
-          <h1 className="mx-auto max-w-[1026px] text-center font-display text-home-hero font-bold text-neutral-50">
+          <h1 className="mx-auto max-w-[1026px] animate-fade-up text-center font-display text-home-hero font-bold text-neutral-50 motion-reduce:animate-none">
             {hero.h1}
           </h1>
 
-          <div className="relative mx-auto mt-16 grid max-w-[1190px] grid-cols-1 gap-8 text-center sm:mt-[384px] sm:grid-cols-3 sm:gap-16">
+          <div className="relative mx-auto mt-16 grid max-w-[1190px] animate-fade-up grid-cols-1 gap-8 text-center [animation-delay:150ms] motion-reduce:animate-none sm:mt-[384px] sm:grid-cols-3 sm:gap-16">
             {hero.stats.map((stat) => (
               <div key={stat.label}>
                 <p className="font-display text-home-stat font-bold text-ink">{stat.value}</p>
@@ -76,25 +77,31 @@ export default async function HomePage() {
       {/* Direction picker — plain light page background, immediately below
           the hero's fade (node 110:511/110:514, verified via
           get_design_context: two unequal-width cards, 597px/588px, with a
-          126px gap — not stretched to equal `1fr` columns). */}
+          126px gap — not stretched to equal `1fr` columns). Each card rises
+          into place on scroll (`Reveal`, staggered) — `DirectionCard` itself
+          already carries the hover lift/arrow-color animation. */}
       <Section tone="light" className="pt-0 sm:pt-0">
         <h2 className="text-center font-display text-home-h2 font-light text-ink">
           {hero.pickerHeading}
         </h2>
         <div className="mx-auto mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-[126px]">
-          <DirectionCard
-            href="/usa"
-            title={hero.usaCard.title}
-            image="/images/home/direction-usa.webp"
-            imageAlt={hero.usaCard.cta}
-          />
-          <DirectionCard
-            href="/china"
-            title={hero.chinaCard.title}
-            image="/images/home/direction-china.webp"
-            imageAlt={hero.chinaCard.cta}
-            imageAspect="588/264"
-          />
+          <Reveal>
+            <DirectionCard
+              href="/usa"
+              title={hero.usaCard.title}
+              image="/images/home/direction-usa.webp"
+              imageAlt={hero.usaCard.cta}
+            />
+          </Reveal>
+          <Reveal delayMs={150}>
+            <DirectionCard
+              href="/china"
+              title={hero.chinaCard.title}
+              image="/images/home/direction-china.webp"
+              imageAlt={hero.chinaCard.cta}
+              imageAspect="588/264"
+            />
+          </Reveal>
         </div>
       </Section>
 
@@ -145,7 +152,7 @@ export default async function HomePage() {
       <Section tone="light">
         <h2 className="sr-only">{ecosystem.heading}</h2>
         <div className="relative overflow-visible rounded-[32px]">
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
+          <Reveal className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
             <Image
               src="/images/home/ecosystem-strip.jpg"
               alt="AutoRoom-ի մեքենան ճանապարհին"
@@ -157,8 +164,11 @@ export default async function HomePage() {
               className="absolute inset-0 bg-gradient-to-b from-black/0 to-[95.372%] to-black/[0.89]"
               aria-hidden="true"
             />
-          </div>
-          <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4">
+          </Reveal>
+          <Reveal
+            delayMs={200}
+            className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4"
+          >
             <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
               {ecosystem.items.map((item) => (
                 <li key={item} className="text-home-label font-normal leading-[28px] text-ink">
@@ -166,7 +176,7 @@ export default async function HomePage() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         </div>
       </Section>
 
