@@ -1,5 +1,6 @@
 import { Faq } from '@/components/shared/Faq';
 import { getFaq } from '@/lib/faq';
+import { getLocale } from '@/lib/i18n';
 
 /**
  * China S5 — mirrors `HomeFaq`'s pattern, scoped to the CHINA topic. Renders
@@ -9,7 +10,7 @@ import { getFaq } from '@/lib/faq';
  * bug, until someone answers and publishes them in admin.
  */
 export async function ChinaFaq() {
-  const items = await getFaq('CHINA');
+  const items = await getFaq('CHINA', await getLocale());
   if (items.length === 0) return null;
 
   return <Faq items={items} hideHeading />;

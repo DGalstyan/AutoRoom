@@ -1,7 +1,8 @@
-import Link from 'next/link';
 import { Faq } from '@/components/shared/Faq';
 import { getFaq } from '@/lib/faq';
-import { getServerMessages } from '@/lib/i18n';
+import { getLocale } from '@/lib/i18n';
+
+const TOP_COUNT = 4;
 
 /**
  * Contact `/contact` S3 "Quick answers" (`references/pages.md` "8. Contact"
@@ -16,21 +17,15 @@ import { getServerMessages } from '@/lib/i18n';
  * admin-managed `getFaq('GENERAL')` data instead of hand-copying Figma's 6
  * questions into a second, divergeable copy.
  *
- * "Տես բոլոր հարցերը" points at `/#faq` — Homepage's own FAQ section, now
- * given an `id="faq"` anchor for exactly this link.
+ * Originally linked "Տես բոլոր հարցերը" out to `/#faq` — but that's a link
+ * to a *different page* showing the *exact same data* this component
+ * already has in hand, which reads as broken/pointless rather than helpful.
+ * Now shows the spec's "3-4 top" (`TOP_COUNT`) with a same-page "Load more"
+ * (via `Faq`'s `initialCount`) that reveals the rest in place instead.
  */
 export async function ContactFaq() {
-  const [items, { messages }] = await Promise.all([getFaq('GENERAL'), getServerMessages()]);
+  const items = await getFaq('GENERAL', await getLocale());
   if (items.length === 0) return null;
 
-  return (
-    <div>
-      <Faq items={items} />
-      <p className="mt-6 text-center">
-        <Link href="/#faq" className="text-body font-medium text-accent hover:text-accent-600">
-          {messages.contact.faq.seeAll}
-        </Link>
-      </p>
-    </div>
-  );
+  return <Faq items={items} initialCount={TOP_COUNT} />;
 }
