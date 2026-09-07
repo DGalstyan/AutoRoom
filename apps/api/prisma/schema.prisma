@@ -631,3 +631,61 @@ model Booking {
   @@index([slotId])
   @@map("bookings")
 }
+
+/**
+ * -------------------------------- leads (C1) -------------------------------
+ */
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+/// A submission from any of the public site's lead-capture entry points
+/// (`references/components.md`'s Universal popup, Quiz popup, or the Contact
+/// page's static form — see `apps/web/lib/leads.ts`'s `LeadPayload`). Every
+/// field below except name/phone is optional because each widget asks its
+/// own subset of questions; kept as plain strings rather than enums since
+/// each caller's own vocabulary differs (the popup's fixed `LeadInterest`
+/// chips vs the Contact form's free-form `Թեմա` dropdown) and staff read
+/// these as display labels, not codes to branch logic on.
+model Lead {
+  id String @id @default(cuid())
+
+  name  String
+  phone String
+  email String?
+
+  topic     String?
+  interest  String?
+  budget    String?
+  financing String?
+  timing    String?
+  channel   String?
+  color     String?
+  comment   String?
+
+  /// Set when the lead was opened from a specific car's page/popup.
+  carName String?
+  carVin  String?
+
+  /// Hidden context every widget attaches automatically (never visitor input).
+  sourcePage      String
+  sourceCta       String
+  locale          String
+  device          String
+  /// Present only for leads that followed the Quiz flow.
+  quizAnswersJson Json?
+
+  status LeadStatus @default(NEW)
+  /// Free-text notes a manager leaves while working the lead — distinct from
+  /// `comment`, which is what the visitor themselves wrote.
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@map("leads")
+}

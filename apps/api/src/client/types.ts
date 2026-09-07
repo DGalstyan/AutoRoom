@@ -435,6 +435,71 @@ export interface TeamMember {
 
 export type TeamMemberInput = Omit<TeamMember, 'id'>;
 
+/* ----------------------------------- leads ---------------------------------- */
+
+export type LeadStatus = 'NEW' | 'CONTACTED' | 'CLOSED';
+
+/**
+ * A submission from any of the public site's lead-capture entry points
+ * (Universal popup, Quiz popup, or the Contact page's static form). Every
+ * field but name/phone/the hidden-context ones is optional since each
+ * widget asks its own subset of questions.
+ */
+export interface Lead {
+  id: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  topic: string | null;
+  interest: string | null;
+  budget: string | null;
+  financing: string | null;
+  timing: string | null;
+  channel: string | null;
+  color: string | null;
+  comment: string | null;
+  carName: string | null;
+  carVin: string | null;
+  sourcePage: string;
+  sourceCta: string;
+  locale: string;
+  device: string;
+  quizAnswers: Record<string, string> | null;
+  status: LeadStatus;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** `POST /leads` body — every site visitor's submission, keyed the same way
+ * `apps/web`'s `LeadPayload` (answers + hidden context) already is. */
+export interface LeadInput {
+  name: string;
+  phone: string;
+  email?: string;
+  topic?: string;
+  interest?: string;
+  budget?: string;
+  financing?: string;
+  timing?: string;
+  channel?: string;
+  color?: string;
+  comment?: string;
+  carName?: string;
+  carVin?: string;
+  sourcePage: string;
+  sourceCta: string;
+  locale: string;
+  device: string;
+  quizAnswers?: Record<string, string>;
+}
+
+/** `PATCH /leads/:id` — a manager working the inbox: advance status, jot a note. */
+export interface LeadUpdateInput {
+  status?: LeadStatus;
+  notes?: string;
+}
+
 /* ------------------------------------ faq ----------------------------------- */
 
 /**

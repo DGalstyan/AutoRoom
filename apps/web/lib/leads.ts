@@ -65,17 +65,12 @@ export function detectDevice(): LeadDevice {
 }
 
 /**
- * Submits a lead. No backend endpoint exists yet — this logs the fully
- * assembled payload (visible + hidden context) so downstream wiring is a
- * one-line swap.
- *
- * TODO(forms-and-leads): replace with `POST /leads` against the real API
- * once it exists (see `apps/api`), including retry/error surfacing in the UI.
+ * `submitLead` itself now lives in `lib/actions/leads.ts` as a Server
+ * Action, not here — it needs `'use server'`, which turns every export of
+ * the file it's in into an async server action, incompatible with this
+ * file's plain type/util exports that Client Components import directly.
  */
-export async function submitLead(payload: LeadPayload): Promise<{ ok: true }> {
-  console.log('[AutoRoom lead submit]', payload);
-  return { ok: true };
-}
+export { submitLead } from '@/lib/actions/leads';
 
 export const CHANNEL_INSTRUMENTAL: Record<LeadChannel, string> = {
   call: 'զանգով',

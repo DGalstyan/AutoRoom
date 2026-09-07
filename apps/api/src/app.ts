@@ -10,6 +10,7 @@ import { banksRouter } from './routes/banks';
 import { branchesRouter } from './routes/branches';
 import { carsRouter } from './routes/cars';
 import { faqRouter } from './routes/faq';
+import { leadsRouter } from './routes/leads';
 import { mediaRouter } from './routes/media';
 import { partnersRouter } from './routes/partners';
 import { rolesRouter } from './routes/roles';
@@ -69,6 +70,7 @@ export function createApp(): Express {
   app.use(branchesRouter);
   app.use(carsRouter);
   app.use(faqRouter);
+  app.use(leadsRouter);
   app.use(mediaRouter);
   app.use(partnersRouter);
   app.use(rolesRouter);
