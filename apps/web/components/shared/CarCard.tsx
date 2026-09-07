@@ -7,9 +7,11 @@ import { PromoCountdown } from '@/components/shared/PromoCountdown';
 
 /**
  * The full listing-grid car card — China (and later USA) page S2, and the
- * `/offers` page's featured-cars and promotions sections (which reuse this
- * exact card, not the Homepage's minimal `MiniCarCard` — confirmed by both
- * sections sharing the same Figma component instance, node 124:701/124:719).
+ * `/offers` page's promotions section only (node ~`124:723`). The featured-
+ * cars section on that same page uses the plain `MiniCarCard` instead — a
+ * prior pass's claim here that both `/offers` sections share this exact
+ * component was wrong (re-checked directly in Figma's Dev Mode inspector:
+ * the two sections are visibly different cards with different node IDs).
  *
  * A car with `promoDeadline` set runs as a time-limited "Ակցիա": a red badge
  * + live countdown replace the usual condition/financing badges while the
