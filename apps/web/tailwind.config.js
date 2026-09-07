@@ -73,6 +73,19 @@ module.exports = {
         body: ['var(--font-inter)', 'var(--font-noto-am)', 'sans-serif'],
       },
       transitionTimingFunction: { expo: 'cubic-bezier(0.16,1,0.3,1)' },
+      // Pure-CSS entrance used by the Hero (`app/page.tsx`) — no scroll
+      // library installed in this project (see `MissionStatement.tsx`'s own
+      // note); always pair with `motion-reduce:animate-none` at the call
+      // site so reduced-motion visitors see the final state immediately.
+      keyframes: {
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) both',
+      },
       maxWidth: {
         container: '1280px',
         // Header "pill" frame width measured directly off Figma node
