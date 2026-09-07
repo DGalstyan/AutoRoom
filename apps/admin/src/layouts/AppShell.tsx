@@ -21,6 +21,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutOutlined from '@mui/icons-material/LogoutOutlined';
 import { Wordmark } from '@/components/Wordmark';
+import { NotificationBell } from '@/components/NotificationBell';
 import { useAuth } from '@/auth/AuthProvider';
 import { NAV_GROUPS, crumbsFor, type NavGroup } from '@/layouts/navigation';
 import { brand } from '@/theme';
@@ -260,6 +261,8 @@ export function AppShell() {
           </Breadcrumbs>
 
           <Box sx={{ flex: 1 }} />
+
+          <NotificationBell />
 
           <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' }, mr: 1.5 }}>
             <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, lineHeight: 1.3 }}>
