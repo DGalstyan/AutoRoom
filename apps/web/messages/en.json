@@ -444,8 +444,34 @@
       "title": "About us — AutoRoom",
       "description": "AutoRoom's story, team and mission — safe, transparent car imports from the USA, China and Europe."
     },
+    "hero": {
+      "heading": "The world's best cars, made accessible to you",
+      "intro": "Since 2012, AutoRoom has been importing cars from the USA, China and Europe — safely, legally, on time. What started with a single car is today a trusted partner with 10,000+ cars imported and 3 branches in Armenia."
+    },
+    "cta": {
+      "consultation": "Get a free consultation",
+      "contact": "Contact us"
+    },
+    "mission": "In 2012, AutoRoom was built on one simple idea: importing a car shouldn't be a risk. We show the full price, guide you through every step — from auction to key handover — and serve private buyers, dealers and fleets alike, from the USA, China and Europe.",
+    "whyChooseUs": {
+      "heading": "Why choose AutoRoom",
+      "stats": [
+        { "value": "10+", "label": "years of experience" },
+        { "value": "98%", "label": "successful deliveries" },
+        { "value": "100%", "label": "turnkey service" },
+        { "value": "3", "label": "branches in Armenia" }
+      ]
+    },
     "team": {
       "heading": "Our Team"
+    },
+    "founder": {
+      "heading": "How AutoRoom started"
+    },
+    "finalCta": {
+      "heading": "Ready to import your dream car?",
+      "text": "Get a free consultation today",
+      "cta": "Get a consultation"
     }
   },
   "offers": {
