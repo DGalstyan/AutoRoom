@@ -24,6 +24,10 @@ import type {
   FaqTopic,
   HealthResponse,
   ImageAlbum,
+  Lead,
+  LeadInput,
+  LeadStatus,
+  LeadUpdateInput,
   LoginRequest,
   LoginResponse,
   Media,
@@ -376,6 +380,28 @@ export function createApiClient(options: ApiClientOptions) {
       /** Unauthenticated — the About page's team section reads this. */
       public: (init?: RequestOptions) =>
         request<{ items: TeamMember[]; total: number }>('GET', '/public/team', init),
+    },
+
+    /** The CRM inbox — every submission from the public site's Universal
+     * popup, Quiz popup, and Contact page form. */
+    leads: {
+      list: (
+        query: { status?: LeadStatus; take?: number; skip?: number } = {},
+        init?: RequestOptions,
+      ) =>
+        request<{ items: Lead[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/leads${toSearch(query)}`,
+          init,
+        ),
+      updateStatus: (id: string, body: LeadUpdateInput, init?: RequestOptions) =>
+        request<Lead>('PATCH', `/leads/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/leads/${id}`, init),
+      /** Unauthenticated — this is how every site visitor's browser reaches
+       * this API: not directly (see `leads.ts`'s doc comment for why), but
+       * `apps/web`'s Server Action calls this exact method server-to-server. */
+      create: (body: LeadInput, init?: RequestOptions) =>
+        request<Lead>('POST', '/leads', { ...init, body }),
     },
 
     /** Homepage S9 and the China/USA page sections. */

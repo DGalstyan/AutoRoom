@@ -30,6 +30,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Sales',
     items: [
+      { label: 'Leads', to: '/leads', permission: 'leads:READ' },
       { label: 'Partners', to: '/partners', permission: 'partners:READ' },
       { label: 'Bookings', to: '/bookings', permission: 'bookings:READ' },
       { label: 'Availability', to: '/availability', permission: 'availability:READ' },
