@@ -14,6 +14,12 @@ interface DirectionCardProps {
  * Homepage hero direction picker card ("ԱՄՆ" / "Չինաստան") — white rounded
  * card, title + circular arrow top, car render bottom. Matches Figma node
  * `110:515`/`110:516` ("Country" instances, verified via get_design_context).
+ *
+ * Re-checked directly in Figma's Dev Mode canvas (the get_design_context
+ * MCP connector is broken in this environment): the card carries a subtle
+ * light border the earlier pass missed — added using the same `line-light`
+ * token every other light-surface border on the site already uses (e.g.
+ * `UniversalPopup`'s inputs), rather than inventing a new colour.
  */
 export function DirectionCard({
   href,
@@ -25,7 +31,7 @@ export function DirectionCard({
   return (
     <Link
       href={href}
-      className="group flex flex-col justify-between rounded-[48px] bg-white p-6 shadow-card transition-transform duration-standard ease-expo hover:-translate-y-1 sm:p-8"
+      className="group flex flex-col justify-between rounded-[48px] border border-line-light bg-white p-6 shadow-card transition-transform duration-standard ease-expo hover:-translate-y-1 sm:p-8"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="font-display text-home-card-title font-bold text-neutral-800">
