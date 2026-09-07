@@ -31,6 +31,17 @@ const SOCIAL_LABELS = [
  * `Frame 1597885985`) has it as its own white, 32px-radius card — matching
  * `ContactForm`'s card right next to it — with a compact 24px/700
  * ("Headings/H1-Bold") heading, not the 44px/300 section-heading style.
+ *
+ * Second pixel-audit pass (margins/padding + the "Հետևիր մեզ" block):
+ * every row in this card (email/phone/hours, each social link) is the same
+ * "Headings/H2-Regular" style — 20px/400/28px, `Neutral-80` (#3D3D3D) — not
+ * the smaller `text-body`/full-black `text-ink` this had. Every gap
+ * measured in this card comes back ~16px (`space-y-4`/`mt-4`) — the card's
+ * own uniform rhythm between stacked children (heading → info list →
+ * "Հետևիր մեզ" block, label → its list) and each list's own item spacing —
+ * not the 40px `mt-10` before the label or the tighter `space-y-3` the
+ * lists had. The "Հետևիր մեզ" label itself is the same 24px/700 style as
+ * the card's own heading, not a small uppercase eyebrow.
  */
 export async function ContactInfo() {
   const [{ general, social }, { messages }] = await Promise.all([
@@ -44,12 +55,12 @@ export async function ContactInfo() {
     <div className="rounded-xl bg-white p-9 shadow-card">
       <h1 className="font-display text-home-card-title font-bold text-ink">{t.heading}</h1>
 
-      <ul className="mt-4 space-y-3">
+      <ul className="mt-4 space-y-4">
         {general.email && (
           <li>
             <a
               href={`mailto:${general.email}`}
-              className="inline-flex min-h-11 items-center gap-2 text-body text-ink hover:text-accent"
+              className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70 hover:text-accent"
             >
               <MailIcon />
               {general.email}
@@ -60,7 +71,7 @@ export async function ContactInfo() {
           <li key={phone}>
             <a
               href={branchTelHref(phone)}
-              className="inline-flex min-h-11 items-center gap-2 text-body text-ink hover:text-accent"
+              className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70 hover:text-accent"
             >
               <PhoneIcon />
               {phone}
@@ -68,7 +79,7 @@ export async function ContactInfo() {
           </li>
         ))}
         {general.workingHours && (
-          <li className="inline-flex min-h-11 items-center gap-2 text-body text-ink">
+          <li className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70">
             <ClockIcon />
             {general.workingHours}
           </li>
@@ -76,18 +87,16 @@ export async function ContactInfo() {
       </ul>
 
       {socialLinks.length > 0 && (
-        <div className="mt-10">
-          <p className="text-small font-semibold uppercase tracking-wide text-ink/50">
-            {t.info.followUs}
-          </p>
-          <ul className="mt-4 space-y-3">
+        <div className="mt-4">
+          <p className="font-display text-home-card-title font-bold text-ink">{t.info.followUs}</p>
+          <ul className="mt-4 space-y-4">
             {socialLinks.map(({ key, name }) => (
               <li key={key}>
                 <a
                   href={social[key]!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center text-body text-ink hover:text-accent"
+                  className="inline-flex min-h-11 items-center text-lead text-ink/70 hover:text-accent"
                 >
                   {name}
                 </a>
