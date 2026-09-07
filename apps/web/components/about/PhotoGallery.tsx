@@ -50,7 +50,13 @@ export function PhotoGallery() {
 function Tile({ src, className = '' }: { src: string; className?: string }) {
   return (
     <div className={`relative aspect-[887/480] w-full overflow-hidden rounded-[32px] ${className}`}>
-      <Image src={src} alt="" fill sizes="(min-width: 640px) 50vw, 100vw" className="object-cover" />
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="(min-width: 640px) 50vw, 100vw"
+        className="object-cover"
+      />
     </div>
   );
 }

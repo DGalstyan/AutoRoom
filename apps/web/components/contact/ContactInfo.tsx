@@ -27,7 +27,10 @@ const SOCIAL_LABELS = [
  * chip, not an actual number), so they're left out rather than faked.
  */
 export async function ContactInfo() {
-  const [{ general, social }, { messages }] = await Promise.all([getContacts(), getServerMessages()]);
+  const [{ general, social }, { messages }] = await Promise.all([
+    getContacts(),
+    getServerMessages(),
+  ]);
   const t = messages.contact;
   const socialLinks = SOCIAL_LABELS.filter(({ key }) => social[key]);
 
@@ -68,7 +71,9 @@ export async function ContactInfo() {
 
       {socialLinks.length > 0 && (
         <div className="mt-10">
-          <p className="text-small font-semibold uppercase tracking-wide text-ink/50">{t.info.followUs}</p>
+          <p className="text-small font-semibold uppercase tracking-wide text-ink/50">
+            {t.info.followUs}
+          </p>
           <ul className="mt-4 space-y-3">
             {socialLinks.map(({ key, name }) => (
               <li key={key}>

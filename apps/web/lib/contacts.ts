@@ -52,7 +52,11 @@ export async function getContacts(): Promise<{ general: GeneralContacts; social:
 
     return {
       general: general
-        ? { email: general.email, phones: general.phones, workingHours: general.workingHours || null }
+        ? {
+            email: general.email,
+            phones: general.phones,
+            workingHours: general.workingHours || null,
+          }
         : NO_CONTACTS,
       social: social ?? NO_SOCIAL,
     };
