@@ -139,7 +139,8 @@
     "faq": {
       "heading": "Frequently asked questions",
       "expand": "Show answer",
-      "collapse": "Hide answer"
+      "collapse": "Hide answer",
+      "loadMore": "Show more"
     },
     "branchMap": {
       "cta": "Visit the nearest branch",
@@ -537,9 +538,6 @@
       "heading": "Branches",
       "hoursPrefix": "Hours",
       "cta": "Directions"
-    },
-    "faq": {
-      "seeAll": "See all questions"
     }
   }
 }

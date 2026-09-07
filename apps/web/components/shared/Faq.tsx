@@ -12,13 +12,24 @@ export interface FaqProps {
    * outline (and for pages that DO want the heading shown, e.g. a dedicated
    * FAQ/Contact section, this defaults to visible). */
   hideHeading?: boolean;
+  /** Show only this many items until "Load more" is pressed, which reveals
+   * the rest in place — no navigation, since it's the exact same admin-
+   * managed list either way. Used by `ContactFaq` ("3-4 top FAQ" per the
+   * spec) rather than sending someone to a different page for data that's
+   * already sitting right here. Omit to always show every item (Homepage's
+   * own FAQ). */
+  initialCount?: number;
 }
 
 /** Accordion — each row is its own rounded card; a real button with `aria-expanded`. */
-export function Faq({ items, heading, hideHeading = false }: FaqProps) {
+export function Faq({ items, heading, hideHeading = false, initialCount }: FaqProps) {
   const t = useMessages().common.faq;
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(initialCount == null);
   const baseId = useId();
+
+  const visibleItems = expanded ? items : items.slice(0, initialCount);
+  const hasMore = !expanded && items.length > visibleItems.length;
 
   return (
     <div>
@@ -26,7 +37,7 @@ export function Faq({ items, heading, hideHeading = false }: FaqProps) {
         {heading ?? t.heading}
       </h2>
       <div className={`mx-auto max-w-3xl space-y-4 ${hideHeading ? '' : 'mt-8'}`}>
-        {items.map((item, index) => {
+        {visibleItems.map((item, index) => {
           const isOpen = openIndex === index;
           const buttonId = `${baseId}-q-${index}`;
           const panelId = `${baseId}-a-${index}`;
@@ -65,6 +76,17 @@ export function Faq({ items, heading, hideHeading = false }: FaqProps) {
           );
         })}
       </div>
+      {hasMore && (
+        <p className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="inline-flex min-h-11 items-center text-body font-medium text-accent hover:text-accent-600"
+          >
+            {t.loadMore}
+          </button>
+        </p>
+      )}
     </div>
   );
 }

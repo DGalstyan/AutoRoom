@@ -17,9 +17,18 @@
  * hardcoded list) when empty, matching `lib/cars.ts`'s contract — this is
  * why the ten China questions seeded with `answer: null` (see `prisma/seed.ts`)
  * render nothing today: they are real rows awaiting a real answer, not a bug.
+ *
+ * `locale` picks which of the admin's three translations to render — every
+ * caller used to hardcode `.hy` regardless of the visitor's actual site
+ * locale, so switching to English/Russian still showed Armenian FAQ text
+ * even when the admin had written a real translation. Falls back to `hy`
+ * per-field (not per-item) when the requested locale is missing just that
+ * question or just that answer, since a partially-translated row is still
+ * more useful shown than dropped.
  */
 
 import type { FaqItem } from '@/lib/data/faq';
+import type { Locale } from '@/lib/i18n';
 
 export type FaqTopic = 'CHINA' | 'USA' | 'GENERAL';
 
@@ -37,7 +46,7 @@ interface PublicFaqResponse {
   total: number;
 }
 
-export async function getFaq(topic: FaqTopic): Promise<FaqItem[]> {
+export async function getFaq(topic: FaqTopic, locale: Locale = 'hy'): Promise<FaqItem[]> {
   const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 
   try {
@@ -52,13 +61,16 @@ export async function getFaq(topic: FaqTopic): Promise<FaqItem[]> {
         Boolean(item.answer?.hy),
       )
       .sort((a, b) => a.position - b.position)
-      .map((item) => ({ q: item.question.hy ?? '', a: item.answer.hy }));
+      .map((item) => ({
+        q: item.question[locale] ?? item.question.hy ?? '',
+        a: item.answer[locale] ?? item.answer.hy,
+      }));
   } catch {
     // Network error, DNS failure, API not running at build time, etc.
     return [];
   }
 }
 
-export async function getHomepageFaq(): Promise<FaqItem[]> {
-  return getFaq('GENERAL');
+export async function getHomepageFaq(locale: Locale = 'hy'): Promise<FaqItem[]> {
+  return getFaq('GENERAL', locale);
 }
