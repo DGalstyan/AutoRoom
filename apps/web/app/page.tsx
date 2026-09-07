@@ -54,7 +54,13 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-black/50 backdrop-blur-[21px]" aria-hidden="true" />
         <div
-          className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-[#6B5D4E] to-surface-light blur-[5px]"
+          // Extends 24px past the section's own bottom edge (which is also
+          // where `overflow-hidden` clips) so the blur-[5px] filter's edge
+          // halo dissipates against the gradient's own solid interior
+          // instead of being hard-cut mid-fade — a plain `bottom-0 h-1/2`
+          // clips the blur right at its most transparent point, showing as
+          // a thin seam/line where this section meets the next.
+          className="absolute inset-x-0 -bottom-6 h-[calc(50%+24px)] bg-gradient-to-b from-[#6B5D4E] to-surface-light blur-[5px]"
           aria-hidden="true"
         />
 
