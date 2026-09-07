@@ -63,6 +63,10 @@ module.exports = {
         'home-stat-sm': ['36px', { lineHeight: '56px' }], // anatomy stat numbers, weight 700
         'home-label': ['20px', { lineHeight: '32px' }],
         'home-card-title': ['24px', { lineHeight: '36px' }],
+        // Contact page branch-card heading (Figma node `141:989`, "Headings/
+        // H2-Reg Mid" text style, measured via Dev Mode CSS) — distinct from
+        // `home-card-title` above: bigger, and weight 400 not 700.
+        'branch-card-title': ['36px', { lineHeight: '48px' }], // weight 400
       },
       fontFamily: {
         display: ['var(--font-sora)', 'var(--font-noto-am)', 'sans-serif'],

@@ -25,6 +25,12 @@ const SOCIAL_LABELS = [
  * buttons — neither Figma nor the backend expose real messenger deep-links
  * yet (`lib/leads.ts`'s `LeadChannel` is only a preferred-contact-method
  * chip, not an actual number), so they're left out rather than faked.
+ *
+ * Pixel-audit fix: this used to render as bare text directly on the page
+ * background with an oversized `home-h2` heading. Figma (Dev Mode CSS,
+ * `Frame 1597885985`) has it as its own white, 32px-radius card — matching
+ * `ContactForm`'s card right next to it — with a compact 24px/700
+ * ("Headings/H1-Bold") heading, not the 44px/300 section-heading style.
  */
 export async function ContactInfo() {
   const [{ general, social }, { messages }] = await Promise.all([
@@ -35,10 +41,10 @@ export async function ContactInfo() {
   const socialLinks = SOCIAL_LABELS.filter(({ key }) => social[key]);
 
   return (
-    <div>
-      <h1 className="font-display text-home-h2 font-light text-ink">{t.heading}</h1>
+    <div className="rounded-xl bg-white p-9 shadow-card">
+      <h1 className="font-display text-home-card-title font-bold text-ink">{t.heading}</h1>
 
-      <ul className="mt-8 space-y-3">
+      <ul className="mt-4 space-y-3">
         {general.email && (
           <li>
             <a

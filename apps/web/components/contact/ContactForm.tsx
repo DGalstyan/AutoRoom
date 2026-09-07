@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
 import { detectDevice, submitLead } from '@/lib/leads';
 import { interpolate } from '@/lib/messages';
@@ -77,7 +78,7 @@ export function ContactForm() {
 
   if (status === 'success') {
     return (
-      <div role="status" aria-live="polite" className="rounded-xl bg-white p-8 shadow-card">
+      <div role="status" aria-live="polite" className="rounded-xl bg-white p-9 shadow-card">
         <h2 className="font-display text-h3 font-bold text-ink">{t.successHeading}</h2>
         <p className="mt-3 text-body text-ink/80">
           {interpolate(t.successTemplate, { name: successName })}
@@ -87,7 +88,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl bg-white p-8 shadow-card" noValidate>
+    <form onSubmit={handleSubmit} className="rounded-xl bg-white p-9 shadow-card" noValidate>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="contact-name" className="mb-1 block text-small font-medium text-ink">
@@ -200,7 +201,13 @@ export function ContactForm() {
       </div>
 
       <Button type="submit" variant="primary" className="mt-6" disabled={status === 'submitting'}>
-        {status === 'submitting' ? t.sending : t.submit}
+        {status === 'submitting' ? (
+          t.sending
+        ) : (
+          <>
+            {t.submit} <ArrowUpRightIcon />
+          </>
+        )}
       </Button>
     </form>
   );
