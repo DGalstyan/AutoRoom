@@ -13,7 +13,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
-import { errorMessage } from '@/lib/api';
+import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { UploadField } from '@/components/UploadField';
 
 /** Add or edit a person in the About page's "Մեր թիմը" grid. */
@@ -48,11 +48,15 @@ export function TeamMemberDialog({
         },
   );
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const mutation = useMutation({
     mutationFn: () => (member ? api.team.update(member.id, draft) : api.team.create(draft)),
     onSuccess: () => onDone(member ? 'Team member saved.' : 'Team member added.'),
-    onError: (caught) => setError(errorMessage(caught)),
+    onError: (caught) => {
+      setFieldErrors(extractFieldErrors(caught));
+      setError(errorMessage(caught));
+    },
   });
 
   function set<K extends keyof TeamMemberInput>(key: K, value: TeamMemberInput[K]) {
@@ -67,6 +71,7 @@ export function TeamMemberDialog({
         onSubmit={(event) => {
           event.preventDefault();
           setError(null);
+          setFieldErrors({});
           mutation.mutate();
         }}
       >
@@ -81,7 +86,8 @@ export function TeamMemberDialog({
               onChange={(event) => set('name', event.target.value)}
               required
               fullWidth
-              helperText="e.g. Դավիթ Պետրոսյան"
+              error={Boolean(fieldErrors.name)}
+              helperText={fieldErrors.name ?? 'e.g. Դավիթ Պետրոսյան'}
             />
 
             <TextField
@@ -90,7 +96,8 @@ export function TeamMemberDialog({
               onChange={(event) => set('title', event.target.value)}
               required
               fullWidth
-              helperText="e.g. CEO"
+              error={Boolean(fieldErrors.title)}
+              helperText={fieldErrors.title ?? 'e.g. CEO'}
             />
 
             <UploadField
@@ -98,7 +105,10 @@ export function TeamMemberDialog({
               accept="image/*"
               value={draft.photoUrl ?? null}
               onChange={(url) => set('photoUrl', url)}
-              helperText="Shown as the full card background — a portrait crop looks best."
+              helperText={
+                fieldErrors.photoUrl ??
+                'Shown as the full card background — a portrait crop looks best.'
+              }
               disabled={mutation.isPending}
               preview={(url) => (
                 <Avatar src={url} alt="" variant="rounded" sx={{ width: 96, height: 96 }} />
@@ -110,7 +120,11 @@ export function TeamMemberDialog({
               value={draft.linkedinUrl ?? ''}
               onChange={(event) => set('linkedinUrl', event.target.value || null)}
               fullWidth
-              helperText="Optional — the card only shows the LinkedIn icon when this is set."
+              error={Boolean(fieldErrors.linkedinUrl)}
+              helperText={
+                fieldErrors.linkedinUrl ??
+                'Optional — the card only shows the LinkedIn icon when this is set.'
+              }
             />
 
             <TextField
@@ -120,7 +134,8 @@ export function TeamMemberDialog({
               onChange={(event) => set('position', Math.max(0, Number(event.target.value) || 0))}
               sx={{ width: 140 }}
               slotProps={{ htmlInput: { min: 0, max: 999 } }}
-              helperText="Lower shows first."
+              error={Boolean(fieldErrors.position)}
+              helperText={fieldErrors.position ?? 'Lower shows first.'}
             />
           </Stack>
         </DialogContent>
