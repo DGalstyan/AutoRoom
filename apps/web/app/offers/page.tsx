@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Section } from '@/components/ui/Section';
-import { CarCard } from '@/components/shared/CarCard';
+import { MiniCarCard } from '@/components/shared/MiniCarCard';
 import { PromotionsSection } from '@/components/shared/PromotionsSection';
 import { OffersFinalCta } from '@/components/shared/OffersFinalCta';
 import { getFeaturedCars, listPromoCars } from '@/lib/cars';
@@ -16,17 +16,26 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Special offers `/offers` — `references/pages.md` "7. Special offers".
- * Figma node `124:669` ("Featured cars", file `9Lq4XpWusTJj1VnM6laAZr`),
- * verified via get_metadata/get_design_context. Two data-driven sections
- * reuse the full `CarCard` (not the Homepage's minimal `MiniCarCard`) —
- * confirmed by both sharing the same Figma component instance:
+ * Figma node `124:662`/`124:669` ("featured cars" page, file
+ * `9Lq4XpWusTJj1VnM6laAZr`), re-verified directly in Figma's Dev Mode
+ * inspector (the MCP connector is broken in this environment) — a prior
+ * pass's comment here claimed *both* sections reuse the same full `CarCard`
+ * "confirmed by sharing the same Figma component instance", which doesn't
+ * hold up: clicking the two sections' cards individually shows two
+ * different node IDs with two different visual treatments.
  *
- * - S1 "Շաբաթվա լավագույն առաջարկները" — admin-featured cars, a fixed 2x2
- *   grid (48px column gap / 32px row gap, matching the exact asymmetric
- *   gap measured on the Homepage's own featured grid) rather than the
- *   Homepage's uncapped catalogue view.
- * - S2 "Ընթացիկ ակցիաներ" — `PromotionsSection`, cars with both `oldPrice`
- *   and `promoDeadline` set, split into Current/Past tabs.
+ * - S1 "Շաբաթվա լավագույն առաջարկները" — admin-featured cars. Figma's own
+ *   card here (node ~`124:705`) is the plain full-bleed-photo /
+ *   price+model-bottom-left / arrow-bottom-right treatment `MiniCarCard`'s
+ *   own doc comment already describes verbatim as "the Figma 'Featured
+ *   Cars' card treatment" — i.e. the *same* card Homepage's own
+ *   `FeaturedCars` uses, not the badge-heavy China-list `CarCard`. Capped
+ *   at 4 (`getFeaturedCars(4)`) with the exact gap Homepage's grid uses,
+ *   rather than Homepage's own uncapped catalogue view.
+ * - S2 "Ընթացիկ ակցիաներ" — `PromotionsSection`, which does correctly use
+ *   the full `CarCard` (its badges/video-tag treatment matches Figma's
+ *   promo cards, node ~`124:723`) — cars with both `oldPrice` and
+ *   `promoDeadline` set, split into Current/Past tabs.
  * - S3 final CTA opens the Universal popup (not the Quiz) per the written
  *   spec — `OffersFinalCta`.
  */
@@ -45,9 +54,14 @@ export default async function OffersPage() {
       <Section tone="light" className="pt-32 sm:pt-40">
         <h2 className="font-display text-home-h2 font-light text-ink">{t.featured.heading}</h2>
         {featured.length > 0 && (
-          <div className="mt-10 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:gap-x-12">
+          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 sm:gap-x-12">
             {featured.map((car, index) => (
-              <CarCard key={car.id} car={car} priority={index === 0} />
+              <MiniCarCard
+                key={car.id}
+                car={car}
+                imageSrc={car.images[0]?.url}
+                priority={index === 0}
+              />
             ))}
           </div>
         )}
