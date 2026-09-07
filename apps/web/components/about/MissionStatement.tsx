@@ -50,7 +50,10 @@ export function MissionStatement() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="flex min-h-[500px] items-center bg-ink px-6 py-24 sm:px-12">
+    <section
+      ref={sectionRef}
+      className="flex min-h-[500px] items-center bg-ink px-6 py-24 sm:px-12"
+    >
       <p className="mx-auto max-w-4xl text-center font-display text-[36px] font-semibold leading-[56px] text-neutral-700">
         {words.map((word, index) => (
           <span
