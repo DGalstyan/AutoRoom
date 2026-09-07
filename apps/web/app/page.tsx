@@ -10,6 +10,7 @@ import { HomeFinalCta } from '@/components/shared/HomeFinalCta';
 import { DirectionCard } from '@/components/shared/DirectionCard';
 import { HowItWorksStep } from '@/components/shared/HowItWorksStep';
 import { getServerMessages } from '@/lib/i18n';
+import { getBranches } from '@/lib/branches';
 
 // How-it-works photo row — matches Figma's 7-card strip (one wide "hero" card
 // with the full step-1 copy, six narrow numbered strips after it).
@@ -24,7 +25,7 @@ const STEP_PHOTOS = [
 ];
 
 export default async function HomePage() {
-  const { messages } = await getServerMessages();
+  const [{ messages }, branchList] = await Promise.all([getServerMessages(), getBranches()]);
   const hero = messages.home.hero;
   const howItWorks = messages.home.howItWorks;
   const ecosystem = messages.home.ecosystem;
@@ -188,7 +189,7 @@ export default async function HomePage() {
           {branches.heading}
         </h2>
         <div className="mt-16">
-          <BranchMap />
+          <BranchMap branches={branchList} />
         </div>
       </Section>
 

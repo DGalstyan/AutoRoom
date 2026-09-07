@@ -6,11 +6,12 @@ import {
   ARMENIA_OUTLINE_VIEWBOX,
   BRANCH_MAP_POSITIONS,
 } from '@/lib/data/armeniaMap';
-import { BRANCHES, type Branch } from '@/lib/data/branches';
+import type { Branch } from '@/lib/branches';
 
 interface ArmeniaMapProps {
-  activeId: Branch['id'];
-  onSelect: (id: Branch['id']) => void;
+  branches: Branch[];
+  activeId: string;
+  onSelect: (id: string) => void;
 }
 
 /**
@@ -23,9 +24,16 @@ interface ArmeniaMapProps {
  * in its `aria-label` — the floating tooltip is purely visual
  * (`aria-hidden`) and only ever duplicates what's already accessible
  * without it, so nothing is lost if it doesn't render.
+ *
+ * `BRANCH_MAP_POSITIONS` is keyed by city name, not `Branch['id']`: `id` is
+ * now the database's own cuid (this used to import the hardcoded `BRANCHES`
+ * constant, whose ids were the hand-picked strings `yerevan`/`armavir`/
+ * `ejmiatsin` those positions were originally keyed by). A branch whose city
+ * isn't in the lookup renders no pin rather than guessing a position — same
+ * "nothing until there's real data" contract as everywhere else on the site.
  */
-export function ArmeniaMap({ activeId, onSelect }: ArmeniaMapProps) {
-  const [openId, setOpenId] = useState<Branch['id'] | null>(null);
+export function ArmeniaMap({ branches, activeId, onSelect }: ArmeniaMapProps) {
+  const [openId, setOpenId] = useState<string | null>(null);
   const patternId = useId();
 
   return (
@@ -43,8 +51,8 @@ export function ArmeniaMap({ activeId, onSelect }: ArmeniaMapProps) {
         <path d={ARMENIA_OUTLINE_PATH} fill={`url(#${patternId})`} />
       </svg>
 
-      {BRANCHES.map((branch) => {
-        const pos = BRANCH_MAP_POSITIONS[branch.id];
+      {branches.map((branch) => {
+        const pos = BRANCH_MAP_POSITIONS[branch.city];
         if (!pos) return null;
         const isOpen = openId === branch.id;
         const isActive = activeId === branch.id;

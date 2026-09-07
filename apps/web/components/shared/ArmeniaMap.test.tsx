@@ -2,11 +2,48 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ArmeniaMap } from '@/components/shared/ArmeniaMap';
-import { BRANCHES } from '@/lib/data/branches';
+import type { Branch } from '@/lib/branches';
+
+// Local fixture, not the real `getBranches()` fetch — `ArmeniaMap` is a pure
+// presentational component driven entirely by its `branches` prop now that
+// branches are admin-managed. Cities match `BRANCH_MAP_POSITIONS`' real keys
+// (`lib/data/armeniaMap.ts`) so every fixture branch actually renders a pin.
+const BRANCHES: Branch[] = [
+  {
+    id: 'branch-1',
+    name: 'Մասնաճյուղ N1',
+    city: 'Երևան',
+    address: 'Սայաթ-Նովա 20',
+    phone: '+374 94 077757',
+    hours: '10:00–22:00',
+    mapUrl: null,
+    photoUrl: null,
+  },
+  {
+    id: 'branch-2',
+    name: 'Մասնաճյուղ N2',
+    city: 'Արմավիր',
+    address: 'Հանրապետության 37/31',
+    phone: '+374 77 838750',
+    hours: '10:00–22:00',
+    mapUrl: null,
+    photoUrl: null,
+  },
+  {
+    id: 'branch-3',
+    name: 'Մասնաճյուղ N3',
+    city: 'Էջմիածին',
+    address: 'Վազգեն Առաջին 5/53',
+    phone: '+374 98 349400',
+    hours: '10:00–22:00',
+    mapUrl: null,
+    photoUrl: null,
+  },
+];
 
 describe('ArmeniaMap', () => {
   it('renders one pin per branch, each labeled with its name, city, and address', () => {
-    render(<ArmeniaMap activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
+    render(<ArmeniaMap branches={BRANCHES} activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
 
     for (const branch of BRANCHES) {
       expect(
@@ -27,13 +64,13 @@ describe('ArmeniaMap', () => {
   }
 
   it('shows no tooltip until a pin is hovered or focused', () => {
-    render(<ArmeniaMap activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
+    render(<ArmeniaMap branches={BRANCHES} activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
     expect(queryTooltip()).not.toBeInTheDocument();
   });
 
   it('shows the name and address in a tooltip on hover', async () => {
     const user = userEvent.setup();
-    render(<ArmeniaMap activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
+    render(<ArmeniaMap branches={BRANCHES} activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
 
     const target = BRANCHES[1];
     const pin = screen.getByRole('button', {
@@ -51,7 +88,7 @@ describe('ArmeniaMap', () => {
 
   it('shows the tooltip on keyboard focus too, not just mouse hover', async () => {
     const user = userEvent.setup();
-    render(<ArmeniaMap activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
+    render(<ArmeniaMap branches={BRANCHES} activeId={BRANCHES[0].id} onSelect={vi.fn()} />);
 
     const target = BRANCHES[0];
     const pin = screen.getByRole('button', {
@@ -66,7 +103,7 @@ describe('ArmeniaMap', () => {
   it('calls onSelect with the clicked branch id', async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
-    render(<ArmeniaMap activeId={BRANCHES[0].id} onSelect={onSelect} />);
+    render(<ArmeniaMap branches={BRANCHES} activeId={BRANCHES[0].id} onSelect={onSelect} />);
 
     const target = BRANCHES[2];
     await user.click(
@@ -79,7 +116,7 @@ describe('ArmeniaMap', () => {
   });
 
   it('marks the active branch pin as pressed', () => {
-    render(<ArmeniaMap activeId={BRANCHES[1].id} onSelect={vi.fn()} />);
+    render(<ArmeniaMap branches={BRANCHES} activeId={BRANCHES[1].id} onSelect={vi.fn()} />);
 
     const activeBranch = BRANCHES[1];
     const activePin = screen.getByRole('button', {

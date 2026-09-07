@@ -1,7 +1,8 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { BRANCHES, branchTelHref, type Branch } from '@/lib/data/branches';
+import Image from 'next/image';
+import { branchTelHref, type Branch } from '@/lib/branches';
 import { interpolate } from '@/lib/messages';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { Button } from '@/components/ui/Button';
@@ -15,17 +16,24 @@ import { ArmeniaMap } from '@/components/shared/ArmeniaMap';
  * that placeholder with a real Armenia outline and an animated, tooltipped
  * pin per branch (see `ArmeniaMap`) — clicking a pin drives the same
  * `activeId` selection as the list below, so both stay in sync.
+ *
+ * `branches` is fetched server-side by the page (`lib/branches.ts`'s
+ * `getBranches()`) and passed down — this used to import the hardcoded
+ * `BRANCHES` constant directly, so an admin's edits (including the photo
+ * added since) never reached the live site.
  */
-export function BranchMap() {
+export function BranchMap({ branches }: { branches: Branch[] }) {
   const t = useMessages().common.branchMap;
-  const [activeId, setActiveId] = useState<Branch['id']>(BRANCHES[0].id);
+  const [activeId, setActiveId] = useState<string | undefined>(branches[0]?.id);
   const panelId = useId();
   const listId = useId();
-  const active = BRANCHES.find((branch) => branch.id === activeId) ?? BRANCHES[0];
+  const active = branches.find((branch) => branch.id === activeId) ?? branches[0];
+
+  if (!active) return null;
 
   return (
     <div>
-      <ArmeniaMap activeId={activeId} onSelect={setActiveId} />
+      <ArmeniaMap branches={branches} activeId={active.id} onSelect={setActiveId} />
 
       <div className="mt-12 flex justify-center">
         <a
@@ -41,8 +49,8 @@ export function BranchMap() {
         className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
       >
         <ul className="space-y-3" aria-label={t.selectPrompt}>
-          {BRANCHES.map((branch) => {
-            const isActive = branch.id === activeId;
+          {branches.map((branch) => {
+            const isActive = branch.id === active.id;
             return (
               <li key={branch.id}>
                 <button
@@ -72,12 +80,21 @@ export function BranchMap() {
           aria-live="polite"
         >
           <div
-            className="mb-5 flex aspect-[16/9] w-full items-center justify-center rounded-md bg-gradient-to-br from-surface via-bg to-black text-white/70"
+            className="relative mb-5 flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-surface via-bg to-black text-white/70"
             role="img"
             aria-label={interpolate(t.photoAlt, { name: `${active.name} — ${active.city}` })}
           >
-            {/* TODO(content): swap for a real branch photo per location. */}
-            <span className="font-display text-lead font-semibold">{active.city}</span>
+            {active.photoUrl ? (
+              <Image
+                src={active.photoUrl}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+              />
+            ) : (
+              <span className="font-display text-lead font-semibold">{active.city}</span>
+            )}
           </div>
           <p className="font-display text-h3 font-bold text-white">
             {active.name} — {active.city}
