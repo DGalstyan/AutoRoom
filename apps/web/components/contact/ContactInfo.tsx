@@ -1,5 +1,5 @@
 import { getContacts } from '@/lib/contacts';
-import { branchTelHref } from '@/lib/data/branches';
+import { branchTelHref } from '@/lib/branches';
 import { getServerMessages } from '@/lib/i18n';
 
 const SOCIAL_LABELS = [

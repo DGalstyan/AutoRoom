@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { branchTelHref } from '@/lib/data/branches';
+import { branchTelHref } from '@/lib/branches';
 import { getServerMessages } from '@/lib/i18n';
 import type { Messages } from '@/lib/i18n';
 import { FooterCta } from '@/components/shared/FooterCta';
