@@ -1,6 +1,7 @@
 import { getContacts } from '@/lib/contacts';
 import { branchTelHref } from '@/lib/branches';
 import { getServerMessages } from '@/lib/i18n';
+import { ArrowUpRightIcon } from '@/components/ui/icons';
 
 const SOCIAL_LABELS = [
   { key: 'instagram', name: 'Instagram' },
@@ -89,15 +90,21 @@ export async function ContactInfo() {
       {socialLinks.length > 0 && (
         <div className="mt-4">
           <p className="font-display text-home-card-title font-bold text-ink">{t.info.followUs}</p>
-          <ul className="mt-4 grid grid-cols-2 gap-[5px]">
+          {/* Third pixel-audit pass (node `141:584`, verified via
+              get_metadata): a single column, not a 2-column grid — each row
+              is 28px tall with an 8px gap (36px row-to-row), and carries the
+              same leading `ArrowUpRightIcon` every other social list on the
+              site uses (Footer's own list, same icon/spacing convention). */}
+          <ul className="mt-4 space-y-2">
             {socialLinks.map(({ key, name }) => (
               <li key={key}>
                 <a
                   href={social[key]!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center text-lead text-ink/70 hover:text-accent"
+                  className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70 hover:text-accent"
                 >
+                  <ArrowUpRightIcon />
                   {name}
                 </a>
               </li>

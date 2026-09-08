@@ -17,11 +17,12 @@ const FOOTER_LINKS: { key: keyof Messages['common']['nav']; href: string }[] = [
   { key: 'contact', href: '/contact' },
 ];
 
-// Figma's Homepage footer (node `110:536`) only shows socials + contact +
-// a big "let's talk" CTA — no nav/branch columns, matching an agency-template
-// footer rather than AutoRoom-authored content. Site nav + branch addresses
-// are still surfaced below (smaller, secondary) since Footer is global and
-// every other page needs that wayfinding; see report for the full rationale.
+// Figma's Homepage footer (node `125:1366`) only shows a logo row, then
+// socials + contact paired with a big "let's talk" CTA — no nav/branch
+// columns, matching an agency-template footer rather than AutoRoom-authored
+// content. The nav-links row below is still surfaced (smaller, secondary)
+// since Footer is global and every other page needs that wayfinding — an
+// addition on top of Figma's own content, not a substitute for it.
 //
 // Labels only, deliberately — hrefs come from admin-managed `contacts.social`
 // (see `SocialList` below), which only has these four platforms. No
@@ -58,99 +59,108 @@ export async function Footer({
   return (
     <footer className="border-t border-white/10 bg-bg text-white">
       <div className="mx-auto max-w-container px-4 pb-16 pt-16 sm:px-6 sm:pt-20">
-        <div className="flex flex-col justify-between gap-12 sm:flex-row sm:items-start">
-          <Link href="/" aria-label={nav.home} className="inline-block">
-            {/* Box aspect ratio matches the logo mark's real bounding box
-                (121×46 ≈ 2.63:1, Figma node 9321:6404 / footer instance
-                2001:1772) scaled up for the footer's larger presence. */}
-            <BrandLogo logo={logo} className="h-12 w-[126px]" sizes="126px" />
-            <p className="mt-2 font-display text-h2 font-extrabold uppercase leading-none tracking-tight text-white">
-              {messages.common.brand}
-            </p>
-            <p className="mt-1 text-caption uppercase tracking-[0.3em] text-white/50">
-              Auto Import Company
-            </p>
-          </Link>
+        {/* Row 1 — logo alone, full width (node `125:1368`): Figma pairs the
+            logo with nothing else up here; the CTA below moves down to sit
+            with socials/contact instead (node `125:1383`), not next to the
+            logo as this used to have it. */}
+        <Link href="/" aria-label={nav.home} className="inline-block">
+          {/* Box aspect ratio matches the logo mark's real bounding box
+              (121×46 ≈ 2.63:1, Figma node 9321:6404 / footer instance
+              2001:1772) scaled up for the footer's larger presence. */}
+          <BrandLogo logo={logo} className="h-12 w-[126px]" sizes="126px" />
+          <p className="mt-2 font-display text-h2 font-extrabold uppercase leading-none tracking-tight text-white">
+            {messages.common.brand}
+          </p>
+          <p className="mt-1 text-caption uppercase tracking-[0.3em] text-white/50">
+            Auto Import Company
+          </p>
+        </Link>
 
-          <div className="flex flex-col gap-1">
+        {/* Row 2 (node `125:1383`) — socials + contact on the left, the
+            "Ready to build..." + big Let's-chat CTA on the right. */}
+        <div className="mt-20 flex flex-col justify-between gap-12 sm:flex-row sm:items-end">
+          <div className="flex flex-wrap gap-x-6 gap-y-10">
+            {socialLinks.length > 0 && (
+              <div>
+                <p className="text-small font-semibold uppercase tracking-wide text-white/50">
+                  {footer.socialHeading}
+                </p>
+                <ul className="mt-4 space-y-2">
+                  {socialLinks.map(({ key, name }) => (
+                    <li key={key}>
+                      <a
+                        href={social[key]!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
+                      >
+                        <ArrowGlyph size={14} />
+                        {name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {(email || phone) && (
+              <div>
+                <p className="text-small font-semibold uppercase tracking-wide text-white/50">
+                  {footer.contactHeading}
+                </p>
+                <ul className="mt-4 space-y-2">
+                  {email && (
+                    <li>
+                      <a
+                        href={`mailto:${email}`}
+                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
+                      >
+                        <ArrowGlyph size={14} />
+                        {email}
+                      </a>
+                    </li>
+                  )}
+                  {phone && (
+                    <li>
+                      <a
+                        href={branchTelHref(phone)}
+                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
+                      >
+                        <ArrowGlyph size={14} />
+                        {phone}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1 sm:max-w-[301px]">
             <p className="font-display text-home-h2 font-light text-white">{footer.ctaHeading}</p>
             <FooterCta label={footer.ctaButton} />
           </div>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-10 sm:grid-cols-3">
-          {socialLinks.length > 0 && (
-            <div>
-              <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-                {footer.socialHeading}
-              </p>
-              <ul className="mt-4 space-y-3">
-                {socialLinks.map(({ key, name }) => (
-                  <li key={key}>
-                    <a
-                      href={social[key]!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                    >
-                      <ArrowGlyph size={14} />
-                      {name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {(email || phone) && (
-            <div>
-              <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-                {footer.contactHeading}
-              </p>
-              <ul className="mt-4 space-y-3">
-                {email && (
-                  <li>
-                    <a
-                      href={`mailto:${email}`}
-                      className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                    >
-                      <ArrowGlyph size={14} />
-                      {email}
-                    </a>
-                  </li>
-                )}
-                {phone && (
-                  <li>
-                    <a
-                      href={branchTelHref(phone)}
-                      className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                    >
-                      <ArrowGlyph size={14} />
-                      {phone}
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
-
-          <div>
-            <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-              {footer.navHeading}
-            </p>
-            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-              {FOOTER_LINKS.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="inline-block min-h-11 py-2.5 text-small text-white/80 hover:text-accent"
-                  >
-                    {nav[item.key]}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Site nav — not in Figma's own footer content; kept as a smaller,
+            secondary row since Footer is global and every other page needs
+            this wayfinding (see file-top comment). */}
+        <div className="mt-16 border-t border-white/10 pt-10">
+          <p className="text-small font-semibold uppercase tracking-wide text-white/50">
+            {footer.navHeading}
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+            {FOOTER_LINKS.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="inline-block min-h-11 py-2.5 text-small text-white/80 hover:text-accent"
+                >
+                  {nav[item.key]}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 

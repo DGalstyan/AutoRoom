@@ -2,7 +2,11 @@
 
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 
-/** Smallest interactive leaf for the footer's "{ctaHeading} / {ctaButton}" block. */
+/**
+ * Smallest interactive leaf for the footer's "{ctaHeading} / {ctaButton}"
+ * block — Figma's own "Let's Chat" (node `125:1413`) is 64px/80px leading,
+ * not the smaller 36–48px this had.
+ */
 export function FooterCta({ label }: { label: string }) {
   const { openUniversal } = useLeadWidgets();
 
@@ -10,7 +14,7 @@ export function FooterCta({ label }: { label: string }) {
     <button
       type="button"
       onClick={() => openUniversal({ sourceCta: 'footer-cta' })}
-      className="mt-2 inline-flex items-center gap-3 font-display text-4xl font-normal text-white transition-colors hover:text-accent sm:text-5xl"
+      className="mt-2 inline-flex items-center gap-3 font-display text-[40px] font-normal leading-[1.25] text-white transition-colors hover:text-accent sm:text-[64px]"
     >
       {label}
       <ArrowGlyph />
