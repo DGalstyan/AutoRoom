@@ -4,6 +4,7 @@ import { ContactInfo } from '@/components/contact/ContactInfo';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { BranchCards } from '@/components/contact/BranchCards';
 import { ContactFaq } from '@/components/contact/ContactFaq';
+import { ContactFinalCta } from '@/components/contact/ContactFinalCta';
 import { getServerMessages } from '@/lib/i18n';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,9 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
  * against Figma node `141:422` (file `9Lq4XpWusTJj1VnM6laAZr`, "cnnect us"
  * page).
  *
- * S1 Contacts + form → S2 Branches → S3 Quick answers. No hero/header
- * clearance workaround needed — `Section`'s default top padding already
- * clears the fixed header, same as the China listing page.
+ * S1 Contacts + form → S2 Branches → S3 Quick answers → S4 Final CTA. No
+ * hero/header clearance workaround needed — `Section`'s default top
+ * padding already clears the fixed header, same as the China listing page.
+ * S4 (`ContactFinalCta`, node `141:803`) was missing from this page
+ * entirely until this pass — it has its own full-bleed dark background, so
+ * it sits outside the light `<Section>` wrapper as its own sibling, same
+ * as every other page's final CTA.
  *
  * S1's two cards are NOT an even 50/50 split (node `141:583`, verified via
  * get_metadata): the info card is 618px, the form card 683px, with a 43px
@@ -31,19 +36,23 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default function ContactPage() {
   return (
-    <Section tone="light" className="pt-32 sm:pt-40">
-      <div className="grid grid-cols-1 gap-10 sm:grid-cols-[618fr_683fr] sm:gap-x-[43px]">
-        <ContactInfo />
-        <ContactForm />
-      </div>
+    <>
+      <Section tone="light" className="pt-32 sm:pt-40">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-[618fr_683fr] sm:gap-x-[43px]">
+          <ContactInfo />
+          <ContactForm />
+        </div>
 
-      <div className="mt-24">
-        <BranchCards />
-      </div>
+        <div className="mt-24">
+          <BranchCards />
+        </div>
 
-      <div className="mt-24">
-        <ContactFaq />
-      </div>
-    </Section>
+        <div className="mt-24">
+          <ContactFaq />
+        </div>
+      </Section>
+
+      <ContactFinalCta />
+    </>
   );
 }
