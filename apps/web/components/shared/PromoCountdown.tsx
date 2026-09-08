@@ -32,12 +32,18 @@ function formatCountdown(deadline: string): string {
  * only in `useEffect` guarantees the initial client render matches the
  * server's `null` exactly; the swap to the real countdown happens a tick
  * later, imperceptibly.
+ *
+ * The first `setLabel` is deferred with `queueMicrotask` (same pattern as
+ * `MissionStatement`'s reduced-motion path) rather than called synchronously
+ * at the top of the effect — `react-hooks/set-state-in-effect` flags a bare
+ * synchronous `setState` there, and CI's `eslint` runs with `--max-warnings
+ * 0`, so this isn't just style.
  */
 export function PromoCountdown({ deadline }: { deadline: string }) {
   const [label, setLabel] = useState<string | null>(null);
 
   useEffect(() => {
-    setLabel(formatCountdown(deadline));
+    queueMicrotask(() => setLabel(formatCountdown(deadline)));
     const id = setInterval(() => setLabel(formatCountdown(deadline)), 60_000);
     return () => clearInterval(id);
   }, [deadline]);

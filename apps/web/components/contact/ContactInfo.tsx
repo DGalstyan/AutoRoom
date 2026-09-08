@@ -68,7 +68,7 @@ export async function ContactInfo() {
           <li>
             <a
               href={`mailto:${general.email}`}
-              className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800 hover:text-accent"
+              className="inline-flex items-center gap-2 text-lead text-neutral-800 hover:text-accent"
             >
               <MailIcon />
               {general.email}
@@ -79,7 +79,7 @@ export async function ContactInfo() {
           <li key={phone}>
             <a
               href={branchTelHref(phone)}
-              className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800 hover:text-accent"
+              className="inline-flex items-center gap-2 text-lead text-neutral-800 hover:text-accent"
             >
               <PhoneIcon />
               {phone}
@@ -87,7 +87,7 @@ export async function ContactInfo() {
           </li>
         ))}
         {general.workingHours && (
-          <li className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800">
+          <li className="inline-flex items-center gap-2 text-lead text-neutral-800">
             <ClockIcon />
             {general.workingHours}
           </li>
@@ -109,7 +109,7 @@ export async function ContactInfo() {
                   href={social[key]!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center gap-1 text-lead text-neutral-800 hover:text-accent"
+                  className="inline-flex items-center gap-1 text-lead text-neutral-800 hover:text-accent"
                 >
                   <ArrowUpRightIcon className="size-4" />
                   {name}
