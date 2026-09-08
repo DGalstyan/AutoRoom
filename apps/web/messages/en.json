@@ -115,35 +115,19 @@
         },
         "fuel": {
           "label": "Fuel",
-          "options": {
-            "ev": "EV",
-            "hybrid": "Hybrid",
-            "benzin": "Petrol"
-          }
+          "options": { "ev": "EV", "hybrid": "Hybrid", "benzin": "Petrol" }
         },
         "usage": {
           "label": "Usage",
-          "options": {
-            "city": "city",
-            "family": "family",
-            "travel": "travel"
-          }
+          "options": { "city": "city", "family": "family", "travel": "travel" }
         },
         "country": {
           "label": "Country",
-          "options": {
-            "usa": "USA",
-            "china": "China",
-            "any": "doesn't matter"
-          }
+          "options": { "usa": "USA", "china": "China", "any": "doesn't matter" }
         },
         "timing": {
           "label": "When do you want to buy?",
-          "options": {
-            "now": "now",
-            "1-3m": "1–3 months",
-            "browsing": "just browsing"
-          }
+          "options": { "now": "now", "1-3m": "1–3 months", "browsing": "just browsing" }
         }
       },
       "resultTitle": "Cars recommended for you",
@@ -172,38 +156,17 @@
     },
     "carAnatomy": {
       "hotspots": [
-        {
-          "title": "Engine",
-          "text": "10+ years of experience"
-        },
-        {
-          "title": "Body",
-          "text": "10,000+ cars imported"
-        },
-        {
-          "title": "Wheels",
-          "text": "98% successful deliveries"
-        },
-        {
-          "title": "Doors",
-          "text": "A transparent process: open pricing, clear costs"
-        },
-        {
-          "title": "Steering wheel",
-          "text": "100% turnkey service"
-        },
-        {
-          "title": "Headlights",
-          "text": "Fast response, constant contact"
-        },
+        { "title": "Engine", "text": "10+ years of experience" },
+        { "title": "Body", "text": "10,000+ cars imported" },
+        { "title": "Wheels", "text": "98% successful deliveries" },
+        { "title": "Doors", "text": "A transparent process: open pricing, clear costs" },
+        { "title": "Steering wheel", "text": "100% turnkey service" },
+        { "title": "Headlights", "text": "Fast response, constant contact" },
         {
           "title": "Documents",
           "text": "International network: USA • China • Europe • Korea • Japan"
         },
-        {
-          "title": "Key",
-          "text": "3 branches in Armenia"
-        }
+        { "title": "Key", "text": "3 branches in Armenia" }
       ]
     }
   },
@@ -212,28 +175,13 @@
       "eyebrow": "AvtoRoom",
       "h1": "We import cars from the USA, China, Europe and other international markets",
       "stats": [
-        {
-          "value": "50+",
-          "label": "international partner network"
-        },
-        {
-          "value": "10+",
-          "label": "years of experience"
-        },
-        {
-          "value": "10,000+",
-          "label": "cars imported"
-        }
+        { "value": "50+", "label": "international partner network" },
+        { "value": "10+", "label": "years of experience" },
+        { "value": "10,000+", "label": "cars imported" }
       ],
       "pickerHeading": "Choose your next car",
-      "usaCard": {
-        "title": "USA",
-        "cta": "View USA cars"
-      },
-      "chinaCard": {
-        "title": "China",
-        "cta": "View China cars"
-      }
+      "usaCard": { "title": "USA", "cta": "View USA cars" },
+      "chinaCard": { "title": "China", "cta": "View China cars" }
     },
     "featured": {
       "eyebrow": "Handpicked by our team",
@@ -267,22 +215,10 @@
         }
       ],
       "stats": [
-        {
-          "value": "10+",
-          "label": "years of experience"
-        },
-        {
-          "value": "98%",
-          "label": "successful deliveries"
-        },
-        {
-          "value": "100%",
-          "label": "turnkey service"
-        },
-        {
-          "value": "3",
-          "label": "branches in Armenia"
-        }
+        { "value": "10+", "label": "years of experience" },
+        { "value": "98%", "label": "successful deliveries" },
+        { "value": "100%", "label": "turnkey service" },
+        { "value": "3", "label": "branches in Armenia" }
       ],
       "finalLine": "Every detail is in its place — that's how we work",
       "cta": "Start choosing",
@@ -521,22 +457,10 @@
     "whyChooseUs": {
       "heading": "Why choose AutoRoom",
       "stats": [
-        {
-          "value": "10+",
-          "label": "years of experience"
-        },
-        {
-          "value": "98%",
-          "label": "successful deliveries"
-        },
-        {
-          "value": "100%",
-          "label": "turnkey service"
-        },
-        {
-          "value": "3",
-          "label": "branches in Armenia"
-        }
+        { "value": "10+", "label": "years of experience" },
+        { "value": "98%", "label": "successful deliveries" },
+        { "value": "100%", "label": "turnkey service" },
+        { "value": "3", "label": "branches in Armenia" }
       ]
     },
     "team": {
