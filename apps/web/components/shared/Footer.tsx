@@ -1,28 +1,18 @@
 import Link from 'next/link';
 import { branchTelHref } from '@/lib/branches';
 import { getServerMessages } from '@/lib/i18n';
-import type { Messages } from '@/lib/i18n';
 import { FooterCta } from '@/components/shared/FooterCta';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import type { BrandingLogos } from '@/lib/branding';
 import type { GeneralContacts, SocialLinks } from '@/lib/contacts';
 
-const FOOTER_LINKS: { key: keyof Messages['common']['nav']; href: string }[] = [
-  { key: 'home', href: '/' },
-  { key: 'china', href: '/china' },
-  { key: 'usa', href: '/usa' },
-  { key: 'offers', href: '/offers' },
-  { key: 'partners', href: '/partners' },
-  { key: 'about', href: '/about' },
-  { key: 'contact', href: '/contact' },
-];
-
 // Figma's Homepage footer (node `125:1366`) only shows a logo row, then
 // socials + contact paired with a big "let's talk" CTA — no nav/branch
 // columns, matching an agency-template footer rather than AutoRoom-authored
-// content. The nav-links row below is still surfaced (smaller, secondary)
-// since Footer is global and every other page needs that wayfinding — an
-// addition on top of Figma's own content, not a substitute for it.
+// content. A secondary site-nav row used to be added here on top of that
+// (reasoning: Footer is global, every other page needs that wayfinding),
+// but per explicit request this footer now matches Figma's own content
+// exactly instead — the Header's nav already covers wayfinding.
 //
 // Labels only, deliberately — hrefs come from admin-managed `contacts.social`
 // (see `SocialList` below), which only has these four platforms. No
@@ -140,27 +130,6 @@ export async function Footer({
             <p className="font-display text-home-h2 font-light text-white">{footer.ctaHeading}</p>
             <FooterCta label={footer.ctaButton} />
           </div>
-        </div>
-
-        {/* Site nav — not in Figma's own footer content; kept as a smaller,
-            secondary row since Footer is global and every other page needs
-            this wayfinding (see file-top comment). */}
-        <div className="mt-16 border-t border-white/10 pt-10">
-          <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-            {footer.navHeading}
-          </p>
-          <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-            {FOOTER_LINKS.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="inline-block min-h-11 py-2.5 text-small text-white/80 hover:text-accent"
-                >
-                  {nav[item.key]}
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
 
