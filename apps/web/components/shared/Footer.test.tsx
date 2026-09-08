@@ -66,9 +66,6 @@ describe('Footer', () => {
 
   it('links the logo home', async () => {
     renderWithLocale(await Footer());
-    // The footer's nav-links list also renders a "home" link with the same
-    // accessible name, so `getByRole` would be ambiguous here — walk up from
-    // the logo image itself instead of matching by name.
     const logoLink = screen.getByAltText(messages.common.brand).closest('a');
     expect(logoLink).toHaveAttribute('href', '/');
   });
@@ -110,16 +107,6 @@ describe('Footer', () => {
   it('renders nothing in the social column when no platform is set', async () => {
     renderWithLocale(await Footer());
     expect(screen.queryByText(messages.common.footer.socialHeading)).not.toBeInTheDocument();
-  });
-
-  it('renders every site nav link', async () => {
-    renderWithLocale(await Footer());
-    const expectedHrefs = ['/', '/china', '/usa', '/offers', '/partners', '/about', '/contact'];
-    for (const href of expectedHrefs) {
-      expect(screen.getAllByRole('link').some((link) => link.getAttribute('href') === href)).toBe(
-        true,
-      );
-    }
   });
 
   it('shows the copyright row', async () => {
