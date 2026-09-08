@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
 import { detectDevice, submitLead } from '@/lib/leads';
@@ -15,11 +14,28 @@ const TOPIC_KEYS = ['usa', 'china', 'machinery', 'financing', 'partnership', 'ot
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
+ * Shared field styling — pixel-matched to Figma node `141:636` (file
+ * `9Lq4XpWusTJj1VnM6laAZr`, verified via get_design_context): a borderless
+ * 72px-tall pill with a `neutral-25` (#fafafa) fill, not the 48px
+ * bordered-white-box `rounded-md` inputs this used to have.
+ */
+const FIELD_CLASSES =
+  'h-[72px] w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent';
+const LABEL_CLASSES = 'mb-2 block text-[16px] font-medium leading-5 text-neutral-800';
+
+/**
  * Contact `/contact` S1 right column (`references/pages.md` "8. Contact"
  * S1): a **static** form — unlike every other lead entry point on the site,
  * submitting stays on the page (no `UniversalPopup`/`QuizPopup`), matching
- * Figma node `141:600` (file `9Lq4XpWusTJj1VnM6laAZr`) exactly: Անուն, Էլ.
- * հասցե, Հեռախոսահամար, Թեմա dropdown, one submit button.
+ * Figma node `141:636` (file `9Lq4XpWusTJj1VnM6laAZr`, "Form Wrapper").
+ *
+ * Pixel-audit fix (verified via get_design_context, not just the earlier
+ * Dev-Mode-only pass): the real field order is Անուն (full width) →
+ * [Հեռախոսահամար | Էլ. հասցե] paired → Թեմա (full width), not this
+ * component's old symmetric 2×2 grid — and the submit button is a 60px
+ * gold (`bg-accent`) pill with dark text, not the shared `Button`
+ * component's white-text 44px default (used nowhere else with a gold fill
+ * like this, so it's rebuilt inline here to match rather than adapted).
  *
  * The spec also names a "Մեկնաբանություն" (comment) textarea that this
  * particular Figma mock doesn't show — added anyway since it's explicit,
@@ -88,10 +104,14 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl bg-white p-9 shadow-card" noValidate>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-xl bg-white p-9 shadow-card sm:p-10"
+      noValidate
+    >
+      <div className="flex flex-col gap-8">
         <div>
-          <label htmlFor="contact-name" className="mb-1 block text-small font-medium text-ink">
+          <label htmlFor="contact-name" className={LABEL_CLASSES}>
             {t.nameLabel}
           </label>
           <input
@@ -105,7 +125,7 @@ export function ContactForm() {
             aria-invalid={nameError}
             aria-describedby={nameError ? 'contact-name-error' : undefined}
             placeholder={t.namePlaceholder}
-            className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+            className={FIELD_CLASSES}
           />
           {nameError && (
             <p id="contact-name-error" className="mt-1 text-small text-accent">
@@ -114,56 +134,58 @@ export function ContactForm() {
           )}
         </div>
 
-        <div>
-          <label htmlFor="contact-email" className="mb-1 block text-small font-medium text-ink">
-            {t.emailLabel}
-          </label>
-          <input
-            id="contact-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            onBlur={() => setTouched(true)}
-            aria-invalid={emailError}
-            aria-describedby={emailError ? 'contact-email-error' : undefined}
-            placeholder={t.emailPlaceholder}
-            className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-          />
-          {emailError && (
-            <p id="contact-email-error" className="mt-1 text-small text-accent">
-              {t.errors.emailInvalid}
-            </p>
-          )}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="contact-phone" className={LABEL_CLASSES}>
+              {t.phoneLabel}
+            </label>
+            <input
+              id="contact-phone"
+              name="phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              value={phone}
+              onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+              onBlur={() => setTouched(true)}
+              aria-invalid={phoneError}
+              aria-describedby={phoneError ? 'contact-phone-error' : undefined}
+              className={FIELD_CLASSES}
+            />
+            {phoneError && (
+              <p id="contact-phone-error" className="mt-1 text-small text-accent">
+                {t.errors.phoneInvalid}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="contact-email" className={LABEL_CLASSES}>
+              {t.emailLabel}
+            </label>
+            <input
+              id="contact-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              onBlur={() => setTouched(true)}
+              aria-invalid={emailError}
+              aria-describedby={emailError ? 'contact-email-error' : undefined}
+              placeholder={t.emailPlaceholder}
+              className={FIELD_CLASSES}
+            />
+            {emailError && (
+              <p id="contact-email-error" className="mt-1 text-small text-accent">
+                {t.errors.emailInvalid}
+              </p>
+            )}
+          </div>
         </div>
 
         <div>
-          <label htmlFor="contact-phone" className="mb-1 block text-small font-medium text-ink">
-            {t.phoneLabel}
-          </label>
-          <input
-            id="contact-phone"
-            name="phone"
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel"
-            value={phone}
-            onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
-            onBlur={() => setTouched(true)}
-            aria-invalid={phoneError}
-            aria-describedby={phoneError ? 'contact-phone-error' : undefined}
-            className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-          />
-          {phoneError && (
-            <p id="contact-phone-error" className="mt-1 text-small text-accent">
-              {t.errors.phoneInvalid}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="contact-topic" className="mb-1 block text-small font-medium text-ink">
+          <label htmlFor="contact-topic" className={LABEL_CLASSES}>
             {t.topicLabel}
           </label>
           <select
@@ -171,7 +193,7 @@ export function ContactForm() {
             name="topic"
             value={topic}
             onChange={(event) => setTopic(event.target.value as (typeof TOPIC_KEYS)[number])}
-            className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
+            className={`${FIELD_CLASSES} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:16px] bg-[position:right_24px_center] bg-no-repeat pr-12`}
           >
             <option value="" disabled>
               {t.topicPlaceholder}
@@ -183,32 +205,40 @@ export function ContactForm() {
             ))}
           </select>
         </div>
-      </div>
 
-      <div className="mt-4">
-        <label htmlFor="contact-comment" className="mb-1 block text-small font-medium text-ink">
-          {t.commentLabel}
-        </label>
-        <textarea
-          id="contact-comment"
-          name="comment"
-          rows={4}
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-          placeholder={t.commentPlaceholder}
-          className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
-        />
-      </div>
+        {/* Not in this Figma mock (see file-top comment) — kept as-is, same field styling. */}
+        <div>
+          <label htmlFor="contact-comment" className={LABEL_CLASSES}>
+            {t.commentLabel}
+          </label>
+          <textarea
+            id="contact-comment"
+            name="comment"
+            rows={4}
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            placeholder={t.commentPlaceholder}
+            className="w-full rounded-xl bg-neutral-25 px-6 py-4 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+          />
+        </div>
 
-      <Button type="submit" variant="primary" className="mt-6" disabled={status === 'submitting'}>
-        {status === 'submitting' ? (
-          t.sending
-        ) : (
-          <>
-            {t.submit} <ArrowUpRightIcon />
-          </>
-        )}
-      </Button>
+        {/* 60px gold pill, dark text — Figma's own `BTN` instance here, not
+            the shared `Button` component's 44px/white-text default. */}
+        <button
+          type="submit"
+          disabled={status === 'submitting'}
+          className="inline-flex h-[60px] w-fit shrink-0 items-center justify-center gap-1 self-start rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+        >
+          {status === 'submitting' ? (
+            t.sending
+          ) : (
+            <>
+              {t.submit}
+              <ArrowUpRightIcon className="size-5" />
+            </>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

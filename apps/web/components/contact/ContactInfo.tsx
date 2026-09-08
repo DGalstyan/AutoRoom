@@ -43,6 +43,13 @@ const SOCIAL_LABELS = [
  * not the 40px `mt-10` before the label or the tighter `space-y-3` the
  * lists had. The "Հետևիր մեզ" label itself is the same 24px/700 style as
  * the card's own heading, not a small uppercase eyebrow.
+ *
+ * Third pixel-audit pass (verified via get_design_context, node `141:589`/
+ * `141:619`): the info-list icons are 32px, not 20px, and every row's text
+ * color is literally `neutral-800` (#3D3D3D), not `text-ink/70` — those
+ * happen to render close but aren't the same token. The social list's own
+ * icon is 16px with only a 4px gap to its label (`gap-1`), not the 8px
+ * (`gap-2`) this had.
  */
 export async function ContactInfo() {
   const [{ general, social }, { messages }] = await Promise.all([
@@ -61,7 +68,7 @@ export async function ContactInfo() {
           <li>
             <a
               href={`mailto:${general.email}`}
-              className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70 hover:text-accent"
+              className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800 hover:text-accent"
             >
               <MailIcon />
               {general.email}
@@ -72,7 +79,7 @@ export async function ContactInfo() {
           <li key={phone}>
             <a
               href={branchTelHref(phone)}
-              className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70 hover:text-accent"
+              className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800 hover:text-accent"
             >
               <PhoneIcon />
               {phone}
@@ -80,7 +87,7 @@ export async function ContactInfo() {
           </li>
         ))}
         {general.workingHours && (
-          <li className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70">
+          <li className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800">
             <ClockIcon />
             {general.workingHours}
           </li>
@@ -102,9 +109,9 @@ export async function ContactInfo() {
                   href={social[key]!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center gap-2 text-lead text-ink/70 hover:text-accent"
+                  className="inline-flex min-h-11 items-center gap-1 text-lead text-neutral-800 hover:text-accent"
                 >
-                  <ArrowUpRightIcon />
+                  <ArrowUpRightIcon className="size-4" />
                   {name}
                 </a>
               </li>
@@ -118,7 +125,7 @@ export async function ContactInfo() {
 
 function MailIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <svg width="32" height="32" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <path
         d="M3 5.5h14a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"
         stroke="currentColor"
@@ -131,7 +138,7 @@ function MailIcon() {
 
 function PhoneIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <svg width="32" height="32" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <path
         d="M4 3h3l1.5 4-2 1.5a10 10 0 0 0 5 5l1.5-2 4 1.5v3a1 1 0 0 1-1 1C9.5 17 3 10.5 3 4a1 1 0 0 1 1-1Z"
         stroke="currentColor"
@@ -144,7 +151,7 @@ function PhoneIcon() {
 
 function ClockIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <svg width="32" height="32" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <circle cx="10" cy="10" r="7.25" stroke="currentColor" strokeWidth="1.5" />
       <path d="M10 6v4l3 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
