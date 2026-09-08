@@ -3,7 +3,11 @@ import path from 'node:path';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import {
+  CarCondition,
+  CarOrigin,
   FaqTopic,
+  ImageAlbum,
+  Powertrain,
   Prisma,
   PrismaClient,
   SettingGroup,
@@ -153,6 +157,163 @@ const BANKS = [
   { name: 'IDBank', loanUrl: 'https://idbank.am', inHouse: false },
   { name: 'AutoRoom', loanUrl: null, inHouse: true },
 ];
+
+/**
+ * Homepage "Շաբաթվա լավագույն առաջարկները" sample inventory. The four photos
+ * (`public/images/home/featured-{1..4}.jpg`, real stock exported from Figma's
+ * own mock) were already sitting in the web app unused — no `Car` row
+ * pointed at them, so `FeaturedCars` rendered nothing in a fresh dev
+ * environment. Wires them up as real, `featured: true` listings.
+ *
+ * `CHINA_CARS` similarly seeds the `/china` listing grid, which otherwise
+ * has nothing to show in a fresh environment — reuses the two China-side
+ * images that already exist (`direction-china.webp`,
+ * `china/ecosystem-strip.jpg`) and the makes/models already referenced by
+ * the Homepage `CustomerStoryWall` mock stories, for continuity. One car
+ * (`byd-song-plus-promo`) carries `oldPrice`/`promoDeadline` so `CarCard`'s
+ * "Ակցիա" countdown path renders too, not just the plain-condition path.
+ *
+ * TODO(client): this is sample inventory for local development, not real
+ * stock — replace with the client's actual cars via the admin panel.
+ */
+const FEATURED_CARS = [
+  {
+    slug: 'mclaren-720s-orange',
+    make: 'McLaren',
+    model: '720S',
+    year: 2019,
+    price: 250_000,
+    image: '/images/home/featured-1.jpg',
+  },
+  {
+    slug: 'mclaren-720s-spider-red',
+    make: 'McLaren',
+    model: '720S Spider',
+    year: 2020,
+    price: 265_000,
+    image: '/images/home/featured-2.jpg',
+  },
+  {
+    slug: 'bmw-m4-competition',
+    make: 'BMW',
+    model: 'M4 Competition',
+    year: 2022,
+    price: 78_000,
+    image: '/images/home/featured-3.jpg',
+  },
+  {
+    slug: 'mclaren-720s-silver',
+    make: 'McLaren',
+    model: '720S',
+    year: 2021,
+    price: 258_000,
+    image: '/images/home/featured-4.jpg',
+  },
+] as const;
+
+const CHINA_CARS = [
+  {
+    slug: 'byd-seal-china',
+    make: 'BYD',
+    model: 'Seal',
+    year: 2024,
+    trim: 'Performance',
+    price: 34_000,
+    condition: CarCondition.IN_STOCK,
+    image: '/images/home/direction-china.webp',
+  },
+  {
+    slug: 'zeekr-001-china',
+    make: 'Zeekr',
+    model: '001',
+    year: 2024,
+    trim: null,
+    price: 42_000,
+    condition: CarCondition.ON_ORDER,
+    image: '/images/china/ecosystem-strip.jpg',
+  },
+  {
+    slug: 'byd-song-plus-promo',
+    make: 'BYD',
+    model: 'Song Plus',
+    year: 2023,
+    trim: null,
+    price: 27_500,
+    oldPrice: 31_000,
+    promoDeadline: new Date('2026-12-31'),
+    condition: CarCondition.IN_STOCK,
+    image: '/images/home/direction-china.webp',
+  },
+] as const;
+
+/**
+ * Matched on `slug` (unique). Re-running keeps existing rows featured and
+ * published rather than fighting an admin who has since edited them — only
+ * a missing car or a missing primary photo gets created.
+ */
+async function seedCars() {
+  for (const car of FEATURED_CARS) {
+    const record = await prisma.car.upsert({
+      where: { slug: car.slug },
+      update: {},
+      create: {
+        slug: car.slug,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        origin: CarOrigin.USA,
+        condition: CarCondition.IN_STOCK,
+        powertrain: Powertrain.BENZIN,
+        price: car.price,
+        featured: true,
+        publishedAt: new Date(),
+      },
+    });
+
+    const existingImage = await prisma.carImage.findFirst({
+      where: { carId: record.id, album: ImageAlbum.EXTERIOR },
+    });
+    if (!existingImage) {
+      await prisma.carImage.create({
+        data: { carId: record.id, album: ImageAlbum.EXTERIOR, url: car.image, position: 0 },
+      });
+    }
+  }
+
+  for (const car of CHINA_CARS) {
+    const record = await prisma.car.upsert({
+      where: { slug: car.slug },
+      update: {},
+      create: {
+        slug: car.slug,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        trim: car.trim,
+        origin: CarOrigin.CHINA,
+        condition: car.condition,
+        powertrain: Powertrain.EV,
+        price: car.price,
+        oldPrice: 'oldPrice' in car ? car.oldPrice : null,
+        promoDeadline: 'promoDeadline' in car ? car.promoDeadline : null,
+        featured: false,
+        financingAvailable: true,
+        publishedAt: new Date(),
+      },
+    });
+
+    const existingImage = await prisma.carImage.findFirst({
+      where: { carId: record.id, album: ImageAlbum.EXTERIOR },
+    });
+    if (!existingImage) {
+      await prisma.carImage.create({
+        data: { carId: record.id, album: ImageAlbum.EXTERIOR, url: car.image, position: 0 },
+      });
+    }
+  }
+
+  console.log(`  cars: ${FEATURED_CARS.length} featured, ${CHINA_CARS.length} China listing`);
+}
 
 // TODO(client): real names, titles and photos for the About page's "Մեր
 // թիմը" grid — placeholder names/titles only, same convention as Figma's own
@@ -438,6 +599,7 @@ async function main() {
   await seedSuperAdmin();
   await seedSettings();
   await seedBranchesAndBanks();
+  await seedCars();
   await seedTeam();
   await seedFaq();
 

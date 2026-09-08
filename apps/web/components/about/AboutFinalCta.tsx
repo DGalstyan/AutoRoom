@@ -1,14 +1,20 @@
 'use client';
 
+import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * About S5 Final CTA (`references/pages.md` "6. About" S5). Figma node
- * `123:298`/`123:299` (file `9Lq4XpWusTJj1VnM6laAZr`): same dark
- * heading+text-left / pill-button-right layout as `HomeFinalCta` and
- * `OffersFinalCta` — opens the Universal popup (this page has no Quiz-popup
- * spot per the skill's lead-widget rule, same reasoning as `OffersFinalCta`).
+ * `123:296` (file `9Lq4XpWusTJj1VnM6laAZr`): same dark heading+text-left /
+ * pill-button-right layout as `HomeFinalCta` and `OffersFinalCta` — opens
+ * the Universal popup (this page has no Quiz-popup spot per the skill's
+ * lead-widget rule, same reasoning as `OffersFinalCta`).
+ *
+ * Button pixel-audit fix (node `123:302`, verified via get_design_context):
+ * the real `BTN` instance is `px-6 py-9` — a much taller pill (~108px, not
+ * a normal `min-h-11` button) — with a trailing diagonal arrow
+ * (`ArrowUpRightIcon`) that this button was missing entirely.
  *
  * The spec text also calls for a thin gradient banner-CTA above this
  * ("Հարցեր ունե՞ս․ խոսիր մասնագետի հետ → Հիմա") — not present as a distinct
@@ -30,9 +36,10 @@ export function AboutFinalCta() {
         <button
           type="button"
           onClick={() => openUniversal({ sourceCta: 'about-s5-final-cta' })}
-          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-pill border border-white/20 bg-transparent px-8 py-4 text-home-label font-normal text-white transition-colors duration-standard ease-expo hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="inline-flex shrink-0 items-center justify-center gap-1 rounded-pill border border-white/20 bg-transparent px-6 py-9 text-home-label font-normal text-white transition-colors duration-standard ease-expo hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           {t.cta}
+          <ArrowUpRightIcon className="size-5" />
         </button>
       </div>
     </section>

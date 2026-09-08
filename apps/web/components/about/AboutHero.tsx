@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -12,12 +14,12 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * section is light-on-dark's opposite of what a first pass assumed): left a
  * big heading, right the company intro paragraph + two CTAs — gold "Ստանալ
  * անվճար խորհրդատվություն" (opens the Universal popup) and solid-white
- * "Կապվել մեզ հետ". `/contact` doesn't exist yet, so the second button also
- * opens the popup rather than linking to a page that would 404 — a
- * deliberate substitution, not the literal Figma behavior. This section
- * supplies its own header clearance (`pt-32`/`sm:pt-40`), so the page no
- * longer needs the borrowed-clearance workaround the team-grid-only version
- * used.
+ * "Կապվել մեզ հետ" (now a real link to `/contact`, not the popup — see
+ * below). Both `BTN` instances carry Figma's trailing diagonal arrow
+ * (`ArrowUpRightIcon`, node `123:334`'s `Iconly/Light-outline/Arrow - Up`),
+ * which this section was missing entirely. This section supplies its own
+ * header clearance (`pt-32`/`sm:pt-40`), so the page no longer needs the
+ * borrowed-clearance workaround the team-grid-only version used.
  */
 export function AboutHero() {
   const t = useMessages().about;
@@ -36,14 +38,17 @@ export function AboutHero() {
               className="inline-flex min-h-11 items-center justify-center gap-1 rounded-pill bg-accent px-6 py-3 text-small font-medium text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
             >
               {t.cta.consultation}
+              <ArrowUpRightIcon />
             </button>
-            <button
-              type="button"
-              onClick={() => openUniversal({ sourceCta: 'about-s1-hero-contact' })}
+            {/* `/contact` exists now — this used to also open the Universal
+                popup as a stand-in for a page that would have 404'd. */}
+            <Link
+              href="/contact"
               className="inline-flex min-h-11 items-center justify-center gap-1 rounded-pill bg-white px-6 py-3 text-small font-medium text-ink shadow-card transition-colors duration-standard ease-expo hover:bg-white/90"
             >
               {t.cta.contact}
-            </button>
+              <ArrowUpRightIcon />
+            </Link>
           </div>
         </div>
       </div>

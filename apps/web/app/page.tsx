@@ -43,7 +43,12 @@ export default async function HomePage() {
           at an opaque tan #6B5D4E rather than transparent, itself blurred
           5px). Heading and stats widths/gaps below are Figma's own box
           numbers (110:642, 110:631) inside the 1280px content column. */}
-      <section className="relative isolate overflow-hidden bg-bg pb-24 pt-36 sm:pb-32 sm:pt-44">
+      {/* No `overflow-hidden` here on purpose: the fade div below intentionally
+          extends past this section's own bottom edge, and clipping it right
+          at that edge is what caused the seam (see its comment). The `Image`
+          `fill`+`object-cover` never overflows its container on its own, so
+          nothing here actually depended on the clip. */}
+      <section className="relative isolate bg-bg pb-24 pt-36 sm:pb-32 sm:pt-44">
         <Image
           src="/images/home/hero-desert.jpg"
           alt="AutoRoom-ով ներմուծված մեքենան անապատում"
@@ -86,7 +91,7 @@ export default async function HomePage() {
           126px gap — not stretched to equal `1fr` columns). Each card rises
           into place on scroll (`Reveal`, staggered) — `DirectionCard` itself
           already carries the hover lift/arrow-color animation. */}
-      <Section tone="light" className="pt-0 sm:pt-0">
+      <Section tone="light" className="pt-[10px] sm:pt-[10px]">
         <h2 className="text-center font-display text-home-h2 font-light text-ink">
           {hero.pickerHeading}
         </h2>

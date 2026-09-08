@@ -89,7 +89,7 @@ export async function ContactInfo() {
       {socialLinks.length > 0 && (
         <div className="mt-4">
           <p className="font-display text-home-card-title font-bold text-ink">{t.info.followUs}</p>
-          <ul className="mt-4 space-y-4">
+          <ul className="mt-4 grid grid-cols-2 gap-[5px]">
             {socialLinks.map(({ key, name }) => (
               <li key={key}>
                 <a

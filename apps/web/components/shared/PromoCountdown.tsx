@@ -22,11 +22,22 @@ function formatCountdown(deadline: string): string {
  * become a client component just for one ticking value — Server Components
  * may render Client Components as children freely. Ticks once a minute,
  * which is all the display's own minute-granularity needs.
+ *
+ * Starts `null` rather than computing `formatCountdown` in the `useState`
+ * initializer: that initializer also runs during hydration, and since it
+ * reads `Date.now()`, the server's render instant and the client's
+ * hydration instant can land in different minutes — a real, reproducible
+ * hydration mismatch (caught live: server said "113d, 17h, 22m", client
+ * hydrated one minute later as "113d, 17h, 21m"). Computing the real value
+ * only in `useEffect` guarantees the initial client render matches the
+ * server's `null` exactly; the swap to the real countdown happens a tick
+ * later, imperceptibly.
  */
 export function PromoCountdown({ deadline }: { deadline: string }) {
-  const [label, setLabel] = useState(() => formatCountdown(deadline));
+  const [label, setLabel] = useState<string | null>(null);
 
   useEffect(() => {
+    setLabel(formatCountdown(deadline));
     const id = setInterval(() => setLabel(formatCountdown(deadline)), 60_000);
     return () => clearInterval(id);
   }, [deadline]);
