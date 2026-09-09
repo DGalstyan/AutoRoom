@@ -30,7 +30,7 @@ import { PromoCountdown } from '@/components/shared/PromoCountdown';
  */
 export async function CarCard({ car, priority = false }: { car: CarSummary; priority?: boolean }) {
   const { messages } = await getServerMessages();
-  const t = messages.china.carCard;
+  const t = messages.common.carCard;
   const imageSrc = car.images[0]?.url;
 
   const hasDiscount = car.oldPrice != null && car.oldPrice > car.price;

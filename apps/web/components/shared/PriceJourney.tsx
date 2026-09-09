@@ -8,10 +8,16 @@ import { formatUsd } from '@/lib/types/car';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * "Գնի ճանապարհը" — China (and later USA) car-detail S3.5. A left-aligned
- * heading over a two-column layout: a vertical stack of numbered white-card
- * steps (each `car.priceJourney` chip) ending in a formula-style total row,
- * next to a decorative China→Armenia route panel. Figma node 102:221/102:222.
+ * "Գնի ճանապարհը" — China car-detail S3.5 only (per `references/pages.md`
+ * the USA pages have no price-journey breakdown, so `car.priceJourney` is
+ * simply empty for USA cars and callers already guard on `.length > 0`). A
+ * left-aligned heading over a two-column layout: a vertical stack of
+ * numbered white-card steps (each `car.priceJourney` chip) ending in a
+ * formula-style total row, next to a decorative China→Armenia route panel.
+ * Figma node 102:221/102:222. Message strings live under the shared
+ * `common.carDetail` namespace alongside the rest of this page's copy
+ * (nothing China-specific in the wording itself), even though the component
+ * is only ever mounted on the China page.
  *
  * The route panel (node 102:255 "Map-area") is a static stock map image with
  * hand-placed pin vectors — pure decoration with no real data behind it, so
@@ -31,7 +37,7 @@ export function PriceJourney({
   finalAmount: number;
   car: UniversalPopupCarContext;
 }) {
-  const t = useMessages().china.detail.priceJourney;
+  const t = useMessages().common.carDetail.priceJourney;
   const { openUniversal } = useLeadWidgets();
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);

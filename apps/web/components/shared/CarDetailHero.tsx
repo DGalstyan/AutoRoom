@@ -11,11 +11,12 @@ import type { Bank } from '@/lib/banks';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * China (and later USA) car-detail S3.1–3.3 + 3.6b: the name/price title
- * bar with the two CTAs, the image gallery, the order-only colour picker
- * (only `ON_ORDER` cars carry meaningful `car.colors` — an in-stock car is
- * one specific physical car in one specific colour, per
- * `apps/api/prisma/schema.prisma`'s `colors` comment) and the compact
+ * China/USA car-detail S3.1–3.3 + 3.6b: the name/price title bar with the
+ * two CTAs, the image gallery, the order-only colour picker (only
+ * `ON_ORDER` cars carry meaningful `car.colors` — an in-stock car is one
+ * specific physical car in one specific colour, per
+ * `apps/api/prisma/schema.prisma`'s `colors` comment — a condition check,
+ * not an origin check, so it applies to either) and the compact
  * `BuyWithLoan` bank grid. One client component because the colour picker,
  * gallery and both CTAs all share the same `selectedColor` state. Pixel-
  * matched to Figma node 102:476 (file 9Lq4XpWusTJj1VnM6laAZr):
@@ -26,9 +27,16 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  *   repeat them;
  * - the gallery+specs block sits on its own slightly-off-white backdrop,
  *   not the page's plain background.
+ *
+ * Moved here from `components/china/` once `/usa/available/[slug]` and
+ * `/usa/auctions/[slug]` started reusing it verbatim — it was already
+ * fully origin-agnostic (no China-specific branching anywhere in this
+ * file), just living under the wrong directory and reading its copy from
+ * `china.detail`; that copy is generic UI labels (not China-specific
+ * wording), now under the shared `common.carDetail` namespace instead.
  */
 export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
-  const t = useMessages().china.detail;
+  const t = useMessages().common.carDetail;
   const { openUniversal } = useLeadWidgets();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
 
@@ -66,7 +74,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
           <button
             type="button"
             onClick={() =>
-              openUniversal({ sourceCta: 'china-detail-per-car-offer', car: carContext })
+              openUniversal({ sourceCta: 'car-detail-per-car-offer', car: carContext })
             }
             className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-accent-600"
           >

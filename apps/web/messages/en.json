@@ -152,7 +152,77 @@
     },
     "carCard": {
       "cta": "See details",
-      "fromPrice": "Price:"
+      "fromPrice": "Price:",
+      "conditions": {
+        "IN_STOCK": "In stock",
+        "ON_ORDER": "On order",
+        "ON_ROAD": "On the road",
+        "AUCTION": "At auction"
+      },
+      "financingAvailable": "Financing available",
+      "promo": "Deal",
+      "promoEnded": "Ended"
+    },
+    "carDetail": {
+      "ctaOffer": "Personal offer",
+      "ctaLoan": "Loan terms",
+      "gallery": {
+        "exterior": "Exterior",
+        "interior": "Interior",
+        "details": "Details",
+        "video": "Video"
+      },
+      "specs": {
+        "heading": "General specifications",
+        "make": "Make",
+        "condition": "Condition",
+        "deliveryEta": "Delivery time",
+        "deliveryEtaValue": "{days} days",
+        "year": "Year",
+        "trim": "Trim",
+        "fuel": "Fuel type",
+        "powertrain": {
+          "EV": "Electric (BEV)",
+          "HYBRID": "Hybrid",
+          "BENZIN": "Petrol"
+        },
+        "range": "Range per charge",
+        "rangeValue": "up to {km} km (WLTP)",
+        "battery": "Battery",
+        "engine": "Engine",
+        "drivetrain": "Drivetrain",
+        "transmission": "Transmission",
+        "seats": "Seats",
+        "warranty": "Warranty",
+        "vin": "VIN",
+        "lotNumber": "Lot number",
+        "mileage": "Mileage",
+        "mileageValue": "{km} km",
+        "location": "Location",
+        "damageHistory": "Damage history"
+      },
+      "colorPicker": {
+        "heading": "Choose a color"
+      },
+      "buyWithLoan": {
+        "heading": "Buy on credit"
+      },
+      "priceJourney": {
+        "heading": "The price journey",
+        "finalLabel": "Final price in Armenia",
+        "cta": "Get an exact quote"
+      },
+      "loanCalculator": {
+        "heading": "Loan terms",
+        "downPayment": "Down payment",
+        "term": "Term (months)",
+        "nominalRate": "Nominal rate (subject to confirmation)",
+        "effectiveRate": "Effective rate (subject to confirmation)",
+        "monthly": "Monthly payment"
+      },
+      "similarOffers": {
+        "heading": "Similar offers"
+      }
     },
     "carAnatomy": {
       "hotspots": [
@@ -311,17 +381,6 @@
       "priceFrom": "From",
       "priceTo": "To"
     },
-    "carCard": {
-      "conditions": {
-        "IN_STOCK": "In stock",
-        "ON_ORDER": "On order",
-        "ON_ROAD": "On the road",
-        "AUCTION": "At auction"
-      },
-      "financingAvailable": "Financing available",
-      "promo": "Deal",
-      "promoEnded": "Ended"
-    },
     "empty": "No cars match these filters yet.",
     "financing": {
       "heading": "Financing and installment options",
@@ -384,60 +443,6 @@
       "heading": "Your next car is already in China — let's get started",
       "text": "Leave your details, get an offer",
       "cta": "Get started"
-    },
-    "detail": {
-      "ctaOffer": "Personal offer",
-      "ctaLoan": "Loan terms",
-      "gallery": {
-        "exterior": "Exterior",
-        "interior": "Interior",
-        "details": "Details",
-        "video": "Video"
-      },
-      "specs": {
-        "heading": "General specifications",
-        "make": "Make",
-        "condition": "Condition",
-        "deliveryEta": "Delivery time",
-        "deliveryEtaValue": "{days} days",
-        "year": "Year",
-        "trim": "Trim",
-        "fuel": "Fuel type",
-        "powertrain": {
-          "EV": "Electric (BEV)",
-          "HYBRID": "Hybrid",
-          "BENZIN": "Petrol"
-        },
-        "range": "Range per charge",
-        "rangeValue": "up to {km} km (WLTP)",
-        "battery": "Battery",
-        "engine": "Engine",
-        "drivetrain": "Drivetrain",
-        "seats": "Seats",
-        "warranty": "Warranty"
-      },
-      "colorPicker": {
-        "heading": "Choose a color"
-      },
-      "buyWithLoan": {
-        "heading": "Buy on credit"
-      },
-      "priceJourney": {
-        "heading": "The price journey",
-        "finalLabel": "Final price in Armenia",
-        "cta": "Get an exact quote"
-      },
-      "loanCalculator": {
-        "heading": "Loan terms",
-        "downPayment": "Down payment",
-        "term": "Term (months)",
-        "nominalRate": "Nominal rate (subject to confirmation)",
-        "effectiveRate": "Effective rate (subject to confirmation)",
-        "monthly": "Monthly payment"
-      },
-      "similarOffers": {
-        "heading": "Similar offers"
-      }
     }
   },
   "about": {

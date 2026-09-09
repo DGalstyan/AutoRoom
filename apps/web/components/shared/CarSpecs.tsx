@@ -5,7 +5,7 @@ import { interpolate } from '@/lib/messages';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * China (and later USA) car-detail S3.4 — "Ընդհանուր տվյալներ" spec table.
+ * China/USA car-detail S3.4 — "Ընդհանուր տվյալներ" spec table.
  * Every row maps to a real `Car` column (`apps/api/prisma/schema.prisma`);
  * rows whose value is null/absent for this car are skipped rather than shown
  * empty, since not every spec applies to every powertrain (an EV has no
@@ -19,8 +19,8 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  */
 export function CarSpecs({ car }: { car: Car }) {
   const messages = useMessages();
-  const t = messages.china.detail.specs;
-  const conditionLabels = messages.china.carCard.conditions;
+  const t = messages.common.carDetail.specs;
+  const conditionLabels = messages.common.carCard.conditions;
 
   const rows: { label: string; value: string }[] = [
     { label: t.make, value: car.make },
@@ -43,8 +43,22 @@ export function CarSpecs({ car }: { car: Car }) {
     car.battery ? { label: t.battery, value: car.battery } : null,
     car.engine ? { label: t.engine, value: car.engine } : null,
     car.drivetrain ? { label: t.drivetrain, value: car.drivetrain } : null,
+    car.transmission ? { label: t.transmission, value: car.transmission } : null,
     car.seats ? { label: t.seats, value: String(car.seats) } : null,
     car.warranty ? { label: t.warranty, value: car.warranty } : null,
+    // USA auction/available cars carry these; a China car (no auction lot,
+    // no odometer reading yet) simply has them null and the row is skipped —
+    // same "field renders nothing until set" contract as everywhere else.
+    car.vin ? { label: t.vin, value: car.vin } : null,
+    car.lotNumber ? { label: t.lotNumber, value: car.lotNumber } : null,
+    car.mileage
+      ? {
+          label: t.mileage,
+          value: interpolate(t.mileageValue, { km: car.mileage.toLocaleString('en-US') }),
+        }
+      : null,
+    car.location ? { label: t.location, value: car.location } : null,
+    car.damageHistory ? { label: t.damageHistory, value: car.damageHistory } : null,
   ].filter((row): row is { label: string; value: string } => row !== null);
 
   return (

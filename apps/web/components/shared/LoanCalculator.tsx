@@ -8,7 +8,7 @@ import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * China (and later USA) car-detail S3.6b — "Վարկի պայմաններ" real-time
+ * China/USA car-detail S3.6b — "Վարկի պայմաններ" real-time
  * calculator. Figma node 102:278: a left-aligned page heading (not inside a
  * card, matching "Գնի ճանապարհը"/"Նմանատիպ առաջարկներ" on the same page)
  * over two independent white cards — a down-payment editor + term/rate rows
@@ -25,7 +25,7 @@ export function LoanCalculator({
   car: Pick<Car, 'price' | 'images'>;
   finance: FinanceCalculator;
 }) {
-  const t = useMessages().china.detail.loanCalculator;
+  const t = useMessages().common.carDetail.loanCalculator;
   const min = useMemo(
     () => Math.round(car.price * finance.minDownPaymentRatio),
     [car.price, finance.minDownPaymentRatio],
