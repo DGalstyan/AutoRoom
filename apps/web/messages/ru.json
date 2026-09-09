@@ -152,7 +152,77 @@
     },
     "carCard": {
       "cta": "Подробнее",
-      "fromPrice": "Цена:"
+      "fromPrice": "Цена:",
+      "conditions": {
+        "IN_STOCK": "В наличии",
+        "ON_ORDER": "Под заказ",
+        "ON_ROAD": "В пути",
+        "AUCTION": "На аукционе"
+      },
+      "financingAvailable": "Доступно финансирование",
+      "promo": "Акция",
+      "promoEnded": "Завершена"
+    },
+    "carDetail": {
+      "ctaOffer": "Индивидуальное предложение",
+      "ctaLoan": "Условия кредита",
+      "gallery": {
+        "exterior": "Экстерьер",
+        "interior": "Интерьер",
+        "details": "Детали",
+        "video": "Видео"
+      },
+      "specs": {
+        "heading": "Общие характеристики",
+        "make": "Марка",
+        "condition": "Состояние",
+        "deliveryEta": "Срок доставки",
+        "deliveryEtaValue": "{days} дн.",
+        "year": "Год выпуска",
+        "trim": "Комплектация",
+        "fuel": "Тип топлива",
+        "powertrain": {
+          "EV": "Электрический (BEV)",
+          "HYBRID": "Гибрид",
+          "BENZIN": "Бензин"
+        },
+        "range": "Запас хода на одной зарядке",
+        "rangeValue": "до {km} км (WLTP)",
+        "battery": "Батарея",
+        "engine": "Двигатель",
+        "drivetrain": "Привод",
+        "transmission": "Коробка передач",
+        "seats": "Количество мест",
+        "warranty": "Гарантия",
+        "vin": "VIN",
+        "lotNumber": "Номер лота",
+        "mileage": "Пробег",
+        "mileageValue": "{km} км",
+        "location": "Местонахождение",
+        "damageHistory": "История повреждений"
+      },
+      "colorPicker": {
+        "heading": "Выберите цвет"
+      },
+      "buyWithLoan": {
+        "heading": "Купить в кредит"
+      },
+      "priceJourney": {
+        "heading": "Путь формирования цены",
+        "finalLabel": "Итоговая стоимость в Армении",
+        "cta": "Получить точный расчёт"
+      },
+      "loanCalculator": {
+        "heading": "Условия кредита",
+        "downPayment": "Первоначальный взнос",
+        "term": "Срок (месяцев)",
+        "nominalRate": "Номинальная процентная ставка (уточняется)",
+        "effectiveRate": "Эффективная процентная ставка (уточняется)",
+        "monthly": "Ежемесячный платёж"
+      },
+      "similarOffers": {
+        "heading": "Похожие предложения"
+      }
     },
     "carAnatomy": {
       "hotspots": [
@@ -314,17 +384,6 @@
       "priceFrom": "От",
       "priceTo": "До"
     },
-    "carCard": {
-      "conditions": {
-        "IN_STOCK": "В наличии",
-        "ON_ORDER": "Под заказ",
-        "ON_ROAD": "В пути",
-        "AUCTION": "На аукционе"
-      },
-      "financingAvailable": "Доступно финансирование",
-      "promo": "Акция",
-      "promoEnded": "Завершена"
-    },
     "empty": "По этим фильтрам автомобилей пока нет.",
     "financing": {
       "heading": "Возможности финансирования и рассрочки",
@@ -387,60 +446,6 @@
       "heading": "Ваш следующий автомобиль уже в Китае — осталось начать",
       "text": "Оставьте свои данные — получите предложение",
       "cta": "Оставить заявку"
-    },
-    "detail": {
-      "ctaOffer": "Индивидуальное предложение",
-      "ctaLoan": "Условия кредита",
-      "gallery": {
-        "exterior": "Экстерьер",
-        "interior": "Интерьер",
-        "details": "Детали",
-        "video": "Видео"
-      },
-      "specs": {
-        "heading": "Общие характеристики",
-        "make": "Марка",
-        "condition": "Состояние",
-        "deliveryEta": "Срок доставки",
-        "deliveryEtaValue": "{days} дн.",
-        "year": "Год выпуска",
-        "trim": "Комплектация",
-        "fuel": "Тип топлива",
-        "powertrain": {
-          "EV": "Электрический (BEV)",
-          "HYBRID": "Гибрид",
-          "BENZIN": "Бензин"
-        },
-        "range": "Запас хода на одной зарядке",
-        "rangeValue": "до {km} км (WLTP)",
-        "battery": "Батарея",
-        "engine": "Двигатель",
-        "drivetrain": "Привод",
-        "seats": "Количество мест",
-        "warranty": "Гарантия"
-      },
-      "colorPicker": {
-        "heading": "Выберите цвет"
-      },
-      "buyWithLoan": {
-        "heading": "Купить в кредит"
-      },
-      "priceJourney": {
-        "heading": "Путь формирования цены",
-        "finalLabel": "Итоговая стоимость в Армении",
-        "cta": "Получить точный расчёт"
-      },
-      "loanCalculator": {
-        "heading": "Условия кредита",
-        "downPayment": "Первоначальный взнос",
-        "term": "Срок (месяцев)",
-        "nominalRate": "Номинальная процентная ставка (уточняется)",
-        "effectiveRate": "Эффективная процентная ставка (уточняется)",
-        "monthly": "Ежемесячный платёж"
-      },
-      "similarOffers": {
-        "heading": "Похожие предложения"
-      }
     }
   },
   "about": {

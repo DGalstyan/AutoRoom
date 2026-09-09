@@ -17,7 +17,7 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * site.
  */
 export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopupCarContext }) {
-  const t = useMessages().china.detail.buyWithLoan;
+  const t = useMessages().common.carDetail.buyWithLoan;
   const { openUniversal } = useLeadWidgets();
 
   if (banks.length === 0) return null;
@@ -34,9 +34,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
             <button
               key={bank.id}
               type="button"
-              onClick={() =>
-                openUniversal({ sourceCta: 'china-detail-buy-with-loan-in-house', car })
-              }
+              onClick={() => openUniversal({ sourceCta: 'car-detail-buy-with-loan-in-house', car })}
               className="flex h-[90px] items-center justify-center rounded-md bg-white p-3 transition-transform duration-standard hover:-translate-y-0.5"
             >
               {bank.logoUrl ? (

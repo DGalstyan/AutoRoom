@@ -152,7 +152,77 @@
     },
     "carCard": {
       "cta": "Տեսնել մանրամասները",
-      "fromPrice": "Արժեքը՝"
+      "fromPrice": "Արժեքը՝",
+      "conditions": {
+        "IN_STOCK": "Առկա",
+        "ON_ORDER": "Պատվերով",
+        "ON_ROAD": "Ճանապարհին",
+        "AUCTION": "Աճուրդում"
+      },
+      "financingAvailable": "Ֆինանսավորում հասանելի է",
+      "promo": "Ակցիա",
+      "promoEnded": "Ավարտված"
+    },
+    "carDetail": {
+      "ctaOffer": "Անհատական առաջարկ",
+      "ctaLoan": "Վարկի պայմաններ",
+      "gallery": {
+        "exterior": "Էքստերիեր",
+        "interior": "Ինտերիեր",
+        "details": "Դետալներ",
+        "video": "Տեսանյութ"
+      },
+      "specs": {
+        "heading": "Ընդհանուր տվյալներ",
+        "make": "Մակնիշ",
+        "condition": "Վիճակ",
+        "deliveryEta": "Առաքման ժամկետ",
+        "deliveryEtaValue": "{days} օր",
+        "year": "Տարեթիվ",
+        "trim": "Կոմպլեկտացիա",
+        "fuel": "Վառելիքի տեսակ",
+        "powertrain": {
+          "EV": "Էլեկտրական (BEV)",
+          "HYBRID": "Հիբրիդ",
+          "BENZIN": "Բենզին"
+        },
+        "range": "Հեռավորություն մեկ լիցքավորումից",
+        "rangeValue": "մինչև {km} կմ (WLTP)",
+        "battery": "Մարտկոց",
+        "engine": "Շարժիչ",
+        "drivetrain": "Քարշակ",
+        "transmission": "Փոխանցումատուփ",
+        "seats": "Նստատեղերի քանակ",
+        "warranty": "Երաշխիք",
+        "vin": "VIN",
+        "lotNumber": "Լոտի համար",
+        "mileage": "Վազքը",
+        "mileageValue": "{km} կմ",
+        "location": "Գտնվելու վայրը",
+        "damageHistory": "Վնասվածքների պատմություն"
+      },
+      "colorPicker": {
+        "heading": "Ընտրիր գույնը"
+      },
+      "buyWithLoan": {
+        "heading": "Գնել վարկով"
+      },
+      "priceJourney": {
+        "heading": "Գնի ճանապարհը",
+        "finalLabel": "Վերջնական արժեք Հայաստանում",
+        "cta": "Ստանալ ճշգրիտ հաշվարկ"
+      },
+      "loanCalculator": {
+        "heading": "Վարկի պայմաններ",
+        "downPayment": "Կանխավճար",
+        "term": "Ժամկետ (ամիս)",
+        "nominalRate": "Անվանական տոկոսադրույք (ճշգրտվող հաստատուն)",
+        "effectiveRate": "Փաստացի տոկոսադրույք (ճշգրտվող հաստատուն)",
+        "monthly": "Ամսավճար"
+      },
+      "similarOffers": {
+        "heading": "Նմանատիպ առաջարկներ"
+      }
     },
     "carAnatomy": {
       "hotspots": [
@@ -311,17 +381,6 @@
       "priceFrom": "Սկսված",
       "priceTo": "Մինչև"
     },
-    "carCard": {
-      "conditions": {
-        "IN_STOCK": "Առկա",
-        "ON_ORDER": "Պատվերով",
-        "ON_ROAD": "Ճանապարհին",
-        "AUCTION": "Աճուրդում"
-      },
-      "financingAvailable": "Ֆինանսավորում հասանելի է",
-      "promo": "Ակցիա",
-      "promoEnded": "Ավարտված"
-    },
     "empty": "Այս ֆիլտրերով մեքենաներ առայժմ չկան։",
     "financing": {
       "heading": "Ֆինանսավորման և ապառիկի հնարավորություններ",
@@ -384,60 +443,6 @@
       "heading": "Քո հաջորդ մեքենան արդեն Չինաստանում է. մնում է սկսենք",
       "text": "Թող տվյալներդ՝ ստացիր առաջարկ",
       "cta": "Լրացնել"
-    },
-    "detail": {
-      "ctaOffer": "Անհատական առաջարկ",
-      "ctaLoan": "Վարկի պայմաններ",
-      "gallery": {
-        "exterior": "Էքստերիեր",
-        "interior": "Ինտերիեր",
-        "details": "Դետալներ",
-        "video": "Տեսանյութ"
-      },
-      "specs": {
-        "heading": "Ընդհանուր տվյալներ",
-        "make": "Մակնիշ",
-        "condition": "Վիճակ",
-        "deliveryEta": "Առաքման ժամկետ",
-        "deliveryEtaValue": "{days} օր",
-        "year": "Տարեթիվ",
-        "trim": "Կոմպլեկտացիա",
-        "fuel": "Վառելիքի տեսակ",
-        "powertrain": {
-          "EV": "Էլեկտրական (BEV)",
-          "HYBRID": "Հիբրիդ",
-          "BENZIN": "Բենզին"
-        },
-        "range": "Հեռավորություն մեկ լիցքավորումից",
-        "rangeValue": "մինչև {km} կմ (WLTP)",
-        "battery": "Մարտկոց",
-        "engine": "Շարժիչ",
-        "drivetrain": "Քարշակ",
-        "seats": "Նստատեղերի քանակ",
-        "warranty": "Երաշխիք"
-      },
-      "colorPicker": {
-        "heading": "Ընտրիր գույնը"
-      },
-      "buyWithLoan": {
-        "heading": "Գնել վարկով"
-      },
-      "priceJourney": {
-        "heading": "Գնի ճանապարհը",
-        "finalLabel": "Վերջնական արժեք Հայաստանում",
-        "cta": "Ստանալ ճշգրիտ հաշվարկ"
-      },
-      "loanCalculator": {
-        "heading": "Վարկի պայմաններ",
-        "downPayment": "Կանխավճար",
-        "term": "Ժամկետ (ամիս)",
-        "nominalRate": "Անվանական տոկոսադրույք (ճշգրտվող հաստատուն)",
-        "effectiveRate": "Փաստացի տոկոսադրույք (ճշգրտվող հաստատուն)",
-        "monthly": "Ամսավճար"
-      },
-      "similarOffers": {
-        "heading": "Նմանատիպ առաջարկներ"
-      }
     }
   },
   "about": {

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Section } from '@/components/ui/Section';
-import { CarDetailHero } from '@/components/china/CarDetailHero';
+import { CarDetailHero } from '@/components/shared/CarDetailHero';
 import { PriceJourney } from '@/components/shared/PriceJourney';
 import { LoanCalculator } from '@/components/shared/LoanCalculator';
 import { SimilarOffers } from '@/components/shared/SimilarOffers';

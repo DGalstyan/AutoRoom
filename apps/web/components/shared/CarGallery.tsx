@@ -8,7 +8,7 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 const ALBUM_ORDER: ImageAlbum[] = ['EXTERIOR', 'INTERIOR', 'DETAILS', 'VIDEO'];
 
 /**
- * China (and later USA) car-detail S3.2 — image tabs (Exterior / Interior /
+ * China/USA car-detail S3.2 — image tabs (Exterior / Interior /
  * Details / Video) with a horizontally-scrollable thumbnail strip, per
  * `references/pages.md` and Figma node 102:485/102:487 — a white pill filter
  * bar (active = solid `neutral-700`, not the darker fill used elsewhere on
@@ -28,7 +28,7 @@ export function CarGallery({
   colorImageUrl?: string | null;
   alt: string;
 }) {
-  const t = useMessages().china.detail.gallery;
+  const t = useMessages().common.carDetail.gallery;
   const ALBUM_LABELS: Partial<Record<ImageAlbum, string>> = {
     EXTERIOR: t.exterior,
     INTERIOR: t.interior,
