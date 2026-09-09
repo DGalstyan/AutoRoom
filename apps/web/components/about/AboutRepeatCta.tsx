@@ -16,6 +16,10 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * Reuses `about.hero.intro`/`about.cta.consultation`/`about.cta.contact` —
  * the same strings `AboutHero` renders — rather than a second, independently
  * maintained copy of the same sentence.
+ *
+ * Centered (`align-items: center` on Figma's own flex-column, verified via
+ * Dev Mode CSS) — a pixel-audit fix from an initial pass that left it
+ * start-aligned like `AboutHero`'s own (left-column) copy of this text.
  */
 export function AboutRepeatCta() {
   const t = useMessages().about;
@@ -23,9 +27,9 @@ export function AboutRepeatCta() {
 
   return (
     <section className="bg-surface-light px-4 py-14 text-ink sm:px-6 sm:py-20">
-      <div className="mx-auto max-w-container">
+      <div className="mx-auto flex max-w-container flex-col items-center text-center">
         <p className="max-w-3xl text-lead font-normal text-ink">{t.hero.intro}</p>
-        <div className="mt-9 flex flex-wrap items-center gap-[18px]">
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-[18px]">
           <button
             type="button"
             onClick={() => openUniversal({ sourceCta: 'about-s5b-repeat-consultation' })}
