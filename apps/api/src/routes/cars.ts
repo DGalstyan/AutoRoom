@@ -659,13 +659,43 @@ function serializeCarBase(car: Omit<CarRow, 'similarAsSource'>) {
   return {
     ...car,
     colors: car.colors ?? [],
-    priceJourney: car.priceJourney ?? [],
+    priceJourney: normalizePriceJourney(car.priceJourney),
     publishedAt: car.publishedAt?.toISOString() ?? null,
     createdAt: car.createdAt.toISOString(),
     updatedAt: car.updatedAt.toISOString(),
     promoDeadline: car.promoDeadline?.toISOString() ?? null,
     images: car.images.map(serializeImage),
   };
+}
+
+type LocalizedText = { hy?: string; ru?: string; en?: string };
+
+/**
+ * Chips saved before per-locale label/note existed have a plain string where
+ * a `LocalizedText` object now belongs. Normalizing here, once, at read time
+ * — rather than in every consumer — keeps the admin editor and the public
+ * site both always working on the one shape; a legacy string becomes its
+ * Armenian text, since Armenian is what every chip was written in before
+ * this migration.
+ */
+function normalizePriceJourney(
+  chips: unknown,
+): { label: LocalizedText; amount: number; note: LocalizedText | null }[] {
+  if (!Array.isArray(chips)) return [];
+  return chips.map((raw) => {
+    const chip = raw as { label?: unknown; amount?: unknown; note?: unknown };
+    return {
+      label:
+        typeof chip.label === 'string' ? { hy: chip.label } : ((chip.label as LocalizedText) ?? {}),
+      amount: typeof chip.amount === 'number' ? chip.amount : 0,
+      note:
+        typeof chip.note === 'string'
+          ? chip.note
+            ? { hy: chip.note }
+            : null
+          : ((chip.note as LocalizedText | null) ?? null),
+    };
+  });
 }
 
 function serializeCar(car: CarRow) {
