@@ -8,6 +8,8 @@
  * `CarDetail`) should import from.
  */
 
+import type { Locale } from '@/lib/i18n';
+
 export type CarOrigin = 'CHINA' | 'USA';
 
 export type CarCondition = 'IN_STOCK' | 'ON_ORDER' | 'ON_ROAD' | 'AUCTION';
@@ -24,10 +26,20 @@ export interface CarColor {
   imageUrl?: string | null;
 }
 
+/** Per-locale text, keyed the way `Locale` is — mirrors `lib/faq.ts`'s inline
+ * shape for the same admin-authored-translation pattern. `hy` is guaranteed
+ * present by the API's own validation wherever this is required at all
+ * (a price-chip label); callers still fall back to it defensively. */
+export interface LocalizedText {
+  hy?: string;
+  ru?: string;
+  en?: string;
+}
+
 export interface PriceChip {
-  label: string;
+  label: LocalizedText;
   amount: number;
-  note?: string | null;
+  note?: LocalizedText | null;
 }
 
 export interface CarImage {
@@ -118,4 +130,11 @@ export function carHref(car: Pick<Car, 'origin' | 'condition' | 'slug'>): string
 
 export function formatUsd(amount: number): string {
   return `${amount.toLocaleString('en-US')} $`;
+}
+
+/** `text[locale] ?? text.hy ?? ''` — the same per-field fallback `lib/faq.ts`'s
+ * `getFaq` uses, so a chip translated into only some languages still shows
+ * something rather than an empty string when the visitor's locale is missing. */
+export function localizeText(text: LocalizedText | null | undefined, locale: Locale): string {
+  return text?.[locale] ?? text?.hy ?? '';
 }

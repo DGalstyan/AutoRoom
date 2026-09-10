@@ -190,11 +190,14 @@ export interface CarColour {
   imageUrl?: string | null;
 }
 
-/** One of the four chips breaking down how the price is reached. */
+/** One of the four chips breaking down how the price is reached. `label` and
+ * `note` are per-locale, the same `LocalizedText` shape `Faq.question`/
+ * `Faq.answer` already use — an admin writes hy/ru/en, the public site picks
+ * the visitor's own locale and falls back to Armenian. */
 export interface PriceChip {
-  label: string;
+  label: LocalizedText;
   amount: number;
-  note?: string | null;
+  note?: LocalizedText | null;
 }
 
 export interface Car {
