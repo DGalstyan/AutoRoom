@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import type { PriceChip } from '@/lib/types/car';
-import { formatUsd } from '@/lib/types/car';
-import { useMessages } from '@/components/shared/LocaleProvider';
+import { formatUsd, localizeText } from '@/lib/types/car';
+import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * "Գնի ճանապարհը" — China car-detail S3.5 only (per `references/pages.md`
@@ -30,6 +30,11 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * Rows still reveal on scroll with a summing counter into the final total —
  * `components.md`'s documented interaction for this component, which this
  * frame's static screenshot can't show either way but doesn't contradict.
+ *
+ * Each chip's `label`/`note` is per-locale (admin enters hy/ru/en in the
+ * `PriceJourneyEditor`); `localizeText` picks the visitor's own locale and
+ * falls back to Armenian, the same `text[locale] ?? text.hy` rule
+ * `lib/faq.ts`'s `getFaq` already uses for FAQ questions and answers.
  */
 export function PriceJourney({
   chips,
@@ -41,6 +46,7 @@ export function PriceJourney({
   car: UniversalPopupCarContext;
 }) {
   const t = useMessages().common.carDetail.priceJourney;
+  const locale = useLocale();
   const { openUniversal } = useLeadWidgets();
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -88,24 +94,31 @@ export function PriceJourney({
       <div className="flex flex-col gap-12 lg:flex-row lg:items-stretch">
         <div className="flex flex-col justify-between gap-3 lg:flex-[715]">
           <div className="flex flex-col gap-3">
-            {chips.map((chip, index) => (
-              <div
-                key={chip.label}
-                className={`flex items-center gap-3 rounded-[20px] bg-white px-4 py-6 transition-all duration-500 ease-out ${
-                  index === 0 ? 'shadow-card' : ''
-                } ${inView ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}
-                style={{ transitionDelay: `${index * 120}ms` }}
-              >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[16px] font-bold text-neutral-900">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <div className="flex flex-1 flex-col gap-1">
-                  <p className="text-[16px] font-medium text-neutral-900">{chip.label}</p>
-                  <p className="text-[16px] font-bold text-neutral-800">{formatUsd(chip.amount)}</p>
-                  {chip.note && <p className="text-[12px] text-neutral-700">{chip.note}</p>}
+            {chips.map((chip, index) => {
+              const note = localizeText(chip.note, locale);
+              return (
+                <div
+                  key={index}
+                  className={`flex items-center gap-3 rounded-[20px] bg-white px-4 py-6 transition-all duration-500 ease-out ${
+                    index === 0 ? 'shadow-card' : ''
+                  } ${inView ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}
+                  style={{ transitionDelay: `${index * 120}ms` }}
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[16px] font-bold text-neutral-900">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div className="flex flex-1 flex-col gap-1">
+                    <p className="text-[16px] font-medium text-neutral-900">
+                      {localizeText(chip.label, locale)}
+                    </p>
+                    <p className="text-[16px] font-bold text-neutral-800">
+                      {formatUsd(chip.amount)}
+                    </p>
+                    {note && <p className="text-[12px] text-neutral-700">{note}</p>}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="rounded-[20px] bg-white px-4 py-6">

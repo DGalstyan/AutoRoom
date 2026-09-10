@@ -44,14 +44,39 @@ const colourSchema = z.object({
     .optional(),
 });
 
+/** Empty means "not translated yet" for a secondary language, not a string
+ * worth storing — mirrors `routes/faq.ts`'s `optionalLocaleText`. */
+const optionalPriceLocaleText = (max: number) =>
+  z
+    .union([z.string().trim().max(max), z.literal('')])
+    .optional()
+    .transform((value) => (value ? value : undefined));
+
+/** Armenian is required on a chip's label — same rule `routes/faq.ts` applies
+ * to a question, and for the same reason: it's the site's default and only
+ * guaranteed-enabled locale. */
+const priceLabelSchema = z.object({
+  hy: z.string().trim().min(1, 'An Armenian label is required').max(60),
+  ru: optionalPriceLocaleText(60),
+  en: optionalPriceLocaleText(60),
+});
+
+/** Nullable as a whole: a note with nothing written in any language has no
+ * note, full stop — same collapsing rule `routes/faq.ts` applies to `answer`. */
+const priceNoteSchema = z
+  .object({
+    hy: optionalPriceLocaleText(120),
+    ru: optionalPriceLocaleText(120),
+    en: optionalPriceLocaleText(120),
+  })
+  .nullable()
+  .default(null)
+  .transform((value) => (value && (value.hy || value.ru || value.en) ? value : null));
+
 const priceChipSchema = z.object({
-  label: z.string().trim().min(1).max(60),
+  label: priceLabelSchema,
   amount: z.number().int(),
-  note: z
-    .union([z.string().max(120), z.literal(''), z.null()])
-    .transform((value) => (value === '' ? null : value))
-    .nullable()
-    .optional(),
+  note: priceNoteSchema,
 });
 
 /**
