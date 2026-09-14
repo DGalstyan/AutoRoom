@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { Reveal } from '@/components/ui/Reveal';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
@@ -25,13 +26,16 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * color) over a Headings/H2-Reg Mid heading (36px/48px regular — the same
  * style `branch-card-title` already encodes) and Labels/Label-L-Regular
  * body/duration text (16px/24px, Neutral-80 `#3D3D3D`), paired with a photo
- * on the right — real per-step photography Figma has (a laptop/dashboard
- * shot for step 1, etc.) but this pass has no matching real asset for, so
- * each row gets the same neutral gradient placeholder `CarCard` already
- * uses for a car with no photo, rather than a fabricated stock image. Each
- * row is also topped by a segmented progress bar (Figma's "Lines": more
- * segments turn gold as the steps advance) — reproduced here computed from
- * the step's own index rather than hand-placed dashes.
+ * on the right — the real Figma asset (`fotis-fotopoulos-...-unsplash`,
+ * a laptop showing a payment-confirmation screen), exported from Figma's
+ * own Assets panel (`public/images/usa/process-step.png`). Checking a
+ * second card confirmed this exact same photo repeats across every step
+ * (a single generic "someone at a laptop" stand-in, not unique per-step
+ * photography), so every row here reuses the one exported file rather than
+ * inventing 11 distinct images Figma itself doesn't have. Each row is also
+ * topped by a segmented progress bar (Figma's "Lines": more segments turn
+ * gold as the steps advance) — reproduced here computed from the step's
+ * own index rather than hand-placed dashes.
  *
  * Not reproduced: Figma's own scroll-driven video/AI-video playback (the
  * written spec's "Scrollytelling + AI video") — no scroll-animation
@@ -78,9 +82,17 @@ export function UsaImportProcess() {
                 </div>
 
                 <div
-                  className="min-h-[180px] flex-1 rounded-xl bg-gradient-to-br from-ink via-surface to-muted/60 sm:min-h-0"
+                  className="relative min-h-[180px] flex-1 overflow-hidden rounded-xl sm:min-h-0"
                   aria-hidden="true"
-                />
+                >
+                  <Image
+                    src="/images/usa/process-step.png"
+                    alt=""
+                    fill
+                    sizes="(min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
               </div>
             </div>
           </Reveal>
