@@ -228,6 +228,30 @@
       },
       "similarOffers": {
         "heading": "Similar offers"
+      },
+      "auctionFollowAlong": {
+        "heading": "Follow the auction online",
+        "intro1": "AutoRoom lets you follow Copart and IAAI auctions in real time, without a complicated sign-up or a long verification process.",
+        "intro2": "Once you've picked a car, simply log in with the View Only (Guest Login) viewing account AutoRoom provides and follow the whole auction live.",
+        "listIntro": "You can see:",
+        "list": [
+          "The car's full photos",
+          "Damage photos",
+          "VIN and lot details",
+          "The live auction broadcast",
+          "Bid progress and the final sale price"
+        ],
+        "disclaimer": "The viewing account is for following only. You cannot place a bid, make a payment, or take any action during the auction.",
+        "howItWorksHeading": "How does it work?",
+        "steps": [
+          "The car's full photos",
+          "Damage photos",
+          "VIN and lot details",
+          "The live auction broadcast",
+          "Bid progress and the final sale price"
+        ],
+        "viewOnlineCta": "View the car online",
+        "contactCta": "Contact us"
       }
     },
     "carAnatomy": {
@@ -539,6 +563,7 @@
       "sending": "Sending…",
       "successHeading": "Sent",
       "successTemplate": "Thank you, {name}. We'll be in touch soon",
+      "close": "Close",
       "errors": {
         "nameRequired": "Please enter your name",
         "phoneInvalid": "Please enter a valid phone number",
@@ -602,9 +627,30 @@
     "stateClocks": {
       "heading": "Local time in US states",
       "diff": "Difference: {hours}h",
+      "stateLabel": "Select a state",
       "cities": {
-        "yerevan": "Yerevan, Armenia",
-        "losAngeles": "Los Angeles"
+        "yerevan": "Yerevan, Armenia"
+      },
+      "states": {
+        "california": "California (Los Angeles)",
+        "washington": "Washington (Seattle)",
+        "oregon": "Oregon (Portland)",
+        "nevada": "Nevada (Las Vegas)",
+        "colorado": "Colorado (Denver)",
+        "arizona": "Arizona (Phoenix)",
+        "utah": "Utah (Salt Lake City)",
+        "newMexico": "New Mexico (Albuquerque)",
+        "texas": "Texas (Houston)",
+        "illinois": "Illinois (Chicago)",
+        "louisiana": "Louisiana (New Orleans)",
+        "minnesota": "Minnesota (Minneapolis)",
+        "newYork": "New York (New York City)",
+        "florida": "Florida (Miami)",
+        "georgia": "Georgia (Atlanta)",
+        "massachusetts": "Massachusetts (Boston)",
+        "pennsylvania": "Pennsylvania (Philadelphia)",
+        "alaska": "Alaska (Anchorage)",
+        "hawaii": "Hawaii (Honolulu)"
       }
     },
     "importProcess": {

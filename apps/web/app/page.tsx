@@ -12,6 +12,7 @@ import { HowItWorksStep } from '@/components/shared/HowItWorksStep';
 import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
 import { getBranches } from '@/lib/branches';
+import { getFounderVideo } from '@/lib/media';
 
 // How-it-works photo row — matches Figma's 7-card strip (one wide "hero" card
 // with the full step-1 copy, six narrow numbered strips after it).
@@ -26,7 +27,11 @@ const STEP_PHOTOS = [
 ];
 
 export default async function HomePage() {
-  const [{ messages }, branchList] = await Promise.all([getServerMessages(), getBranches()]);
+  const [{ messages }, branchList, founderVideo] = await Promise.all([
+    getServerMessages(),
+    getBranches(),
+    getFounderVideo(),
+  ]);
   const hero = messages.home.hero;
   const howItWorks = messages.home.howItWorks;
   const ecosystem = messages.home.ecosystem;
@@ -193,7 +198,7 @@ export default async function HomePage() {
 
       {/* S6 — Founder storytelling video (node 110:459) */}
       <Section tone="light">
-        <FounderVideo />
+        <FounderVideo video={founderVideo} />
       </Section>
 
       {/* S7 — Customer Story Wall (node 110:432) */}

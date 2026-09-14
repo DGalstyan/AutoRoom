@@ -111,6 +111,7 @@ const carBodySchema = z.object({
   vin: z.string().trim().max(32).nullish(),
   lotNumber: z.string().trim().max(40).nullish(),
   mileage: z.number().int().min(0).nullish(),
+  auctionViewUrl: z.string().trim().max(500).nullish(),
 
   price: z.number().int().min(0),
   oldPrice: z.number().int().min(0).nullish(),

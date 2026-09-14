@@ -58,6 +58,14 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * than "get me a general offer", same reasoning as `UsaFinalCta`'s own
  * CTA below it. `UsaHero`'s top-of-page CTA is the only one left on the
  * Universal popup, for undirected intent.
+ *
+ * Per direct user feedback, the 11 cards now stack on scroll: each one
+ * `sticky top-24`s under the fixed header, and the next card (a higher
+ * `zIndex`, set inline since Tailwind's JIT can't see a dynamically built
+ * `z-[n]` class name) slides up and over it, covering it — step 2 comes to
+ * rest on step 1, step 3 on step 2, and so on. Pure CSS `position: sticky`,
+ * no scroll library, consistent with `Reveal`'s own no-dependency approach
+ * above.
  */
 const STEP_IMAGES = [
   '/images/usa/process-step.png', // 1. Պատվերի մշակում
@@ -82,50 +90,52 @@ export function UsaImportProcess() {
 
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-12">
         {t.steps.map((step, index) => (
-          <Reveal key={step.title}>
-            <div className="flex flex-col gap-6 rounded-2xl bg-white p-6 shadow-card sm:p-10">
-              {/* Figma's "Lines" progress indicator — segments up to and
+          <div key={step.title} className="sticky top-24" style={{ zIndex: index + 1 }}>
+            <Reveal>
+              <div className="flex flex-col gap-6 rounded-2xl bg-white p-6 shadow-card sm:p-10">
+                {/* Figma's "Lines" progress indicator — segments up to and
                   including the current step turn gold. */}
-              <div className="flex gap-2" aria-hidden="true">
-                {t.steps.map((_, segmentIndex) => (
-                  <span
-                    key={segmentIndex}
-                    className={`h-1 flex-1 rounded-pill ${
-                      segmentIndex <= index ? 'bg-accent' : 'bg-neutral-100'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-8 sm:flex-row sm:items-stretch">
-                <div className="flex flex-1 flex-col gap-3">
-                  <p className="font-display text-[48px] font-bold leading-none text-accent">
-                    {String(index + 1).padStart(2, '0')}.
-                  </p>
-                  <h3 className="font-display text-branch-card-title text-neutral-900">
-                    {step.title}
-                  </h3>
-                  <p className="text-lead text-neutral-800">{step.text}</p>
-                  <p className="mt-auto text-lead text-neutral-800">
-                    {t.durationLabel} {step.duration}
-                  </p>
+                <div className="flex gap-2" aria-hidden="true">
+                  {t.steps.map((_, segmentIndex) => (
+                    <span
+                      key={segmentIndex}
+                      className={`h-1 flex-1 rounded-pill ${
+                        segmentIndex <= index ? 'bg-accent' : 'bg-neutral-100'
+                      }`}
+                    />
+                  ))}
                 </div>
 
-                <div
-                  className="relative min-h-[180px] flex-1 overflow-hidden rounded-xl sm:min-h-0"
-                  aria-hidden="true"
-                >
-                  <Image
-                    src={STEP_IMAGES[index] ?? STEP_IMAGES[0]}
-                    alt=""
-                    fill
-                    sizes="(min-width: 640px) 50vw, 100vw"
-                    className="object-cover"
-                  />
+                <div className="flex flex-col gap-8 sm:flex-row sm:items-stretch">
+                  <div className="flex flex-1 flex-col gap-3">
+                    <p className="font-display text-[48px] font-bold leading-none text-accent">
+                      {String(index + 1).padStart(2, '0')}.
+                    </p>
+                    <h3 className="font-display text-branch-card-title text-neutral-900">
+                      {step.title}
+                    </h3>
+                    <p className="text-lead text-neutral-800">{step.text}</p>
+                    <p className="mt-auto text-lead text-neutral-800">
+                      {t.durationLabel} {step.duration}
+                    </p>
+                  </div>
+
+                  <div
+                    className="relative min-h-[180px] flex-1 overflow-hidden rounded-xl sm:min-h-0"
+                    aria-hidden="true"
+                  >
+                    <Image
+                      src={STEP_IMAGES[index] ?? STEP_IMAGES[0]}
+                      alt=""
+                      fill
+                      sizes="(min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+          </div>
         ))}
       </div>
 

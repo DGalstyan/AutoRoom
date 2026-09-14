@@ -11,27 +11,53 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * `border-radius: 48px`, `padding: 64px`, `gap: 24px`; city label is
  * Labels/Label-L-Regular (16px/24px); the big time is Headings/H1-Light Mid
  * (44px/58px, weight ~300 — the same style `home-h2` already encodes) and
- * the date line is Headings/H1-Reg (24px/36px). Figma's own design is
- * exactly these two cards — "Yerevan, Armenia" and "Los Angeles" — side by
- * side, no more; an earlier pass here added Chicago and New York for
- * "usefulness," which was scope this component was never asked to add.
- * The "diff vs Armenia" caption on the second card isn't in Figma's own
- * layout either, but is kept — it's the one thing `references/pages.md`'s
- * S5 spec explicitly calls for that two side-by-side clocks don't already
- * make obvious on their own.
+ * the date line is Headings/H1-Reg (24px/36px). Figma's own static mock is
+ * exactly two cards — "Yerevan, Armenia" and "Los Angeles" — side by side;
+ * per direct user feedback this second card is now a live state picker (a
+ * `<select>` of major US states spanning every mainland time zone plus
+ * Alaska/Hawaii and DST-less Arizona) rather than a card fixed to Los
+ * Angeles forever, so a visitor can check the local time anywhere in the US
+ * they actually care about. California/Los Angeles stays the default so the
+ * page's first paint is unchanged from before. The "diff vs Armenia" caption
+ * is kept — it's the one thing `references/pages.md`'s S5 spec explicitly
+ * calls for that two side-by-side clocks don't already make obvious on
+ * their own.
  */
 
-interface CityClock {
+interface StateOption {
+  /** Also the `usa.stateClocks.states` message key. */
   key: string;
-  cityKey: 'yerevan' | 'losAngeles';
   timeZone: string;
-  isReference?: boolean;
 }
 
-const CITIES: CityClock[] = [
-  { key: 'yerevan', cityKey: 'yerevan', timeZone: 'Asia/Yerevan', isReference: true },
-  { key: 'losAngeles', cityKey: 'losAngeles', timeZone: 'America/Los_Angeles' },
+/**
+ * One representative city per state, chosen to cover every US time zone
+ * (including DST-less Arizona and Alaska/Hawaii) without listing all 50
+ * states' worth of translated labels.
+ */
+const STATE_OPTIONS: StateOption[] = [
+  { key: 'california', timeZone: 'America/Los_Angeles' },
+  { key: 'washington', timeZone: 'America/Los_Angeles' },
+  { key: 'oregon', timeZone: 'America/Los_Angeles' },
+  { key: 'nevada', timeZone: 'America/Los_Angeles' },
+  { key: 'colorado', timeZone: 'America/Denver' },
+  { key: 'arizona', timeZone: 'America/Phoenix' },
+  { key: 'utah', timeZone: 'America/Denver' },
+  { key: 'newMexico', timeZone: 'America/Denver' },
+  { key: 'texas', timeZone: 'America/Chicago' },
+  { key: 'illinois', timeZone: 'America/Chicago' },
+  { key: 'louisiana', timeZone: 'America/Chicago' },
+  { key: 'minnesota', timeZone: 'America/Chicago' },
+  { key: 'newYork', timeZone: 'America/New_York' },
+  { key: 'florida', timeZone: 'America/New_York' },
+  { key: 'georgia', timeZone: 'America/New_York' },
+  { key: 'massachusetts', timeZone: 'America/New_York' },
+  { key: 'pennsylvania', timeZone: 'America/New_York' },
+  { key: 'alaska', timeZone: 'America/Anchorage' },
+  { key: 'hawaii', timeZone: 'Pacific/Honolulu' },
 ];
+
+const DEFAULT_STATE_KEY = 'california';
 
 const LOCALE_TAG: Record<Locale, string> = { hy: 'hy-AM', en: 'en-US', ru: 'ru-RU' };
 
@@ -123,6 +149,7 @@ export function UsaStateClocks() {
   // is a reproducible hydration mismatch) — the real times fill in a tick
   // later, imperceptibly.
   const [now, setNow] = useState<Date | null>(null);
+  const [stateKey, setStateKey] = useState<string>(DEFAULT_STATE_KEY);
 
   useEffect(() => {
     // Deferred a tick so this isn't a synchronous setState-in-effect (same
@@ -133,46 +160,88 @@ export function UsaStateClocks() {
   }, []);
 
   const referenceOffset = now ? utcOffsetMinutes('Asia/Yerevan', now) : 0;
+  const selectedState =
+    STATE_OPTIONS.find((option) => option.key === stateKey) ?? STATE_OPTIONS[0]!;
+  const diffHours = now
+    ? Math.round((utcOffsetMinutes(selectedState.timeZone, now) - referenceOffset) / 60)
+    : 0;
 
   return (
     <div className="flex flex-col items-center gap-16">
       <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
       <div className="flex flex-wrap items-stretch justify-center gap-8">
-        {CITIES.map((city) => {
-          const diffHours = now
-            ? Math.round((utcOffsetMinutes(city.timeZone, now) - referenceOffset) / 60)
-            : 0;
-          return (
-            <div
-              key={city.key}
-              className="flex w-full max-w-[300px] flex-col items-start gap-6 rounded-[48px] bg-white p-8 shadow-card sm:p-12"
+        <ClockCard label={t.cities.yerevan} timeZone="Asia/Yerevan" now={now} locale={locale} />
+
+        <div className="flex w-full max-w-[300px] flex-col gap-4">
+          <div>
+            <label htmlFor="usa-state-select" className="sr-only">
+              {t.stateLabel}
+            </label>
+            <select
+              id="usa-state-select"
+              value={stateKey}
+              onChange={(event) => setStateKey(event.target.value)}
+              className="h-12 w-full rounded-pill border border-line-light bg-white px-5 text-body text-ink outline-none focus:border-accent"
             >
-              <p className="text-lead text-ink">{t.cities[city.cityKey]}</p>
-              <div className="flex flex-col gap-1">
-                <p className="font-display text-home-h2 font-light text-ink">
-                  {now
-                    ? new Intl.DateTimeFormat(LOCALE_TAG[locale], {
-                        timeZone: city.timeZone,
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                      }).format(now)
-                    : '—'}
-                </p>
-                <p className="text-lead text-ink/70">
-                  {now ? formatLocalizedDate(now, city.timeZone, locale) : '—'}
-                </p>
-                {!city.isReference && now && (
-                  <p className="text-caption text-ink/50">
-                    {interpolate(t.diff, {
-                      hours: diffHours > 0 ? `+${diffHours}` : `${diffHours}`,
-                    })}
-                  </p>
-                )}
-              </div>
-            </div>
-          );
-        })}
+              {STATE_OPTIONS.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {t.states[option.key as keyof typeof t.states]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <ClockCard
+            label={t.states[selectedState.key as keyof typeof t.states]}
+            timeZone={selectedState.timeZone}
+            now={now}
+            locale={locale}
+            diffCaption={
+              now
+                ? interpolate(t.diff, {
+                    hours: diffHours > 0 ? `+${diffHours}` : `${diffHours}`,
+                  })
+                : undefined
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ClockCard({
+  label,
+  timeZone,
+  now,
+  locale,
+  diffCaption,
+}: {
+  label: string;
+  timeZone: string;
+  now: Date | null;
+  locale: Locale;
+  /** Present only for the non-reference (selected-state) card. */
+  diffCaption?: string;
+}) {
+  return (
+    <div className="flex w-full max-w-[300px] flex-col items-start gap-6 rounded-[48px] bg-white p-8 shadow-card sm:p-12">
+      <p className="text-lead text-ink">{label}</p>
+      <div className="flex flex-col gap-1">
+        <p className="font-display text-home-h2 font-light text-ink">
+          {now
+            ? new Intl.DateTimeFormat(LOCALE_TAG[locale], {
+                timeZone,
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              }).format(now)
+            : '—'}
+        </p>
+        <p className="text-lead text-ink/70">
+          {now ? formatLocalizedDate(now, timeZone, locale) : '—'}
+        </p>
+        {diffCaption && <p className="text-caption text-ink/50">{diffCaption}</p>}
       </div>
     </div>
   );

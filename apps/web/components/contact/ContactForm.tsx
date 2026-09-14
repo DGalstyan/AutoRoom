@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
+import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
 import { detectDevice, submitLead } from '@/lib/leads';
 import { interpolate } from '@/lib/messages';
@@ -92,153 +93,165 @@ export function ContactForm() {
     setStatus('success');
   }
 
-  if (status === 'success') {
-    return (
-      <div role="status" aria-live="polite" className="rounded-xl bg-white p-9 shadow-card">
-        <h2 className="font-display text-h3 font-bold text-ink">{t.successHeading}</h2>
-        <p className="mt-3 text-body text-ink/80">
-          {interpolate(t.successTemplate, { name: successName })}
-        </p>
-      </div>
-    );
+  function handleSuccessClose() {
+    // Resets to a fresh, empty form rather than leaving the just-submitted
+    // values behind — the old inline success card never let a visitor
+    // submit a second query on this page at all, so this is strictly more
+    // capable, not a regression.
+    setStatus('idle');
+    setName('');
+    setEmail('');
+    setPhone('+374 ');
+    setTopic('');
+    setComment('');
+    setTouched(false);
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-xl bg-white p-9 shadow-card sm:p-10"
-      noValidate
-    >
-      <div className="flex flex-col gap-8">
-        <div>
-          <label htmlFor="contact-name" className={LABEL_CLASSES}>
-            {t.nameLabel}
-          </label>
-          <input
-            id="contact-name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            onBlur={() => setTouched(true)}
-            aria-invalid={nameError}
-            aria-describedby={nameError ? 'contact-name-error' : undefined}
-            placeholder={t.namePlaceholder}
-            className={FIELD_CLASSES}
-          />
-          {nameError && (
-            <p id="contact-name-error" className="mt-1 text-small text-accent">
-              {t.errors.nameRequired}
-            </p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+    <>
+      <SuccessDialog
+        open={status === 'success'}
+        onClose={handleSuccessClose}
+        heading={t.successHeading}
+        body={interpolate(t.successTemplate, { name: successName })}
+        closeLabel={t.close}
+      />
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl bg-white p-9 shadow-card sm:p-10"
+        noValidate
+      >
+        <div className="flex flex-col gap-8">
           <div>
-            <label htmlFor="contact-phone" className={LABEL_CLASSES}>
-              {t.phoneLabel}
+            <label htmlFor="contact-name" className={LABEL_CLASSES}>
+              {t.nameLabel}
             </label>
             <input
-              id="contact-phone"
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel"
-              value={phone}
-              onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+              id="contact-name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
               onBlur={() => setTouched(true)}
-              aria-invalid={phoneError}
-              aria-describedby={phoneError ? 'contact-phone-error' : undefined}
+              aria-invalid={nameError}
+              aria-describedby={nameError ? 'contact-name-error' : undefined}
+              placeholder={t.namePlaceholder}
               className={FIELD_CLASSES}
             />
-            {phoneError && (
-              <p id="contact-phone-error" className="mt-1 text-small text-accent">
-                {t.errors.phoneInvalid}
+            {nameError && (
+              <p id="contact-name-error" className="mt-1 text-small text-accent">
+                {t.errors.nameRequired}
               </p>
             )}
           </div>
 
-          <div>
-            <label htmlFor="contact-email" className={LABEL_CLASSES}>
-              {t.emailLabel}
-            </label>
-            <input
-              id="contact-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              onBlur={() => setTouched(true)}
-              aria-invalid={emailError}
-              aria-describedby={emailError ? 'contact-email-error' : undefined}
-              placeholder={t.emailPlaceholder}
-              className={FIELD_CLASSES}
-            />
-            {emailError && (
-              <p id="contact-email-error" className="mt-1 text-small text-accent">
-                {t.errors.emailInvalid}
-              </p>
-            )}
-          </div>
-        </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <label htmlFor="contact-phone" className={LABEL_CLASSES}>
+                {t.phoneLabel}
+              </label>
+              <input
+                id="contact-phone"
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                value={phone}
+                onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+                onBlur={() => setTouched(true)}
+                aria-invalid={phoneError}
+                aria-describedby={phoneError ? 'contact-phone-error' : undefined}
+                className={FIELD_CLASSES}
+              />
+              {phoneError && (
+                <p id="contact-phone-error" className="mt-1 text-small text-accent">
+                  {t.errors.phoneInvalid}
+                </p>
+              )}
+            </div>
 
-        <div>
-          <label htmlFor="contact-topic" className={LABEL_CLASSES}>
-            {t.topicLabel}
-          </label>
-          <select
-            id="contact-topic"
-            name="topic"
-            value={topic}
-            onChange={(event) => setTopic(event.target.value as (typeof TOPIC_KEYS)[number])}
-            className={`${FIELD_CLASSES} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:16px] bg-[position:right_24px_center] bg-no-repeat pr-12`}
-          >
-            <option value="" disabled>
-              {t.topicPlaceholder}
-            </option>
-            {TOPIC_KEYS.map((key) => (
-              <option key={key} value={key}>
-                {t.topicOptions[key]}
+            <div>
+              <label htmlFor="contact-email" className={LABEL_CLASSES}>
+                {t.emailLabel}
+              </label>
+              <input
+                id="contact-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                onBlur={() => setTouched(true)}
+                aria-invalid={emailError}
+                aria-describedby={emailError ? 'contact-email-error' : undefined}
+                placeholder={t.emailPlaceholder}
+                className={FIELD_CLASSES}
+              />
+              {emailError && (
+                <p id="contact-email-error" className="mt-1 text-small text-accent">
+                  {t.errors.emailInvalid}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="contact-topic" className={LABEL_CLASSES}>
+              {t.topicLabel}
+            </label>
+            <select
+              id="contact-topic"
+              name="topic"
+              value={topic}
+              onChange={(event) => setTopic(event.target.value as (typeof TOPIC_KEYS)[number])}
+              className={`${FIELD_CLASSES} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:16px] bg-[position:right_24px_center] bg-no-repeat pr-12`}
+            >
+              <option value="" disabled>
+                {t.topicPlaceholder}
               </option>
-            ))}
-          </select>
-        </div>
+              {TOPIC_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {t.topicOptions[key]}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Not in this Figma mock (see file-top comment) — kept as-is, same field styling. */}
-        <div>
-          <label htmlFor="contact-comment" className={LABEL_CLASSES}>
-            {t.commentLabel}
-          </label>
-          <textarea
-            id="contact-comment"
-            name="comment"
-            rows={4}
-            value={comment}
-            onChange={(event) => setComment(event.target.value)}
-            placeholder={t.commentPlaceholder}
-            className="w-full rounded-xl bg-neutral-25 px-6 py-4 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
-          />
-        </div>
+          {/* Not in this Figma mock (see file-top comment) — kept as-is, same field styling. */}
+          <div>
+            <label htmlFor="contact-comment" className={LABEL_CLASSES}>
+              {t.commentLabel}
+            </label>
+            <textarea
+              id="contact-comment"
+              name="comment"
+              rows={4}
+              value={comment}
+              onChange={(event) => setComment(event.target.value)}
+              placeholder={t.commentPlaceholder}
+              className="w-full rounded-xl bg-neutral-25 px-6 py-4 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+            />
+          </div>
 
-        {/* 60px gold pill, dark text — Figma's own `BTN` instance here, not
+          {/* 60px gold pill, dark text — Figma's own `BTN` instance here, not
             the shared `Button` component's 44px/white-text default. */}
-        <button
-          type="submit"
-          disabled={status === 'submitting'}
-          className="inline-flex h-[60px] w-fit shrink-0 items-center justify-center gap-1 self-start rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
-        >
-          {status === 'submitting' ? (
-            t.sending
-          ) : (
-            <>
-              {t.submit}
-              <ArrowUpRightIcon className="size-5" />
-            </>
-          )}
-        </button>
-      </div>
-    </form>
+          <button
+            type="submit"
+            disabled={status === 'submitting'}
+            className="inline-flex h-[60px] w-fit shrink-0 items-center justify-center gap-1 self-start rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+          >
+            {status === 'submitting' ? (
+              t.sending
+            ) : (
+              <>
+                {t.submit}
+                <ArrowUpRightIcon className="size-5" />
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Section } from '@/components/ui/Section';
 import { CarDetailHero } from '@/components/shared/CarDetailHero';
+import { AuctionFollowAlong } from '@/components/shared/AuctionFollowAlong';
 import { LoanCalculator } from '@/components/shared/LoanCalculator';
 import { SimilarOffers } from '@/components/shared/SimilarOffers';
 import { getCarBySlug, listSimilarCars } from '@/lib/cars';
@@ -26,18 +27,18 @@ export async function generateMetadata({
 
 /**
  * USA auction car detail `/usa/auctions/[slug]` — `references/pages.md`
- * "4. USA" S2.2. Reuses the same shared hero/specs/financing/similar-cars
- * treatment as `/usa/available/[slug]` and the China detail page (`carHref`
- * already pointed every `AUCTION`-condition USA car here — this page just
- * didn't exist yet, so it 404'd on click).
+ * "4. USA" S2.2/S2.3. Reuses the same shared hero/specs/financing/similar-
+ * cars treatment as `/usa/available/[slug]` and the China detail page
+ * (`carHref` already pointed every `AUCTION`-condition USA car here — this
+ * page just didn't exist yet, so it 404'd on click).
  *
- * The full auction-specific experience the spec also calls for — the
- * platform badge (Copart/IAAI/Manheim), "Տեսնել մեքենան օնլայն" View-Only
- * guest-login access, and the platform-conditional CTA logic — needs an
- * `auctionPlatform` field the `Car` model doesn't carry yet, so it's not
- * built here; this page covers the base case (real specs, financing,
- * similar cars, a working page instead of a 404) and leaves the
- * platform-specific follow-along flow for that larger, separate effort.
+ * `AuctionFollowAlong` (S2.3, Figma's "USA Inner" page, node 282:1508) adds
+ * the View-Only guest-login explanation + how-it-works + the two CTAs
+ * between the hero and financing. Still not built: the platform badge
+ * (Copart/IAAI/Manheim) and the platform-conditional CTA logic (Manheim
+ * gets no direct view-online link) — needs an `auctionPlatform` field the
+ * `Car` model doesn't carry yet, a separate, larger effort; see
+ * `AuctionFollowAlong`'s own doc comment.
  *
  * `notFound()` on a non-`AUCTION` car: that's `/usa/available/[slug]`'s
  * job, with its own guard the other way.
@@ -65,6 +66,7 @@ export default async function UsaAuctionCarDetailPage({
 
       <Section tone="light">
         <div className="flex flex-col gap-24 sm:gap-[150px]">
+          <AuctionFollowAlong car={car} />
           <LoanCalculator car={car} finance={finance} />
           <SimilarOffers cars={similarCars} />
         </div>

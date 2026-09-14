@@ -71,6 +71,10 @@ export interface Car {
   vin?: string | null;
   lotNumber?: string | null;
   mileage?: number | null;
+  /** The View-Only (Guest Login) link to watch this auction listing live —
+   * USA auction detail's "Տեսնել մեքենան օնլայն" CTA. Null until staff set
+   * it; the button is skipped while unset. */
+  auctionViewUrl?: string | null;
 
   price: number;
   oldPrice?: number | null;
