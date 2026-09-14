@@ -40,6 +40,7 @@ export async function submitLead(payload: LeadPayload): Promise<{ ok: boolean }>
         comment: answers.comment,
         carName: hidden.car?.name,
         carVin: hidden.car?.vin,
+        carLink: answers.carLink,
         sourcePage: hidden.sourcePage,
         sourceCta: hidden.sourceCta,
         locale: hidden.locale,

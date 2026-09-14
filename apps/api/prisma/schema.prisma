@@ -669,6 +669,11 @@ model Lead {
   /// Set when the lead was opened from a specific car's page/popup.
   carName String?
   carVin  String?
+  /// Auction lot number or a pasted link to the specific Copart/IAAI/Manheim
+  /// listing — the USA auction contact popup's own field (Figma node
+  /// 242:1345's "Մեքենայի հղում կամ լոտի համար"), distinct from `carVin`
+  /// since a visitor rarely knows the VIN of a car they haven't bought yet.
+  carLink String?
 
   /// Hidden context every widget attaches automatically (never visitor input).
   sourcePage      String

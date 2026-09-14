@@ -566,6 +566,30 @@
       "text": "Inspected auction and in-stock vehicles from America, with a clean history and transparent pricing, safely imported straight to Armenia.",
       "cta": "Get an offer"
     },
+    "auctionPopup": {
+      "title": "Contact us",
+      "subtitle": "If you've picked a car, just log in with the View Only (Guest Login) viewing account AutoRoom provides and follow the whole auction live.",
+      "close": "Close",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Smith",
+      "phoneLabel": "Phone number",
+      "carLinkLabel": "Car link or lot number",
+      "carLinkPlaceholder": "link",
+      "budgetLabel": "Budget",
+      "budgetPlaceholder": "129000000 AMD",
+      "financingLabel": "Need financing",
+      "commentLabel": "Comment",
+      "commentPlaceholder": "",
+      "cancel": "Cancel",
+      "submit": "Send",
+      "sending": "Sending…",
+      "successHeading": "Request received",
+      "successTemplate": "Thank you, {name}. Our specialist will contact you shortly.",
+      "errors": {
+        "nameRequired": "Please enter your name",
+        "phoneInvalid": "The phone number must have 8 digits after +374"
+      }
+    },
     "bestAuctions": {
       "heading": "This week's best deals from US auctions"
     },

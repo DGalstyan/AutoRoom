@@ -30,13 +30,20 @@ export interface LeadAnswers {
    * Գործընկերություն, Այլ). */
   topic?: string;
   interest?: LeadInterest;
-  budget?: LeadBudget;
-  financing?: LeadFinancing;
+  /** Fixed chip buckets for the Universal popup's own `LeadBudget` set, or —
+   * USA auction contact popup only — a free-typed amount ("129000000 AMD"). */
+  budget?: LeadBudget | (string & {});
+  /** Universal popup's three-way chip set, or — USA auction contact popup
+   * only — a plain "yes"/"no" from its on/off toggle. */
+  financing?: LeadFinancing | (string & {});
   timing?: LeadTiming;
   channel?: LeadChannel;
   comment?: string;
   /** Per-car variant only — order-only colour choice. */
   color?: string;
+  /** USA auction contact popup only — a pasted Copart/IAAI/Manheim listing
+   * link or its lot number; free text since a visitor may paste either. */
+  carLink?: string;
 }
 
 /** Auto-attached, never filled by the visitor. */

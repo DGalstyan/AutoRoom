@@ -47,6 +47,7 @@ const createLeadBodySchema = z.object({
 
   carName: optionalText(200),
   carVin: optionalText(40),
+  carLink: optionalText(500),
 
   sourcePage: z.string().trim().min(1).max(200),
   sourceCta: z.string().trim().min(1).max(200),
@@ -85,6 +86,7 @@ leadsRouter.post('/leads', validateBody(createLeadBodySchema), async (req, res) 
       comment: body.comment ?? null,
       carName: body.carName ?? null,
       carVin: body.carVin ?? null,
+      carLink: body.carLink ?? null,
       sourcePage: body.sourcePage,
       sourceCta: body.sourceCta,
       locale: body.locale,
@@ -169,6 +171,7 @@ function serializeLead(lead: Prisma.LeadGetPayload<object>) {
     comment: lead.comment,
     carName: lead.carName,
     carVin: lead.carVin,
+    carLink: lead.carLink,
     sourcePage: lead.sourcePage,
     sourceCta: lead.sourceCta,
     locale: lead.locale,
