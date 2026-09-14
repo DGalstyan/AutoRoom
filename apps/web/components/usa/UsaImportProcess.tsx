@@ -26,22 +26,44 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * color) over a Headings/H2-Reg Mid heading (36px/48px regular — the same
  * style `branch-card-title` already encodes) and Labels/Label-L-Regular
  * body/duration text (16px/24px, Neutral-80 `#3D3D3D`), paired with a photo
- * on the right — the real Figma asset (`fotis-fotopoulos-...-unsplash`,
- * a laptop showing a payment-confirmation screen), exported from Figma's
- * own Assets panel (`public/images/usa/process-step.png`). Checking a
- * second card confirmed this exact same photo repeats across every step
- * (a single generic "someone at a laptop" stand-in, not unique per-step
- * photography), so every row here reuses the one exported file rather than
- * inventing 11 distinct images Figma itself doesn't have. Each row is also
- * topped by a segmented progress bar (Figma's "Lines": more segments turn
- * gold as the steps advance) — reproduced here computed from the step's
- * own index rather than hand-placed dashes.
+ * on the right. An earlier pass here concluded every card shares one
+ * identical "someone at a laptop" placeholder — wrong, from checking the
+ * image via Figma's canvas-zoom-to-selection menu action, which (contrary
+ * to its name) doesn't actually pan the canvas to the newly selected node,
+ * so every check kept landing on the same on-screen pixels regardless of
+ * which card was selected. Re-verified per card by double-clicking directly
+ * into each card's rendered image on the canvas (drilling through the
+ * frame to the actual Rectangle fill) and reading its real asset name in
+ * the Assets/Export panel: 9 of the 11 cards carry a genuinely distinct
+ * real photo; only `Card 1`/`Card 5` (Պատվերի մշակում / Փիքափ աճուրդից) and
+ * `Card 8`/`Card 9` (the duplicate-content pair, standing in for the
+ * missing "loading container" step and the real "Կոնտեյները նավի վրա" step)
+ * are byte-identical pairs in Figma itself. All 9 unique files were
+ * exported via Figma's own Assets → Export panel into
+ * `public/images/usa/process-step-{2..11}.png` (step 1 keeps the original
+ * `process-step.png`, reused for step 5 since Figma reuses it there too).
+ * Each row is also topped by a segmented progress bar (Figma's "Lines":
+ * more segments turn gold as the steps advance) — reproduced here computed
+ * from the step's own index rather than hand-placed dashes.
  *
  * Not reproduced: Figma's own scroll-driven video/AI-video playback (the
  * written spec's "Scrollytelling + AI video") — no scroll-animation
  * library is installed in this project (see `Reveal`'s doc comment), so
  * each row instead does a plain reveal-on-scroll, one `Reveal` per step.
  */
+const STEP_IMAGES = [
+  '/images/usa/process-step.png', // 1. Պատվերի մշակում
+  '/images/usa/process-step-2.png', // 2. Մեքենայի որոնում
+  '/images/usa/process-step-3.png', // 3. Աճուրդից գնում
+  '/images/usa/process-step-4.png', // 4. Վճարում
+  '/images/usa/process-step.png', // 5. Փիքափ աճուրդից (same asset as step 1 in Figma)
+  '/images/usa/process-step-6.png', // 6. Մեքենայի ընդունում և ստուգում
+  '/images/usa/process-step-7.png', // 7. AutoRoom-ի հրապարակում
+  '/images/usa/process-step-8.png', // 8. Բեռնում կոնտեյներ (spec-filled gap; reuses the duplicate-card asset)
+  '/images/usa/process-step-8.png', // 9. Կոնտեյները նավի վրա (same asset as Card 8/9 in Figma)
+  '/images/usa/process-step-10.png', // 10. Բեռնաթափում և ֆուռ
+  '/images/usa/process-step-11.png', // 11. Գյումրի — ժամանում
+] as const;
 export function UsaImportProcess() {
   const t = useMessages().usa.importProcess;
   const { openUniversal } = useLeadWidgets();
@@ -86,7 +108,7 @@ export function UsaImportProcess() {
                   aria-hidden="true"
                 >
                   <Image
-                    src="/images/usa/process-step.png"
+                    src={STEP_IMAGES[index] ?? STEP_IMAGES[0]}
                     alt=""
                     fill
                     sizes="(min-width: 640px) 50vw, 100vw"
