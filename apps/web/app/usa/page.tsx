@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Section } from '@/components/ui/Section';
 import { CarCard } from '@/components/shared/CarCard';
 import { UsaHero } from '@/components/usa/UsaHero';
+import { UsaStateClocks } from '@/components/usa/UsaStateClocks';
+import { UsaImportProcess } from '@/components/usa/UsaImportProcess';
 import { UsaFaq } from '@/components/usa/UsaFaq';
 import { UsaFinalCta } from '@/components/usa/UsaFinalCta';
 import { listCars } from '@/lib/cars';
@@ -18,17 +20,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * `/usa` — `references/pages.md` "4. USA": S1 hero, S2.1 best-auctions
- * listing, S3 available-cars listing, S4 on-the-road listing, S8c FAQ, S9
- * final CTA. Figma node 218:177 (file 9Lq4XpWusTJj1VnM6laAZr) covers the
- * whole page, but panning its Dev Mode canvas past the hero kept landing on
- * unrelated content (a giant, mostly-decorative page — a 12-chapter
- * scrollytelling section built from stock/demo imagery with no matching
- * real asset, and a per-US-state local-time carousel), so this first pass
- * ships the sections that reuse infrastructure already built and verified
- * elsewhere on the site (`CarCard`, `listCars`, `Faq`, `UniversalPopup`) —
- * every one of them backed by real, filterable inventory instead of static
- * copy. The customs calculator, state-time carousel, and step-by-step
- * scrollytelling are a separate, asset-heavy follow-up.
+ * listing, S3 available-cars listing, S4 on-the-road listing, S5 state
+ * clocks, S8 import-process timeline, S8c FAQ, S9 final CTA. Figma node
+ * 218:177 (file 9Lq4XpWusTJj1VnM6laAZr) covers the whole page and gave real
+ * pixel data for S1/S5 (see `UsaHero`/`UsaStateClocks`'s own doc comments);
+ * S8 has no matching Figma node at all — see `UsaImportProcess`'s doc
+ * comment — so it's built from the written spec alone. Still not built:
+ * the customs calculator (S2.4) and the Useful-guides reels (S8b), which
+ * need dedicated video/embed assets this pass doesn't have.
  *
  * Card grids reuse China's own listing pattern (`app/china/page.tsx`): a
  * 2-column `CarCard` grid, one `listCars` call per condition since the
@@ -54,6 +53,14 @@ export default async function UsaPage() {
       <CarGridSection heading={t.bestAuctions.heading} cars={auctionCars} />
       <CarGridSection heading={t.availableCars.heading} cars={availableCars} />
       <CarGridSection heading={t.onRoad.heading} cars={onRoadCars} />
+
+      <Section tone="light">
+        <UsaStateClocks />
+      </Section>
+
+      <Section tone="light">
+        <UsaImportProcess />
+      </Section>
 
       <Section tone="light">
         <UsaFaq />

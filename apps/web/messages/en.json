@@ -575,6 +575,82 @@
     "onRoad": {
       "heading": "On the road right now"
     },
+    "stateClocks": {
+      "heading": "Local time in US states",
+      "diff": "Difference: {hours}h",
+      "cities": {
+        "yerevan": "Yerevan, Armenia",
+        "losAngeles": "Los Angeles",
+        "chicago": "Chicago",
+        "newYork": "New York"
+      }
+    },
+    "importProcess": {
+      "heading": "From the USA to Armenia, step by step",
+      "cta": "Start your car's journey",
+      "steps": [
+        {
+          "title": "Order processing",
+          "text": "We accept your request and clarify your preferred make, model, and budget.",
+          "duration": "~1 day"
+        },
+        {
+          "title": "Searching for a car",
+          "text": "We look for suitable options at US auctions matching your budget and requirements.",
+          "duration": "~2-3 days"
+        },
+        {
+          "title": "Selection",
+          "text": "We check the VIN, damage history, and technical condition before recommending a car.",
+          "duration": "~1-2 days"
+        },
+        {
+          "title": "Winning the auction",
+          "text": "We bid at the auction and purchase the car on your behalf.",
+          "duration": "~1 day"
+        },
+        {
+          "title": "Payment",
+          "text": "We complete the auction payment and secure the transaction documents.",
+          "duration": "~1-2 days"
+        },
+        {
+          "title": "Pickup from the auction",
+          "text": "The car is picked up from the auction yard and moved to a prep facility.",
+          "duration": "~3-5 days"
+        },
+        {
+          "title": "Inspection on arrival",
+          "text": "We thoroughly inspect the actual car, comparing it against the auction listing.",
+          "duration": "~2-3 days"
+        },
+        {
+          "title": "Published on AutoRoom",
+          "text": "The car's real details go live on the AutoRoom website.",
+          "duration": "~1 day"
+        },
+        {
+          "title": "Loading the container",
+          "text": "The car is safely loaded into a container for ocean shipping.",
+          "duration": "~3-5 days"
+        },
+        {
+          "title": "Container at sea",
+          "text": "The container crosses the Atlantic toward the port of Poti, Georgia.",
+          "duration": "~30-35 days"
+        },
+        {
+          "title": "Unloading and customs",
+          "text": "The container is unloaded and the car clears customs.",
+          "duration": "~5-7 days"
+        },
+        {
+          "title": "Arrival in Gyumri",
+          "text": "The car arrives in Gyumri, ready for handover to you.",
+          "duration": "~1-2 days"
+        }
+      ]
+    },
     "faqSection": {
       "heading": "Frequently asked questions"
     },
