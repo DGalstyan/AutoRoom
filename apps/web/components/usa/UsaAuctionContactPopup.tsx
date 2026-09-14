@@ -54,10 +54,12 @@ type Status = 'idle' | 'submitting' | 'success';
  * real active locale via `useLocale()`, since there is no existing
  * behavior here to preserve.
  *
- * Not yet wired to a trigger button — no auction-listing card exists in
- * this codebase yet to attach "Կապ հաստատիր մեզ հետ" to. Open it via
- * `useLeadWidgets().openUsaAuctionPopup({ sourceCta })` once a real entry
- * point exists.
+ * No per-car auction-listing component exists in this codebase yet to
+ * attach a real "Կապ հաստատիր մեզ հետ" button to, so `UsaFinalCta` (the
+ * page's bottom CTA — see its own doc comment for why) opens this instead
+ * of the Universal popup in the meantime. Reachable via
+ * `useLeadWidgets().openUsaAuctionPopup({ sourceCta })` from anywhere else
+ * that needs it, e.g. a future auction-card component.
  */
 export function UsaAuctionContactPopup({
   open,
@@ -287,11 +289,7 @@ export function UsaAuctionContactPopup({
             <Button type="button" variant="ghost" className="text-ink" onClick={onClose}>
               {t.cancel}
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={status === 'submitting'}
-            >
+            <Button type="submit" variant="primary" disabled={status === 'submitting'}>
               {status === 'submitting' ? t.sending : t.submit}
             </Button>
           </div>
