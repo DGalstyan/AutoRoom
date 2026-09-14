@@ -434,6 +434,13 @@ model Car {
   vin       String?
   lotNumber String?
   mileage   Int?
+  /// The AutoRoom-provided View-Only (Guest Login) link a visitor follows to
+  /// watch this specific Copart/IAAI listing live — USA auction detail S2.3's
+  /// "Տեսնել մեքենան օնլայն" CTA. Null for every non-`AUCTION` car, and for
+  /// an auction car until staff attach it; the button itself is skipped
+  /// while unset, same "field renders nothing until set" contract as every
+  /// other optional column here (see `CarSpecs`).
+  auctionViewUrl String?
 
   /// Whole currency units, not minor: AutoRoom quotes round figures and the
   /// public site never renders cents.
