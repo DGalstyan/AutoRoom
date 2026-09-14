@@ -55,11 +55,13 @@ type Status = 'idle' | 'submitting' | 'success';
  * behavior here to preserve.
  *
  * No per-car auction-listing component exists in this codebase yet to
- * attach a real "Կապ հաստատիր մեզ հետ" button to, so `UsaFinalCta` (the
- * page's bottom CTA — see its own doc comment for why) opens this instead
- * of the Universal popup in the meantime. Reachable via
+ * attach a real "Կապ հաստատիր մեզ հետ" button to, so in the meantime this
+ * opens from the page's two "already have a car in mind" CTAs instead of
+ * the Universal popup — `UsaImportProcess`'s closing CTA and `UsaFinalCta`
+ * (see each one's own doc comment for why). `UsaHero`'s top-of-page CTA
+ * stays on the Universal popup for undirected intent. Reachable via
  * `useLeadWidgets().openUsaAuctionPopup({ sourceCta })` from anywhere else
- * that needs it, e.g. a future auction-card component.
+ * that needs it too, e.g. a future auction-card component.
  */
 export function UsaAuctionContactPopup({
   open,

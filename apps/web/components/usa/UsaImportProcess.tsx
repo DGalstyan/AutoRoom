@@ -50,6 +50,14 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * written spec's "Scrollytelling + AI video") — no scroll-animation
  * library is installed in this project (see `Reveal`'s doc comment), so
  * each row instead does a plain reveal-on-scroll, one `Reveal` per step.
+ *
+ * The closing CTA opens the USA auction contact popup (see
+ * `UsaAuctionContactPopup`'s own doc comment), not the generic Universal
+ * popup — a visitor who just read through the whole 11-step import
+ * timeline is closer to "help me with the specific car I'm importing"
+ * than "get me a general offer", same reasoning as `UsaFinalCta`'s own
+ * CTA below it. `UsaHero`'s top-of-page CTA is the only one left on the
+ * Universal popup, for undirected intent.
  */
 const STEP_IMAGES = [
   '/images/usa/process-step.png', // 1. Պատվերի մշակում
@@ -66,7 +74,7 @@ const STEP_IMAGES = [
 ] as const;
 export function UsaImportProcess() {
   const t = useMessages().usa.importProcess;
-  const { openUniversal } = useLeadWidgets();
+  const { openUsaAuctionPopup } = useLeadWidgets();
 
   return (
     <div className="flex flex-col gap-16">
@@ -124,9 +132,7 @@ export function UsaImportProcess() {
       <div className="flex justify-center">
         <button
           type="button"
-          onClick={() =>
-            openUniversal({ sourceCta: 'usa-import-process', preselect: { interest: 'usa' } })
-          }
+          onClick={() => openUsaAuctionPopup({ sourceCta: 'usa-import-process' })}
           className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-4 text-[20px] text-neutral-800 transition-colors duration-standard hover:bg-accent-600"
         >
           {t.cta}
