@@ -7,6 +7,7 @@ import {
   CarOrigin,
   FaqTopic,
   ImageAlbum,
+  MediaKind,
   Powertrain,
   Prisma,
   PrismaClient,
@@ -327,6 +328,23 @@ const TEAM_MEMBERS = [
   { name: 'Լիլիթ Ղազարյան', title: 'Customer Success' },
 ];
 
+// TODO(client): the real founder film for `FounderVideo` (Homepage S6 /
+// About "Ինչպես սկսվեց AutoRoom-ը") hasn't been delivered yet. Seeded here
+// published, with a real, safe-for-work, officially embeddable YouTube
+// video (Blender Foundation's own upload of "Big Buck Bunny", Creative
+// Commons) as a stand-in — a working embed, not a hardcoded string in a
+// component — so an admin only ever has to replace `videoUrl` in Stories &
+// video, never touch code, once the real film exists.
+const MEDIA = [
+  {
+    kind: MediaKind.FOUNDER,
+    title: 'Ինչպես ստեղծվեց AutoRoom-ը',
+    videoUrl: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
+    posterUrl: null,
+    publish: true,
+  },
+];
+
 /**
  * FAQ, transcribed from `references/faq.md`.
  *
@@ -538,6 +556,32 @@ async function seedTeam() {
 }
 
 /**
+ * Matched on `kind`, since the site only ever reads one `FOUNDER` row (see
+ * `lib/media.ts#getFounderVideo`) and there is no title yet to key off of
+ * before the first insert. Only creates — an existing row is left alone so
+ * re-running the seed never stomps on a real `videoUrl`/`title` an admin has
+ * since edited in Stories & video.
+ */
+async function seedMedia() {
+  for (const entry of MEDIA) {
+    const existing = await prisma.media.findFirst({ where: { kind: entry.kind } });
+    if (existing) continue;
+
+    await prisma.media.create({
+      data: {
+        kind: entry.kind,
+        title: entry.title,
+        videoUrl: entry.videoUrl,
+        posterUrl: entry.posterUrl,
+        publishedAt: entry.publish ? new Date() : null,
+      },
+    });
+  }
+
+  console.log(`  media: ${MEDIA.length}`);
+}
+
+/**
  * Matched on the question text, since that is what identifies an entry before
  * it has an id anywhere. Existing rows keep their answer and publish state —
  * re-running the seed must never unpublish something an editor wrote.
@@ -601,6 +645,7 @@ async function main() {
   await seedBranchesAndBanks();
   await seedCars();
   await seedTeam();
+  await seedMedia();
   await seedFaq();
 
   await prisma.auditLog.create({

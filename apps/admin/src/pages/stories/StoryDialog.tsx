@@ -22,6 +22,7 @@ import { errorMessage } from '@/lib/api';
 import { UploadField } from '@/components/UploadField';
 import { KINDS, kindHint } from '@/pages/stories/kinds';
 import { ORIGINS } from '@/pages/cars/carOptions';
+import { toYouTubeEmbedUrl } from '@/lib/youtube';
 
 /**
  * Add or edit a video.
@@ -130,17 +131,29 @@ export function StoryDialog({
               accept="video/mp4,video/webm"
               value={draft.videoUrl || null}
               onChange={(url) => set('videoUrl', url ?? '')}
-              helperText="MP4 or WebM."
+              helperText="Upload an MP4/WebM file, or paste a YouTube link (watch, share, or Shorts URL)."
               disabled={mutation.isPending}
-              preview={(url) => (
-                <Box
-                  component="video"
-                  src={url}
-                  controls
-                  preload="metadata"
-                  sx={{ width: '100%', maxHeight: 220, display: 'block' }}
-                />
-              )}
+              preview={(url) => {
+                const youTubeEmbedUrl = toYouTubeEmbedUrl(url);
+                return youTubeEmbedUrl ? (
+                  <Box
+                    component="iframe"
+                    src={youTubeEmbedUrl}
+                    title="Video preview"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    sx={{ width: '100%', aspectRatio: '16 / 9', display: 'block', border: 0 }}
+                  />
+                ) : (
+                  <Box
+                    component="video"
+                    src={url}
+                    controls
+                    preload="metadata"
+                    sx={{ width: '100%', maxHeight: 220, display: 'block' }}
+                  />
+                );
+              }}
             />
 
             <UploadField
