@@ -258,14 +258,14 @@ export function UsaAuctionContactPopup({
                 aria-checked={financingNeeded}
                 aria-labelledby="uap-financing-label"
                 onClick={() => setFinancingNeeded((prev) => !prev)}
-                className={`relative h-7 w-12 shrink-0 rounded-pill transition-colors duration-standard ${
+                className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-pill p-1 transition-colors duration-standard ${
                   financingNeeded ? 'bg-ink' : 'bg-neutral-100'
                 }`}
               >
                 <span
                   aria-hidden="true"
-                  className={`absolute top-1 size-5 rounded-pill bg-white transition-transform duration-standard ${
-                    financingNeeded ? 'translate-x-6' : 'translate-x-1'
+                  className={`inline-block size-5 rounded-pill bg-white shadow-sm transition-transform duration-standard ${
+                    financingNeeded ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
               </button>
