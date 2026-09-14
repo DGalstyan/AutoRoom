@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
-import { ComingSoonHero } from '@/components/shared/ComingSoonHero';
+import { Section } from '@/components/ui/Section';
+import { CarCard } from '@/components/shared/CarCard';
+import { UsaHero } from '@/components/usa/UsaHero';
+import { UsaFaq } from '@/components/usa/UsaFaq';
+import { UsaFinalCta } from '@/components/usa/UsaFinalCta';
+import { listCars } from '@/lib/cars';
 import { getServerMessages } from '@/lib/i18n';
+import type { Car } from '@/lib/types/car';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
@@ -11,27 +17,69 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * `/usa` — interim page. The full build (`references/pages.md` "4. USA"):
- * best-auctions listing, available/on-the-road cars, per-state local-time
- * carousel, and the 12-chapter import scrollytelling, is its own separate,
- * much larger effort. Until then this is a real page (not a 404) so the
- * header/footer nav's existing `/usa` link resolves, with a page-specific
- * hero (copy from the spec's own S1) and a working lead-capture CTA —
- * see `ComingSoonHero`.
+ * `/usa` — `references/pages.md` "4. USA": S1 hero, S2.1 best-auctions
+ * listing, S3 available-cars listing, S4 on-the-road listing, S8c FAQ, S9
+ * final CTA. Figma node 218:177 (file 9Lq4XpWusTJj1VnM6laAZr) covers the
+ * whole page, but panning its Dev Mode canvas past the hero kept landing on
+ * unrelated content (a giant, mostly-decorative page — a 12-chapter
+ * scrollytelling section built from stock/demo imagery with no matching
+ * real asset, and a per-US-state local-time carousel), so this first pass
+ * ships the sections that reuse infrastructure already built and verified
+ * elsewhere on the site (`CarCard`, `listCars`, `Faq`, `UniversalPopup`) —
+ * every one of them backed by real, filterable inventory instead of static
+ * copy. The customs calculator, state-time carousel, and step-by-step
+ * scrollytelling are a separate, asset-heavy follow-up.
+ *
+ * Card grids reuse China's own listing pattern (`app/china/page.tsx`): a
+ * 2-column `CarCard` grid, one `listCars` call per condition since the
+ * public API has no "one call, three buckets" shape. `getFeaturedCars`
+ * isn't used here — this page wants every matching car, not a capped
+ * homepage-style highlight reel.
  */
 export default async function UsaPage() {
   const { messages } = await getServerMessages();
   const t = messages.usa;
 
+  const [{ items: auctionCars }, { items: availableCars }, { items: onRoadCars }] =
+    await Promise.all([
+      listCars({ origin: 'USA', condition: 'AUCTION', take: 24 }),
+      listCars({ origin: 'USA', condition: 'IN_STOCK', take: 24 }),
+      listCars({ origin: 'USA', condition: 'ON_ROAD', take: 24 }),
+    ]);
+
   return (
-    <ComingSoonHero
-      h1={t.hero.h1}
-      text={t.hero.text}
-      ctaLabel={t.hero.cta}
-      sourceCta="usa-hero"
-      interest="usa"
-      comingSoonHeading={t.comingSoon.heading}
-      comingSoonText={t.comingSoon.text}
-    />
+    <>
+      <UsaHero />
+
+      <CarGridSection heading={t.bestAuctions.heading} cars={auctionCars} />
+      <CarGridSection heading={t.availableCars.heading} cars={availableCars} />
+      <CarGridSection heading={t.onRoad.heading} cars={onRoadCars} />
+
+      <Section tone="light">
+        <UsaFaq />
+      </Section>
+
+      <UsaFinalCta />
+    </>
+  );
+}
+
+/** One listing block: heading + 2-column `CarCard` grid, or nothing at all
+ * when admin hasn't published any car in that bucket yet — `lib/cars.ts`'s
+ * documented contract ("render nothing... when empty"), the same rule
+ * already applied to Price Journey and the Offers promo grid elsewhere on
+ * the site. */
+function CarGridSection({ heading, cars }: { heading: string; cars: Car[] }) {
+  if (cars.length === 0) return null;
+
+  return (
+    <Section tone="light">
+      <h2 className="font-display text-home-h2 font-light text-ink">{heading}</h2>
+      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {cars.map((car, index) => (
+          <CarCard key={car.id} car={car} priority={index === 0} />
+        ))}
+      </div>
+    </Section>
   );
 }

@@ -3,6 +3,7 @@ import Image from 'next/image';
 import type { CarSummary } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import { getServerMessages } from '@/lib/i18n';
+import { interpolate } from '@/lib/messages';
 import { PromoCountdown } from '@/components/shared/PromoCountdown';
 
 /**
@@ -27,6 +28,14 @@ import { PromoCountdown } from '@/components/shared/PromoCountdown';
  * condition + financing badges, year/trim/price pills — per
  * `references/pages.md` China S2 and `components.md`'s `CarCard` "China
  * list" variant. Pixel-matched to Figma node 101:279 (file 9Lq4XpWusTJj1VnM6laAZr).
+ *
+ * The USA "on the road" section (`references/pages.md` S4) adds two more
+ * optional pills — `statusBadge` (Նավում/Փոթի/Մաքսազերծում) and a
+ * `deliveryEtaDays` countdown — in the same badge row. Both fields are
+ * unset on every other card on the site, so this never shows outside that
+ * one section; not pictured in Figma (only the written spec covers S4), so
+ * styled to match the existing condition/financing pills rather than a new
+ * pixel spec.
  */
 export async function CarCard({ car, priority = false }: { car: CarSummary; priority?: boolean }) {
   const { messages } = await getServerMessages();
@@ -93,6 +102,20 @@ export async function CarCard({ car, priority = false }: { car: CarSummary; prio
               {car.financingAvailable && (
                 <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
                   {t.financingAvailable}
+                </span>
+              )}
+              {/* On-the-road cars only (references/pages.md USA S4): shipping-
+                  stage badge (Նավում/Փոթի/Մաքսազերծում) and an ETA pill —
+                  both optional admin fields, so they simply don't render for
+                  every other card on the site that leaves them unset. */}
+              {car.statusBadge && (
+                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                  {t.statusBadges[car.statusBadge]}
+                </span>
+              )}
+              {car.deliveryEtaDays != null && (
+                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                  {interpolate(t.etaDays, { days: String(car.deliveryEtaDays) })}
                 </span>
               )}
             </>

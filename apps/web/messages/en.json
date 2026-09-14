@@ -161,7 +161,13 @@
       },
       "financingAvailable": "Financing available",
       "promo": "Deal",
-      "promoEnded": "Ended"
+      "promoEnded": "Ended",
+      "statusBadges": {
+        "NA_NAVUM": "Shipping",
+        "POTI": "At Poti port",
+        "CUSTOMS": "In customs"
+      },
+      "etaDays": "Arrives in ~{days} days"
     },
     "carDetail": {
       "ctaOffer": "Personal offer",
@@ -560,9 +566,22 @@
       "text": "Inspected auction and in-stock vehicles from America, with a clean history and transparent pricing, safely imported straight to Armenia.",
       "cta": "Get an offer"
     },
-    "comingSoon": {
-      "heading": "This page is being built",
-      "text": "Soon you'll find the best US auction deals, in-stock cars, a step-by-step import timeline, and a customs calculator here. In the meantime, leave your details and our specialist will help you find the right car."
+    "bestAuctions": {
+      "heading": "This week's best deals from US auctions"
+    },
+    "availableCars": {
+      "heading": "Available cars in Armenia"
+    },
+    "onRoad": {
+      "heading": "On the road right now"
+    },
+    "faqSection": {
+      "heading": "Frequently asked questions"
+    },
+    "finalCta": {
+      "heading": "Found an interesting car from the USA?",
+      "text": "Leave your details — get an offer",
+      "cta": "Get an offer"
     }
   },
   "partners": {
