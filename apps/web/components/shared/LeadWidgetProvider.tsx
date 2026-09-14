@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import { usePathname } from 'next/navigation';
 import { UniversalPopup, type UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import { QuizPopup } from '@/components/shared/QuizPopup';
+import { UsaAuctionContactPopup } from '@/components/usa/UsaAuctionContactPopup';
 import type { LeadBudget, LeadInterest } from '@/lib/leads';
 
 interface OpenUniversalOptions {
@@ -18,9 +19,14 @@ interface OpenQuizOptions {
   sourceCta: string;
 }
 
+interface OpenUsaAuctionOptions {
+  sourceCta: string;
+}
+
 interface LeadWidgetContextValue {
   openUniversal: (opts: OpenUniversalOptions) => void;
   openQuiz: (opts: OpenQuizOptions) => void;
+  openUsaAuctionPopup: (opts: OpenUsaAuctionOptions) => void;
   isAnyOpen: boolean;
 }
 
@@ -50,25 +56,41 @@ export function LeadWidgetProvider({ children }: { children: ReactNode }) {
     open: false,
     sourceCta: '',
   });
+  const [usaAuction, setUsaAuction] = useState<{ open: boolean; sourceCta: string }>({
+    open: false,
+    sourceCta: '',
+  });
 
   const openUniversal = useCallback((opts: OpenUniversalOptions) => {
     setQuiz((prev) => ({ ...prev, open: false }));
+    setUsaAuction((prev) => ({ ...prev, open: false }));
     setUniversal({ open: true, ...opts });
   }, []);
 
   const openQuiz = useCallback((opts: OpenQuizOptions) => {
     setUniversal((prev) => ({ ...prev, open: false }));
+    setUsaAuction((prev) => ({ ...prev, open: false }));
     setQuiz({ open: true, sourceCta: opts.sourceCta });
+  }, []);
+
+  const openUsaAuctionPopup = useCallback((opts: OpenUsaAuctionOptions) => {
+    setUniversal((prev) => ({ ...prev, open: false }));
+    setQuiz((prev) => ({ ...prev, open: false }));
+    setUsaAuction({ open: true, sourceCta: opts.sourceCta });
   }, []);
 
   const closeUniversal = useCallback(() => setUniversal((prev) => ({ ...prev, open: false })), []);
   const closeQuiz = useCallback(() => setQuiz((prev) => ({ ...prev, open: false })), []);
+  const closeUsaAuction = useCallback(
+    () => setUsaAuction((prev) => ({ ...prev, open: false })),
+    [],
+  );
 
-  const isAnyOpen = universal.open || quiz.open;
+  const isAnyOpen = universal.open || quiz.open || usaAuction.open;
 
   const value = useMemo(
-    () => ({ openUniversal, openQuiz, isAnyOpen }),
-    [openUniversal, openQuiz, isAnyOpen],
+    () => ({ openUniversal, openQuiz, openUsaAuctionPopup, isAnyOpen }),
+    [openUniversal, openQuiz, openUsaAuctionPopup, isAnyOpen],
   );
 
   return (
@@ -90,6 +112,12 @@ export function LeadWidgetProvider({ children }: { children: ReactNode }) {
         sourcePage={pathname}
         sourceCta={quiz.sourceCta}
         onOpenUniversal={openUniversal}
+      />
+      <UsaAuctionContactPopup
+        open={usaAuction.open}
+        onClose={closeUsaAuction}
+        sourcePage={pathname}
+        sourceCta={usaAuction.sourceCta}
       />
     </LeadWidgetContext.Provider>
   );
