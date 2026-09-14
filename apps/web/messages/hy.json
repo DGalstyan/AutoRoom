@@ -580,9 +580,7 @@
       "diff": "Տարբերությունը՝ {hours} ժամ",
       "cities": {
         "yerevan": "Երևան, Հայաստան",
-        "losAngeles": "Լոս Անջելես",
-        "chicago": "Չիկագո",
-        "newYork": "Նյու Յորք"
+        "losAngeles": "Լոս Անջելես"
       }
     },
     "importProcess": {

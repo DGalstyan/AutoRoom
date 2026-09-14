@@ -11,17 +11,19 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * `border-radius: 48px`, `padding: 64px`, `gap: 24px`; city label is
  * Labels/Label-L-Regular (16px/24px); the big time is Headings/H1-Light Mid
  * (44px/58px, weight ~300 — the same style `home-h2` already encodes) and
- * the date line is Headings/H1-Reg (24px/36px). Figma's own example shows
- * exactly two cards side by side — "Yerevan, Armenia" and "Los Angeles" — no
- * carousel and no explicit "diff vs Armenia" label; this extends that same
- * card to the spec's plural "նահանգներում" ("states") with a small
- * additional US timezones, plus the diff line `references/pages.md` S5
- * calls for, styled as a quiet caption under the date.
+ * the date line is Headings/H1-Reg (24px/36px). Figma's own design is
+ * exactly these two cards — "Yerevan, Armenia" and "Los Angeles" — side by
+ * side, no more; an earlier pass here added Chicago and New York for
+ * "usefulness," which was scope this component was never asked to add.
+ * The "diff vs Armenia" caption on the second card isn't in Figma's own
+ * layout either, but is kept — it's the one thing `references/pages.md`'s
+ * S5 spec explicitly calls for that two side-by-side clocks don't already
+ * make obvious on their own.
  */
 
 interface CityClock {
   key: string;
-  cityKey: 'yerevan' | 'losAngeles' | 'chicago' | 'newYork';
+  cityKey: 'yerevan' | 'losAngeles';
   timeZone: string;
   isReference?: boolean;
 }
@@ -29,8 +31,6 @@ interface CityClock {
 const CITIES: CityClock[] = [
   { key: 'yerevan', cityKey: 'yerevan', timeZone: 'Asia/Yerevan', isReference: true },
   { key: 'losAngeles', cityKey: 'losAngeles', timeZone: 'America/Los_Angeles' },
-  { key: 'chicago', cityKey: 'chicago', timeZone: 'America/Chicago' },
-  { key: 'newYork', cityKey: 'newYork', timeZone: 'America/New_York' },
 ];
 
 const LOCALE_TAG: Record<Locale, string> = { hy: 'hy-AM', en: 'en-US', ru: 'ru-RU' };

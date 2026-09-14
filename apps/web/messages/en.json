@@ -580,9 +580,7 @@
       "diff": "Difference: {hours}h",
       "cities": {
         "yerevan": "Yerevan, Armenia",
-        "losAngeles": "Los Angeles",
-        "chicago": "Chicago",
-        "newYork": "New York"
+        "losAngeles": "Los Angeles"
       }
     },
     "importProcess": {
