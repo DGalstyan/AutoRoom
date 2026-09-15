@@ -133,6 +133,7 @@ export function StoryDialog({
               onChange={(url) => set('videoUrl', url ?? '')}
               helperText="Upload an MP4/WebM file, or paste a YouTube link (watch, share, or Shorts URL)."
               disabled={mutation.isPending}
+              maxSizeLabel="Up to 200 MB"
               preview={(url) => {
                 const youTubeEmbedUrl = toYouTubeEmbedUrl(url);
                 return youTubeEmbedUrl ? (
