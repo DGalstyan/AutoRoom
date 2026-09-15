@@ -96,6 +96,15 @@ function buildMonthGrid(month: Date): GridCell[] {
  * scrollbar on a form this size. This one is wide enough on desktop that
  * scrolling shouldn't be needed for the form itself.
  *
+ * `z-20` — deliberately *below* `Header`'s `z-30` — so the site's own nav
+ * stays visible and usable above this overlay instead of being covered by
+ * it (per explicit user feedback); the top padding (`pt-28`/`sm:pt-36`)
+ * gives the title room to clear the header instead of starting right
+ * under it. The focus trap still only covers this dialog's own content —
+ * the header is visible but intentionally not part of the Tab order while
+ * the dialog is open, same as any visible-but-inert page chrome behind an
+ * open dialog.
+ *
  * Two structural fixes vs. the previous build, both because Figma clearly
  * shows a different layout, not because it's silent:
  *  - Phone and email sit side by side (one row, two fields), not stacked.
@@ -354,7 +363,7 @@ export function PartnerBookingPopup({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-surface-light py-6 sm:py-10">
+    <div className="fixed inset-0 z-20 flex items-start justify-center overflow-y-auto bg-surface-light pb-6 pt-28 sm:pb-10 sm:pt-36">
       <button
         type="button"
         aria-label={t.close}
