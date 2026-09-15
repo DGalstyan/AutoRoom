@@ -8,9 +8,12 @@ import {
   MenuItem,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from '@mui/material';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
@@ -19,6 +22,13 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DataTable } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { STATUSES, statusTone } from '@/pages/leads/status';
+import { formatDateTime } from '@/pages/availability/time';
+
+const MEETING_FORMAT_LABEL: Record<string, string> = {
+  ONLINE: 'Online',
+  OFFICE: 'At our office',
+  OTHER: 'Other address',
+};
 
 /** Matches `NotificationBell`'s own polling cadence. */
 const POLL_INTERVAL_MS = 30_000;
@@ -48,17 +58,33 @@ export function LeadsPage() {
   const queryClient = useQueryClient();
 
   const [status, setStatus] = useState<LeadStatus | ''>('');
+  const [scope, setScope] = useState<'all' | 'meetings'>('all');
   const [menu, setMenu] = useState<{ anchor: HTMLElement; lead: Lead } | null>(null);
   const [deleting, setDeleting] = useState<Lead | null>(null);
 
   const canUpdate = identity?.permissions.includes('leads:UPDATE') ?? false;
   const canDelete = identity?.permissions.includes('leads:DELETE') ?? false;
+  const canReadBranches = identity?.permissions.includes('branches:READ') ?? false;
 
   const leadsQuery = useQuery({
     queryKey: ['leads', status],
     queryFn: () => api.leads.list({ ...(status ? { status } : {}), take: 100 }),
     refetchInterval: POLL_INTERVAL_MS,
   });
+
+  // Only for the "Meeting" column's OFFICE-format rows: `Lead` only stores
+  // `meetingBranchId` (see `serializeLead` in `apps/api/src/routes/leads.ts`),
+  // so this is the same client-side id→name lookup `AvailabilityPage` does.
+  const branchesQuery = useQuery({
+    queryKey: ['branches'],
+    queryFn: () => api.branches.list(),
+    enabled: canReadBranches,
+  });
+  const branchNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const branch of branchesQuery.data?.items ?? []) map.set(branch.id, branch.name);
+    return map;
+  }, [branchesQuery.data]);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['leads'] });
 
@@ -86,6 +112,25 @@ export function LeadsPage() {
   // `?? []` on its own would create a new array reference every render and
   // re-run the new-lead-detection effect below needlessly.
   const leads = useMemo(() => leadsQuery.data?.items ?? [], [leadsQuery.data]);
+
+  // The "Dealer meetings" scope is a client-side view onto the same data,
+  // not a separate API query: a dealer-meeting submission is still just a
+  // Lead (see `apps/api/src/routes/leads.ts`'s own doc comment on why this
+  // is a Lead, not a Booking) with `meetingFormat` set, and re-querying
+  // would only duplicate the polling this page already does. Sorted by
+  // `meetingAt` ascending here — soonest meeting first — deliberately
+  // different from the table's default `createdAt` descending, since
+  // "what's coming up" is the question this scope exists to answer.
+  const displayedLeads = useMemo(() => {
+    if (scope === 'all') return leads;
+    return leads
+      .filter((lead) => lead.meetingFormat !== null)
+      .sort((a, b) => {
+        if (!a.meetingAt) return 1;
+        if (!b.meetingAt) return -1;
+        return new Date(a.meetingAt).getTime() - new Date(b.meetingAt).getTime();
+      });
+  }, [leads, scope]);
 
   // Reset new-lead tracking whenever the status filter changes — a row
   // that's merely new-to-this-view (a filter switch) must never fire the
@@ -126,34 +171,54 @@ export function LeadsPage() {
             Leads
           </Typography>
           <Typography sx={{ color: 'text.secondary' }}>
-            Submissions from the Universal popup, Quiz, and Contact page form.
+            {scope === 'meetings'
+              ? 'Dealer meeting requests from the /partners "Become a dealer" form, soonest first.'
+              : 'Submissions from the Universal popup, Quiz, Contact page form, and the dealer meeting request form.'}
           </Typography>
         </Box>
 
-        <TextField
-          label="Status"
-          value={status}
-          onChange={(event) => setStatus(event.target.value as LeadStatus | '')}
-          select
-          size="small"
-          sx={{ minWidth: 170 }}
-        >
-          <MenuItem value="">Any status</MenuItem>
-          {STATUSES.map((entry) => (
-            <MenuItem key={entry.value} value={entry.value}>
-              {entry.label}
-            </MenuItem>
-          ))}
-        </TextField>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+          <ToggleButtonGroup
+            value={scope}
+            exclusive
+            size="small"
+            onChange={(_event, next: 'all' | 'meetings' | null) => next && setScope(next)}
+          >
+            <ToggleButton value="all" aria-label="All leads">
+              All
+            </ToggleButton>
+            <ToggleButton value="meetings" aria-label="Dealer meeting requests">
+              <CalendarMonthIcon sx={{ fontSize: 18, mr: 0.75 }} /> Dealer meetings
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          <TextField
+            label="Status"
+            value={status}
+            onChange={(event) => setStatus(event.target.value as LeadStatus | '')}
+            select
+            size="small"
+            sx={{ minWidth: 170 }}
+          >
+            <MenuItem value="">Any status</MenuItem>
+            {STATUSES.map((entry) => (
+              <MenuItem key={entry.value} value={entry.value}>
+                {entry.label}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Stack>
       </Stack>
 
       <DataTable
-        rows={leads}
+        rows={displayedLeads}
         getRowId={(lead) => lead.id}
         isPending={leadsQuery.isPending}
         error={leadsQuery.isError ? leadsQuery.error : undefined}
-        errorMessage="Could not load leads."
-        emptyMessage="No leads yet."
+        errorMessage={
+          scope === 'meetings' ? 'Could not load dealer meeting requests.' : 'Could not load leads.'
+        }
+        emptyMessage={scope === 'meetings' ? 'No dealer meeting requests yet.' : 'No leads yet.'}
         minWidth={960}
         columns={[
           {
@@ -189,6 +254,8 @@ export function LeadsPage() {
                 lead.interest,
                 lead.budget,
                 lead.financing,
+                lead.company,
+                lead.activityType,
               ].filter(Boolean);
               return (
                 <Box>
@@ -216,8 +283,39 @@ export function LeadsPage() {
             },
           },
           {
+            key: 'meeting',
+            header: 'Meeting',
+            hidden: scope === 'all',
+            render: (lead) => {
+              if (!lead.meetingFormat) {
+                return (
+                  <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>—</Typography>
+                );
+              }
+              const where =
+                lead.meetingFormat === 'OFFICE'
+                  ? (lead.meetingBranchId && branchNameById.get(lead.meetingBranchId)) ||
+                    'Unknown branch'
+                  : lead.meetingFormat === 'OTHER'
+                    ? lead.meetingAddress
+                    : null;
+              return (
+                <Box>
+                  <Typography sx={{ fontSize: '0.875rem' }}>
+                    {lead.meetingAt ? formatDateTime(lead.meetingAt) : 'No time set'}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                    {MEETING_FORMAT_LABEL[lead.meetingFormat] ?? lead.meetingFormat}
+                    {where ? ` · ${where}` : ''}
+                  </Typography>
+                </Box>
+              );
+            },
+          },
+          {
             key: 'source',
             header: 'Source',
+            hidden: scope === 'meetings',
             render: (lead) => (
               <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
                 {lead.sourcePage} · {lead.sourceCta}
