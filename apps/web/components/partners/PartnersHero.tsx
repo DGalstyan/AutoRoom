@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { useBookingPopup } from '@/components/partners/PartnersBookingProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
@@ -13,6 +14,14 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * directly instead of scrolling to a copy of itself); `Խոսել մեր
  * մասնագետի հետ` is a plain click-to-call link, matching the spec's own
  * "click-to-call AutoRoom" description for this exact button.
+ *
+ * The background photo (a car crossing a desert salt flat, mountains
+ * behind) is a still frame extracted from Figma's own embedded GIF asset
+ * for this hero (`ezgif-29af6c622c34fe2e 1`, 1448×814, node 291:694) — the
+ * same "embedded GIF, not a static export" pattern documented on
+ * `PartnersWhoCanJoin`. This was missing entirely in the first pass (a
+ * plain dark `bg-bg` with no photo), which was one of the more visible
+ * contributors to the page reading as "not pixel perfect".
  */
 export function PartnersHero() {
   const t = useMessages().partners.hero;
@@ -20,6 +29,7 @@ export function PartnersHero() {
 
   return (
     <section className="relative isolate overflow-hidden bg-bg px-4 pb-14 pt-32 text-white sm:px-6 sm:pb-24 sm:pt-40">
+      <Image src="/images/partners/hero.jpg" alt="" fill priority className="object-cover" />
       <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
       <div className="relative mx-auto max-w-container text-center">
         <h1 className="mx-auto max-w-3xl animate-fade-up font-display text-home-hero font-bold text-white motion-reduce:animate-none">

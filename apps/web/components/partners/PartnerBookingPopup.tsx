@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Dialog } from '@/components/ui/Dialog';
+import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { Button } from '@/components/ui/Button';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
@@ -25,9 +25,17 @@ export interface PartnerBookingPopupProps {
 
 type Status = 'idle' | 'submitting' | 'success' | 'conflict' | 'error';
 
-/** The daily template every branch's calendar offers —
- * `references/pages.md` §5 S5, verbatim. */
-const FIXED_TIMES = ['10:00', '11:00', '12:30', '14:00', '15:30', '17:00'];
+/** Half-hour slots across a business day. Figma's own calendar (node
+ * 291:846, "Ամրագրում" card) shows a scrollable list of ~16 times at this
+ * granularity (12:00, 13:00, 13:30, 14:00, 15:00 …), not the written spec's
+ * older 6-slot set — trusted as the more current design here since it's a
+ * clearly-rendered, deliberate list rather than something Figma is silent
+ * about. */
+const FIXED_TIMES = [
+  '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
+  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+  '16:00', '16:30', '17:00', '17:30',
+]; // prettier-ignore
 
 const MAX_DAYS_AHEAD = 60; // Matches `GET /public/availability`'s own clamp.
 
@@ -41,39 +49,60 @@ function dateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-/** Builds a Monday-first grid for `month` (a `Date` on any day of that
- * month); `null` cells pad out the leading/trailing days of neighbor
- * months. */
-function buildMonthGrid(month: Date): (Date | null)[] {
+interface GridCell {
+  date: Date;
+  inMonth: boolean;
+}
+
+/** A full 6×7 Monday-first grid for `month`, including the trailing days of
+ * the previous month and the leading days of the next — Figma's calendar
+ * (node 291:846) shows those adjacent-month days as real, muted numbers
+ * (e.g. "29 30 31" then "01 02 03 04" in gray), not blank cells. */
+function buildMonthGrid(month: Date): GridCell[] {
   const year = month.getFullYear();
   const m = month.getMonth();
   const firstOfMonth = new Date(year, m, 1);
-  const daysInMonth = new Date(year, m + 1, 0).getDate();
   // getDay(): 0=Sun..6=Sat → shift to Monday-first (0=Mon..6=Sun).
-  const leadingBlank = (firstOfMonth.getDay() + 6) % 7;
+  const leadingCount = (firstOfMonth.getDay() + 6) % 7;
+  const gridStart = new Date(year, m, 1 - leadingCount);
 
-  const cells: (Date | null)[] = Array.from({ length: leadingBlank }, () => null);
-  for (let day = 1; day <= daysInMonth; day += 1) {
-    cells.push(new Date(year, m, day));
-  }
-  return cells;
+  return Array.from({ length: 42 }, (_, i) => {
+    const date = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + i);
+    return { date, inMonth: date.getMonth() === m };
+  });
 }
 
 /**
  * `/partners` S5 final CTA — the "Become a dealer" meeting-booking popup
- * (`references/pages.md` §5 S5, Figma node 291:53's `Become a dealer`
- * frame, file 9Lq4XpWusTJj1VnM6laAZr). Two sections: contact info (left on
- * desktop) and booking (calendar + fixed time chips + meeting-format
- * radio-cards, right on desktop) — both stack into one column on mobile.
+ * (`references/pages.md` §5 S5, Figma node 291:846's "Become a dealer"
+ * frame, file 9Lq4XpWusTJj1VnM6laAZr).
  *
- * Deliberate simplification vs. the written spec: the spec additionally
- * describes a mobile-only 3-step wizard with its own progress bar
- * ("1 Տվյալներ → 2 Օր/ժամ → 3 Հաստատում"). Figma's own mockup only shows
- * the desktop two-column frame — no mobile wizard frame exists to verify
- * against — so this ships the same single scrollable form on every
- * breakpoint instead of fabricating step-transition behavior nobody has
- * actually designed. The `steps`/`nav` message keys are already in place
- * for whoever builds the real wizard later.
+ * This is a bespoke dialog shell, not the shared `Dialog` component every
+ * other popup on the site uses — Figma's own frame (1344×850 of a 1440×932
+ * canvas) is a near-fullscreen takeover, not a small centered card: a bare
+ * "‹" chevron + a 44px light-weight title, then two separate white
+ * `rounded-[32px]` cards side by side (contact info / booking), each on a
+ * light page-toned backdrop rather than the site's usual dark scrim. Two
+ * consequences of matching that instead of reusing `Dialog`:
+ *  - No top-right X — Figma shows only the leading chevron as the close
+ *    affordance (Esc and overlay-click still close it, matching every
+ *    other popup's a11y contract).
+ *  - The backdrop is light (`bg-surface-light`), not `bg-bg/70`: Figma's
+ *    title text is dark (`Neutral/100`), which would be unreadable on the
+ *    site's usual dark scrim — the light backdrop isn't a stylistic choice
+ *    made here, it's what makes the rest of Figma's own spec legible.
+ * Sized generously on purpose: the previous build capped this at
+ * `max-w-3xl` with `overflow-y-auto`, which is what forced an internal
+ * scrollbar on a form this size. This one is wide enough on desktop that
+ * scrolling shouldn't be needed for the form itself.
+ *
+ * Two structural fixes vs. the previous build, both because Figma clearly
+ * shows a different layout, not because it's silent:
+ *  - Phone and email sit side by side (one row, two fields), not stacked.
+ *  - Meeting format is a single select (📍/💻/🏢 + label, chevron) matching
+ *    every other dropdown in this form, not three radio-cards — the
+ *    written spec's "radio-cards" description is superseded by Figma's
+ *    current, clearly-different treatment.
  *
  * Weekday/month names (calendar header, weekday row, summary line) come
  * from `t.calendar` rather than `Intl.DateTimeFormat(locale, …)`: Chrome's
@@ -86,15 +115,25 @@ function buildMonthGrid(month: Date): (Date | null)[] {
  * instead of trusting the visitor's browser to have Armenian ICU data.
  *
  * Slot data: `getPublicAvailability` (`lib/actions/availability.ts`) is
- * fetched per visible calendar month. A fixed daily chip counts as taken
- * only when a real `AvailabilitySlot` exists at that exact local time with
- * `open: false`; otherwise every fixed time is offered even on days no
- * admin has explicitly generated slots for yet (matching the spec's
- * "slots generated from team availability" as a capacity ceiling, not a
- * prerequisite for a lead to ask for a time). When a matching slot exists,
- * its id is sent as `meetingSlotId` so the API binds the exact time and can
- * 409 if it fills between load and submit; otherwise a plain `meetingAt`
- * is sent.
+ * fetched per visible calendar month. A time counts as taken only when a
+ * real `AvailabilitySlot` exists at that exact local time with
+ * `open: false`; otherwise every half-hour slot is offered even on days no
+ * admin has explicitly generated slots for yet. When a matching slot
+ * exists, its id is sent as `meetingSlotId` so the API binds the exact
+ * time and can 409 if it fills between load and submit; otherwise a plain
+ * `meetingAt` is sent.
+ *
+ * Deliberate simplification vs. the written spec: the spec also describes
+ * a mobile-only 3-step wizard with its own progress bar. Figma's own
+ * mockup only shows this one desktop frame — no mobile wizard frame exists
+ * to verify against — so this ships the same single-scroll-of-the-page
+ * form on every breakpoint (stacking to one column below `lg`) instead of
+ * fabricating step-transition behavior nobody has actually designed. The
+ * `steps`/`nav` message keys stay in place for whoever builds the real
+ * wizard later. Figma's own mockup also doesn't show a submit button or
+ * summary line at all (the "Ամրագրում" card just ends after the
+ * format/branch/address field) — the written spec is authoritative there
+ * since Figma is silent, not showing something different, so both stay.
  */
 export function PartnerBookingPopup({
   open,
@@ -105,7 +144,17 @@ export function PartnerBookingPopup({
   const t = useMessages().partners.bookingPopup;
   const locale = useLocale();
   const titleId = useId();
-  const headingRef = useRef<HTMLHeadingElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(panelRef, open, onClose);
+
+  useEffect(() => {
+    if (!open) return;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, [open]);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+374 ');
@@ -217,6 +266,12 @@ export function PartnerBookingPopup({
     !branchRequired &&
     !addressRequired;
 
+  const formatEmoji: Record<MeetingFormat, string> = {
+    ONLINE: '💻',
+    OFFICE: '🏢',
+    OTHER: '📍',
+  };
+
   const summaryLine = useMemo(() => {
     if (!selectedDate || !selectedTime) return null;
     const weekday = t.calendar.weekdaysLong[selectedDate.getDay()];
@@ -296,330 +351,379 @@ export function PartnerBookingPopup({
     );
   }
 
+  if (!open) return null;
+
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      titleId={titleId}
-      closeLabel={t.close}
-      className="max-w-3xl"
-    >
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void handleSubmit();
-        }}
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-surface-light py-6 sm:py-10">
+      <button
+        type="button"
+        aria-label={t.close}
+        onClick={onClose}
+        className="fixed inset-0 -z-10"
+        tabIndex={-1}
+      />
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="mx-4 flex w-full max-w-[1344px] flex-col gap-8 outline-none sm:mx-6 sm:gap-12"
       >
-        <h2
-          id={titleId}
-          ref={headingRef}
-          tabIndex={-1}
-          className="font-display text-h3 font-bold text-ink outline-none"
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t.close}
+            className="flex size-11 shrink-0 items-center justify-center rounded-pill text-ink transition-colors hover:bg-white sm:size-12"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path
+                d="M12.5 15L7.5 10L12.5 5"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <h2
+            id={titleId}
+            className="font-display text-[26px] font-light leading-tight text-ink sm:text-[36px] lg:text-[44px] lg:leading-[58px]"
+          >
+            {t.title}
+          </h2>
+        </div>
+
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleSubmit();
+          }}
         >
-          {t.title}
-        </h2>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Contact info */}
+            <div className="rounded-[32px] bg-white p-6 sm:p-8">
+              <h3 className="mb-6 font-display text-h4 font-bold text-ink">{t.contactHeading}</h3>
 
-        <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {/* Contact info */}
-          <div className="space-y-4">
-            <h3 className="text-small font-semibold uppercase tracking-wide text-ink/60">
-              {t.contactHeading}
-            </h3>
-
-            <div>
-              <label htmlFor="pbp-name" className="mb-1 block text-small font-medium text-ink">
-                {t.nameLabel}
-              </label>
-              <input
-                id="pbp-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                onBlur={() => setTouched(true)}
-                aria-invalid={nameError}
-                aria-describedby={nameError ? 'pbp-name-error' : undefined}
-                placeholder={t.namePlaceholder}
-                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-              />
-              {nameError && (
-                <p id="pbp-name-error" className="mt-1 text-small text-accent">
-                  {t.errors.nameRequired}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="pbp-phone" className="mb-1 block text-small font-medium text-ink">
-                {t.phoneLabel}
-              </label>
-              <input
-                id="pbp-phone"
-                name="phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                value={phone}
-                onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
-                onBlur={() => setTouched(true)}
-                aria-invalid={phoneError}
-                aria-describedby={phoneError ? 'pbp-phone-error' : undefined}
-                className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-              />
-              {phoneError && (
-                <p id="pbp-phone-error" className="mt-1 text-small text-accent">
-                  {t.errors.phoneInvalid}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="pbp-email" className="mb-1 block text-small font-medium text-ink">
-                {t.emailLabel}
-              </label>
-              <input
-                id="pbp-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder={t.emailPlaceholder}
-                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="pbp-company" className="mb-1 block text-small font-medium text-ink">
-                {t.companyLabel}
-              </label>
-              <input
-                id="pbp-company"
-                name="company"
-                type="text"
-                value={company}
-                onChange={(event) => setCompany(event.target.value)}
-                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="pbp-activity" className="mb-1 block text-small font-medium text-ink">
-                {t.activityLabel}
-              </label>
-              <select
-                id="pbp-activity"
-                name="activityType"
-                value={activityType}
-                onChange={(event) => setActivityType(event.target.value)}
-                className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
-              >
-                <option value="" />
-                {Object.entries(t.activityOptions).map(([key, label]) => (
-                  <option key={key} value={label}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="pbp-comment" className="mb-1 block text-small font-medium text-ink">
-                {t.commentLabel}
-              </label>
-              <textarea
-                id="pbp-comment"
-                name="comment"
-                rows={3}
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                placeholder={t.commentPlaceholder}
-                className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
-              />
-            </div>
-          </div>
-
-          {/* Booking */}
-          <div className="space-y-4">
-            <h3 className="text-small font-semibold uppercase tracking-wide text-ink/60">
-              {t.bookingHeading}
-            </h3>
-
-            <div className="rounded-md border border-line-light p-3">
-              <div className="mb-2 flex items-center justify-between">
-                <button
-                  type="button"
-                  aria-label={t.nav.prevMonth}
-                  disabled={isFirstNavigableMonth}
-                  onClick={() =>
-                    setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
-                  }
-                  className="flex h-8 w-8 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
-                >
-                  ‹
-                </button>
-                <span className="text-small font-medium text-ink">
-                  {t.calendar.monthsNominative[visibleMonth.getMonth()]}{' '}
-                  {visibleMonth.getFullYear()}
-                </span>
-                <button
-                  type="button"
-                  aria-label={t.nav.nextMonth}
-                  disabled={isLastNavigableMonth}
-                  onClick={() =>
-                    setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
-                  }
-                  className="flex h-8 w-8 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
-                >
-                  ›
-                </button>
-              </div>
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {t.calendar.weekdaysShort.map((label, index) => (
-                  <span key={`${label}-${index}`} className="text-xs text-ink/50">
-                    {label}
-                  </span>
-                ))}
-                {monthGrid.map((cellDate, index) => {
-                  if (!cellDate) return <span key={`blank-${index}`} />;
-                  const disabled = cellDate < today || cellDate > maxDate;
-                  const isSelected = selectedDate && dateKey(cellDate) === dateKey(selectedDate);
-                  return (
-                    <button
-                      key={dateKey(cellDate)}
-                      type="button"
-                      disabled={disabled}
-                      onClick={() => {
-                        setSelectedDate(cellDate);
-                        setSelectedTime(null);
-                      }}
-                      className={`h-8 rounded-pill text-small transition-colors ${
-                        isSelected
-                          ? 'bg-ink text-white'
-                          : disabled
-                            ? 'text-ink/25'
-                            : 'text-ink hover:bg-surface-light'
-                      }`}
-                    >
-                      {cellDate.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <span className="mb-1 block text-small font-medium text-ink">{t.timeSlotsLabel}</span>
-              {selectedDate ? (
-                <div className="flex flex-wrap gap-2">
-                  {FIXED_TIMES.map((time) => {
-                    const matched = slotForTime(time);
-                    const taken = matched ? !matched.open : false;
-                    const isSelected = selectedTime === time;
-                    return (
-                      <button
-                        key={time}
-                        type="button"
-                        disabled={taken}
-                        onClick={() => setSelectedTime(time)}
-                        className={`rounded-pill border px-4 py-2 text-small transition-colors ${
-                          isSelected
-                            ? 'border-ink bg-ink text-white'
-                            : taken
-                              ? 'border-line-light text-ink/30 line-through'
-                              : 'border-line-light text-ink hover:border-ink'
-                        }`}
-                      >
-                        {time}
-                      </button>
-                    );
-                  })}
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="pbp-name" className="mb-2 block text-small font-medium text-ink">
+                    {t.nameLabel}
+                  </label>
+                  <input
+                    id="pbp-name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    onBlur={() => setTouched(true)}
+                    aria-invalid={nameError}
+                    aria-describedby={nameError ? 'pbp-name-error' : undefined}
+                    placeholder={t.namePlaceholder}
+                    className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                  />
+                  {nameError && (
+                    <p id="pbp-name-error" className="mt-1 text-small text-accent">
+                      {t.errors.nameRequired}
+                    </p>
+                  )}
                 </div>
-              ) : (
-                <p className="text-small text-ink/50">{t.noTimes}</p>
-              )}
-              {slotError && <p className="mt-1 text-small text-accent">{t.errors.slotRequired}</p>}
-            </div>
 
-            <div>
-              <span className="mb-1 block text-small font-medium text-ink">{t.formatLabel}</span>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {(['ONLINE', 'OFFICE', 'OTHER'] as const).map((format) => {
-                  const label =
-                    t.formatOptions[format.toLowerCase() as 'online' | 'office' | 'other'];
-                  const isSelected = meetingFormat === format;
-                  return (
-                    <button
-                      key={format}
-                      type="button"
-                      role="radio"
-                      aria-checked={isSelected}
-                      onClick={() => setMeetingFormat(format)}
-                      className={`rounded-md border px-3 py-2 text-small transition-colors ${
-                        isSelected
-                          ? 'border-ink bg-surface-light font-medium text-ink'
-                          : 'border-line-light text-ink/70 hover:border-ink'
-                      }`}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="pbp-phone"
+                      className="mb-2 block text-small font-medium text-ink"
                     >
-                      {label}
-                    </button>
-                  );
-                })}
+                      {t.phoneLabel}
+                    </label>
+                    <input
+                      id="pbp-phone"
+                      name="phone"
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      value={phone}
+                      onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+                      onBlur={() => setTouched(true)}
+                      aria-invalid={phoneError}
+                      aria-describedby={phoneError ? 'pbp-phone-error' : undefined}
+                      className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                    />
+                    {phoneError && (
+                      <p id="pbp-phone-error" className="mt-1 text-small text-accent">
+                        {t.errors.phoneInvalid}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="pbp-email"
+                      className="mb-2 block text-small font-medium text-ink"
+                    >
+                      {t.emailLabel}
+                    </label>
+                    <input
+                      id="pbp-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder={t.emailPlaceholder}
+                      className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="pbp-company"
+                    className="mb-2 block text-small font-medium text-ink"
+                  >
+                    {t.companyLabel}
+                  </label>
+                  <input
+                    id="pbp-company"
+                    name="company"
+                    type="text"
+                    value={company}
+                    onChange={(event) => setCompany(event.target.value)}
+                    className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="pbp-activity"
+                    className="mb-2 block text-small font-medium text-ink"
+                  >
+                    {t.activityLabel}
+                  </label>
+                  <select
+                    id="pbp-activity"
+                    name="activityType"
+                    value={activityType}
+                    onChange={(event) => setActivityType(event.target.value)}
+                    className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
+                  >
+                    <option value="" />
+                    {Object.entries(t.activityOptions).map(([key, label]) => (
+                      <option key={key} value={label}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="pbp-comment"
+                    className="mb-2 block text-small font-medium text-ink"
+                  >
+                    {t.commentLabel}
+                  </label>
+                  <textarea
+                    id="pbp-comment"
+                    name="comment"
+                    rows={3}
+                    value={comment}
+                    onChange={(event) => setComment(event.target.value)}
+                    placeholder={t.commentPlaceholder}
+                    className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
+                  />
+                </div>
               </div>
             </div>
 
-            {meetingFormat === 'OFFICE' && (
-              <div>
-                <label htmlFor="pbp-branch" className="mb-1 block text-small font-medium text-ink">
-                  {t.branchLabel}
+            {/* Booking */}
+            <div className="rounded-[32px] bg-white p-6 sm:p-8">
+              <h3 className="mb-6 font-display text-h4 font-bold text-ink">{t.bookingHeading}</h3>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <div className="mb-2 flex items-center justify-between">
+                    <button
+                      type="button"
+                      aria-label={t.nav.prevMonth}
+                      disabled={isFirstNavigableMonth}
+                      onClick={() =>
+                        setVisibleMonth(
+                          (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                        )
+                      }
+                      className="flex h-8 w-8 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
+                    >
+                      ‹
+                    </button>
+                    <span className="text-small font-medium text-ink">
+                      {t.calendar.monthsNominative[visibleMonth.getMonth()]}{' '}
+                      {visibleMonth.getFullYear()}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={t.nav.nextMonth}
+                      disabled={isLastNavigableMonth}
+                      onClick={() =>
+                        setVisibleMonth(
+                          (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                        )
+                      }
+                      className="flex h-8 w-8 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
+                    >
+                      ›
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1 text-center">
+                    {t.calendar.weekdaysShort.map((label, index) => (
+                      <span key={`${label}-${index}`} className="text-xs text-ink/50">
+                        {label}
+                      </span>
+                    ))}
+                    {monthGrid.map(({ date: cellDate, inMonth }) => {
+                      const disabled = !inMonth || cellDate < today || cellDate > maxDate;
+                      const isSelected =
+                        selectedDate && dateKey(cellDate) === dateKey(selectedDate);
+                      return (
+                        <button
+                          key={dateKey(cellDate)}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => {
+                            setSelectedDate(cellDate);
+                            setSelectedTime(null);
+                          }}
+                          className={`aspect-square rounded-pill text-small transition-colors ${
+                            isSelected
+                              ? 'bg-ink text-white'
+                              : !inMonth
+                                ? 'text-ink/20'
+                                : disabled
+                                  ? 'text-ink/25'
+                                  : 'text-ink hover:bg-surface-light'
+                          }`}
+                        >
+                          {cellDate.getDate()}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex w-20 shrink-0 flex-col">
+                  <span className="mb-2 text-small font-medium text-ink">{t.timeSlotsLabel}</span>
+                  {selectedDate ? (
+                    <div className="flex max-h-64 flex-col gap-2 overflow-y-auto pr-1">
+                      {FIXED_TIMES.map((time) => {
+                        const matched = slotForTime(time);
+                        const taken = matched ? !matched.open : false;
+                        const isSelected = selectedTime === time;
+                        return (
+                          <button
+                            key={time}
+                            type="button"
+                            disabled={taken}
+                            onClick={() => setSelectedTime(time)}
+                            className={`shrink-0 rounded-pill border px-2 py-1.5 text-xs transition-colors ${
+                              isSelected
+                                ? 'border-accent bg-accent text-neutral-900'
+                                : taken
+                                  ? 'border-line-light text-ink/30 line-through'
+                                  : 'border-line-light text-ink hover:border-ink'
+                            }`}
+                          >
+                            {time}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-ink/50">{t.noTimes}</p>
+                  )}
+                </div>
+              </div>
+              {slotError && <p className="mt-2 text-small text-accent">{t.errors.slotRequired}</p>}
+
+              <div className="mt-6">
+                <label htmlFor="pbp-format" className="mb-2 block text-small font-medium text-ink">
+                  {t.formatLabel}
                 </label>
                 <select
-                  id="pbp-branch"
-                  value={branchId}
-                  onChange={(event) => setBranchId(event.target.value)}
+                  id="pbp-format"
+                  value={meetingFormat}
+                  onChange={(event) => setMeetingFormat(event.target.value as MeetingFormat)}
                   className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
                 >
-                  {branches.map((branch) => (
-                    <option key={branch.id} value={branch.id}>
-                      {branch.name}
+                  {(['ONLINE', 'OFFICE', 'OTHER'] as const).map((format) => (
+                    <option key={format} value={format}>
+                      {formatEmoji[format]}{' '}
+                      {t.formatOptions[format.toLowerCase() as 'online' | 'office' | 'other']}
                     </option>
                   ))}
                 </select>
               </div>
-            )}
 
-            {meetingFormat === 'OTHER' && (
-              <div>
-                <label htmlFor="pbp-address" className="mb-1 block text-small font-medium text-ink">
-                  {t.addressLabel}
-                </label>
-                <input
-                  id="pbp-address"
-                  type="text"
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-                />
-              </div>
-            )}
+              {meetingFormat === 'OFFICE' && (
+                <div className="mt-4">
+                  <label
+                    htmlFor="pbp-branch"
+                    className="mb-2 block text-small font-medium text-ink"
+                  >
+                    {t.branchLabel}
+                  </label>
+                  <select
+                    id="pbp-branch"
+                    value={branchId}
+                    onChange={(event) => setBranchId(event.target.value)}
+                    className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
+                  >
+                    {branches.map((branch) => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-            {summaryLine && <p className="text-small font-medium text-ink">{summaryLine}</p>}
-            {status === 'conflict' && (
-              <p className="text-small text-accent">{t.errors.slotTaken}</p>
-            )}
+              {meetingFormat === 'OTHER' && (
+                <div className="mt-4">
+                  <label
+                    htmlFor="pbp-address"
+                    className="mb-2 block text-small font-medium text-ink"
+                  >
+                    {t.addressLabel}
+                  </label>
+                  <input
+                    id="pbp-address"
+                    type="text"
+                    value={address}
+                    onChange={(event) => setAddress(event.target.value)}
+                    className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                  />
+                </div>
+              )}
+
+              {summaryLine && <p className="mt-6 text-small font-medium text-ink">{summaryLine}</p>}
+              {status === 'conflict' && (
+                <p className="mt-2 text-small text-accent">{t.errors.slotTaken}</p>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div className="mt-6 flex items-center justify-end gap-3">
-          <Button type="button" variant="ghost" className="text-ink" onClick={onClose}>
-            {t.close}
-          </Button>
-          <Button type="submit" variant="primary" disabled={status === 'submitting' || !isValid}>
-            {status === 'submitting' ? t.sending : t.submit}
-          </Button>
-        </div>
-      </form>
-    </Dialog>
+          <div className="mt-8 flex items-center justify-end gap-3">
+            <Button type="button" variant="ghost" className="text-ink" onClick={onClose}>
+              {t.close}
+            </Button>
+            <Button type="submit" variant="primary" disabled={status === 'submitting' || !isValid}>
+              {status === 'submitting' ? t.sending : t.submit}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
