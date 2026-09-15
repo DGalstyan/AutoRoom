@@ -26,12 +26,19 @@ export function useBookingPopup(): BookingPopupContextValue {
 export function PartnersBookingProvider({
   children,
   branches,
+  footer,
 }: {
   children: ReactNode;
   /** Fetched server-side (`getBranches()`) by `app/partners/page.tsx` and
    * threaded through here — see `PartnerBookingPopup`'s own doc comment for
    * why this Client Component can't fetch it itself. */
   branches: Branch[];
+  /** The real site `<Footer>`, rendered server-side by `app/partners/page.tsx`
+   * (it's an async Server Component fetching admin-managed branding/contacts —
+   * a Client Component can render it as a child it was handed, but can't
+   * import and call it directly) and passed through as a plain node so
+   * `PartnerBookingPopup` can show it at the bottom of the dialog. */
+  footer: ReactNode;
 }) {
   const [state, setState] = useState<{ open: boolean; sourceCta: string }>({
     open: false,
@@ -51,6 +58,7 @@ export function PartnersBookingProvider({
         onClose={close}
         sourceCta={state.sourceCta}
         branches={branches}
+        footer={footer}
       />
     </BookingPopupContext.Provider>
   );

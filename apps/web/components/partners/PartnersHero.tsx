@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ArrowUpRightIcon } from '@/components/ui/icons';
+import { ArrowUpRightIcon, PhoneIcon } from '@/components/ui/icons';
 import { useBookingPopup } from '@/components/partners/PartnersBookingProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -22,6 +22,15 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * `PartnersWhoCanJoin`. This was missing entirely in the first pass (a
  * plain dark `bg-bg` with no photo), which was one of the more visible
  * contributors to the page reading as "not pixel perfect".
+ *
+ * Two overlay layers on top of the photo, both read from Figma's own
+ * rectangles (`291:695`/`291:696`) rather than guessed: a `backdrop-blur`
+ * dark scrim across the whole hero (Figma: black at 50% opacity with a
+ * 21px backdrop blur — softens the photo so white text stays readable
+ * without needing a fully opaque overlay), and a bottom gradient fading
+ * into `surface-light` (Figma's rectangle goes to `#F7F7F7` — this site's
+ * `surface-light` token exactly) so the hero blends into the white "why
+ * partner" section below it instead of hard-cutting.
  */
 export function PartnersHero() {
   const t = useMessages().partners.hero;
@@ -30,7 +39,11 @@ export function PartnersHero() {
   return (
     <section className="relative isolate overflow-hidden bg-bg px-4 pb-14 pt-32 text-white sm:px-6 sm:pb-24 sm:pt-40">
       <Image src="/images/partners/hero.jpg" alt="" fill priority className="object-cover" />
-      <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-[21px]" aria-hidden="true" />
+      <div
+        className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent to-surface-light"
+        aria-hidden="true"
+      />
       <div className="relative mx-auto max-w-container text-center">
         <h1 className="mx-auto max-w-3xl animate-fade-up font-display text-home-hero font-bold text-white motion-reduce:animate-none">
           {t.h1}
@@ -50,7 +63,7 @@ export function PartnersHero() {
             href="tel:+37444111111" // Footer's own general contact number (Figma "Dealers" page footer, verbatim).
             className="inline-flex min-h-11 animate-fade-up items-center gap-1 rounded-pill border border-white px-7 py-4 text-home-label font-normal text-white transition-colors duration-standard ease-expo [animation-delay:150ms] hover:bg-white/10 motion-reduce:animate-none"
           >
-            {t.secondaryCta}
+            {t.secondaryCta} <PhoneIcon />
           </a>
         </div>
       </div>
