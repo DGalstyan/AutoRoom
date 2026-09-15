@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Lead, LeadStatus } from '@autoroom/api/client';
 import {
@@ -20,6 +20,9 @@ import { DataTable } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { STATUSES, statusTone } from '@/pages/leads/status';
 
+/** Matches `NotificationBell`'s own polling cadence. */
+const POLL_INTERVAL_MS = 30_000;
+
 /**
  * Leads — the CRM inbox for every submission from the public site's
  * lead-capture entry points (Universal popup, Quiz popup, Contact page
@@ -29,6 +32,15 @@ import { STATUSES, statusTone } from '@/pages/leads/status';
  * No create/edit form here on purpose: a lead is never authored by staff,
  * only received and worked — the row menu advances `status` and the row
  * itself already shows everything the visitor submitted.
+ *
+ * Live: polls on the same 30s cadence as `NotificationBell` (no
+ * websocket/SSE channel in this API yet — see that component's own doc
+ * comment) so a new submission appears here without anyone refreshing,
+ * and fires a toast the moment a lead newer than the last-seen one shows
+ * up. Compared by `createdAt`, not row position or id, so a status change
+ * or delete (which can shift which row sorts first without any new
+ * submission existing) never fires a false toast, and the first load
+ * never does either.
  */
 export function LeadsPage() {
   const { api, identity } = useAuth();
@@ -45,6 +57,7 @@ export function LeadsPage() {
   const leadsQuery = useQuery({
     queryKey: ['leads', status],
     queryFn: () => api.leads.list({ ...(status ? { status } : {}), take: 100 }),
+    refetchInterval: POLL_INTERVAL_MS,
   });
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['leads'] });
@@ -69,7 +82,37 @@ export function LeadsPage() {
     onError: (error) => toast(errorMessage(error), 'error'),
   });
 
-  const leads = leadsQuery.data?.items ?? [];
+  // Stable across renders whenever the underlying data hasn't changed —
+  // `?? []` on its own would create a new array reference every render and
+  // re-run the new-lead-detection effect below needlessly.
+  const leads = useMemo(() => leadsQuery.data?.items ?? [], [leadsQuery.data]);
+
+  // Reset new-lead tracking whenever the status filter changes — a row
+  // that's merely new-to-this-view (a filter switch) must never fire the
+  // toast, only a row that's genuinely new-in-time.
+  const latestSeenAtRef = useRef<number | null>(null);
+  const isFirstLoadRef = useRef(true);
+  useEffect(() => {
+    latestSeenAtRef.current = null;
+    isFirstLoadRef.current = true;
+  }, [status]);
+
+  useEffect(() => {
+    if (leads.length === 0) return;
+    const newest = leads[0]!;
+    const newestAt = new Date(newest.createdAt).getTime();
+    if (isFirstLoadRef.current) {
+      latestSeenAtRef.current = newestAt;
+      isFirstLoadRef.current = false;
+      return;
+    }
+    // Compared by timestamp, not id: a status change or delete can shift
+    // which row sorts first without a genuinely new submission existing.
+    if (latestSeenAtRef.current !== null && newestAt > latestSeenAtRef.current) {
+      toast(`New lead: ${newest.name}`);
+      latestSeenAtRef.current = newestAt;
+    }
+  }, [leads, toast]);
 
   return (
     <Box sx={{ maxWidth: 1100 }}>
