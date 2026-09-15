@@ -23,6 +23,7 @@ export function UploadField({
   helperText,
   disabled = false,
   preview,
+  maxSizeLabel = 'Up to 25 MB',
 }: {
   label: string;
   /** An `accept` attribute, e.g. `video/mp4,video/webm` or `image/*`. */
@@ -33,6 +34,11 @@ export function UploadField({
   disabled?: boolean;
   /** Renders the current value once set — a poster thumbnail, a video tag. */
   preview?: (url: string) => React.ReactNode;
+  /** Must track `apps/api/src/routes/uploads.ts`'s actual `fileSize` limit —
+   * images and video share one endpoint but very different realistic sizes,
+   * so this isn't one constant for every field. Defaults to the limit that
+   * applied before video needed its own, much larger one. */
+  maxSizeLabel?: string;
 }) {
   const { api } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -83,7 +89,9 @@ export function UploadField({
             Clear
           </Button>
         )}
-        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>Up to 25 MB</Typography>
+        <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+          {maxSizeLabel}
+        </Typography>
       </Stack>
 
       <input

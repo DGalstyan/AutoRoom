@@ -51,7 +51,10 @@ const upload = multer({
       done(null, `${crypto.randomBytes(16).toString('hex')}${extension}`);
     },
   }),
-  limits: { fileSize: 25 * 1024 * 1024, files: 1 },
+  // 200 MB — the Stories screen's founder/testimonial videos are the
+  // reason this needs to be this big; the old 25 MB cap (still fine for
+  // images) rejected real founder-story footage outright.
+  limits: { fileSize: 200 * 1024 * 1024, files: 1 },
   fileFilter: (_req, file, done) => {
     if (!ALLOWED.has(file.mimetype)) {
       done(new Error(`Unsupported file type "${file.mimetype}"`));
@@ -75,7 +78,7 @@ uploadsRouter.post(
       if (error instanceof multer.MulterError) {
         next(
           badRequest(
-            error.code === 'LIMIT_FILE_SIZE' ? 'File is larger than 25 MB' : error.message,
+            error.code === 'LIMIT_FILE_SIZE' ? 'File is larger than 200 MB' : error.message,
           ),
         );
         return;
