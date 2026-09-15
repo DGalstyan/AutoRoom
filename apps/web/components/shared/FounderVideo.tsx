@@ -21,6 +21,16 @@ import type { FounderVideo as FounderVideoData } from '@/lib/media';
  * unreachable) we fall back to the static stand-in that always existed
  * here, so the section never renders a broken player.
  *
+ * `videoUrl` isn't always a YouTube link: the admin's Stories screen lets
+ * an editor either paste one or upload a file directly (`UploadField`,
+ * posting to `POST /uploads`), and a direct upload's URL points at our own
+ * `/uploads/<file>.mp4` — `toYouTubeEmbedUrl` correctly returns `null` for
+ * that (it only recognizes YouTube hosts), but this component used to
+ * treat "not YouTube" as "nothing to play at all" and show the "no video
+ * yet" placeholder even with a perfectly good uploaded file sitting right
+ * there. Anything with a `videoUrl` that isn't a YouTube link now plays as
+ * a plain `<video>` instead.
+ *
  * `heading` overrides the overlay title only — About reuses this component
  * (Figma node `123:401`, file `9Lq4XpWusTJj1VnM6laAZr`) with its own
  * "Ինչպես սկսվեց AutoRoom-ը" wording instead of Homepage's phrasing, same
@@ -37,6 +47,8 @@ export function FounderVideo({
   const [playing, setPlaying] = useState(false);
   const displayHeading = heading ?? t.heading;
   const embedUrl = video ? toYouTubeEmbedUrl(video.videoUrl) : null;
+  // Has a videoUrl, just not a YouTube one — a direct upload's file URL.
+  const directVideoUrl = video && !embedUrl ? video.videoUrl : null;
   const posterSrc = video?.posterUrl || '/images/home/founder-poster.jpg';
 
   return (
@@ -52,6 +64,17 @@ export function FounderVideo({
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
+        ) : playing && directVideoUrl ? (
+          <video
+            src={directVideoUrl}
+            poster={video?.posterUrl ?? undefined}
+            className="absolute inset-0 h-full w-full object-cover"
+            controls
+            autoPlay
+            playsInline
+          >
+            <track kind="captions" />
+          </video>
         ) : (
           <>
             <Image
