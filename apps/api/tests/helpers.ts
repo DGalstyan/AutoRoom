@@ -31,8 +31,13 @@ export async function resetData() {
   // Listed explicitly rather than derived from the catalogue: an automatic
   // "truncate everything" would take the roles and permissions with it, and
   // those are the fixture the RBAC suite is asserting against.
+  // `leads` is named explicitly rather than left to `CASCADE`: it now carries
+  // optional foreign keys to `availability_slots` and `branches`, so truncating
+  // the diary would take the leads with it anyway — and a table cleared as a
+  // side effect of somebody else's cascade is a test isolation rule nobody can
+  // see.
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE bookings, availability_slots, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
+    'TRUNCATE TABLE leads, bookings, availability_slots, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
   );
 }
 

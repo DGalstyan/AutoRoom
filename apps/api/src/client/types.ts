@@ -443,10 +443,17 @@ export type TeamMemberInput = Omit<TeamMember, 'id'>;
 export type LeadStatus = 'NEW' | 'CONTACTED' | 'CLOSED';
 
 /**
+ * How a booked meeting happens: a video call, at one of our offices, or at an
+ * address the visitor gives. Only the dealer form sets this.
+ */
+export type MeetingFormat = 'ONLINE' | 'OFFICE' | 'OTHER';
+
+/**
  * A submission from any of the public site's lead-capture entry points
- * (Universal popup, Quiz popup, or the Contact page's static form). Every
- * field but name/phone/the hidden-context ones is optional since each
- * widget asks its own subset of questions.
+ * (Universal popup, Quiz popup, the Contact page's static form, or the
+ * "Become a dealer" meeting-booking form). Every field but name/phone/the
+ * hidden-context ones is optional since each widget asks its own subset of
+ * questions.
  */
 export interface Lead {
   id: string;
@@ -463,6 +470,23 @@ export interface Lead {
   comment: string | null;
   carName: string | null;
   carVin: string | null;
+  /** Auction lot number or a pasted listing link — the USA contact popup's own
+   * field, distinct from `carVin`. */
+  carLink: string | null;
+  /* --- the dealer form's own fields; null for every other widget's leads --- */
+  company: string | null;
+  /** The `Գործունեության ոլորտ` option the visitor picked, as its own label. */
+  activityType: string | null;
+  meetingFormat: MeetingFormat | null;
+  /** ISO 8601. Bound to the slot's `startsAt` whenever a slot was picked. */
+  meetingAt: string | null;
+  /** The published window this asked for. It does *not* hold the window: only a
+   * `Booking` consumes a slot's capacity, and a manager creates that. */
+  meetingSlotId: string | null;
+  /** Set for `OFFICE` only. */
+  meetingBranchId: string | null;
+  /** Set for `OTHER` only. */
+  meetingAddress: string | null;
   sourcePage: string;
   sourceCta: string;
   locale: string;
@@ -490,6 +514,22 @@ export interface LeadInput {
   comment?: string;
   carName?: string;
   carVin?: string;
+  carLink?: string;
+
+  /* The dealer form's own fields. `meetingFormat` and a time come together or
+   * not at all, and each format allows exactly one place:
+   * `ONLINE` → neither; `OFFICE` → `meetingBranchId`; `OTHER` →
+   * `meetingAddress`. Anything else is a 400. */
+  company?: string;
+  activityType?: string;
+  meetingFormat?: MeetingFormat;
+  /** Ignored when `meetingSlotId` is sent — the slot's own start time wins. */
+  meetingAt?: string;
+  /** 409s if the window filled up between the form loading and submitting. */
+  meetingSlotId?: string;
+  meetingBranchId?: string;
+  meetingAddress?: string;
+
   sourcePage: string;
   sourceCta: string;
   locale: string;
@@ -637,6 +677,29 @@ export interface AvailabilityListQuery {
   onlyOpen?: boolean;
   take?: number;
   skip?: number;
+}
+
+/**
+ * What the public "Become a dealer" form sees of a window. No `capacity` or
+ * `bookedCount`: how busy a branch is, is nobody's business but ours. Taken
+ * windows are still listed with `open: false` so the form can disable them.
+ */
+export interface PublicAvailabilitySlot {
+  id: string;
+  branchId: string | null;
+  branch: BranchRef | null;
+  /** ISO 8601. */
+  startsAt: string;
+  endsAt: string;
+  open: boolean;
+}
+
+/** Future windows only; the server caps the range at 60 days whatever `to` says. */
+export interface PublicAvailabilityQuery {
+  from?: string;
+  to?: string;
+  branchId?: string;
+  onlyOpen?: boolean;
 }
 
 /* ---------------------------------- portal ---------------------------------- */
