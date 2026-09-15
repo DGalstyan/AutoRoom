@@ -1,37 +1,31 @@
 import type { Metadata } from 'next';
-import { ComingSoonHero } from '@/components/shared/ComingSoonHero';
+import { PartnersBookingProvider } from '@/components/partners/PartnersBookingProvider';
+import { PartnersHero } from '@/components/partners/PartnersHero';
+import { PartnersWhy } from '@/components/partners/PartnersWhy';
+import { PartnersWhoCanJoin } from '@/components/partners/PartnersWhoCanJoin';
+import { getBranches } from '@/lib/branches';
 import { getServerMessages } from '@/lib/i18n';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return {
-    title: messages.partners.meta.title,
-    description: messages.partners.meta.description,
-  };
+  return { title: messages.partners.meta.title, description: messages.partners.meta.description };
 }
 
 /**
- * `/partners` — interim page. The full B2B build (`references/pages.md`
- * "5. Partners / Dealers"): why-partner/who-can-join sections, the
- * meeting-booking final CTA, and the authed `/partners/portal` dashboard,
- * is its own separate, much larger effort (it needs real auth). Until then
- * this is a real page (not a 404) so the header/footer nav's existing
- * `/partners` link resolves, with the spec's own S1 hero copy and a
- * working lead-capture CTA in place of the eventual meeting-booking popup
- * — see `ComingSoonHero`.
+ * `/partners` — "Become a dealer" (`references/pages.md` §5, Figma node
+ * 291:53, file 9Lq4XpWusTJj1VnM6laAZr). §S4 "Portal login" isn't in the
+ * current Figma mockup at all and is out of scope here — it belongs with
+ * the larger `/partners/portal` authed-dashboard buildout tracked
+ * separately.
  */
 export default async function PartnersPage() {
-  const { messages } = await getServerMessages();
-  const t = messages.partners;
+  const branches = await getBranches();
 
   return (
-    <ComingSoonHero
-      h1={t.hero.h1}
-      text={t.hero.text}
-      ctaLabel={t.hero.cta}
-      sourceCta="partners-hero"
-      comingSoonHeading={t.comingSoon.heading}
-      comingSoonText={t.comingSoon.text}
-    />
+    <PartnersBookingProvider branches={branches}>
+      <PartnersHero />
+      <PartnersWhy />
+      <PartnersWhoCanJoin />
+    </PartnersBookingProvider>
   );
 }

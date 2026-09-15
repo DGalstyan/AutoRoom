@@ -115,19 +115,35 @@
         },
         "fuel": {
           "label": "Fuel",
-          "options": { "ev": "EV", "hybrid": "Hybrid", "benzin": "Petrol" }
+          "options": {
+            "ev": "EV",
+            "hybrid": "Hybrid",
+            "benzin": "Petrol"
+          }
         },
         "usage": {
           "label": "Usage",
-          "options": { "city": "city", "family": "family", "travel": "travel" }
+          "options": {
+            "city": "city",
+            "family": "family",
+            "travel": "travel"
+          }
         },
         "country": {
           "label": "Country",
-          "options": { "usa": "USA", "china": "China", "any": "doesn't matter" }
+          "options": {
+            "usa": "USA",
+            "china": "China",
+            "any": "doesn't matter"
+          }
         },
         "timing": {
           "label": "When do you want to buy?",
-          "options": { "now": "now", "1-3m": "1–3 months", "browsing": "just browsing" }
+          "options": {
+            "now": "now",
+            "1-3m": "1–3 months",
+            "browsing": "just browsing"
+          }
         }
       },
       "resultTitle": "Cars recommended for you",
@@ -256,17 +272,38 @@
     },
     "carAnatomy": {
       "hotspots": [
-        { "title": "Engine", "text": "10+ years of experience" },
-        { "title": "Body", "text": "10,000+ cars imported" },
-        { "title": "Wheels", "text": "98% successful deliveries" },
-        { "title": "Doors", "text": "A transparent process: open pricing, clear costs" },
-        { "title": "Steering wheel", "text": "100% turnkey service" },
-        { "title": "Headlights", "text": "Fast response, constant contact" },
+        {
+          "title": "Engine",
+          "text": "10+ years of experience"
+        },
+        {
+          "title": "Body",
+          "text": "10,000+ cars imported"
+        },
+        {
+          "title": "Wheels",
+          "text": "98% successful deliveries"
+        },
+        {
+          "title": "Doors",
+          "text": "A transparent process: open pricing, clear costs"
+        },
+        {
+          "title": "Steering wheel",
+          "text": "100% turnkey service"
+        },
+        {
+          "title": "Headlights",
+          "text": "Fast response, constant contact"
+        },
         {
           "title": "Documents",
           "text": "International network: USA • China • Europe • Korea • Japan"
         },
-        { "title": "Key", "text": "3 branches in Armenia" }
+        {
+          "title": "Key",
+          "text": "3 branches in Armenia"
+        }
       ]
     }
   },
@@ -275,13 +312,28 @@
       "eyebrow": "AvtoRoom",
       "h1": "We import cars from the USA, China, Europe and other international markets",
       "stats": [
-        { "value": "50+", "label": "international partner network" },
-        { "value": "10+", "label": "years of experience" },
-        { "value": "10,000+", "label": "cars imported" }
+        {
+          "value": "50+",
+          "label": "international partner network"
+        },
+        {
+          "value": "10+",
+          "label": "years of experience"
+        },
+        {
+          "value": "10,000+",
+          "label": "cars imported"
+        }
       ],
       "pickerHeading": "Choose your next car",
-      "usaCard": { "title": "USA", "cta": "View USA cars" },
-      "chinaCard": { "title": "China", "cta": "View China cars" }
+      "usaCard": {
+        "title": "USA",
+        "cta": "View USA cars"
+      },
+      "chinaCard": {
+        "title": "China",
+        "cta": "View China cars"
+      }
     },
     "featured": {
       "eyebrow": "Handpicked by our team",
@@ -315,10 +367,22 @@
         }
       ],
       "stats": [
-        { "value": "10+", "label": "years of experience" },
-        { "value": "98%", "label": "successful deliveries" },
-        { "value": "100%", "label": "turnkey service" },
-        { "value": "3", "label": "branches in Armenia" }
+        {
+          "value": "10+",
+          "label": "years of experience"
+        },
+        {
+          "value": "98%",
+          "label": "successful deliveries"
+        },
+        {
+          "value": "100%",
+          "label": "turnkey service"
+        },
+        {
+          "value": "3",
+          "label": "branches in Armenia"
+        }
       ],
       "finalLine": "Every detail is in its place — that's how we work",
       "cta": "Start choosing",
@@ -492,10 +556,22 @@
     "whyChooseUs": {
       "heading": "Why choose AutoRoom",
       "stats": [
-        { "value": "10+", "label": "years of experience" },
-        { "value": "98%", "label": "successful deliveries" },
-        { "value": "100%", "label": "turnkey service" },
-        { "value": "3", "label": "branches in Armenia" }
+        {
+          "value": "10+",
+          "label": "years of experience"
+        },
+        {
+          "value": "98%",
+          "label": "successful deliveries"
+        },
+        {
+          "value": "100%",
+          "label": "turnkey service"
+        },
+        {
+          "value": "3",
+          "label": "branches in Armenia"
+        }
       ]
     },
     "team": {
@@ -731,12 +807,150 @@
     },
     "hero": {
       "h1": "Become an AutoRoom partner",
-      "text": "Special terms, a personal manager, and fast calculations for dealerships, dealers, leasing companies, and corporate clients.",
-      "cta": "Become a partner"
+      "text": "Join our partner network and get special terms, personal support, and full control over your orders.",
+      "cta": "Become a partner",
+      "secondaryCta": "Talk to our specialist"
     },
-    "comingSoon": {
-      "heading": "Our partner platform is on its way",
-      "text": "Soon you'll find partnership terms, a digital portal, and online meeting booking here. In the meantime, leave your details and our team will get in touch."
+    "why": {
+      "heading": "Why become a partner",
+      "items": [
+        {
+          "title": "24/7",
+          "text": "support"
+        },
+        {
+          "title": "Special",
+          "text": "pricing offers"
+        },
+        {
+          "title": "Personal manager",
+          "text": ""
+        },
+        {
+          "title": "Partnership",
+          "text": "terms"
+        },
+        {
+          "title": "Fast settlements",
+          "text": ""
+        },
+        {
+          "title": "Priority",
+          "text": "service"
+        },
+        {
+          "title": "Technical",
+          "text": "support"
+        },
+        {
+          "title": "Direct line",
+          "text": "to the AutoRoom team"
+        }
+      ]
+    },
+    "whoCanJoin": {
+      "heading": "Why become a partner",
+      "items": [
+        "Car showrooms",
+        "Car rental companies",
+        "Fleet operators",
+        "Leasing companies",
+        "Individual importers"
+      ]
+    },
+    "bookingPopup": {
+      "title": "Book a meeting with our partnership team",
+      "close": "Close",
+      "contactHeading": "Contact information",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Smith",
+      "phoneLabel": "Phone number",
+      "emailLabel": "Email",
+      "emailPlaceholder": "example@email.com",
+      "companyLabel": "Company name",
+      "activityLabel": "Field of activity",
+      "activityOptions": {
+        "showroom": "Car showrooms",
+        "rental": "Car rental companies",
+        "fleet": "Fleet operators",
+        "leasing": "Leasing companies",
+        "importer": "Individual importers"
+      },
+      "commentLabel": "Comment",
+      "commentPlaceholder": "",
+      "bookingHeading": "Booking",
+      "timeSlotsLabel": "Available times",
+      "formatLabel": "Meeting format",
+      "formatOptions": {
+        "online": "Online",
+        "office": "At an AutoRoom office",
+        "other": "Other address"
+      },
+      "branchLabel": "Branch",
+      "addressLabel": "Enter the address",
+      "summaryTemplate": "📅 {weekday}, {day} {month}, {time} • {format}",
+      "submit": "Book the meeting",
+      "sending": "Sending…",
+      "successHeading": "Request received",
+      "successTemplate": "Thank you, {name}. Our team will contact you shortly.",
+      "errors": {
+        "nameRequired": "Please enter your name",
+        "phoneInvalid": "The phone number must have 8 digits after +374",
+        "slotRequired": "Please pick a day and time",
+        "slotTaken": "That time was just taken. Please pick another."
+      },
+      "steps": {
+        "data": "Details",
+        "time": "Day/time",
+        "confirm": "Confirm"
+      },
+      "nav": {
+        "next": "Next",
+        "back": "Back",
+        "prevMonth": "Previous month",
+        "nextMonth": "Next month"
+      },
+      "noTimes": "No available times on this day",
+      "calendar": {
+        "weekdaysShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        "weekdaysLong": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "months": [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December"
+        ],
+        "monthsNominative": [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December"
+        ]
+      }
     }
   }
 }
