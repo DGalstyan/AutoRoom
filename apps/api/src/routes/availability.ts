@@ -113,8 +113,29 @@ const listQuerySchema = z.object({
   skip: z.coerce.number().int().min(0).default(0),
 });
 
+/**
+ * What the public form may ask for: a window and a branch, nothing else. No
+ * `take`/`skip` — paging the diary is a staff need, and the route caps the
+ * range itself rather than trusting a public caller with the ceiling.
+ *
+ * Declared here, beside the schema it narrows, because `validateQuery` is
+ * called at module load: a `const` further down the file would still be in its
+ * temporal dead zone when the route is registered.
+ */
+const publicListQuerySchema = listQuerySchema.pick({
+  from: true,
+  to: true,
+  branchId: true,
+  onlyOpen: true,
+});
+
 /** A range of one day either side of "now" is rarely what anyone wants to see. */
 const DEFAULT_WINDOW_DAYS = 30;
+/**
+ * How far ahead the public form may look. Matches the 60 days the partner
+ * portal offers — the same diary, the same reason not to publish all of it.
+ */
+const PUBLIC_WINDOW_DAYS = 60;
 /** Ceiling on one generate call, so a fat-fingered range cannot fill the table. */
 const MAX_GENERATED = 500;
 const MAX_RANGE_DAYS = 92;
@@ -393,6 +414,63 @@ availabilityRouter.get('/portal/availability', requireAuth, requirePartner, asyn
   res.json({ items, total: items.length });
 });
 
+/* ------------------------------- public read ------------------------------- */
+
+/**
+ * The windows the public "Become a dealer" form offers (`references/pages.md`
+ * §5 S5). Unauthenticated, like `/public/branches` and `/public/faq`, since the
+ * visitor filling this in has no account — becoming a partner is what they are
+ * asking for.
+ *
+ * Future only, and capped at `PUBLIC_WINDOW_DAYS` no matter what `to` says, so
+ * this cannot be walked as an export of the whole diary.
+ *
+ * `open` is the same derived fact the staff and portal routes serve, from the
+ * same `countHolders` — the point of the shared helper is that "is this free"
+ * has one definition. What it does *not* serve is `capacity` or `bookedCount`:
+ * how many bays a branch runs and how busy it is are internal, and the safest
+ * way to keep a number out of a public response is not to put it in. Taken
+ * slots are still listed — the form renders a fixed set of times and needs to
+ * know which to disable, which it cannot infer from an absence.
+ */
+availabilityRouter.get(
+  '/public/availability',
+  validateQuery(publicListQuerySchema),
+  async (req, res) => {
+    const query = req.query as unknown as z.infer<typeof publicListQuerySchema>;
+
+    const now = new Date();
+    const from = query.from && new Date(query.from) > now ? new Date(query.from) : now;
+    const ceiling = new Date(now.getTime() + PUBLIC_WINDOW_DAYS * 86_400_000);
+    const requested = query.to ? new Date(query.to) : ceiling;
+    const to = requested > ceiling ? ceiling : requested;
+
+    const slots =
+      to <= from
+        ? []
+        : await prisma.availabilitySlot.findMany({
+            where: {
+              startsAt: { gte: from, lte: to },
+              ...(query.branchId ? { branchId: query.branchId } : {}),
+            },
+            include: SLOT_INCLUDE,
+            orderBy: [{ startsAt: 'asc' }, { id: 'asc' }],
+            take: 500,
+          });
+
+    const holders = await countHolders(slots.map((slot) => slot.id));
+    const items = slots
+      .map((slot) => serializePublicSlot(slot, holders.get(slot.id) ?? 0))
+      .filter((slot) => !query.onlyOpen || slot.open);
+
+    // Short, because a slot filling up should stop being offered quickly. The
+    // submission re-checks occupancy anyway, so a stale cached `open` costs the
+    // visitor a 409, never someone else's window.
+    res.set('Cache-Control', 'public, max-age=30');
+    res.json({ items, total: items.length });
+  },
+);
+
 /* --------------------------------- helpers --------------------------------- */
 
 const SLOT_INCLUDE = {
@@ -414,6 +492,22 @@ function serializeSlot(slot: SlotRow, bookedCount: number) {
     /** Derived, not stored — see `services/availability.ts`. */
     open: bookedCount < slot.capacity,
     createdAt: slot.createdAt.toISOString(),
+  };
+}
+
+/**
+ * The public form's view of a window — narrower than `serializeSlot` on
+ * purpose. `capacity`, `bookedCount` and the staff `note` stay server-side;
+ * what a visitor needs is when it is, where it is, and whether they can have it.
+ */
+function serializePublicSlot(slot: SlotRow, bookedCount: number) {
+  return {
+    id: slot.id,
+    branchId: slot.branchId,
+    branch: slot.branch,
+    startsAt: slot.startsAt.toISOString(),
+    endsAt: slot.endsAt.toISOString(),
+    open: bookedCount < slot.capacity,
   };
 }
 

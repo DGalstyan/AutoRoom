@@ -43,6 +43,8 @@ import type {
   PermissionPair,
   PortalCar,
   PortalIdentity,
+  PublicAvailabilityQuery,
+  PublicAvailabilitySlot,
   PublicSettings,
   RegisterRequest,
   RegisterResponse,
@@ -469,6 +471,17 @@ export function createApiClient(options: ApiClientOptions) {
       /** Fills a date range. Start times that already have a slot are skipped. */
       generate: (body: AvailabilityGenerateRequest, init?: RequestOptions) =>
         request<AvailabilityGenerateResponse>('POST', '/availability/generate', { ...init, body }),
+      /**
+       * Unauthenticated — the public "Become a dealer" form's time picker reads
+       * this. Future windows only, capped at 60 days, and without the capacity
+       * numbers the staff list carries.
+       */
+      public: (query: PublicAvailabilityQuery = {}, init?: RequestOptions) =>
+        request<{ items: PublicAvailabilitySlot[]; total: number }>(
+          'GET',
+          `/public/availability${toSearch(query)}`,
+          init,
+        ),
     },
 
     /**

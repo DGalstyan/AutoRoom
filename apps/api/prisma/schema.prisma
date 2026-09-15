@@ -235,6 +235,9 @@ model Branch {
   position Int     @default(0)
 
   slots AvailabilitySlot[]
+  /// Leads whose booked meeting is at this office — the "Become a dealer"
+  /// form's `🏢 AutoRoom գրասենյակում` choice.
+  meetingLeads Lead[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -596,6 +599,9 @@ model AvailabilitySlot {
   note String?
 
   bookings Booking[]
+  /// Public "Become a dealer" enquiries that asked for this window. These do
+  /// *not* count towards `capacity` — only `bookings` do — see `Lead`.
+  meetingLeads Lead[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -649,6 +655,23 @@ enum LeadStatus {
   CLOSED
 }
 
+/// Where a booked meeting happens, as the visitor chose it on the "Become a
+/// dealer" form (`references/pages.md` §5 S5's three radio cards: 💻 Օնլայն,
+/// 🏢 AutoRoom գրասենյակում, 📍 Այլ հասցե).
+///
+/// A real enum rather than one of `Lead`'s free-text columns because unlike
+/// `interest` or `topic` — display labels staff read — the API branches on
+/// this: `OFFICE` is the only value that may name a branch and `OTHER` the
+/// only one that may carry an address. It is also stored rather than derived
+/// from which of those two columns is filled in: `ONLINE` is a choice the
+/// visitor positively made, not the absence of the other two, and inferring it
+/// from two empty columns would read as missing data on the CRM screen.
+enum MeetingFormat {
+  ONLINE
+  OFFICE
+  OTHER
+}
+
 /// A submission from any of the public site's lead-capture entry points
 /// (`references/components.md`'s Universal popup, Quiz popup, or the Contact
 /// page's static form — see `apps/web/lib/leads.ts`'s `LeadPayload`). Every
@@ -672,6 +695,58 @@ model Lead {
   channel   String?
   color     String?
   comment   String?
+
+  /// The "Become a dealer" meeting-booking form's own two contact questions
+  /// (`references/pages.md` §5 S5: `Ընկերության անվանում`, `Գործունեության
+  /// ոլորտ`). `activityType` is a plain string, not an enum, for the same
+  /// reason `interest` and `topic` are: it is the label of whichever dropdown
+  /// option the visitor picked, and the design's own five-item list has
+  /// already been shortened once from the spec's eight. Staff read it; nothing
+  /// branches on it.
+  company      String?
+  activityType String?
+
+  /// The meeting a visitor asked for on that same form. Nullable as a group —
+  /// no other lead-capture widget books a time — but filled in together: the
+  /// route refuses a format without a time, or a time without a format.
+  ///
+  /// Note what this deliberately is *not*: a `Booking`. `references/pages.md`
+  /// §5 S5 records this as a Partner Lead "tied to chosen slot", and the
+  /// visitor is applying to *become* a partner, so there is no `Partner` row to
+  /// hang a `Booking` off and forcing an inactive one into existence would
+  /// spread unvetted applicants through the CRM's partner list. A lead
+  /// therefore expresses interest in a window without holding it: slot
+  /// occupancy stays defined by `Booking` rows alone
+  /// (`services/availability.ts`), and a manager converting a promising lead
+  /// into a real partner + booking is what actually claims the capacity.
+  meetingFormat MeetingFormat?
+
+  /// When the meeting is, and the published window it came from.
+  ///
+  /// Both are stored for the reason `Booking` stores both: `meetingAt` is the
+  /// single answer to "when", and the slot is optional because the form offers
+  /// a fixed daily set of times (10:00/11:00/12:30/14:00/15:30/17:00) that may
+  /// include a time nobody has generated a slot row for yet. When a slot *is*
+  /// named the route binds `meetingAt` to `slot.startsAt` on write, so the two
+  /// cannot disagree. `SetNull` on delete: withdrawing a window from the diary
+  /// must not delete the enquiry that came through it.
+  meetingAt     DateTime?
+  meetingSlotId String?
+  meetingSlot   AvailabilitySlot? @relation(fields: [meetingSlotId], references: [id], onDelete: SetNull)
+
+  /// Where, for the two formats that need somewhere to be. Exactly one is set:
+  /// `meetingBranchId` for `OFFICE`, `meetingAddress` for `OTHER`, neither for
+  /// `ONLINE` — enforced in `routes/leads.ts` rather than by a CHECK
+  /// constraint, matching how every other cross-field rule in this schema is
+  /// held (`endsAt > startsAt`, the FAQ's publish rule).
+  ///
+  /// This is not a duplicate of `meetingSlot.branchId`: a slot's branch scopes
+  /// the *diary*, and the generator happily produces branch-less windows, so
+  /// which office the visitor asked for is its own fact. The route rejects the
+  /// two contradicting each other.
+  meetingBranchId String?
+  meetingBranch   Branch? @relation(fields: [meetingBranchId], references: [id], onDelete: SetNull)
+  meetingAddress  String?
 
   /// Set when the lead was opened from a specific car's page/popup.
   carName String?
@@ -699,5 +774,11 @@ model Lead {
   updatedAt DateTime @updatedAt
 
   @@index([status, createdAt])
+  // Both foreign keys are indexed explicitly — Postgres indexes the primary key
+  // and unique columns for you but never the referencing side, and both of
+  // these are `SetNull`, so deleting a slot or a branch scans this table once
+  // per row without them.
+  @@index([meetingSlotId])
+  @@index([meetingBranchId])
   @@map("leads")
 }
