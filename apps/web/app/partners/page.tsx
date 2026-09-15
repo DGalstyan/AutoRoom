@@ -3,7 +3,10 @@ import { PartnersBookingProvider } from '@/components/partners/PartnersBookingPr
 import { PartnersHero } from '@/components/partners/PartnersHero';
 import { PartnersWhy } from '@/components/partners/PartnersWhy';
 import { PartnersWhoCanJoin } from '@/components/partners/PartnersWhoCanJoin';
+import { Footer } from '@/components/shared/Footer';
 import { getBranches } from '@/lib/branches';
+import { getBrandingLogos } from '@/lib/branding';
+import { getContacts } from '@/lib/contacts';
 import { getServerMessages } from '@/lib/i18n';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,10 +22,17 @@ export async function generateMetadata(): Promise<Metadata> {
  * separately.
  */
 export default async function PartnersPage() {
-  const branches = await getBranches();
+  const [branches, logo, contacts] = await Promise.all([
+    getBranches(),
+    getBrandingLogos(),
+    getContacts(),
+  ]);
 
   return (
-    <PartnersBookingProvider branches={branches}>
+    <PartnersBookingProvider
+      branches={branches}
+      footer={<Footer logo={logo} contacts={contacts} />}
+    >
       <PartnersHero />
       <PartnersWhy />
       <PartnersWhoCanJoin />

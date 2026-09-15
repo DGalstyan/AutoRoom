@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +21,12 @@ export interface PartnerBookingPopupProps {
    * API's internal origin straight from the browser is exactly what
    * `lib/actions/*` exist to avoid (see `submitPartnerLead`'s doc comment). */
   branches: Branch[];
+  /** The real site `<Footer>`, rendered server-side and passed down through
+   * `PartnersBookingProvider` — shown at the bottom of this dialog's own
+   * scrollable content, per explicit user feedback that the header being
+   * visible wasn't enough on its own; the dialog reads as a real page, so
+   * it keeps both ends of the site's normal page chrome. */
+  footer: ReactNode;
 }
 
 type Status = 'idle' | 'submitting' | 'success' | 'conflict' | 'error';
@@ -105,6 +111,12 @@ function buildMonthGrid(month: Date): GridCell[] {
  * the dialog is open, same as any visible-but-inert page chrome behind an
  * open dialog.
  *
+ * The real site `<Footer>` renders at the bottom of this same scrollable
+ * area, below the panel (as a sibling, not nested inside its
+ * `max-w-[1344px]` column, so it spans the full width a footer normally
+ * does). It's a server-fetched prop, not something this component renders
+ * itself — see `footer`'s own doc comment on `PartnerBookingPopupProps`.
+ *
  * Two structural fixes vs. the previous build, both because Figma clearly
  * shows a different layout, not because it's silent:
  *  - Phone and email sit side by side (one row, two fields), not stacked.
@@ -149,6 +161,7 @@ export function PartnerBookingPopup({
   onClose,
   sourceCta,
   branches,
+  footer,
 }: PartnerBookingPopupProps) {
   const t = useMessages().partners.bookingPopup;
   const locale = useLocale();
@@ -363,7 +376,7 @@ export function PartnerBookingPopup({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-20 flex items-start justify-center overflow-y-auto bg-surface-light pb-6 pt-28 sm:pb-10 sm:pt-36">
+    <div className="fixed inset-0 z-20 flex flex-col items-center overflow-y-auto bg-surface-light pb-0 pt-28 sm:pt-36">
       <button
         type="button"
         aria-label={t.close}
@@ -377,7 +390,7 @@ export function PartnerBookingPopup({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="mx-4 flex w-full max-w-[1344px] flex-col gap-8 outline-none sm:mx-6 sm:gap-12"
+        className="mx-4 mb-16 flex w-full max-w-[1344px] flex-col gap-8 outline-none sm:mx-6 sm:mb-24 sm:gap-12"
       >
         <div className="flex items-center gap-3">
           <button
@@ -733,6 +746,8 @@ export function PartnerBookingPopup({
           </div>
         </form>
       </div>
+
+      <div className="w-full">{footer}</div>
     </div>
   );
 }
