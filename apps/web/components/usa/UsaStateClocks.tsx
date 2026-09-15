@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { interpolate } from '@/lib/messages';
 import type { Locale } from '@/lib/i18n';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
@@ -172,39 +172,37 @@ export function UsaStateClocks() {
       <div className="flex flex-wrap items-stretch justify-center gap-8">
         <ClockCard label={t.cities.yerevan} timeZone="Asia/Yerevan" now={now} locale={locale} />
 
-        <div className="flex w-full max-w-[300px] flex-col gap-4">
-          <div>
-            <label htmlFor="usa-state-select" className="sr-only">
-              {t.stateLabel}
-            </label>
-            <select
-              id="usa-state-select"
-              value={stateKey}
-              onChange={(event) => setStateKey(event.target.value)}
-              className="h-12 w-full rounded-pill border border-line-light bg-white px-5 text-body text-ink outline-none focus:border-accent"
-            >
-              {STATE_OPTIONS.map((option) => (
-                <option key={option.key} value={option.key}>
-                  {t.states[option.key as keyof typeof t.states]}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <ClockCard
-            label={t.states[selectedState.key as keyof typeof t.states]}
-            timeZone={selectedState.timeZone}
-            now={now}
-            locale={locale}
-            diffCaption={
-              now
-                ? interpolate(t.diff, {
-                    hours: diffHours > 0 ? `+${diffHours}` : `${diffHours}`,
-                  })
-                : undefined
-            }
-          />
-        </div>
+        <ClockCard
+          selector={
+            <>
+              <label htmlFor="usa-state-select" className="sr-only">
+                {t.stateLabel}
+              </label>
+              <select
+                id="usa-state-select"
+                value={stateKey}
+                onChange={(event) => setStateKey(event.target.value)}
+                className="w-full truncate border-none bg-transparent p-0 text-lead text-ink outline-none"
+              >
+                {STATE_OPTIONS.map((option) => (
+                  <option key={option.key} value={option.key}>
+                    {t.states[option.key as keyof typeof t.states]}
+                  </option>
+                ))}
+              </select>
+            </>
+          }
+          timeZone={selectedState.timeZone}
+          now={now}
+          locale={locale}
+          diffCaption={
+            now
+              ? interpolate(t.diff, {
+                  hours: diffHours > 0 ? `+${diffHours}` : `${diffHours}`,
+                })
+              : undefined
+          }
+        />
       </div>
     </div>
   );
@@ -212,12 +210,19 @@ export function UsaStateClocks() {
 
 function ClockCard({
   label,
+  selector,
   timeZone,
   now,
   locale,
   diffCaption,
 }: {
-  label: string;
+  /** Plain city label — the Yerevan reference card. */
+  label?: string;
+  /** The state `<select>` in place of a plain label — the picker card, so
+   * choosing a state happens right inside the card whose time it changes,
+   * not from a separate control floating above it (per direct user
+   * feedback: the two used to be visually disconnected). */
+  selector?: ReactNode;
   timeZone: string;
   now: Date | null;
   locale: Locale;
@@ -226,7 +231,7 @@ function ClockCard({
 }) {
   return (
     <div className="flex w-full max-w-[300px] flex-col items-start gap-6 rounded-[48px] bg-white p-8 shadow-card sm:p-12">
-      <p className="text-lead text-ink">{label}</p>
+      {selector ?? <p className="text-lead text-ink">{label}</p>}
       <div className="flex flex-col gap-1">
         <p className="font-display text-home-h2 font-light text-ink">
           {now
