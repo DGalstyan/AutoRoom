@@ -51,16 +51,19 @@ async function fetchPublicSettings(
   const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 
   try {
-    // `fresh` trades the usual 5-minute window for a 10-second one rather
-    // than `cache: 'no-store'`: a *cached* stale rate for 5 minutes is a
-    // rounding error, but a cached maintenance flag is 5 minutes of visitors
-    // seeing the site the toggle just told them was down — the Settings
-    // screen's own copy promises "Changes apply on the next page load." A
-    // true `no-store` would fix that too, but forces every page through this
-    // layout into full per-request rendering; 10s keeps ISR/static caching
-    // intact everywhere else while making the toggle feel effectively live.
+    // `fresh` skips the Data Cache entirely: a `revalidate` window, even a
+    // short one, is stale-while-revalidate — the *first* request after it
+    // elapses can still serve the old value, so a visitor could hit the site
+    // right after the toggle and still see maintenance (or its absence) for
+    // one more load. The Settings screen's own copy promises "Changes apply
+    // on the next page load," which only `no-store` actually keeps. This
+    // would normally cost static/ISR caching for every page through this
+    // layout, but `RootLayout` already calls `cookies()` (via `getLocale()`)
+    // on every request, which forces full dynamic rendering site-wide
+    // regardless — confirmed by `next build`'s output marking every route
+    // `ƒ` (Dynamic) already. So there's no caching left here to lose.
     const res = await fetch(`${base}/settings/public`, {
-      next: { revalidate: options.fresh ? 10 : 300 },
+      ...(options.fresh ? { cache: 'no-store' as const } : { next: { revalidate: 300 } }),
     });
     if (!res.ok) return null;
     return (await res.json()) as PublicSettingsResponse;
