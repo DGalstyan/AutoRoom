@@ -9,7 +9,7 @@ import { MaintenanceNotice } from '@/components/shared/MaintenanceNotice';
 import { getBrandingLogos } from '@/lib/branding';
 import { getContacts } from '@/lib/contacts';
 import { getServerMessages } from '@/lib/i18n';
-import { isMaintenanceMode } from '@/lib/settings';
+import { hasMaintenancePreview, isMaintenanceMode } from '@/lib/settings';
 
 const sora = Sora({
   variable: '--font-sora',
@@ -45,7 +45,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const logo = await getBrandingLogos();
   const contacts = await getContacts();
   const { locale, messages, enabledLocales } = await getServerMessages();
-  const maintenance = await isMaintenanceMode();
+  // The preview cookie only matters while maintenance is actually on — no
+  // need to read it (or its own cookie-store round trip) otherwise.
+  const maintenance = (await isMaintenanceMode()) && !(await hasMaintenancePreview());
 
   return (
     <html

@@ -12,8 +12,10 @@
  * within one request, so both getters hitting the same URL costs one request.
  */
 
+import { cookies } from 'next/headers';
 import type { FinanceCalculator } from '@/lib/types/car';
 import type { Locale } from '@/lib/i18n';
+import { MAINTENANCE_PREVIEW_COOKIE } from '@/lib/maintenancePreviewCookie';
 
 const FINANCE_CALCULATOR_DEFAULTS: FinanceCalculator = {
   termMonths: 60,
@@ -81,4 +83,12 @@ export async function getLocalizationSettings(): Promise<LocalizationSettings> {
 export async function isMaintenanceMode(): Promise<boolean> {
   const data = await fetchPublicSettings({ fresh: true });
   return data?.['features.toggles']?.maintenanceMode ?? false;
+}
+
+/** Set by `MaintenanceNotice`'s double-click escape hatch (`MAINTENANCE_PREVIEW_COOKIE`)
+ * — a session cookie, not a real access control, so whoever knows the trick
+ * can preview the site while `maintenanceMode` stays on for every other visitor. */
+export async function hasMaintenancePreview(): Promise<boolean> {
+  const store = await cookies();
+  return store.get(MAINTENANCE_PREVIEW_COOKIE)?.value === '1';
 }
