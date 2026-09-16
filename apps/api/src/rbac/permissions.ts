@@ -28,6 +28,7 @@ export const RESOURCES = {
   banks: CRUD,
   faq: CRUD_PUBLISH,
   team: CRUD,
+  gallery: CRUD,
   media: CRUD,
 
   cars: CRUD_PUBLISH,
@@ -54,7 +55,15 @@ export interface RoleDefinition {
   grants: '*' | Partial<Record<Resource, readonly Action[]>>;
 }
 
-const CONTENT_RESOURCES = ['cars', 'offers', 'faq', 'branches', 'team', 'media'] as const;
+const CONTENT_RESOURCES = [
+  'cars',
+  'offers',
+  'faq',
+  'branches',
+  'team',
+  'gallery',
+  'media',
+] as const;
 
 export const ROLES: RoleDefinition[] = [
   {
@@ -79,6 +88,7 @@ export const ROLES: RoleDefinition[] = [
       banks: CRUD,
       faq: CRUD_PUBLISH,
       team: CRUD,
+      gallery: CRUD,
       media: CRUD,
       cars: CRUD_PUBLISH,
       auctions: CRUD_PUBLISH,
@@ -120,7 +130,8 @@ export const ROLES: RoleDefinition[] = [
   {
     key: 'content_editor',
     name: 'Content editor',
-    description: 'Cars, offers, FAQ, branches, team and media. No leads, orders or settings.',
+    description:
+      'Cars, offers, FAQ, branches, team, gallery and media. No leads, orders or settings.',
     grants: Object.fromEntries(
       CONTENT_RESOURCES.map((resource) => [resource, RESOURCES[resource]]),
     ) as Partial<Record<Resource, readonly Action[]>>,

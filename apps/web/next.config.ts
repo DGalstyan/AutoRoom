@@ -13,6 +13,12 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'admin.autoroom.am', pathname: '/api/uploads/**' },
       { protocol: 'http', hostname: 'localhost', port: '4000', pathname: '/uploads/**' },
     ],
+    // Next 16's SSRF guard otherwise refuses to optimize anything hosted on
+    // `localhost` (it resolves to a private IP), which is exactly what the
+    // `localhost:4000` pattern above is for — every admin-uploaded photo
+    // (team, cars, gallery) would 400 in local dev without this. No effect
+    // in production: `admin.autoroom.am` resolves publicly, never locally.
+    dangerouslyAllowLocalIP: true,
   },
 };
 

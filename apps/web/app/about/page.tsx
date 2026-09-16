@@ -9,6 +9,7 @@ import { PhotoGallery } from '@/components/about/PhotoGallery';
 import { AboutFinalCta } from '@/components/about/AboutFinalCta';
 import { AboutRepeatCta } from '@/components/about/AboutRepeatCta';
 import { getTeamMembers } from '@/lib/team';
+import { getGalleryImages } from '@/lib/gallery';
 import { getFounderVideo } from '@/lib/media';
 import { getServerMessages } from '@/lib/i18n';
 
@@ -32,10 +33,11 @@ export async function generateMetadata(): Promise<Metadata> {
  * layout on every page, socials included.
  */
 export default async function AboutPage() {
-  const [members, { messages }, founderVideo] = await Promise.all([
+  const [members, { messages }, founderVideo, galleryImages] = await Promise.all([
     getTeamMembers(),
     getServerMessages(),
     getFounderVideo(),
+    getGalleryImages(),
   ]);
 
   return (
@@ -52,7 +54,7 @@ export default async function AboutPage() {
         </div>
       </Section>
       <Section tone="light" className="pt-0 sm:pt-0">
-        <PhotoGallery />
+        <PhotoGallery images={galleryImages} />
       </Section>
       <AboutFinalCta />
       <AboutRepeatCta />

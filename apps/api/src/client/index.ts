@@ -22,6 +22,8 @@ import type {
   Faq,
   FaqInput,
   FaqTopic,
+  GalleryImage,
+  GalleryImageInput,
   HealthResponse,
   ImageAlbum,
   Lead,
@@ -382,6 +384,21 @@ export function createApiClient(options: ApiClientOptions) {
       /** Unauthenticated — the About page's team section reads this. */
       public: (init?: RequestOptions) =>
         request<{ items: TeamMember[]; total: number }>('GET', '/public/team', init),
+    },
+
+    /** The photo collage on the About page, right below the team grid. */
+    gallery: {
+      list: (init?: RequestOptions) =>
+        request<{ items: GalleryImage[]; total: number }>('GET', '/gallery', init),
+      create: (body: GalleryImageInput, init?: RequestOptions) =>
+        request<GalleryImage>('POST', '/gallery', { ...init, body }),
+      update: (id: string, body: GalleryImageInput, init?: RequestOptions) =>
+        request<GalleryImage>('PUT', `/gallery/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/gallery/${id}`, init),
+      /** Unauthenticated — the About page's photo collage reads this. */
+      public: (init?: RequestOptions) =>
+        request<{ items: GalleryImage[]; total: number }>('GET', '/public/gallery', init),
     },
 
     /** The CRM inbox — every submission from the public site's Universal

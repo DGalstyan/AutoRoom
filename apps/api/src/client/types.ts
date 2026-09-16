@@ -438,6 +438,14 @@ export interface TeamMember {
 
 export type TeamMemberInput = Omit<TeamMember, 'id'>;
 
+export interface GalleryImage {
+  id: string;
+  imageUrl: string;
+  position: number;
+}
+
+export type GalleryImageInput = Omit<GalleryImage, 'id'>;
+
 /* ----------------------------------- leads ---------------------------------- */
 
 export type LeadStatus = 'NEW' | 'CONTACTED' | 'CLOSED';

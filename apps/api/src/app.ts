@@ -10,6 +10,7 @@ import { banksRouter } from './routes/banks';
 import { branchesRouter } from './routes/branches';
 import { carsRouter } from './routes/cars';
 import { faqRouter } from './routes/faq';
+import { galleryRouter } from './routes/gallery';
 import { leadsRouter } from './routes/leads';
 import { mediaRouter } from './routes/media';
 import { partnersRouter } from './routes/partners';
@@ -70,6 +71,7 @@ export function createApp(): Express {
   app.use(branchesRouter);
   app.use(carsRouter);
   app.use(faqRouter);
+  app.use(galleryRouter);
   app.use(leadsRouter);
   app.use(mediaRouter);
   app.use(partnersRouter);

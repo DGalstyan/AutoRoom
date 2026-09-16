@@ -23,6 +23,7 @@ import { BanksPage } from '@/pages/BanksPage';
 import { FaqPage } from '@/pages/FaqPage';
 import { StoriesPage } from '@/pages/StoriesPage';
 import { TeamPage } from '@/pages/TeamPage';
+import { GalleryPage } from '@/pages/GalleryPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,7 @@ export function App() {
                     <Route path="/faq" element={<FaqPage />} />
                     <Route path="/stories" element={<StoriesPage />} />
                     <Route path="/team" element={<TeamPage />} />
+                    <Route path="/gallery" element={<GalleryPage />} />
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/roles" element={<RolesPage />} />
                     <Route path="/settings" element={<SettingsPage />} />

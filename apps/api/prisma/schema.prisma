@@ -369,6 +369,22 @@ model TeamMember {
   @@map("team_members")
 }
 
+/// The photo collage on the About page's S4 section, right below the team
+/// grid (`PhotoGallery` in apps/web) — `position` controls display order.
+/// The public component renders a fixed 7-tile Figma layout, so any slot an
+/// admin hasn't filled falls back to a bundled default photo rather than
+/// leaving a gap; this table only ever needs to hold what's been overridden.
+model GalleryImage {
+  id       String @id @default(cuid())
+  imageUrl String
+  position Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("gallery_images")
+}
+
 /**
  * ------------------------------- catalogue (B1) ------------------------------
  */
