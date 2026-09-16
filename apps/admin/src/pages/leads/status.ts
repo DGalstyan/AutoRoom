@@ -14,3 +14,10 @@ export const STATUSES: { value: LeadStatus; label: string; tone: StatusTone }[] 
 ];
 
 export const statusTone = (status: LeadStatus) => STATUSES.find((entry) => entry.value === status)!;
+
+/** Shared by the inbox's "Meeting" column and the lead detail page. */
+export const MEETING_FORMAT_LABEL: Record<string, string> = {
+  ONLINE: 'Online',
+  OFFICE: 'At our office',
+  OTHER: 'Other address',
+};

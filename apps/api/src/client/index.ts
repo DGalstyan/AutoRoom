@@ -396,6 +396,7 @@ export function createApiClient(options: ApiClientOptions) {
           `/leads${toSearch(query)}`,
           init,
         ),
+      get: (id: string, init?: RequestOptions) => request<Lead>('GET', `/leads/${id}`, init),
       updateStatus: (id: string, body: LeadUpdateInput, init?: RequestOptions) =>
         request<Lead>('PATCH', `/leads/${id}`, { ...init, body }),
       remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/leads/${id}`, init),

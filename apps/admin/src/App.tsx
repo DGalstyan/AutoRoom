@@ -14,6 +14,7 @@ import { CarsPage } from '@/pages/CarsPage';
 import { CarFormPage } from '@/pages/CarFormPage';
 import { HomeRoute } from '@/pages/HomeRoute';
 import { LeadsPage } from '@/pages/LeadsPage';
+import { LeadDetailPage } from '@/pages/LeadDetailPage';
 import { PartnersPage } from '@/pages/PartnersPage';
 import { BookingsPage } from '@/pages/BookingsPage';
 import { AvailabilityPage } from '@/pages/AvailabilityPage';
@@ -58,6 +59,7 @@ export function App() {
                     <Route path="/cars" element={<CarsPage />} />
                     <Route path="/cars/:id" element={<CarFormPage />} />
                     <Route path="/leads" element={<LeadsPage />} />
+                    <Route path="/leads/:id" element={<LeadDetailPage />} />
                     <Route path="/partners" element={<PartnersPage />} />
                     <Route path="/bookings" element={<BookingsPage />} />
                     <Route path="/availability" element={<AvailabilityPage />} />

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Lead, LeadStatus } from '@autoroom/api/client';
 import {
@@ -21,14 +22,8 @@ import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DataTable } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
-import { STATUSES, statusTone } from '@/pages/leads/status';
+import { MEETING_FORMAT_LABEL, STATUSES, statusTone } from '@/pages/leads/status';
 import { formatDateTime } from '@/pages/availability/time';
-
-const MEETING_FORMAT_LABEL: Record<string, string> = {
-  ONLINE: 'Online',
-  OFFICE: 'At our office',
-  OTHER: 'Other address',
-};
 
 /** Matches `NotificationBell`'s own polling cadence. */
 const POLL_INTERVAL_MS = 30_000;
@@ -55,6 +50,7 @@ const POLL_INTERVAL_MS = 30_000;
 export function LeadsPage() {
   const { api, identity } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [status, setStatus] = useState<LeadStatus | ''>('');
@@ -160,7 +156,7 @@ export function LeadsPage() {
   }, [leads, toast]);
 
   return (
-    <Box sx={{ maxWidth: 1100 }}>
+    <Box sx={{ maxWidth: '100%' }}>
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
         spacing={2}
@@ -220,6 +216,7 @@ export function LeadsPage() {
         }
         emptyMessage={scope === 'meetings' ? 'No dealer meeting requests yet.' : 'No leads yet.'}
         minWidth={960}
+        onRowClick={(lead) => navigate(`/leads/${lead.id}`)}
         columns={[
           {
             key: 'createdAt',
@@ -236,7 +233,20 @@ export function LeadsPage() {
             header: 'Contact',
             render: (lead) => (
               <Box>
-                <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>{lead.name}</Typography>
+                <Typography
+                  component={RouterLink}
+                  to={`/leads/${lead.id}`}
+                  onClick={(event) => event.stopPropagation()}
+                  sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {lead.name}
+                </Typography>
                 <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
                   {lead.phone}
                   {lead.email ? ` · ${lead.email}` : ''}
@@ -338,7 +348,10 @@ export function LeadsPage() {
               <IconButton
                 size="small"
                 aria-label={`Actions for ${lead.name}`}
-                onClick={(event) => setMenu({ anchor: event.currentTarget, lead })}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setMenu({ anchor: event.currentTarget, lead });
+                }}
               >
                 <MoreVertIcon fontSize="small" />
               </IconButton>

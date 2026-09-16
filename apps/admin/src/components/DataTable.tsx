@@ -76,6 +76,7 @@ export function DataTable<T>({
   toolbar,
   footer,
   minWidth = 720,
+  onRowClick,
 }: {
   columns: Column<T>[];
   rows: T[];
@@ -92,6 +93,10 @@ export function DataTable<T>({
   /** Extra row below the table, above pagination. */
   footer?: ReactNode;
   minWidth?: number;
+  /** Makes each row open something (typically a detail page) on click.
+   * A cell that needs its own click (an actions menu button, an inline
+   * link) must call `event.stopPropagation()` or it also fires this. */
+  onRowClick?: (row: T) => void;
 }) {
   const visible = columns.filter((column) => !column.hidden);
 
@@ -153,7 +158,12 @@ export function DataTable<T>({
             </TableHead>
             <TableBody>
               {rows.map((row) => (
-                <TableRow key={getRowId(row)} hover>
+                <TableRow
+                  key={getRowId(row)}
+                  hover
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  sx={onRowClick ? { cursor: 'pointer' } : undefined}
+                >
                   {visible.map((column) => (
                     <TableCell key={column.key} align={column.align}>
                       {column.render(row)}
