@@ -89,7 +89,7 @@ export function GalleryImageDialog({
               sx={{ width: 140 }}
               slotProps={{ htmlInput: { min: 0, max: 999 } }}
               error={Boolean(fieldErrors.position)}
-              helperText={fieldErrors.position ?? 'Which of the 7 collage slots this fills.'}
+              helperText={fieldErrors.position ?? 'Lower shows first.'}
             />
           </Stack>
         </DialogContent>

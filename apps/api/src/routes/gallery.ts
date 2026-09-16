@@ -17,8 +17,7 @@ export const galleryRouter = Router();
 
 const galleryImageBodySchema = z.object({
   imageUrl: z.string().url().max(2048),
-  /// Order of the tiles in the collage — see `PhotoGallery`'s own comment
-  /// for how a slot with no matching image falls back to a bundled default.
+  /// Display order of the tiles in the collage — lower shows first.
   position: z.number().int().min(0).max(999).default(0),
 });
 

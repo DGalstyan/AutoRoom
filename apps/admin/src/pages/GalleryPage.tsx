@@ -14,10 +14,9 @@ import { brand } from '@/theme';
 
 /**
  * Gallery — the photo collage on the About page, right below the "Մեր
- * թիմը" team grid (`PhotoGallery` in apps/web). The public component is a
- * fixed 7-tile Figma layout; any slot with no matching `position` here falls
- * back to a bundled default photo, so this table only ever needs to hold
- * whichever tiles an admin wants to override.
+ * թիմը" team grid (`PhotoGallery` in apps/web). Every image here is what
+ * renders there, in `position` order — no bundled placeholder photos, and
+ * the section itself disappears from the public page while this is empty.
  */
 export function GalleryPage() {
   const { api, identity } = useAuth();
@@ -85,7 +84,7 @@ export function GalleryPage() {
         isPending={galleryQuery.isPending}
         error={galleryQuery.isError ? galleryQuery.error : undefined}
         errorMessage="Could not load the gallery."
-        emptyMessage="No images uploaded yet — the collage shows its bundled defaults."
+        emptyMessage="No images yet — the collage doesn't show on the About page until one is added."
         minWidth={480}
         columns={[
           {
@@ -113,7 +112,7 @@ export function GalleryPage() {
           },
           {
             key: 'position',
-            header: 'Slot',
+            header: 'Position',
             render: (image) => (
               <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
                 {image.position}
@@ -127,7 +126,7 @@ export function GalleryPage() {
             render: (image) => (
               <IconButton
                 size="small"
-                aria-label={`Actions for slot ${image.position}`}
+                aria-label={`Actions for image at position ${image.position}`}
                 onClick={(event) => setMenu({ anchor: event.currentTarget, image })}
               >
                 <MoreVertIcon fontSize="small" />
@@ -177,7 +176,7 @@ export function GalleryPage() {
       <ConfirmDialog
         open={Boolean(deleting)}
         title="Remove this image?"
-        message="This slot falls back to its bundled default photo on the About page."
+        message="This tile disappears from the About page's photo collage."
         confirmLabel="Remove"
         destructive
         busy={deleteMutation.isPending}

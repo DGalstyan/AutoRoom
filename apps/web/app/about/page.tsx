@@ -53,9 +53,11 @@ export default async function AboutPage() {
           <FounderVideo heading={messages.about.founder.heading} video={founderVideo} />
         </div>
       </Section>
-      <Section tone="light" className="pt-0 sm:pt-0">
-        <PhotoGallery images={galleryImages} />
-      </Section>
+      {galleryImages.length > 0 && (
+        <Section tone="light" className="pt-0 sm:pt-0">
+          <PhotoGallery images={galleryImages} />
+        </Section>
+      )}
       <AboutFinalCta />
       <AboutRepeatCta />
     </>
