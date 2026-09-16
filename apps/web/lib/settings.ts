@@ -43,7 +43,9 @@ interface PublicSettingsResponse {
   'features.toggles'?: { maintenanceMode: boolean };
 }
 
-async function fetchPublicSettings(options: { fresh?: boolean } = {}): Promise<PublicSettingsResponse | null> {
+async function fetchPublicSettings(
+  options: { fresh?: boolean } = {},
+): Promise<PublicSettingsResponse | null> {
   const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 
   try {

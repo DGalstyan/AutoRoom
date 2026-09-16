@@ -129,7 +129,7 @@ export function LeadDetailPage() {
   const entry = statusTone(lead.status);
   const meetingWhere =
     lead.meetingFormat === 'OFFICE'
-      ? branchName ?? 'Unknown branch'
+      ? (branchName ?? 'Unknown branch')
       : lead.meetingFormat === 'OTHER'
         ? lead.meetingAddress
         : null;
@@ -220,7 +220,10 @@ export function LeadDetailPage() {
                 label="When"
                 value={lead.meetingAt ? formatDateTime(lead.meetingAt) : 'No time set'}
               />
-              <Field label="Format" value={MEETING_FORMAT_LABEL[lead.meetingFormat] ?? lead.meetingFormat} />
+              <Field
+                label="Format"
+                value={MEETING_FORMAT_LABEL[lead.meetingFormat] ?? lead.meetingFormat}
+              />
               {meetingWhere && (
                 <Field
                   label={lead.meetingFormat === 'OFFICE' ? 'Branch' : 'Address'}

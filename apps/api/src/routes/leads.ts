@@ -169,16 +169,11 @@ leadsRouter.get(
   },
 );
 
-leadsRouter.get(
-  '/leads/:id',
-  requireAuth,
-  requirePermission('leads', 'READ'),
-  async (req, res) => {
-    const lead = await prisma.lead.findUnique({ where: { id: String(req.params.id ?? '') } });
-    if (!lead) throw notFound('Lead not found');
-    res.json(serializeLead(lead));
-  },
-);
+leadsRouter.get('/leads/:id', requireAuth, requirePermission('leads', 'READ'), async (req, res) => {
+  const lead = await prisma.lead.findUnique({ where: { id: String(req.params.id ?? '') } });
+  if (!lead) throw notFound('Lead not found');
+  res.json(serializeLead(lead));
+});
 
 leadsRouter.patch(
   '/leads/:id',
