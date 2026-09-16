@@ -4,6 +4,8 @@
     "loading": "Loading…",
     "errorHeading": "Something went wrong",
     "errorRetry": "Try again",
+    "maintenanceHeading": "The site is temporarily unavailable",
+    "maintenanceBody": "We're carrying out maintenance. Please check back shortly.",
     "nav": {
       "home": "HOME",
       "china": "China",

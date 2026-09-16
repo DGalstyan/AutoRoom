@@ -5,9 +5,11 @@ import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { LeadWidgetProvider } from '@/components/shared/LeadWidgetProvider';
 import { LocaleProvider } from '@/components/shared/LocaleProvider';
+import { MaintenanceNotice } from '@/components/shared/MaintenanceNotice';
 import { getBrandingLogos } from '@/lib/branding';
 import { getContacts } from '@/lib/contacts';
 import { getServerMessages } from '@/lib/i18n';
+import { isMaintenanceMode } from '@/lib/settings';
 
 const sora = Sora({
   variable: '--font-sora',
@@ -43,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const logo = await getBrandingLogos();
   const contacts = await getContacts();
   const { locale, messages, enabledLocales } = await getServerMessages();
+  const maintenance = await isMaintenanceMode();
 
   return (
     <html
@@ -50,15 +53,25 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={`${sora.variable} ${inter.variable} ${notoSansArmenian.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-surface-light font-body text-body text-ink">
-        <LocaleProvider locale={locale} messages={messages} enabledLocales={enabledLocales}>
-          <LeadWidgetProvider>
-            <Header logo={logo} />
-            <main className="flex-1">{children}</main>
-            <Footer logo={logo} contacts={contacts} />
-            {/* StickyCta removed for now, per request — component untouched,
-                just not mounted here. Re-add <StickyCta /> to bring it back. */}
-          </LeadWidgetProvider>
-        </LocaleProvider>
+        {maintenance ? (
+          // Every route behind one notice while `features.toggles.maintenanceMode`
+          // is on — admin's own copy: "Does not affect this panel." (apps/admin
+          // is a separate app, so it's never gated by this).
+          <MaintenanceNotice
+            heading={messages.common.maintenanceHeading}
+            body={messages.common.maintenanceBody}
+          />
+        ) : (
+          <LocaleProvider locale={locale} messages={messages} enabledLocales={enabledLocales}>
+            <LeadWidgetProvider>
+              <Header logo={logo} />
+              <main className="flex-1">{children}</main>
+              <Footer logo={logo} contacts={contacts} />
+              {/* StickyCta removed for now, per request — component untouched,
+                  just not mounted here. Re-add <StickyCta /> to bring it back. */}
+            </LeadWidgetProvider>
+          </LocaleProvider>
+        )}
       </body>
     </html>
   );

@@ -2,9 +2,10 @@
  * Server-only fetch of the public subset of admin-managed settings
  * (`apps/api`'s `GET /settings/public`) — currently `finance.calculator`
  * (drives the real-time `LoanCalculator` on car detail pages: term, rates,
- * down-payment bounds, USD→AMD rate) and `localization.locales` (which
+ * down-payment bounds, USD→AMD rate), `localization.locales` (which
  * languages the site offers and which one it opens in — `lib/i18n.ts`'s
- * `getLocale()`). Mirrors `lib/cars.ts`'s never-throws contract: an
+ * `getLocale()`), and `features.toggles`'s `maintenanceMode` (the site-wide
+ * notice `RootLayout` swaps in). Mirrors `lib/cars.ts`'s never-throws contract: an
  * unreachable API falls back to the same defaults the backend registry ships
  * (`apps/api/src/lib/settings.ts`), so every consumer always gets something
  * reasonable rather than nothing. Next.js dedupes identical `fetch` calls
@@ -39,13 +40,24 @@ const LOCALIZATION_DEFAULTS: LocalizationSettings = {
 interface PublicSettingsResponse {
   'finance.calculator'?: FinanceCalculator;
   'localization.locales'?: LocalizationSettings;
+  'features.toggles'?: { maintenanceMode: boolean };
 }
 
-async function fetchPublicSettings(): Promise<PublicSettingsResponse | null> {
+async function fetchPublicSettings(options: { fresh?: boolean } = {}): Promise<PublicSettingsResponse | null> {
   const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 
   try {
-    const res = await fetch(`${base}/settings/public`, { next: { revalidate: 300 } });
+    // `fresh` trades the usual 5-minute window for a 10-second one rather
+    // than `cache: 'no-store'`: a *cached* stale rate for 5 minutes is a
+    // rounding error, but a cached maintenance flag is 5 minutes of visitors
+    // seeing the site the toggle just told them was down — the Settings
+    // screen's own copy promises "Changes apply on the next page load." A
+    // true `no-store` would fix that too, but forces every page through this
+    // layout into full per-request rendering; 10s keeps ISR/static caching
+    // intact everywhere else while making the toggle feel effectively live.
+    const res = await fetch(`${base}/settings/public`, {
+      next: { revalidate: options.fresh ? 10 : 300 },
+    });
     if (!res.ok) return null;
     return (await res.json()) as PublicSettingsResponse;
   } catch {
@@ -61,4 +73,10 @@ export async function getFinanceCalculatorSettings(): Promise<FinanceCalculator>
 export async function getLocalizationSettings(): Promise<LocalizationSettings> {
   const data = await fetchPublicSettings();
   return data?.['localization.locales'] ?? LOCALIZATION_DEFAULTS;
+}
+
+/** Drives `RootLayout`'s site-wide maintenance notice — see its own comment. */
+export async function isMaintenanceMode(): Promise<boolean> {
+  const data = await fetchPublicSettings({ fresh: true });
+  return data?.['features.toggles']?.maintenanceMode ?? false;
 }
