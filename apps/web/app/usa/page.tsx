@@ -24,14 +24,14 @@ export async function generateMetadata(): Promise<Metadata> {
  * listing, S3 available-cars listing, S4 on-the-road listing, S5 state
  * clocks, S8 import-process timeline, S8c FAQ, S9 final CTA. Figma node
  * 218:177 (file 9Lq4XpWusTJj1VnM6laAZr) covers the whole page and gave real
- * pixel data for S1/S5 (see `UsaHero`/`UsaStateClocks`'s own doc comments);
- * S8 has no matching Figma node at all — see `UsaImportProcess`'s doc
- * comment — so it's built from the written spec alone. S2.4's customs
- * calculator lives at a different, unlinked Figma node (282:1699 — see
- * `CustomsCalculator`'s own doc comment for how that was found and why it
- * only hands off to a human rather than computing anything). Still not
- * built: the Useful-guides reels (S8b), which need dedicated video/embed
- * assets this pass doesn't have.
+ * pixel data for S1/S5/S8 (see `UsaHero`/`UsaStateClocks`/`UsaImportProcess`'s
+ * own doc comments — S8's real Card 1…11 group was missed by an earlier
+ * pass here and wrongly written off as "no matching Figma node", a claim
+ * this comment repeated until corrected). S2.4's customs calculator lives
+ * at a different, unlinked Figma node (282:1699 — see `CustomsCalculator`'s
+ * own doc comment for how that was found and why it only hands off to a
+ * human rather than computing anything). Still not built: the Useful-guides
+ * reels (S8b), which need dedicated video/embed assets this pass doesn't have.
  *
  * Card grids reuse China's own listing pattern (`app/china/page.tsx`): a
  * 2-column `CarCard` grid, one `listCars` call per condition since the

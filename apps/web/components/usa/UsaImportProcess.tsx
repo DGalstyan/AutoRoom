@@ -7,7 +7,7 @@ import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * USA S8 — the 11-step "ԱՄՆ-ից մինչև Հայաստան, քայլ առ քայլ" import timeline.
+ * USA S8 — the 11-step "ԱՄՆ-ից մեքենա բերելու գործընթացը" import timeline.
  *
  * This section DOES exist in Figma (node 218:177's `Container` frame,
  * `Card 1`…`Card 11`) — an earlier pass here concluded it didn't, having
