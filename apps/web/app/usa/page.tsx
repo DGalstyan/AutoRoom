@@ -6,9 +6,11 @@ import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
 import { UsaAuctionFilters } from '@/components/usa/UsaAuctionFilters';
 import { UsaStateClocks } from '@/components/usa/UsaStateClocks';
 import { UsaImportProcess } from '@/components/usa/UsaImportProcess';
+import { UsaGuideReels } from '@/components/usa/UsaGuideReels';
 import { UsaFaq } from '@/components/usa/UsaFaq';
 import { UsaFinalCta } from '@/components/usa/UsaFinalCta';
 import { listCars, listMakeModelFacets } from '@/lib/cars';
+import { listGuideReels } from '@/lib/media';
 import { getServerMessages } from '@/lib/i18n';
 import type { AuctionPlatform, Car } from '@/lib/types/car';
 
@@ -37,8 +39,11 @@ export async function generateMetadata(): Promise<Metadata> {
  * this comment repeated until corrected). S2.4's customs calculator lives
  * at a different, unlinked Figma node (282:1699 — see `CustomsCalculator`'s
  * own doc comment for how that was found and why it only hands off to a
- * human rather than computing anything). Still not built: the Useful-guides
- * reels (S8b), which need dedicated video/embed assets this pass doesn't have.
+ * human rather than computing anything). S8b's Useful-guides reels
+ * (`UsaGuideReels`) read the admin's `Media` rows with `kind: GUIDE_REEL` —
+ * a kind that already existed in the schema/API/admin Stories screen but had
+ * no public-site consumer until this pass; see that component's own doc
+ * comment for why no Figma node backs its card treatment.
  *
  * Card grids reuse China's own listing pattern (`app/china/page.tsx`): a
  * 2-column `CarCard` grid, one `listCars` call per condition since the
@@ -69,22 +74,28 @@ export default async function UsaPage({
   const priceMin = one(sp.priceMin) ? Number(one(sp.priceMin)) : undefined;
   const priceMax = one(sp.priceMax) ? Number(one(sp.priceMax)) : undefined;
 
-  const [{ items: auctionCars }, auctionFacets, { items: availableCars }, { items: onRoadCars }] =
-    await Promise.all([
-      listCars({
-        origin: 'USA',
-        condition: 'AUCTION',
-        auctionPlatform,
-        make,
-        model,
-        priceMin,
-        priceMax,
-        take: 24,
-      }),
-      listMakeModelFacets('USA', 'AUCTION'),
-      listCars({ origin: 'USA', condition: 'IN_STOCK', take: 24 }),
-      listCars({ origin: 'USA', condition: 'ON_ROAD', take: 24 }),
-    ]);
+  const [
+    { items: auctionCars },
+    auctionFacets,
+    { items: availableCars },
+    { items: onRoadCars },
+    guideReels,
+  ] = await Promise.all([
+    listCars({
+      origin: 'USA',
+      condition: 'AUCTION',
+      auctionPlatform,
+      make,
+      model,
+      priceMin,
+      priceMax,
+      take: 24,
+    }),
+    listMakeModelFacets('USA', 'AUCTION'),
+    listCars({ origin: 'USA', condition: 'IN_STOCK', take: 24 }),
+    listCars({ origin: 'USA', condition: 'ON_ROAD', take: 24 }),
+    listGuideReels(),
+  ]);
 
   const auctionMakeModels = Object.fromEntries(
     Array.from(auctionFacets.entries()).map(([m, models]) => [m, Array.from(models)]),
@@ -114,6 +125,8 @@ export default async function UsaPage({
       <Section tone="light">
         <UsaImportProcess />
       </Section>
+
+      <UsaGuideReels reels={guideReels} />
 
       <Section tone="light">
         <UsaFaq />

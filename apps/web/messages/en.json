@@ -837,6 +837,10 @@
         }
       ]
     },
+    "usefulGuides": {
+      "heading": "Learn from our experience importing cars",
+      "playLabel": "Watch the video"
+    },
     "faqSection": {
       "heading": "Frequently asked questions"
     },
