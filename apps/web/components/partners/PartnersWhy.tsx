@@ -1,60 +1,134 @@
 'use client';
 
-import Image from 'next/image';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * `/partners` S2 "Why partner" — Figma's own mockup (node 291:732's
- * `Metrics` group) shows this as a plain 8-tile grid on a flat background,
- * which is what this component originally matched. Per explicit user
- * feedback, that reads as inconsistent with the rest of the site: every
- * other "why choose us"-shaped section (China's `ChinaWhyOrder`, the
- * Homepage ecosystem panel) uses one established pattern instead — a
- * photo with a frosted glass list card overlaid — so this now follows
- * that same component shape rather than Figma's own rougher grid.
- * `PartnersWhoCanJoin` (right below this one) is rebuilt to match too, for
- * the same reason.
+ * `/partners` S2 "Why become a partner" — Figma's `Metrics` group (node
+ * 291:732, file 9Lq4XpWusTJj1VnM6laAZr): a bespoke 8-tile layout, not a
+ * uniform grid. On the wide breakpoint: a tall gold "Personal manager"
+ * tile spans both rows in column 3; a black "Quick calculations" tile
+ * spans columns 1–2 on row 2 (row 1 there is the "24/7 support" /
+ * "Special pricing" pair); column 4 is its own two-tile stack
+ * ("Partnership terms" / "Priority service"); and a final two-tile row
+ * ("Technical support" / "Direct line to the team") sits below the rest
+ * at full width, matching a fixed 598px-wide tile + a flexible one in
+ * Figma rather than an even split.
  *
- * The 8 benefit tiles (`title`/`text` pairs, unchanged from the original
- * Figma-verified content) are flattened into one line each, the same way
- * `ChinaWhyOrder`'s `ecosystem` list is flat strings.
+ * Figma also carries an exact duplicate of the "24/7 support" + "Special
+ * pricing" pair at the identical position (a second `Frame 1597885751`
+ * sitting directly on `Frame 1597885744`) — an authoring artifact with no
+ * visual effect (one tile fully hides the other), reproduced here as the
+ * 8 unique tiles a viewer actually sees, not 10.
+ *
+ * `items[i].text` is empty for the two single-line tiles (Personal
+ * manager, Quick calculations) — Figma sets those in one heading size
+ * with no subtitle, unlike the title+subtitle pairs everywhere else.
+ *
+ * An earlier pass replaced this grid with the site's generic "photo +
+ * frosted list" pattern instead; per direct user feedback that reads as
+ * further from the real design, not closer to it, so this rebuilds
+ * Figma's actual layout. `PartnersWhoCanJoin` (right below this one)
+ * keeps the photo + list treatment — that section's own Figma frame
+ * really is a photo with a list overlay, unlike this one.
  */
 export function PartnersWhy() {
   const t = useMessages().partners.why;
+  const [
+    support247,
+    specialPricing,
+    personalManager,
+    partnershipTerms,
+    quickCalc,
+    priorityService,
+    technicalSupport,
+    directLine,
+  ] = t.items;
 
   return (
     <section className="bg-surface-light px-4 py-14 sm:px-6 sm:py-24">
       <div className="mx-auto flex max-w-container flex-col gap-14">
         <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
 
-        <div className="relative overflow-visible rounded-[32px]">
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
-            <Image
-              src="/images/partners/hero.jpg"
-              alt=""
-              fill
-              sizes="(min-width: 1024px) 980px, 100vw"
-              className="object-cover"
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr_1fr_1.39fr] lg:grid-rows-2">
+            <StatTile item={support247} size="lg" className="lg:col-start-1 lg:row-start-1" />
+            <StatTile item={specialPricing} size="lg" className="lg:col-start-2 lg:row-start-1" />
+            <HeadingTile
+              text={personalManager.title}
+              tone="gold"
+              className="lg:col-start-3 lg:row-start-1 lg:row-span-2"
             />
-            <div
-              className="absolute inset-0 bg-gradient-to-b from-black/0 to-[95.372%] to-black/[0.89]"
-              aria-hidden="true"
+            <StatTile item={partnershipTerms} className="lg:col-start-4 lg:row-start-1" />
+            <HeadingTile
+              text={quickCalc.title}
+              tone="black"
+              className="lg:col-start-1 lg:col-span-2 lg:row-start-2"
             />
+            <StatTile item={priorityService} className="lg:col-start-4 lg:row-start-2" />
           </div>
-          <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4">
-            <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
-              {t.items.map((item) => (
-                <li
-                  key={item.title}
-                  className="text-home-label font-normal leading-[28px] text-ink"
-                >
-                  {[item.title, item.text].filter(Boolean).join(' ')}
-                </li>
-              ))}
-            </ul>
+
+          <div className="flex flex-col gap-6 sm:flex-row">
+            <StatTile item={technicalSupport} className="sm:w-[calc(50%-12px)] sm:shrink-0" />
+            <StatTile item={directLine} className="sm:flex-1" />
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+interface WhyItem {
+  title: string;
+  text: string;
+}
+
+/** The white title+subtitle tiles — `size="lg"` for the two headline stats
+ * (44px bold), regular 36px for the rest. */
+function StatTile({
+  item,
+  size = 'md',
+  className = '',
+}: {
+  item: WhyItem;
+  size?: 'lg' | 'md';
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex min-h-[274px] flex-col justify-center gap-3 rounded-[48px] bg-white p-8 lg:px-[34px] lg:py-16 ${className}`}
+    >
+      <p
+        className={
+          size === 'lg'
+            ? 'font-display text-[44px] font-medium leading-[58px] text-ink'
+            : 'text-[36px] leading-[48px] text-ink'
+        }
+      >
+        {item.title}
+      </p>
+      {item.text && <p className="text-[24px] leading-9 text-ink">{item.text}</p>}
+    </div>
+  );
+}
+
+/** The gold and black single-heading tiles (Personal manager / Quick
+ * calculations) — no subtitle, text centered both ways. */
+function HeadingTile({
+  text,
+  tone,
+  className = '',
+}: {
+  text: string;
+  tone: 'gold' | 'black';
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex min-h-[274px] items-center justify-center rounded-[48px] p-8 text-center text-[36px] leading-[48px] lg:py-16 ${
+        tone === 'gold' ? 'bg-accent text-ink lg:px-12' : 'bg-ink text-white lg:px-16'
+      } ${className}`}
+    >
+      <p>{text}</p>
+    </div>
   );
 }
