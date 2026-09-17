@@ -693,7 +693,19 @@
       }
     },
     "bestAuctions": {
-      "heading": "Лучшие предложения недели с американских аукционов"
+      "heading": "Лучшие предложения недели с американских аукционов",
+      "filters": {
+        "tabAll": "Все",
+        "tabCopart": "Copart Deal",
+        "tabIaai": "IAAI Deal",
+        "tabManheim": "Manheim Deal",
+        "allMakes": "Марка: Все",
+        "makePrefix": "Марка",
+        "model": "Модель",
+        "price": "Цена",
+        "priceFrom": "От",
+        "priceTo": "До"
+      }
     },
     "customsCalculator": {
       "heading": "Калькулятор растаможки",

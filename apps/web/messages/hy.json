@@ -693,7 +693,19 @@
       }
     },
     "bestAuctions": {
-      "heading": "Շաբաթվա լավագույն առաջարկները ԱՄՆ աճուրդներից"
+      "heading": "Շաբաթվա լավագույն առաջարկները ԱՄՆ աճուրդներից",
+      "filters": {
+        "tabAll": "Բոլորը",
+        "tabCopart": "Copart Deal",
+        "tabIaai": "IAAI Deal",
+        "tabManheim": "Manheim Deal",
+        "allMakes": "Մակնիշ: Բոլորը",
+        "makePrefix": "Մակնիշ",
+        "model": "Մոդել",
+        "price": "Գինը",
+        "priceFrom": "Սկսված",
+        "priceTo": "Մինչև"
+      }
     },
     "customsCalculator": {
       "heading": "Մաքսազերծման հաշվիչ",

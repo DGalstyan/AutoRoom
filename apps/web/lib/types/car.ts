@@ -18,6 +18,10 @@ export type CarStatusBadge = 'NA_NAVUM' | 'POTI' | 'CUSTOMS';
 
 export type Powertrain = 'EV' | 'HYBRID' | 'BENZIN';
 
+/** Which auction house an `AUCTION` car's listing is on — drives the USA
+ * "best auctions" filter tabs (Copart/IAAI/Manheim). */
+export type AuctionPlatform = 'COPART' | 'IAAI' | 'MANHEIM';
+
 export type ImageAlbum = 'EXTERIOR' | 'INTERIOR' | 'DETAILS' | 'VIDEO' | 'AUCTION' | 'RECEIPT';
 
 export interface CarColor {
@@ -75,6 +79,8 @@ export interface Car {
    * USA auction detail's "Տեսնել մեքենան օնլայն" CTA. Null until staff set
    * it; the button is skipped while unset. */
   auctionViewUrl?: string | null;
+  /** Which auction house this listing is on — set alongside `auctionViewUrl`. */
+  auctionPlatform?: AuctionPlatform | null;
 
   price: number;
   oldPrice?: number | null;

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
+  AuctionPlatform,
   CarCondition,
   CarSummary,
   CarImage,
@@ -36,6 +37,7 @@ import { ImageAlbums, type StagedImage } from '@/pages/cars/ImageAlbums';
 import { ColourEditor } from '@/pages/cars/ColourEditor';
 import { PriceJourneyEditor } from '@/pages/cars/PriceJourneyEditor';
 import {
+  AUCTION_PLATFORMS,
   CONDITIONS,
   ORIGINS,
   POWERTRAINS,
@@ -63,6 +65,8 @@ const BLANK: CarInput = {
   vin: null,
   lotNumber: null,
   mileage: null,
+  auctionViewUrl: null,
+  auctionPlatform: null,
   price: 0,
   oldPrice: null,
   estFinalPriceAM: null,
@@ -652,6 +656,30 @@ export function CarFormPage() {
                 set('mileage', event.target.value ? Number(event.target.value) : null)
               }
               disabled={readOnly}
+            />
+            <TextField
+              label="Auction platform"
+              value={draft.auctionPlatform ?? ''}
+              onChange={(event) =>
+                set('auctionPlatform', (event.target.value || null) as AuctionPlatform | null)
+              }
+              select
+              disabled={readOnly}
+              helperText="Drives the USA best-auctions filter tabs on the public site."
+            >
+              <MenuItem value="">None</MenuItem>
+              {AUCTION_PLATFORMS.map((entry) => (
+                <MenuItem key={entry.value} value={entry.value}>
+                  {entry.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Auction view URL"
+              value={draft.auctionViewUrl ?? ''}
+              onChange={(event) => set('auctionViewUrl', event.target.value || null)}
+              disabled={readOnly}
+              helperText="Guest-login link for “Տեսնել մեքենան օնլայն” on the auction detail page."
             />
             {canReadPartners && (
               <TextField

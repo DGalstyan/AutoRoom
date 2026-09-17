@@ -3,13 +3,20 @@ import { Section } from '@/components/ui/Section';
 import { CarCard } from '@/components/shared/CarCard';
 import { UsaHero } from '@/components/usa/UsaHero';
 import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
+import { UsaAuctionFilters } from '@/components/usa/UsaAuctionFilters';
 import { UsaStateClocks } from '@/components/usa/UsaStateClocks';
 import { UsaImportProcess } from '@/components/usa/UsaImportProcess';
 import { UsaFaq } from '@/components/usa/UsaFaq';
 import { UsaFinalCta } from '@/components/usa/UsaFinalCta';
-import { listCars } from '@/lib/cars';
+import { listCars, listMakeModelFacets } from '@/lib/cars';
 import { getServerMessages } from '@/lib/i18n';
-import type { Car } from '@/lib/types/car';
+import type { AuctionPlatform, Car } from '@/lib/types/car';
+
+const PLATFORMS: readonly AuctionPlatform[] = ['COPART', 'IAAI', 'MANHEIM'];
+
+function toAuctionPlatform(value: string | undefined): AuctionPlatform | undefined {
+  return PLATFORMS.find((p) => p === value);
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
@@ -38,21 +45,58 @@ export async function generateMetadata(): Promise<Metadata> {
  * public API has no "one call, three buckets" shape. `getFeaturedCars`
  * isn't used here — this page wants every matching car, not a capped
  * homepage-style highlight reel.
+ *
+ * S2.1's own filter bar (`UsaAuctionFilters`, Figma node 339:2010) drives
+ * `auctionCars` from `searchParams` the same way `ChinaFilters` drives
+ * `app/china/page.tsx` — every filter change is a normal navigation, not a
+ * client-side fetch. The Make/Model facets it offers are scoped to USA
+ * `AUCTION` cars only, not the whole page's inventory.
  */
-export default async function UsaPage() {
+export default async function UsaPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { messages } = await getServerMessages();
   const t = messages.usa;
 
-  const [{ items: auctionCars }, { items: availableCars }, { items: onRoadCars }] =
+  const sp = await searchParams;
+  const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : undefined);
+
+  const auctionPlatform = toAuctionPlatform(one(sp.auctionPlatform));
+  const make = one(sp.make);
+  const model = one(sp.model);
+  const priceMin = one(sp.priceMin) ? Number(one(sp.priceMin)) : undefined;
+  const priceMax = one(sp.priceMax) ? Number(one(sp.priceMax)) : undefined;
+
+  const [{ items: auctionCars }, auctionFacets, { items: availableCars }, { items: onRoadCars }] =
     await Promise.all([
-      listCars({ origin: 'USA', condition: 'AUCTION', take: 24 }),
+      listCars({
+        origin: 'USA',
+        condition: 'AUCTION',
+        auctionPlatform,
+        make,
+        model,
+        priceMin,
+        priceMax,
+        take: 24,
+      }),
+      listMakeModelFacets('USA', 'AUCTION'),
       listCars({ origin: 'USA', condition: 'IN_STOCK', take: 24 }),
       listCars({ origin: 'USA', condition: 'ON_ROAD', take: 24 }),
     ]);
 
+  const auctionMakeModels = Object.fromEntries(
+    Array.from(auctionFacets.entries()).map(([m, models]) => [m, Array.from(models)]),
+  );
+
   return (
     <>
       <UsaHero />
+
+      <Section tone="light" className="pb-0">
+        <UsaAuctionFilters makeModels={auctionMakeModels} />
+      </Section>
 
       <CarGridSection heading={t.bestAuctions.heading} cars={auctionCars} />
 

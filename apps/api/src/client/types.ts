@@ -171,6 +171,9 @@ export type CarOrigin = 'CHINA' | 'USA';
 export type CarCondition = 'IN_STOCK' | 'ON_ORDER' | 'ON_ROAD' | 'AUCTION';
 export type CarStatusBadge = 'NA_NAVUM' | 'POTI' | 'CUSTOMS';
 export type Powertrain = 'EV' | 'HYBRID' | 'BENZIN';
+/** Which auction house an `AUCTION` car's listing is on — drives the USA
+ * "best auctions" filter tabs. */
+export type AuctionPlatform = 'COPART' | 'IAAI' | 'MANHEIM';
 
 export type ImageAlbum =
   'EXTERIOR' | 'INTERIOR' | 'DETAILS' | 'VIDEO' | 'AUCTION' | 'RECEIPT' | 'HANDOVER';
@@ -221,6 +224,11 @@ export interface Car {
   vin: string | null;
   lotNumber: string | null;
   mileage: number | null;
+  /** Link to the car's live listing on the auction house's own site. Set
+   * alongside `auctionPlatform` for an `AUCTION` car. */
+  auctionViewUrl: string | null;
+  /** Which auction house an `AUCTION` car's listing is on. */
+  auctionPlatform: AuctionPlatform | null;
 
   /** Whole currency units — the site never renders cents. */
   price: number;
@@ -301,6 +309,8 @@ export interface CarListQuery {
   model?: string;
   priceMin?: number;
   priceMax?: number;
+  /** USA "best auctions" platform tabs (Copart/IAAI/Manheim). */
+  auctionPlatform?: AuctionPlatform;
   sort?: 'createdAt' | 'price' | 'year' | 'make';
   direction?: 'asc' | 'desc';
   take?: number;

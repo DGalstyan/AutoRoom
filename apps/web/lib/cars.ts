@@ -13,7 +13,7 @@
  * (not a placeholder grid pretending to be real inventory) when empty.
  */
 
-import type { Car, CarCondition, CarOrigin, CarSummary } from '@/lib/types/car';
+import type { AuctionPlatform, Car, CarCondition, CarOrigin, CarSummary } from '@/lib/types/car';
 
 interface PublicCarsResponse {
   items: Car[];
@@ -48,6 +48,8 @@ export interface CarListFilters {
   model?: string;
   priceMin?: number;
   priceMax?: number;
+  /** USA "best auctions" platform tabs (Copart/IAAI/Manheim). */
+  auctionPlatform?: AuctionPlatform;
   take?: number;
   skip?: number;
 }
@@ -72,6 +74,7 @@ export async function listCars(filters: CarListFilters = {}): Promise<{
   if (filters.model) params.set('model', filters.model);
   if (filters.priceMin !== undefined) params.set('priceMin', String(filters.priceMin));
   if (filters.priceMax !== undefined) params.set('priceMax', String(filters.priceMax));
+  if (filters.auctionPlatform) params.set('auctionPlatform', filters.auctionPlatform);
   params.set('take', String(filters.take ?? 24));
   if (filters.skip) params.set('skip', String(filters.skip));
 
@@ -158,8 +161,11 @@ export async function listPromoCars(limit = 8): Promise<Car[]> {
  * makes cheap enough to do on every request rather than adding a dedicated
  * facets endpoint.
  */
-export async function listMakeModelFacets(origin: CarOrigin): Promise<Map<string, Set<string>>> {
-  const { items } = await listCars({ origin, take: 100 });
+export async function listMakeModelFacets(
+  origin: CarOrigin,
+  condition?: CarCondition,
+): Promise<Map<string, Set<string>>> {
+  const { items } = await listCars({ origin, condition, take: 100 });
 
   const facets = new Map<string, Set<string>>();
   for (const car of items) {

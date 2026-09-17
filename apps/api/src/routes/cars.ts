@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  AuctionPlatform,
   CarCondition,
   CarOrigin,
   CarStatusBadge,
@@ -112,6 +113,7 @@ const carBodySchema = z.object({
   lotNumber: z.string().trim().max(40).nullish(),
   mileage: z.number().int().min(0).nullish(),
   auctionViewUrl: z.string().trim().max(500).nullish(),
+  auctionPlatform: z.nativeEnum(AuctionPlatform).nullish(),
 
   price: z.number().int().min(0),
   oldPrice: z.number().int().min(0).nullish(),
@@ -221,6 +223,8 @@ const listQuerySchema = z.object({
   model: z.string().trim().min(1).max(60).optional(),
   priceMin: z.coerce.number().int().min(0).optional(),
   priceMax: z.coerce.number().int().min(0).optional(),
+  /** USA "best auctions" S2.1 platform tabs (Copart/IAAI/Manheim). */
+  auctionPlatform: z.nativeEnum(AuctionPlatform).optional(),
   sort: z.enum(['createdAt', 'price', 'year', 'make']).default('createdAt'),
   direction: z.enum(['asc', 'desc']).default('desc'),
   take: z.coerce.number().int().min(1).max(100).default(25),
@@ -233,7 +237,10 @@ const listQuerySchema = z.object({
  * cannot drift on how a filter is applied.
  */
 function facetWhere(
-  query: Pick<z.infer<typeof listQuerySchema>, 'make' | 'model' | 'priceMin' | 'priceMax'>,
+  query: Pick<
+    z.infer<typeof listQuerySchema>,
+    'make' | 'model' | 'priceMin' | 'priceMax' | 'auctionPlatform'
+  >,
 ): Prisma.CarWhereInput {
   return {
     ...(query.make ? { make: { equals: query.make, mode: 'insensitive' } } : {}),
@@ -246,6 +253,7 @@ function facetWhere(
           },
         }
       : {}),
+    ...(query.auctionPlatform ? { auctionPlatform: query.auctionPlatform } : {}),
   };
 }
 

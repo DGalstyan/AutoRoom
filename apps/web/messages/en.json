@@ -693,7 +693,19 @@
       }
     },
     "bestAuctions": {
-      "heading": "This week's best deals from US auctions"
+      "heading": "This week's best deals from US auctions",
+      "filters": {
+        "tabAll": "All",
+        "tabCopart": "Copart Deal",
+        "tabIaai": "IAAI Deal",
+        "tabManheim": "Manheim Deal",
+        "allMakes": "Make: All",
+        "makePrefix": "Make",
+        "model": "Model",
+        "price": "Price",
+        "priceFrom": "From",
+        "priceTo": "To"
+      }
     },
     "customsCalculator": {
       "heading": "Customs Clearance Calculator",

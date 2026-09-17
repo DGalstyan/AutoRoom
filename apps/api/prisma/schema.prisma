@@ -416,6 +416,16 @@ enum Powertrain {
   BENZIN
 }
 
+/// Which auction house an `AUCTION` car's listing is on — drives the USA
+/// "best auctions" S2.1 filter tabs (Բոլորը/Copart Deal/IAAI Deal/Manheim
+/// Deal). Null for every non-`AUCTION` car, same optional-until-set contract
+/// as `auctionViewUrl`.
+enum AuctionPlatform {
+  COPART
+  IAAI
+  MANHEIM
+}
+
 /// Photo groupings from admin.md. AUCTION and RECEIPT are captured during
 /// import; HANDOVER is uploaded by staff in Gyumri when the container opens.
 enum ImageAlbum {
@@ -460,6 +470,9 @@ model Car {
   /// while unset, same "field renders nothing until set" contract as every
   /// other optional column here (see `CarSpecs`).
   auctionViewUrl String?
+  /// Set alongside `auctionViewUrl` for an `AUCTION` car — see
+  /// `AuctionPlatform`'s own comment.
+  auctionPlatform AuctionPlatform?
 
   /// Whole currency units, not minor: AutoRoom quotes round figures and the
   /// public site never renders cents.

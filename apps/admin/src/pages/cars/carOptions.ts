@@ -1,4 +1,5 @@
 import type {
+  AuctionPlatform,
   Car,
   CarCondition,
   CarInput,
@@ -37,6 +38,14 @@ export const POWERTRAINS: { value: Powertrain; label: string }[] = [
   { value: 'EV', label: 'Electric' },
   { value: 'HYBRID', label: 'Hybrid' },
   { value: 'BENZIN', label: 'Petrol' },
+];
+
+/** Drives the USA "best auctions" S2.1 filter tabs on the public site —
+ * only meaningful on an `AUCTION`-condition car. */
+export const AUCTION_PLATFORMS: { value: AuctionPlatform; label: string }[] = [
+  { value: 'COPART', label: 'Copart' },
+  { value: 'IAAI', label: 'IAAI' },
+  { value: 'MANHEIM', label: 'Manheim' },
 ];
 
 export const ALBUMS: { value: ImageAlbum; label: string; hint: string }[] = [
