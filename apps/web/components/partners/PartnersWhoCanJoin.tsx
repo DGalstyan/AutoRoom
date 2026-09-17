@@ -26,8 +26,12 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * Figma reuses the S2 heading string verbatim on this section too
  * ("Ինչո՞ւ դառնալ գործընկեր") — a known copy-paste duplication in this
  * Figma file (see `AuctionFollowAlong`/USA-import-process precedent this
- * session), reproduced faithfully rather than "corrected" to a different
- * heading Figma doesn't actually show.
+ * session). An earlier pass here reproduced that duplication faithfully;
+ * per direct user feedback the live page showing the same heading twice
+ * back-to-back reads as a visible mistake regardless of what caused it in
+ * the source file, so this section's heading is now "Ո՞վ կարող է դառնալ
+ * գործընկեր" ("Who can become a partner") — matching what the list below
+ * it actually is, and this component's own name.
  *
  * The list is 8 items, matching `references/pages.md` §5 S3's original
  * count — an earlier pass here had trimmed it to 5 and dropped one entry
