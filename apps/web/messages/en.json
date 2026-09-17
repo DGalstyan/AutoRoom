@@ -695,6 +695,39 @@
     "bestAuctions": {
       "heading": "This week's best deals from US auctions"
     },
+    "customsCalculator": {
+      "heading": "Customs Clearance Calculator",
+      "carValueLabel": "Car value",
+      "auctionLabel": "Auction",
+      "auctionOptions": {
+        "manheim": "Manheim",
+        "iaai": "IAAI",
+        "copart": "Copart"
+      },
+      "auctionLocationLabel": "Auction location",
+      "auctionLocationPlaceholder": "Location",
+      "transportFeeLabel": "Transportation fee",
+      "engineTypeLabel": "Engine type",
+      "ageLabel": "Age",
+      "ageOptions": {
+        "under3": "Under 3 years",
+        "between3And5": "3-5 years",
+        "between5And10": "5-10 years",
+        "over10": "Over 10 years"
+      },
+      "productionYearLabel": "Production year",
+      "engineVolumeLabel": "Engine volume, cm³",
+      "vehicleTypeLabel": "Vehicle type",
+      "vehicleTypeOptions": {
+        "sedan": "Sedan",
+        "suv": "SUV",
+        "pickup": "Pickup",
+        "hatchback": "Hatchback",
+        "minivan": "Minivan"
+      },
+      "submit": "Calculate",
+      "leadCommentHeading": "Customs calculator request"
+    },
     "availableCars": {
       "heading": "Available cars in Armenia"
     },

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Section } from '@/components/ui/Section';
 import { CarCard } from '@/components/shared/CarCard';
 import { UsaHero } from '@/components/usa/UsaHero';
+import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
 import { UsaStateClocks } from '@/components/usa/UsaStateClocks';
 import { UsaImportProcess } from '@/components/usa/UsaImportProcess';
 import { UsaFaq } from '@/components/usa/UsaFaq';
@@ -25,9 +26,12 @@ export async function generateMetadata(): Promise<Metadata> {
  * 218:177 (file 9Lq4XpWusTJj1VnM6laAZr) covers the whole page and gave real
  * pixel data for S1/S5 (see `UsaHero`/`UsaStateClocks`'s own doc comments);
  * S8 has no matching Figma node at all — see `UsaImportProcess`'s doc
- * comment — so it's built from the written spec alone. Still not built:
- * the customs calculator (S2.4) and the Useful-guides reels (S8b), which
- * need dedicated video/embed assets this pass doesn't have.
+ * comment — so it's built from the written spec alone. S2.4's customs
+ * calculator lives at a different, unlinked Figma node (282:1699 — see
+ * `CustomsCalculator`'s own doc comment for how that was found and why it
+ * only hands off to a human rather than computing anything). Still not
+ * built: the Useful-guides reels (S8b), which need dedicated video/embed
+ * assets this pass doesn't have.
  *
  * Card grids reuse China's own listing pattern (`app/china/page.tsx`): a
  * 2-column `CarCard` grid, one `listCars` call per condition since the
@@ -51,6 +55,11 @@ export default async function UsaPage() {
       <UsaHero />
 
       <CarGridSection heading={t.bestAuctions.heading} cars={auctionCars} />
+
+      <Section tone="light">
+        <CustomsCalculator />
+      </Section>
+
       <CarGridSection heading={t.availableCars.heading} cars={availableCars} />
       <CarGridSection heading={t.onRoad.heading} cars={onRoadCars} />
 

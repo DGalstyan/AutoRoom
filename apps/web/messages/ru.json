@@ -695,6 +695,39 @@
     "bestAuctions": {
       "heading": "Лучшие предложения недели с американских аукционов"
     },
+    "customsCalculator": {
+      "heading": "Калькулятор растаможки",
+      "carValueLabel": "Стоимость автомобиля",
+      "auctionLabel": "Аукцион",
+      "auctionOptions": {
+        "manheim": "Manheim",
+        "iaai": "IAAI",
+        "copart": "Copart"
+      },
+      "auctionLocationLabel": "Место аукциона",
+      "auctionLocationPlaceholder": "Место",
+      "transportFeeLabel": "Стоимость перевозки",
+      "engineTypeLabel": "Тип двигателя",
+      "ageLabel": "Возраст",
+      "ageOptions": {
+        "under3": "До 3 лет",
+        "between3And5": "3-5 лет",
+        "between5And10": "5-10 лет",
+        "over10": "Более 10 лет"
+      },
+      "productionYearLabel": "Год выпуска",
+      "engineVolumeLabel": "Объём двигателя, см³",
+      "vehicleTypeLabel": "Тип транспортного средства",
+      "vehicleTypeOptions": {
+        "sedan": "Седан",
+        "suv": "Внедорожник",
+        "pickup": "Пикап",
+        "hatchback": "Хэтчбек",
+        "minivan": "Минивэн"
+      },
+      "submit": "Рассчитать",
+      "leadCommentHeading": "Запрос через калькулятор растаможки"
+    },
     "availableCars": {
       "heading": "Автомобили в наличии в Армении"
     },

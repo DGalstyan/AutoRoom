@@ -695,6 +695,39 @@
     "bestAuctions": {
       "heading": "Շաբաթվա լավագույն առաջարկները ԱՄՆ աճուրդներից"
     },
+    "customsCalculator": {
+      "heading": "Մաքսազերծման հաշվիչ",
+      "carValueLabel": "Մեքենայի արժեք",
+      "auctionLabel": "Աճուրդ",
+      "auctionOptions": {
+        "manheim": "Manheim",
+        "iaai": "IAAI",
+        "copart": "Copart"
+      },
+      "auctionLocationLabel": "Աճուրդի վայր",
+      "auctionLocationPlaceholder": "Վայր",
+      "transportFeeLabel": "Տեղափոխման վճար",
+      "engineTypeLabel": "Շարժիչի տեսակ",
+      "ageLabel": "Տարիք",
+      "ageOptions": {
+        "under3": "Մինչև 3 տարի",
+        "between3And5": "3-5 տարի",
+        "between5And10": "5-10 տարի",
+        "over10": "10 տարուց ավել"
+      },
+      "productionYearLabel": "Արտադրության տարի",
+      "engineVolumeLabel": "Շարժիչի ծավալ, սմ³",
+      "vehicleTypeLabel": "Տրանսպորտի տեսակ",
+      "vehicleTypeOptions": {
+        "sedan": "Սեդան",
+        "suv": "Ամբողջաշարժ (SUV)",
+        "pickup": "Պիկափ",
+        "hatchback": "Հեթչբեք",
+        "minivan": "Մինիվեն"
+      },
+      "submit": "Հաշվել",
+      "leadCommentHeading": "Մաքսազերծման հաշվիչի հարցում"
+    },
     "availableCars": {
       "heading": "Առկա մեքենաներ Հայաստանում"
     },
