@@ -29,8 +29,12 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * session), reproduced faithfully rather than "corrected" to a different
  * heading Figma doesn't actually show.
  *
- * The list itself (5 items) is trusted over `references/pages.md` §5 S3's
- * older 8-item version — Figma is the more current design here.
+ * The list is 8 items, matching `references/pages.md` §5 S3's original
+ * count — an earlier pass here had trimmed it to 5 and dropped one entry
+ * that isn't in Figma at all ("Ավտովարձույթներ"/car rental companies),
+ * which was the live-vs-Figma mismatch a later user report caught.
+ * Re-verified directly against the live Figma node (291:772) rather than
+ * assumed from that stale comment.
  */
 export function PartnersWhoCanJoin() {
   const t = useMessages().partners.whoCanJoin;
