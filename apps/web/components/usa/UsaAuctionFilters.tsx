@@ -65,7 +65,7 @@ export function UsaAuctionFilters({ makeModels }: { makeModels: Record<string, s
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-[70px]">
+    <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-[10px] sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:rounded-[70px]">
       <div className="flex flex-wrap items-center gap-3 rounded-pill bg-neutral-25 px-4 py-3">
         <TabButton active={platform === ''} onClick={() => updateParams({ auctionPlatform: null })}>
           {t.tabAll}
