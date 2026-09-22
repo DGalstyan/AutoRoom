@@ -25,16 +25,21 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * arrow doesn't match it), `border-radius: 48px`/`gap: 24px` were already
  * correct.
  *
- * Per direct user feedback the second card is a live state picker (a
+ * Per direct user feedback the non-Yerevan cards are live state pickers (a
  * `<select>` of major US states spanning every mainland time zone plus
- * Alaska/Hawaii and DST-less Arizona) rather than a card fixed to Los
- * Angeles forever, so a visitor can check the local time anywhere in the US
- * they actually care about — New York is reachable through it, so the
- * three-card Figma layout isn't reproduced as a third static card.
- * California/Los Angeles stays the default so the page's first paint is
- * unchanged from before. The "diff vs Armenia" caption is kept — it's the
- * one thing `references/pages.md`'s S5 spec explicitly calls for that two
- * side-by-side clocks don't already make obvious on their own.
+ * Alaska/Hawaii and DST-less Arizona) rather than a card fixed to one city
+ * forever, so a visitor can check the local time anywhere in the US they
+ * actually care about. Originally this was a single picker card, defaulting
+ * to California/Los Angeles, with New York only reachable by opening it —
+ * which under-matched the full-page Figma mock's three always-visible
+ * cards (Yerevan/Los Angeles/New York) closely enough that a follow-up
+ * request flagged New York's time as "missing". Fixed by making it two
+ * independent pickers, defaulting to California and New York respectively,
+ * so the page's first paint shows exactly Figma's three cities while either
+ * one can still be swapped to any other state. The "diff vs Armenia"
+ * caption is kept on both — it's the one thing `references/pages.md`'s S5
+ * spec explicitly calls for that side-by-side clocks don't already make
+ * obvious on their own.
  *
  * Not reproduced: Figma's decorative analog clock face (a glossy black
  * "Braun"-style dial with rotating hour/minute/second hands) that sits
@@ -76,7 +81,8 @@ const STATE_OPTIONS: StateOption[] = [
   { key: 'hawaii', timeZone: 'Pacific/Honolulu' },
 ];
 
-const DEFAULT_STATE_KEY = 'california';
+const DEFAULT_STATE_KEY_A = 'california';
+const DEFAULT_STATE_KEY_B = 'newYork';
 
 const LOCALE_TAG: Record<Locale, string> = { hy: 'hy-AM', en: 'en-US', ru: 'ru-RU' };
 
@@ -168,7 +174,8 @@ export function UsaStateClocks() {
   // is a reproducible hydration mismatch) — the real times fill in a tick
   // later, imperceptibly.
   const [now, setNow] = useState<Date | null>(null);
-  const [stateKey, setStateKey] = useState<string>(DEFAULT_STATE_KEY);
+  const [stateKeyA, setStateKeyA] = useState<string>(DEFAULT_STATE_KEY_A);
+  const [stateKeyB, setStateKeyB] = useState<string>(DEFAULT_STATE_KEY_B);
 
   useEffect(() => {
     // Deferred a tick so this isn't a synchronous setState-in-effect (same
@@ -179,11 +186,13 @@ export function UsaStateClocks() {
   }, []);
 
   const referenceOffset = now ? utcOffsetMinutes('Asia/Yerevan', now) : 0;
-  const selectedState =
-    STATE_OPTIONS.find((option) => option.key === stateKey) ?? STATE_OPTIONS[0]!;
-  const diffHours = now
-    ? Math.round((utcOffsetMinutes(selectedState.timeZone, now) - referenceOffset) / 60)
-    : 0;
+
+  function diffCaptionFor(stateKey: string): string | undefined {
+    if (!now) return undefined;
+    const state = STATE_OPTIONS.find((option) => option.key === stateKey) ?? STATE_OPTIONS[0]!;
+    const diffHours = Math.round((utcOffsetMinutes(state.timeZone, now) - referenceOffset) / 60);
+    return interpolate(t.diff, { hours: diffHours > 0 ? `+${diffHours}` : `${diffHours}` });
+  }
 
   return (
     <div className="flex flex-col items-center gap-16">
@@ -193,53 +202,91 @@ export function UsaStateClocks() {
 
         <ClockCard
           selector={
-            <div className="relative flex w-full items-center">
-              <label htmlFor="usa-state-select" className="sr-only">
-                {t.stateLabel}
-              </label>
-              <select
-                id="usa-state-select"
-                value={stateKey}
-                onChange={(event) => setStateKey(event.target.value)}
-                className="w-full appearance-none truncate border-none bg-transparent p-0 pr-6 text-[16px] leading-6 text-ink outline-none"
-              >
-                {STATE_OPTIONS.map((option) => (
-                  <option key={option.key} value={option.key}>
-                    {t.states[option.key as keyof typeof t.states]}
-                  </option>
-                ))}
-              </select>
-              {/* Figma's dial cards pair the city label with a small chevron
-                affordance — reproduced here rather than the browser's own
-                native select arrow, which doesn't match it. */}
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 20 20"
-                className="pointer-events-none absolute right-0 size-5 text-ink"
-              >
-                <path
-                  d="M5 7.5 10 12.5 15 7.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  fill="none"
-                />
-              </svg>
-            </div>
+            <StatePicker
+              id="usa-state-select-a"
+              label={t.stateLabel}
+              value={stateKeyA}
+              onChange={setStateKeyA}
+              states={t.states}
+            />
           }
-          timeZone={selectedState.timeZone}
+          timeZone={
+            (STATE_OPTIONS.find((option) => option.key === stateKeyA) ?? STATE_OPTIONS[0]!).timeZone
+          }
           now={now}
           locale={locale}
-          diffCaption={
-            now
-              ? interpolate(t.diff, {
-                  hours: diffHours > 0 ? `+${diffHours}` : `${diffHours}`,
-                })
-              : undefined
+          diffCaption={diffCaptionFor(stateKeyA)}
+        />
+
+        <ClockCard
+          selector={
+            <StatePicker
+              id="usa-state-select-b"
+              label={t.stateLabel}
+              value={stateKeyB}
+              onChange={setStateKeyB}
+              states={t.states}
+            />
           }
+          timeZone={
+            (STATE_OPTIONS.find((option) => option.key === stateKeyB) ?? STATE_OPTIONS[0]!).timeZone
+          }
+          now={now}
+          locale={locale}
+          diffCaption={diffCaptionFor(stateKeyB)}
         />
       </div>
+    </div>
+  );
+}
+
+/** Figma's dial cards pair the city label with a small chevron affordance —
+ * reproduced here rather than the browser's own native select arrow, which
+ * doesn't match it. Shared by both non-Yerevan cards. */
+function StatePicker({
+  id,
+  label,
+  value,
+  onChange,
+  states,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  states: Record<string, string>;
+}) {
+  return (
+    <div className="relative flex w-full items-center">
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full appearance-none truncate border-none bg-transparent p-0 pr-6 text-[16px] leading-6 text-ink outline-none"
+      >
+        {STATE_OPTIONS.map((option) => (
+          <option key={option.key} value={option.key}>
+            {states[option.key] ?? option.key}
+          </option>
+        ))}
+      </select>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 20 20"
+        className="pointer-events-none absolute right-0 size-5 text-ink"
+      >
+        <path
+          d="M5 7.5 10 12.5 15 7.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </svg>
     </div>
   );
 }
