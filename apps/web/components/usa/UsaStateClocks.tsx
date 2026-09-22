@@ -18,7 +18,11 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * label is Labels/Label-L-Regular (16px/24px, not the 20px `text-lead` this
  * file used), the big time is Headings/H1-Light Mid (44px/58px, weight
  * ~300 — the same style `home-h2` already encodes), and the date line is
- * Headings/H1-Reg (24px/36px, also wrongly `text-lead` before). Both the
+ * Headings/H1-Reg (24px/36px, also wrongly `text-lead` before). Figma wraps
+ * both the time and date in one container carrying a single, full-opacity
+ * `neutral/100 #0d0d0d` (`text-ink` — this file's own `ink` token is
+ * literally that hex), so the date line's `text-ink/70` was a real
+ * mismatch too, not a deliberate de-emphasis. Both the
  * Los Angeles and New York cards there also pair their city label with a
  * small chevron affordance rather than a plain label — reproduced on the
  * picker card below as a custom SVG (the browser's own native `<select>`
@@ -41,11 +45,18 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * spec explicitly calls for that side-by-side clocks don't already make
  * obvious on their own.
  *
- * Not reproduced: Figma's decorative analog clock face (a glossy black
- * "Braun"-style dial with rotating hour/minute/second hands) that sits
- * above the digital time in every card — a from-scratch illustration plus
- * live hand-rotation math, not a simple style tweak, so it's left as a
- * known gap pending a product call rather than built unasked.
+ * The decorative analog dial above the digital time (`AnalogClock` below)
+ * is an original glossy-black illustration, not the Figma mock's actual
+ * clock-face images: those are stock product photos of a real "Braun"
+ * clock (the wordmark is legible on the dial), fine as a design reference
+ * but not something to ship as-is on a live commercial site. The tick
+ * marks, hour/minute hand shapes and proportions are reproduced from the
+ * Dev Mode CSS (gradient white→`#acacac`, `shadow-[0px_4px_4px_...]` drop
+ * shadow, `inset_4px_3px_11px` bevel); the second hand is a plain accent
+ * pointer rather than the mock's own thin gold "Union" shape, which has no
+ * clean vector equivalent in the exported code. All three hands compute
+ * their rotation from `now` in the card's own `timeZone`, live — Figma's
+ * mock is a single frozen pose, not proof this ever needs to be static.
  */
 
 interface StateOption {
@@ -165,6 +176,90 @@ function utcOffsetMinutes(timeZone: string, date: Date): number {
   return (asUtc - date.getTime()) / 60_000;
 }
 
+/** Degrees clockwise from 12 o'clock for each hand, reading `date`'s wall-clock
+ * fields in `timeZone` — the same offset-free approach `utcOffsetMinutes`
+ * uses, since a hand's angle only ever needs the local hour/minute/second,
+ * never a real UTC diff. */
+function handAngles(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hourCycle: 'h23',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(date);
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  const hour = get('hour') % 12;
+  const minute = get('minute');
+  const second = get('second');
+  return {
+    hour: (hour + minute / 60) * 30,
+    minute: (minute + second / 60) * 6,
+    second: second * 6,
+  };
+}
+
+/** One hand: a rounded gradient bar pivoting at the dial's centre, `length`
+ * long and pointing at `angle`° clockwise from 12 — Figma's own hour/minute
+ * hands are exactly this gradient+shadow treatment, just laid out through
+ * Figma's rotated-bounding-box auto-layout, which has no clean equivalent
+ * in plain CSS; a straight `rotate()` around a fixed pivot reads identically
+ * on screen. */
+function ClockHand({
+  angle,
+  length,
+  width,
+  color = 'gradient',
+}: {
+  angle: number;
+  length: number;
+  width: number;
+  color?: 'gradient' | 'accent';
+}) {
+  return (
+    <div
+      className="absolute left-1/2 top-1/2 origin-top"
+      style={{ height: length, width, transform: `translateX(-50%) rotate(${angle}deg)` }}
+    >
+      <div
+        className={
+          color === 'gradient'
+            ? 'size-full rounded-full bg-gradient-to-b from-white to-[#acacac] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]'
+            : 'size-full rounded-full bg-accent'
+        }
+      />
+    </div>
+  );
+}
+
+/** The decorative dial above each card's digital time — see this file's own
+ * doc comment for why it's an original illustration rather than Figma's own
+ * clock-photo assets. Renders a neutral 12:00 pose (all hands pointing up)
+ * until `now` is available, the same hydration-safe pattern the digital
+ * time below it already uses. */
+function AnalogClock({ now, timeZone }: { now: Date | null; timeZone: string }) {
+  const angles = now ? handAngles(now, timeZone) : { hour: 0, minute: 0, second: 0 };
+
+  return (
+    <div
+      aria-hidden="true"
+      className="relative size-[176px] shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#3a3a3a,#0d0d0d_70%)] shadow-[0_8px_24px_rgba(0,0,0,0.35),inset_0_2px_6px_rgba(255,255,255,0.15),inset_0_-6px_14px_rgba(0,0,0,0.6)]"
+    >
+      {Array.from({ length: 12 }).map((_, tick) => (
+        <div
+          key={tick}
+          className="absolute left-1/2 top-1/2 h-2 w-[2.5px] origin-top rounded-full bg-gradient-to-b from-white to-[#cdcdcd]"
+          style={{ transform: `translateX(-50%) rotate(${tick * 30}deg) translateY(6px)` }}
+        />
+      ))}
+      <ClockHand angle={angles.hour} length={44} width={5} />
+      <ClockHand angle={angles.minute} length={64} width={4} />
+      <ClockHand angle={angles.second} length={70} width={2} color="accent" />
+      <div className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" />
+    </div>
+  );
+}
+
 export function UsaStateClocks() {
   const t = useMessages().usa.stateClocks;
   const locale = useLocale();
@@ -265,7 +360,7 @@ function StatePicker({
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full appearance-none truncate border-none bg-transparent p-0 pr-6 text-[16px] leading-6 text-ink outline-none"
+        className="w-full appearance-none truncate border-none bg-transparent p-0 py-0 pl-6 pr-6 text-center text-[16px] leading-6 text-ink outline-none"
       >
         {STATE_OPTIONS.map((option) => (
           <option key={option.key} value={option.key}>
@@ -313,8 +408,9 @@ function ClockCard({
   diffCaption?: string;
 }) {
   return (
-    <div className="flex w-full max-w-[300px] flex-col items-start gap-6 rounded-[48px] bg-white p-8 shadow-card sm:p-12 lg:p-16">
+    <div className="flex w-full max-w-[320px] flex-col items-center gap-6 rounded-[48px] bg-white p-8 text-center shadow-card sm:p-12 lg:p-16">
       {selector ?? <p className="text-[16px] leading-6 text-ink">{label}</p>}
+      <AnalogClock now={now} timeZone={timeZone} />
       <div className="flex flex-col gap-1">
         <p className="font-display text-home-h2 font-light text-ink">
           {now
@@ -326,7 +422,7 @@ function ClockCard({
               }).format(now)
             : '—'}
         </p>
-        <p className="text-[24px] leading-9 text-ink/70">
+        <p className="text-[24px] leading-9 text-ink">
           {now ? formatLocalizedDate(now, timeZone, locale) : '—'}
         </p>
         {diffCaption && <p className="text-caption text-ink/50">{diffCaption}</p>}
