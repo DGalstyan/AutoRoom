@@ -31,19 +31,20 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * `/usa` — `references/pages.md` "4. USA": S1 hero, S2.1 best-auctions
  * listing, S3 available-cars listing, S4 on-the-road listing, S5 state
- * clocks, S8 import-process timeline, S8c FAQ, S9 final CTA. Figma node
- * 218:177 (file 9Lq4XpWusTJj1VnM6laAZr) covers the whole page and gave real
- * pixel data for S1/S5/S8 (see `UsaHero`/`UsaStateClocks`/`UsaImportProcess`'s
- * own doc comments — S8's real Card 1…11 group was missed by an earlier
- * pass here and wrongly written off as "no matching Figma node", a claim
- * this comment repeated until corrected). S2.4's customs calculator lives
- * at a different, unlinked Figma node (282:1699 — see `CustomsCalculator`'s
- * own doc comment for how that was found and why it only hands off to a
- * human rather than computing anything). S8b's Useful-guides reels
- * (`UsaGuideReels`) read the admin's `Media` rows with `kind: GUIDE_REEL` —
- * a kind that already existed in the schema/API/admin Stories screen but had
- * no public-site consumer until this pass; see that component's own doc
- * comment for why no Figma node backs its card treatment.
+ * clocks, S8 import-process timeline, S8b useful-guides reels, S8c FAQ, S9
+ * final CTA. Figma node 218:177 (file 9Lq4XpWusTJj1VnM6laAZr) covers the
+ * whole page and gave real pixel data for S1/S5/S8/S8b (see
+ * `UsaHero`/`UsaStateClocks`/`UsaImportProcess`/`UsaGuideReels`'s own doc
+ * comments — S8's real Card 1…11 group, then later S8b's real `Frame
+ * 1597885997`, were each missed by an earlier pass here and wrongly written
+ * off as "no matching Figma node", a claim this comment repeated until
+ * corrected both times). S2.4's customs calculator lives at a different,
+ * unlinked Figma node (282:1699 — see `CustomsCalculator`'s own doc comment
+ * for how that was found and why it only hands off to a human rather than
+ * computing anything). S8b's reels (`UsaGuideReels`) read the admin's
+ * `Media` rows with `kind: GUIDE_REEL` — a kind that already existed in the
+ * schema/API/admin Stories screen but had no public-site consumer until this
+ * pass.
  *
  * Card grids reuse China's own listing pattern (`app/china/page.tsx`): a
  * 2-column `CarCard` grid, one `listCars` call per condition since the

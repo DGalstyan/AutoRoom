@@ -10,12 +10,21 @@ import type { GuideReel } from '@/lib/media';
 
 /**
  * `/usa` S8b "Useful guides" (`references/pages.md` §4: H "Սովորիր
- * մեքենաների ներմուծման մասին մեր փորձից" — "Reels/video cards"). No Figma
- * node covers this section (an earlier pass here looked and came up empty —
- * see `app/usa/page.tsx`'s doc comment), so the card treatment is built from
- * the site's own established video patterns instead of a mock: the poster +
- * play-glyph card from `CustomerStoryWall` (Homepage S7), and the
- * YouTube-embed-or-direct-file lightbox player from `FounderVideo`.
+ * մեքենաների ներմուծման մասին մեր փորձից" — "Reels/video cards"). An earlier
+ * pass here claimed no Figma node covers this section — wrong, the same
+ * "stopped one frame too shallow" mistake `UsaImportProcess`'s own doc
+ * comment already flags elsewhere on this page. The real node is 218:177's
+ * `Frame 1597885997` (verified via get_design_context): a centered
+ * `Headings/H1-Light Mid` heading over an edge-to-edge 4-across, 2-row grid
+ * of portrait video stills — no gap, no rounded corners, no visible title
+ * caption — each with a 122px circular play button (`fill="black"
+ * fill-opacity="0.2"`, white glyph, no blur, from the node's own exported
+ * `Frame 1597885820` asset). That's pixel-identical to `CustomerStoryWall`'s
+ * own already-verified grid (Homepage S7, node 110:432) apart from the
+ * button's tint, so this reuses that component's `aspect-[336/502]`/grid/gap
+ * treatment directly instead of the invented landscape 3-up cards from
+ * before, and its `PlayGlyph` triangle in place of hand-tracing the asset's
+ * custom bezier glyph (same silhouette, already established elsewhere).
  *
  * `reels` is the admin's `Media` rows with `kind: GUIDE_REEL` — a type that
  * already existed in the schema/API/admin Stories screen (labelled "Guide
@@ -32,38 +41,31 @@ export function UsaGuideReels({ reels }: { reels: GuideReel[] }) {
 
   return (
     <Section tone="light">
-      <h2 className="font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+      <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
 
-      <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid grid-cols-2 gap-0 md:grid-cols-4">
         {reels.map((reel) => (
           <button
             key={reel.id}
             type="button"
             onClick={() => setActive(reel)}
-            className="group relative aspect-video w-full overflow-hidden rounded-2xl bg-ink transition-transform duration-standard ease-expo hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="group relative aspect-[336/502] w-full overflow-hidden bg-ink transition-transform duration-standard ease-expo hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             {reel.posterUrl && (
               <Image
                 src={reel.posterUrl}
                 alt=""
                 fill
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                sizes="(min-width: 768px) 25vw, 50vw"
                 className="object-cover"
               />
             )}
-            <div
-              className="absolute inset-0 bg-black/25 transition-colors duration-standard group-hover:bg-black/40"
-              aria-hidden="true"
-            />
             <span
               aria-hidden="true"
-              className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-accent text-ink transition-transform duration-standard group-hover:scale-110"
+              className="absolute left-1/2 top-1/2 flex h-[122px] w-[122px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-black/20 text-white transition-transform duration-standard group-hover:scale-110"
             >
-              <PlayGlyph size={20} />
+              <PlayGlyph size={36} />
             </span>
-            <p className="absolute inset-x-0 bottom-0 p-4 text-left text-small font-medium text-white">
-              {reel.title}
-            </p>
             <span className="sr-only">
               {reel.title} — {t.playLabel}
             </span>
