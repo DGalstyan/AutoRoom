@@ -22,7 +22,12 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * both the time and date in one container carrying a single, full-opacity
  * `neutral/100 #0d0d0d` (`text-ink` — this file's own `ink` token is
  * literally that hex), so the date line's `text-ink/70` was a real
- * mismatch too, not a deliberate de-emphasis. Both the
+ * mismatch too, not a deliberate de-emphasis. Both are also "Headings/*"
+ * text styles in Figma (this design system maps Headings → the `display`
+ * font, Sora; Labels → `body`, Inter — see design-tokens.md), so the date
+ * line needs `font-display` alongside the time above it; it had been left
+ * on the page's default `font-body`, a real family mismatch, not just a
+ * missed weight/size. Both the
  * Los Angeles and New York cards there also pair their city label with a
  * small chevron affordance rather than a plain label — reproduced on the
  * picker card below as a custom SVG (the browser's own native `<select>`
@@ -422,7 +427,7 @@ function ClockCard({
               }).format(now)
             : '—'}
         </p>
-        <p className="text-[24px] leading-9 text-ink">
+        <p className="font-display text-[24px] font-normal leading-9 text-ink">
           {now ? formatLocalizedDate(now, timeZone, locale) : '—'}
         </p>
         {diffCaption && <p className="text-caption text-ink/50">{diffCaption}</p>}
