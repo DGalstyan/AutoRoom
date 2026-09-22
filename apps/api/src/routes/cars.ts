@@ -263,6 +263,14 @@ const imageSchema = z.object({
   position: z.number().int().min(0).max(999).optional(),
 });
 
+/** The reordered album's full id list, front to back — not a `{ id, position }[]`
+ * diff, since the admin UI always has the whole album in hand after a drag and a
+ * partial list would leave stragglers at their old position. */
+const imageReorderSchema = z.object({
+  album: z.nativeEnum(ImageAlbum),
+  imageIds: z.array(z.string().min(1)).min(1).max(999),
+});
+
 /* ---------------------------------- routes ---------------------------------- */
 
 carsRouter.get(
@@ -516,6 +524,43 @@ carsRouter.delete(
 
     await prisma.carImage.delete({ where: { id: imageId } });
     res.status(204).end();
+  },
+);
+
+/**
+ * Persists a new front-to-back order for one album after the admin drags a
+ * photo — `imageIds[i]`'s row gets `position: i`. Every id must belong to
+ * this car and this album, both to keep one album's drag from silently
+ * repositioning a stray id from another and so a stale client (an album
+ * edited in a second tab since this one loaded) fails loudly instead of
+ * mis-ordering photos it never showed.
+ */
+carsRouter.patch(
+  '/cars/:id/images/reorder',
+  requireAuth,
+  requirePermission('cars', 'UPDATE'),
+  validateBody(imageReorderSchema),
+  async (req, res) => {
+    const carId = String(req.params.id ?? '');
+    const { album, imageIds } = req.body as z.infer<typeof imageReorderSchema>;
+
+    const existing = await prisma.carImage.findMany({ where: { carId, album } });
+    const existingIds = new Set(existing.map((image) => image.id));
+    if (imageIds.length !== existing.length || imageIds.some((id) => !existingIds.has(id))) {
+      throw badRequest('imageIds must be exactly this album’s current photo ids');
+    }
+
+    await prisma.$transaction(
+      imageIds.map((imageId, position) =>
+        prisma.carImage.update({ where: { id: imageId }, data: { position } }),
+      ),
+    );
+
+    const images = await prisma.carImage.findMany({
+      where: { carId, album },
+      orderBy: { position: 'asc' },
+    });
+    res.json(images.map(serializeImage));
   },
 );
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
-import { notFound } from '../lib/errors';
+import { badRequest, notFound } from '../lib/errors';
 import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
 import { validateBody } from '../middleware/validate';
@@ -19,6 +19,12 @@ const galleryImageBodySchema = z.object({
   imageUrl: z.string().url().max(2048),
   /// Display order of the tiles in the collage — lower shows first.
   position: z.number().int().min(0).max(999).default(0),
+});
+
+/** The whole collage's new front-to-back order, not a `{ id, position }[]`
+ * diff — the admin UI always has every row in hand after a swap. */
+const galleryReorderSchema = z.object({
+  imageIds: z.array(z.string().min(1)).min(1).max(999),
 });
 
 const ORDER = [{ position: 'asc' }] satisfies Prisma.GalleryImageOrderByWithRelationInput[];
@@ -44,6 +50,38 @@ galleryRouter.post(
 
     await audit(req.auth?.userId, 'gallery.create', image.id, { imageUrl: image.imageUrl });
     res.status(201).json(serializeGalleryImage(image));
+  },
+);
+
+/**
+ * Persists a new front-to-back order for the whole collage after the admin
+ * swaps two tiles — `imageIds[i]`'s row gets `position: i`. Every existing
+ * id must be present so a stale client (a second tab that added or removed
+ * a tile since this one loaded) fails loudly instead of dropping or
+ * mis-ordering rows it never showed.
+ */
+galleryRouter.patch(
+  '/gallery/reorder',
+  requireAuth,
+  requirePermission('gallery', 'UPDATE'),
+  validateBody(galleryReorderSchema),
+  async (req, res) => {
+    const { imageIds } = req.body as z.infer<typeof galleryReorderSchema>;
+
+    const existing = await prisma.galleryImage.findMany();
+    const existingIds = new Set(existing.map((image) => image.id));
+    if (imageIds.length !== existing.length || imageIds.some((id) => !existingIds.has(id))) {
+      throw badRequest('imageIds must be exactly the gallery’s current image ids');
+    }
+
+    await prisma.$transaction(
+      imageIds.map((imageId, position) =>
+        prisma.galleryImage.update({ where: { id: imageId }, data: { position } }),
+      ),
+    );
+
+    const images = await prisma.galleryImage.findMany({ orderBy: ORDER });
+    res.json(images.map(serializeGalleryImage));
   },
 );
 

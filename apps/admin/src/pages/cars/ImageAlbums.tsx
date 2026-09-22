@@ -3,6 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import type { CarImage, ImageAlbum } from '@autoroom/api/client';
 import { Alert, Box, Button, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import UploadIcon from '@mui/icons-material/CloudUploadOutlined';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
@@ -30,12 +32,15 @@ export function ImageAlbums({
   readOnly,
   onAdd,
   onRemove,
+  onReorder,
 }: {
   images: (CarImage | StagedImage)[];
   readOnly: boolean;
   /** Uploads one file and attaches it to the given album. */
   onAdd: (album: ImageAlbum, file: File) => Promise<void>;
   onRemove: (image: CarImage | StagedImage) => Promise<void>;
+  /** Persists the album's full new front-to-back id order after a swap. */
+  onReorder: (album: ImageAlbum, imageIds: string[]) => Promise<void>;
 }) {
   return (
     <Stack spacing={3}>
@@ -49,6 +54,7 @@ export function ImageAlbums({
           readOnly={readOnly}
           onAdd={onAdd}
           onRemove={onRemove}
+          onReorder={onReorder}
         />
       ))}
     </Stack>
@@ -63,6 +69,7 @@ function AlbumRow({
   readOnly,
   onAdd,
   onRemove,
+  onReorder,
 }: {
   album: ImageAlbum;
   label: string;
@@ -71,6 +78,7 @@ function AlbumRow({
   readOnly: boolean;
   onAdd: (album: ImageAlbum, file: File) => Promise<void>;
   onRemove: (image: CarImage | StagedImage) => Promise<void>;
+  onReorder: (album: ImageAlbum, imageIds: string[]) => Promise<void>;
 }) {
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -91,6 +99,22 @@ function AlbumRow({
     mutationFn: onRemove,
     onSuccess: () => toast('Removed.'),
     onError: (error) => toast(errorMessage(error), 'error'),
+  });
+
+  // Swaps the image at `index` with its neighbour in `direction`, then
+  // persists the whole album's new id order in one call — simpler than a
+  // `{ id, position }` patch and matches what the reorder endpoint expects.
+  const reorderMutation = useMutation({
+    mutationFn: ({ index, direction }: { index: number; direction: -1 | 1 }) => {
+      const next = images.slice();
+      const target = index + direction;
+      [next[index], next[target]] = [next[target]!, next[index]!];
+      return onReorder(
+        album,
+        next.map((image) => image.id),
+      );
+    },
+    onError: (error) => toast(errorMessage(error, 'Could not reorder.'), 'error'),
   });
 
   function accept(list: FileList | null) {
@@ -137,7 +161,7 @@ function AlbumRow({
               mb: readOnly ? 0 : 1.5,
             }}
           >
-            {images.map((image) => (
+            {images.map((image, index) => (
               <Box
                 key={image.id}
                 sx={{
@@ -185,6 +209,48 @@ function AlbumRow({
                   >
                     <CloseIcon sx={{ fontSize: 15 }} />
                   </IconButton>
+                )}
+
+                {!readOnly && images.length > 1 && (
+                  <Stack
+                    direction="row"
+                    sx={{
+                      position: 'absolute',
+                      bottom: 4,
+                      left: 4,
+                      right: 4,
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      aria-label="Move earlier"
+                      disabled={index === 0 || reorderMutation.isPending}
+                      onClick={() => reorderMutation.mutate({ index, direction: -1 })}
+                      sx={{
+                        bgcolor: '#000000A6',
+                        color: '#FFFFFF',
+                        '&:hover': { bgcolor: '#000000CC' },
+                        '&.Mui-disabled': { bgcolor: '#00000052', color: '#FFFFFF80' },
+                      }}
+                    >
+                      <ChevronLeftIcon sx={{ fontSize: 17 }} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      aria-label="Move later"
+                      disabled={index === images.length - 1 || reorderMutation.isPending}
+                      onClick={() => reorderMutation.mutate({ index, direction: 1 })}
+                      sx={{
+                        bgcolor: '#000000A6',
+                        color: '#FFFFFF',
+                        '&:hover': { bgcolor: '#000000CC' },
+                        '&.Mui-disabled': { bgcolor: '#00000052', color: '#FFFFFF80' },
+                      }}
+                    >
+                      <ChevronRightIcon sx={{ fontSize: 17 }} />
+                    </IconButton>
+                  </Stack>
                 )}
               </Box>
             ))}

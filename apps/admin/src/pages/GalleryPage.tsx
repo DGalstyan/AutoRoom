@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { GalleryImage } from '@autoroom/api/client';
 import { Box, Button, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
@@ -49,6 +51,20 @@ export function GalleryPage() {
   });
 
   const images = galleryQuery.data?.items ?? [];
+
+  // Swaps the tile at `index` with its neighbour in `direction`, then
+  // persists the whole collage's new id order in one call — simpler than a
+  // `{ id, position }` patch and matches what the reorder endpoint expects.
+  const reorderMutation = useMutation({
+    mutationFn: ({ index, direction }: { index: number; direction: -1 | 1 }) => {
+      const next = images.slice();
+      const target = index + direction;
+      [next[index], next[target]] = [next[target]!, next[index]!];
+      return api.gallery.reorder(next.map((image) => image.id));
+    },
+    onSuccess: () => void refresh(),
+    onError: (error) => toast(errorMessage(error, 'Could not reorder.'), 'error'),
+  });
 
   return (
     <Box sx={{ maxWidth: 900 }}>
@@ -113,11 +129,36 @@ export function GalleryPage() {
           {
             key: 'position',
             header: 'Position',
-            render: (image) => (
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                {image.position}
-              </Typography>
-            ),
+            render: (image) => {
+              const index = images.findIndex((row) => row.id === image.id);
+              return (
+                <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, width: 20 }}>
+                    {image.position}
+                  </Typography>
+                  {canUpdate && images.length > 1 && (
+                    <>
+                      <IconButton
+                        size="small"
+                        aria-label="Move up"
+                        disabled={index === 0 || reorderMutation.isPending}
+                        onClick={() => reorderMutation.mutate({ index, direction: -1 })}
+                      >
+                        <ArrowUpwardIcon sx={{ fontSize: 15 }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        aria-label="Move down"
+                        disabled={index === images.length - 1 || reorderMutation.isPending}
+                        onClick={() => reorderMutation.mutate({ index, direction: 1 })}
+                      >
+                        <ArrowDownwardIcon sx={{ fontSize: 15 }} />
+                      </IconButton>
+                    </>
+                  )}
+                </Stack>
+              );
+            },
           },
           {
             key: 'actions',

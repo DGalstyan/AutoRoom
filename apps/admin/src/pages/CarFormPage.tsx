@@ -87,16 +87,23 @@ const BLANK: CarInput = {
 /**
  * Scrolls the field with `id={`field-${key}`}` into view and focuses it —
  * `key` is the dotted path the API reports (`colors.0.name`), matched to the
- * id every error-bearing field in this form is given. Deferred to the next
- * frame because the error just landed in state and the field re-renders
- * (error styling, a helper-text line pushing layout down) in the same tick.
+ * id every error-bearing field in this form is given. Returns whether that
+ * id actually exists, synchronously — the id itself is always present on a
+ * wired field regardless of error state, only the *scroll* is deferred to
+ * the next frame, because the error just landed in state and the field
+ * re-renders (error styling, a helper-text line pushing layout down) in the
+ * same tick. A `false` return means the field this error names has no
+ * matching id in this form — the caller falls back to a toast so the save
+ * doesn't look like it silently did nothing.
  */
-function scrollToField(key: string) {
+function scrollToField(key: string): boolean {
+  const field = document.getElementById(`field-${key}`);
+  if (!field) return false;
   requestAnimationFrame(() => {
-    const field = document.getElementById(`field-${key}`);
-    field?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    field?.focus();
+    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    field.focus();
   });
+  return true;
 }
 
 /** ISO string → the local, second-less format `<input type="datetime-local">` expects. */
@@ -236,12 +243,21 @@ export function CarFormPage() {
       setFieldErrors(fields);
 
       // A field error already says exactly what's wrong, right where it's
-      // wrong — a "Request validation failed" banner on top of that repeats
-      // nothing useful. Only fall back to the toast when the failure has no
-      // field to sit on (a conflict, a 500, a dead network).
+      // wrong — a toast on top of that would only repeat it. But that only
+      // holds when this form actually renders an id for the field the API
+      // named (many don't — see the `id="field-…"` audit this comment
+      // replaced), and it never holds for a failure with no field at all (a
+      // conflict, a 500, a dead network). Either way, silence would make
+      // Save look like it did nothing, so fall back to a toast with the
+      // real message.
       const [firstInvalidField] = Object.keys(fields);
-      if (firstInvalidField) scrollToField(firstInvalidField);
-      else toast(errorMessage(error, 'Could not save.'), 'error');
+      const scrolled = firstInvalidField ? scrollToField(firstInvalidField) : false;
+      if (!scrolled) {
+        toast(
+          firstInvalidField ? fields[firstInvalidField]! : errorMessage(error, 'Could not save.'),
+          'error',
+        );
+      }
     },
   });
 
@@ -264,6 +280,24 @@ export function CarFormPage() {
       return;
     }
     await api.cars.removeImage(id!, image.id);
+    await queryClient.invalidateQueries({ queryKey: ['car', id] });
+  }
+
+  /** `imageIds` is one album's full new front-to-back order. */
+  async function handleReorderImages(album: ImageAlbum, imageIds: string[]) {
+    if (creating) {
+      // Staged rows have no `position` — this array's own order stands in
+      // for it (`ImageAlbums` filters by album, so other albums' relative
+      // order here is never read). Reordering is: pull this album's staged
+      // rows out, put them back in the new order.
+      setPendingImages((current) => {
+        const byId = new Map(current.map((staged) => [staged.id, staged]));
+        const reordered = imageIds.map((imageId) => byId.get(imageId)).filter((img) => img != null);
+        return [...current.filter((staged) => staged.album !== album), ...reordered];
+      });
+      return;
+    }
+    await api.cars.reorderImages(id!, album, imageIds);
     await queryClient.invalidateQueries({ queryKey: ['car', id] });
   }
 
@@ -415,16 +449,22 @@ export function CarFormPage() {
               required
             />
             <TextField
+              id="field-trim"
               label="Trim"
               value={draft.trim ?? ''}
               onChange={(event) => set('trim', event.target.value || null)}
+              error={Boolean(fieldErrors.trim)}
+              helperText={fieldErrors.trim}
               disabled={readOnly}
             />
             <TextField
+              id="field-origin"
               label="Origin"
               value={draft.origin}
               onChange={(event) => set('origin', event.target.value as CarOrigin)}
               select
+              error={Boolean(fieldErrors.origin)}
+              helperText={fieldErrors.origin}
               disabled={readOnly}
             >
               {ORIGINS.map((entry) => (
@@ -452,10 +492,13 @@ export function CarFormPage() {
         <Section title="Specification">
           <Grid>
             <TextField
+              id="field-powertrain"
               label="Powertrain"
               value={draft.powertrain}
               onChange={(event) => set('powertrain', event.target.value as Powertrain)}
               select
+              error={Boolean(fieldErrors.powertrain)}
+              helperText={fieldErrors.powertrain}
               disabled={readOnly}
             >
               {POWERTRAINS.map((entry) => (
@@ -465,53 +508,74 @@ export function CarFormPage() {
               ))}
             </TextField>
             <TextField
+              id="field-range"
               label="Range (km)"
               type="number"
               value={draft.range ?? ''}
               onChange={(event) =>
                 set('range', event.target.value ? Number(event.target.value) : null)
               }
+              error={Boolean(fieldErrors.range)}
+              helperText={fieldErrors.range}
               disabled={readOnly}
             />
             <TextField
+              id="field-battery"
               label="Battery"
               value={draft.battery ?? ''}
               onChange={(event) => set('battery', event.target.value || null)}
               placeholder="100 kWh"
+              error={Boolean(fieldErrors.battery)}
+              helperText={fieldErrors.battery}
               disabled={readOnly}
             />
             <TextField
+              id="field-engine"
               label="Engine"
               value={draft.engine ?? ''}
               onChange={(event) => set('engine', event.target.value || null)}
+              error={Boolean(fieldErrors.engine)}
+              helperText={fieldErrors.engine}
               disabled={readOnly}
             />
             <TextField
+              id="field-drivetrain"
               label="Drivetrain"
               value={draft.drivetrain ?? ''}
               onChange={(event) => set('drivetrain', event.target.value || null)}
               placeholder="AWD"
+              error={Boolean(fieldErrors.drivetrain)}
+              helperText={fieldErrors.drivetrain}
               disabled={readOnly}
             />
             <TextField
+              id="field-transmission"
               label="Transmission"
               value={draft.transmission ?? ''}
               onChange={(event) => set('transmission', event.target.value || null)}
+              error={Boolean(fieldErrors.transmission)}
+              helperText={fieldErrors.transmission}
               disabled={readOnly}
             />
             <TextField
+              id="field-seats"
               label="Seats"
               type="number"
               value={draft.seats ?? ''}
               onChange={(event) =>
                 set('seats', event.target.value ? Number(event.target.value) : null)
               }
+              error={Boolean(fieldErrors.seats)}
+              helperText={fieldErrors.seats}
               disabled={readOnly}
             />
             <TextField
+              id="field-warranty"
               label="Warranty"
               value={draft.warranty ?? ''}
               onChange={(event) => set('warranty', event.target.value || null)}
+              error={Boolean(fieldErrors.warranty)}
+              helperText={fieldErrors.warranty}
               disabled={readOnly}
             />
           </Grid>
@@ -531,25 +595,31 @@ export function CarFormPage() {
               required
             />
             <TextField
+              id="field-oldPrice"
               label="Old price (USD)"
               type="number"
               value={draft.oldPrice ?? ''}
               onChange={(event) =>
                 set('oldPrice', event.target.value ? Number(event.target.value) : null)
               }
-              helperText="Shown struck through."
+              error={Boolean(fieldErrors.oldPrice)}
+              helperText={fieldErrors.oldPrice ?? 'Shown struck through.'}
               disabled={readOnly}
             />
             <TextField
+              id="field-estFinalPriceAM"
               label="Est. final price (AMD)"
               type="number"
               value={draft.estFinalPriceAM ?? ''}
               onChange={(event) =>
                 set('estFinalPriceAM', event.target.value ? Number(event.target.value) : null)
               }
+              error={Boolean(fieldErrors.estFinalPriceAM)}
+              helperText={fieldErrors.estFinalPriceAM}
               disabled={readOnly}
             />
             <TextField
+              id="field-promoDeadline"
               label="Promo deadline"
               type="datetime-local"
               value={toDatetimeLocal(draft.promoDeadline)}
@@ -561,7 +631,11 @@ export function CarFormPage() {
               }
               disabled={readOnly}
               slotProps={{ inputLabel: { shrink: true } }}
-              helperText="With old price above, runs this car as a countdown “Ակցիա” on /offers until this moment, then a grayscale “Ավարտված” card."
+              error={Boolean(fieldErrors.promoDeadline)}
+              helperText={
+                fieldErrors.promoDeadline ??
+                'With old price above, runs this car as a countdown “Ակցիա” on /offers until this moment, then a grayscale “Ավարտված” card.'
+              }
             />
           </Grid>
 
@@ -592,12 +666,17 @@ export function CarFormPage() {
         <Section title="Availability">
           <Grid>
             <TextField
+              id="field-condition"
               label="Condition"
               value={draft.condition}
               onChange={(event) => set('condition', event.target.value as CarCondition)}
               select
               disabled={readOnly}
-              helperText={CONDITIONS.find((entry) => entry.value === draft.condition)?.hint}
+              error={Boolean(fieldErrors.condition)}
+              helperText={
+                fieldErrors.condition ??
+                CONDITIONS.find((entry) => entry.value === draft.condition)?.hint
+              }
             >
               {CONDITIONS.map((entry) => (
                 <MenuItem key={entry.value} value={entry.value}>
@@ -606,6 +685,7 @@ export function CarFormPage() {
               ))}
             </TextField>
             <TextField
+              id="field-statusBadge"
               label="Shipping badge"
               value={draft.statusBadge ?? ''}
               onChange={(event) =>
@@ -613,6 +693,8 @@ export function CarFormPage() {
               }
               select
               disabled={readOnly}
+              error={Boolean(fieldErrors.statusBadge)}
+              helperText={fieldErrors.statusBadge}
             >
               <MenuItem value="">None</MenuItem>
               {STATUS_BADGES.map((entry) => (
@@ -622,42 +704,58 @@ export function CarFormPage() {
               ))}
             </TextField>
             <TextField
+              id="field-deliveryEtaDays"
               label="Delivery ETA (days)"
               type="number"
               value={draft.deliveryEtaDays ?? ''}
               onChange={(event) =>
                 set('deliveryEtaDays', event.target.value ? Number(event.target.value) : null)
               }
+              error={Boolean(fieldErrors.deliveryEtaDays)}
+              helperText={fieldErrors.deliveryEtaDays}
               disabled={readOnly}
             />
             <TextField
+              id="field-location"
               label="Location"
               value={draft.location ?? ''}
               onChange={(event) => set('location', event.target.value || null)}
+              error={Boolean(fieldErrors.location)}
+              helperText={fieldErrors.location}
               disabled={readOnly}
             />
             <TextField
+              id="field-vin"
               label="VIN"
               value={draft.vin ?? ''}
               onChange={(event) => set('vin', event.target.value || null)}
+              error={Boolean(fieldErrors.vin)}
+              helperText={fieldErrors.vin}
               disabled={readOnly}
             />
             <TextField
+              id="field-lotNumber"
               label="Lot number"
               value={draft.lotNumber ?? ''}
               onChange={(event) => set('lotNumber', event.target.value || null)}
+              error={Boolean(fieldErrors.lotNumber)}
+              helperText={fieldErrors.lotNumber}
               disabled={readOnly}
             />
             <TextField
+              id="field-mileage"
               label="Mileage (km)"
               type="number"
               value={draft.mileage ?? ''}
               onChange={(event) =>
                 set('mileage', event.target.value ? Number(event.target.value) : null)
               }
+              error={Boolean(fieldErrors.mileage)}
+              helperText={fieldErrors.mileage}
               disabled={readOnly}
             />
             <TextField
+              id="field-auctionPlatform"
               label="Auction platform"
               value={draft.auctionPlatform ?? ''}
               onChange={(event) =>
@@ -665,7 +763,11 @@ export function CarFormPage() {
               }
               select
               disabled={readOnly}
-              helperText="Drives the USA best-auctions filter tabs on the public site."
+              error={Boolean(fieldErrors.auctionPlatform)}
+              helperText={
+                fieldErrors.auctionPlatform ??
+                'Drives the USA best-auctions filter tabs on the public site.'
+              }
             >
               <MenuItem value="">None</MenuItem>
               {AUCTION_PLATFORMS.map((entry) => (
@@ -675,20 +777,29 @@ export function CarFormPage() {
               ))}
             </TextField>
             <TextField
+              id="field-auctionViewUrl"
               label="Auction view URL"
               value={draft.auctionViewUrl ?? ''}
               onChange={(event) => set('auctionViewUrl', event.target.value || null)}
               disabled={readOnly}
-              helperText="Guest-login link for “Տեսնել մեքենան օնլայն” on the auction detail page."
+              error={Boolean(fieldErrors.auctionViewUrl)}
+              helperText={
+                fieldErrors.auctionViewUrl ??
+                'Guest-login link for “Տեսնել մեքենան օնլայն” on the auction detail page.'
+              }
             />
             {canReadPartners && (
               <TextField
+                id="field-partnerId"
                 label="Assigned partner"
                 value={draft.partnerId ?? ''}
                 onChange={(event) => set('partnerId', event.target.value || null)}
                 select
                 disabled={readOnly}
-                helperText="The partner who sees this car in their portal."
+                error={Boolean(fieldErrors.partnerId)}
+                helperText={
+                  fieldErrors.partnerId ?? 'The partner who sees this car in their portal.'
+                }
               >
                 <MenuItem value="">Nobody</MenuItem>
                 {partners.map((partner) => (
@@ -702,12 +813,15 @@ export function CarFormPage() {
           </Grid>
 
           <TextField
+            id="field-damageHistory"
             label="Damage history"
             value={draft.damageHistory ?? ''}
             onChange={(event) => set('damageHistory', event.target.value || null)}
             multiline
             minRows={2}
             fullWidth
+            error={Boolean(fieldErrors.damageHistory)}
+            helperText={fieldErrors.damageHistory}
             disabled={readOnly}
             sx={{ mt: 2 }}
           />
@@ -795,6 +909,7 @@ export function CarFormPage() {
             readOnly={readOnly}
             onAdd={handleAddImage}
             onRemove={handleRemoveImage}
+            onReorder={handleReorderImages}
           />
         </Section>
       </Stack>

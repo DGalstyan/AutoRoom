@@ -263,6 +263,12 @@ export function createApiClient(options: ApiClientOptions) {
       ) => request<CarImage>('POST', `/cars/${id}/images`, { ...init, body: image }),
       removeImage: (id: string, imageId: string, init?: RequestOptions) =>
         request<void>('DELETE', `/cars/${id}/images/${imageId}`, init),
+      /** `imageIds` is the album's full new front-to-back order. */
+      reorderImages: (id: string, album: ImageAlbum, imageIds: string[], init?: RequestOptions) =>
+        request<CarImage[]>('PATCH', `/cars/${id}/images/reorder`, {
+          ...init,
+          body: { album, imageIds },
+        }),
 
       /** Unauthenticated, published rows only — what the website reads. */
       publicList: (query: CarListQuery = {}, init?: RequestOptions) =>
@@ -396,6 +402,9 @@ export function createApiClient(options: ApiClientOptions) {
         request<GalleryImage>('PUT', `/gallery/${id}`, { ...init, body }),
       remove: (id: string, init?: RequestOptions) =>
         request<void>('DELETE', `/gallery/${id}`, init),
+      /** `imageIds` is the collage's full new front-to-back order. */
+      reorder: (imageIds: string[], init?: RequestOptions) =>
+        request<GalleryImage[]>('PATCH', '/gallery/reorder', { ...init, body: { imageIds } }),
       /** Unauthenticated — the About page's photo collage reads this. */
       public: (init?: RequestOptions) =>
         request<{ items: GalleryImage[]; total: number }>('GET', '/public/gallery', init),
