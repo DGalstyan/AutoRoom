@@ -34,9 +34,7 @@ describe('image reordering', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.map((image: { id: string }) => image.id)).toEqual([c.id, a.id, b.id]);
-      expect(response.body.map((image: { position: number }) => image.position)).toEqual([
-        0, 1, 2,
-      ]);
+      expect(response.body.map((image: { position: number }) => image.position)).toEqual([0, 1, 2]);
     });
 
     it('never touches another album sharing the same car', async () => {
