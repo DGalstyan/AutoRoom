@@ -83,6 +83,11 @@ function AlbumRow({
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  // Which thumbnail a mouse-drag reorder is currently carrying, and which
+  // one it's hovering over — separate from `dragging` above, which is only
+  // ever about a file drop from outside the browser.
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const uploadMutation = useMutation({
     mutationFn: async (files: File[]) => {
@@ -101,21 +106,35 @@ function AlbumRow({
     onError: (error) => toast(errorMessage(error), 'error'),
   });
 
-  // Swaps the image at `index` with its neighbour in `direction`, then
-  // persists the whole album's new id order in one call — simpler than a
-  // `{ id, position }` patch and matches what the reorder endpoint expects.
+  // Persists a full new front-to-back order in one call — both the swap
+  // buttons and mouse-drag reordering below build the whole next array and
+  // hand it here, rather than each computing and sending its own patch.
   const reorderMutation = useMutation({
-    mutationFn: ({ index, direction }: { index: number; direction: -1 | 1 }) => {
-      const next = images.slice();
-      const target = index + direction;
-      [next[index], next[target]] = [next[target]!, next[index]!];
-      return onReorder(
+    mutationFn: (next: (CarImage | StagedImage)[]) =>
+      onReorder(
         album,
         next.map((image) => image.id),
-      );
-    },
+      ),
     onError: (error) => toast(errorMessage(error, 'Could not reorder.'), 'error'),
   });
+
+  function swap(index: number, direction: -1 | 1) {
+    const next = images.slice();
+    const target = index + direction;
+    [next[index], next[target]] = [next[target]!, next[index]!];
+    reorderMutation.mutate(next);
+  }
+
+  function moveByDrag(targetId: string) {
+    const fromIndex = images.findIndex((image) => image.id === draggedId);
+    const toIndex = images.findIndex((image) => image.id === targetId);
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+
+    const next = images.slice();
+    const [moved] = next.splice(fromIndex, 1);
+    next.splice(toIndex, 0, moved!);
+    reorderMutation.mutate(next);
+  }
 
   function accept(list: FileList | null) {
     const files = Array.from(list ?? []);
@@ -161,99 +180,140 @@ function AlbumRow({
               mb: readOnly ? 0 : 1.5,
             }}
           >
-            {images.map((image, index) => (
-              <Box
-                key={image.id}
-                sx={{
-                  position: 'relative',
-                  aspectRatio: '4 / 3',
-                  borderRadius: 1.5,
-                  overflow: 'hidden',
-                  bgcolor: brand.surfaceLight,
-                  border: `1px solid ${brand.lineLight}`,
-                }}
-              >
-                {isVideo ? (
-                  <Box
-                    component="video"
-                    src={image.url}
-                    muted
-                    playsInline
-                    preload="metadata"
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <Box
-                    component="img"
-                    src={image.url}
-                    alt=""
-                    loading="lazy"
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                )}
+            {images.map((image, index) => {
+              const draggable = !readOnly && images.length > 1;
+              return (
+                <Box
+                  key={image.id}
+                  draggable={draggable}
+                  onDragStart={(event) => {
+                    setDraggedId(image.id);
+                    // Firefox drops a drag that never had data set on it.
+                    event.dataTransfer.effectAllowed = 'move';
+                    event.dataTransfer.setData('text/plain', image.id);
+                  }}
+                  onDragEnter={(event) => {
+                    if (!draggedId) return;
+                    event.preventDefault();
+                    setDragOverId(image.id);
+                  }}
+                  onDragOver={(event) => {
+                    // Only reachable while an internal thumbnail-drag is live
+                    // (`draggedId` set in `onDragStart` above) — an OS file
+                    // drag never sets it, so this never fights the album
+                    // drop-zone's own `onDragOver` below for the same event.
+                    if (!draggedId) return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }}
+                  onDrop={(event) => {
+                    if (!draggedId) return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    moveByDrag(image.id);
+                    setDraggedId(null);
+                    setDragOverId(null);
+                  }}
+                  onDragEnd={() => {
+                    setDraggedId(null);
+                    setDragOverId(null);
+                  }}
+                  sx={{
+                    position: 'relative',
+                    aspectRatio: '4 / 3',
+                    borderRadius: 1.5,
+                    overflow: 'hidden',
+                    bgcolor: brand.surfaceLight,
+                    border: `1px solid ${dragOverId === image.id ? brand.accent : brand.lineLight}`,
+                    opacity: draggedId === image.id ? 0.4 : 1,
+                    cursor: draggable ? 'grab' : undefined,
+                    transition: 'border-color 120ms, opacity 120ms',
+                  }}
+                >
+                  {isVideo ? (
+                    <Box
+                      component="video"
+                      src={image.url}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      draggable={false}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <Box
+                      component="img"
+                      src={image.url}
+                      alt=""
+                      loading="lazy"
+                      draggable={false}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  )}
 
-                {!readOnly && (
-                  <IconButton
-                    size="small"
-                    aria-label="Remove"
-                    disabled={removeMutation.isPending}
-                    onClick={() => removeMutation.mutate(image)}
-                    sx={{
-                      position: 'absolute',
-                      top: 4,
-                      right: 4,
-                      bgcolor: '#000000A6',
-                      color: '#FFFFFF',
-                      '&:hover': { bgcolor: '#000000CC' },
-                    }}
-                  >
-                    <CloseIcon sx={{ fontSize: 15 }} />
-                  </IconButton>
-                )}
-
-                {!readOnly && images.length > 1 && (
-                  <Stack
-                    direction="row"
-                    sx={{
-                      position: 'absolute',
-                      bottom: 4,
-                      left: 4,
-                      right: 4,
-                      justifyContent: 'space-between',
-                    }}
-                  >
+                  {!readOnly && (
                     <IconButton
                       size="small"
-                      aria-label="Move earlier"
-                      disabled={index === 0 || reorderMutation.isPending}
-                      onClick={() => reorderMutation.mutate({ index, direction: -1 })}
+                      aria-label="Remove"
+                      disabled={removeMutation.isPending}
+                      onClick={() => removeMutation.mutate(image)}
                       sx={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
                         bgcolor: '#000000A6',
                         color: '#FFFFFF',
                         '&:hover': { bgcolor: '#000000CC' },
-                        '&.Mui-disabled': { bgcolor: '#00000052', color: '#FFFFFF80' },
                       }}
                     >
-                      <ChevronLeftIcon sx={{ fontSize: 17 }} />
+                      <CloseIcon sx={{ fontSize: 15 }} />
                     </IconButton>
-                    <IconButton
-                      size="small"
-                      aria-label="Move later"
-                      disabled={index === images.length - 1 || reorderMutation.isPending}
-                      onClick={() => reorderMutation.mutate({ index, direction: 1 })}
+                  )}
+
+                  {!readOnly && images.length > 1 && (
+                    <Stack
+                      direction="row"
                       sx={{
-                        bgcolor: '#000000A6',
-                        color: '#FFFFFF',
-                        '&:hover': { bgcolor: '#000000CC' },
-                        '&.Mui-disabled': { bgcolor: '#00000052', color: '#FFFFFF80' },
+                        position: 'absolute',
+                        bottom: 4,
+                        left: 4,
+                        right: 4,
+                        justifyContent: 'space-between',
                       }}
                     >
-                      <ChevronRightIcon sx={{ fontSize: 17 }} />
-                    </IconButton>
-                  </Stack>
-                )}
-              </Box>
-            ))}
+                      <IconButton
+                        size="small"
+                        aria-label="Move earlier"
+                        disabled={index === 0 || reorderMutation.isPending}
+                        onClick={() => swap(index, -1)}
+                        sx={{
+                          bgcolor: '#000000A6',
+                          color: '#FFFFFF',
+                          '&:hover': { bgcolor: '#000000CC' },
+                          '&.Mui-disabled': { bgcolor: '#00000052', color: '#FFFFFF80' },
+                        }}
+                      >
+                        <ChevronLeftIcon sx={{ fontSize: 17 }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        aria-label="Move later"
+                        disabled={index === images.length - 1 || reorderMutation.isPending}
+                        onClick={() => swap(index, 1)}
+                        sx={{
+                          bgcolor: '#000000A6',
+                          color: '#FFFFFF',
+                          '&:hover': { bgcolor: '#000000CC' },
+                          '&.Mui-disabled': { bgcolor: '#00000052', color: '#FFFFFF80' },
+                        }}
+                      >
+                        <ChevronRightIcon sx={{ fontSize: 17 }} />
+                      </IconButton>
+                    </Stack>
+                  )}
+                </Box>
+              );
+            })}
           </Box>
         )}
 
@@ -275,6 +335,7 @@ function AlbumRow({
             </Button>
             <Typography sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
               or drop them here · max 25 MB each
+              {images.length > 1 ? ' · drag a photo to reorder' : ''}
             </Typography>
             <input
               ref={inputRef}
