@@ -62,6 +62,19 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * clean vector equivalent in the exported code. All three hands compute
  * their rotation from `now` in the card's own `timeZone`, live — Figma's
  * mock is a single frozen pose, not proof this ever needs to be static.
+ *
+ * Re-checked again via `get_design_context` on `Frame 39499` (369:1084)
+ * directly: the font tokens above (16/24 body for the label, 44/58 Sora
+ * light for the time, 24/36 Sora regular for the date) and the flat 64px
+ * padding were already correct, but the card itself was still capped at
+ * `max-w-[320px]` against Figma's actual fixed `width: 368px` (⇒ a 240px
+ * inner content column once the 64px padding is subtracted on both sides —
+ * exactly the `width="240"` on the label/date text nodes in Figma), and the
+ * row gap was `gap-8` (32px) against Figma's real 48px (three 368px cards +
+ * two 48px gaps = the row frame's own 1200px width). The narrower card is
+ * what made the Armenian date line — always longer than Figma's English
+ * placeholder — wrap harder than it should and read as a font/size
+ * mismatch even though the type tokens themselves were untouched.
  */
 
 interface StateOption {
@@ -297,7 +310,7 @@ export function UsaStateClocks() {
   return (
     <div className="flex flex-col items-center gap-16">
       <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
-      <div className="flex flex-wrap items-stretch justify-center gap-8">
+      <div className="flex flex-wrap items-stretch justify-center gap-12">
         <ClockCard label={t.cities.yerevan} timeZone="Asia/Yerevan" now={now} locale={locale} />
 
         <ClockCard
@@ -413,7 +426,7 @@ function ClockCard({
   diffCaption?: string;
 }) {
   return (
-    <div className="flex w-full max-w-[320px] flex-col items-center gap-6 rounded-[48px] bg-white p-8 text-center shadow-card sm:p-12 lg:p-16">
+    <div className="flex w-full max-w-[368px] flex-col items-center gap-6 rounded-[48px] bg-white p-8 text-center shadow-card sm:p-12 lg:p-16">
       {selector ?? <p className="text-[16px] leading-6 text-ink">{label}</p>}
       <AnalogClock now={now} timeZone={timeZone} />
       <div className="flex flex-col gap-1">
