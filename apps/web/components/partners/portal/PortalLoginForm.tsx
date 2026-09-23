@@ -1,12 +1,12 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { errorMessage } from '@/lib/portal/api';
 import { usePortalAuth } from '@/components/partners/portal/PortalAuthProvider';
+import { useBookingPopup } from '@/components/partners/PartnersBookingProvider';
 
 /** Same field/label styling as the Contact page's static form (`ContactForm.tsx`) — the one other non-popup form on the site. */
 const FIELD_CLASSES =
@@ -26,6 +26,7 @@ export function PortalLoginForm() {
   const t = useMessages().partners.portal.login;
   const { status, signIn } = usePortalAuth();
   const router = useRouter();
+  const { open: openBookingPopup } = useBookingPopup();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -154,9 +155,13 @@ export function PortalLoginForm() {
 
         <p className="mt-6 text-center text-small text-neutral-700">
           {t.notPartner}{' '}
-          <Link href="/partners" className="font-medium text-ink underline underline-offset-2">
+          <button
+            type="button"
+            onClick={() => openBookingPopup('partners-portal-login')}
+            className="font-medium text-ink underline underline-offset-2"
+          >
             {t.becomePartner}
-          </Link>
+          </button>
         </p>
       </form>
     </div>
