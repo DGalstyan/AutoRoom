@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@autoroom/api/client": ["../api/src/client/index.ts"]
     }
   },
   "include": [

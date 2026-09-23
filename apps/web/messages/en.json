@@ -965,7 +965,15 @@
       },
       "noTimes": "No available times on this day",
       "calendar": {
-        "weekdaysShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        "weekdaysShort": [
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri",
+          "Sat",
+          "Sun"
+        ],
         "weekdaysLong": [
           "Sunday",
           "Monday",
@@ -1004,6 +1012,81 @@
           "December"
         ]
       }
+    },
+    "portal": {
+      "meta": {
+        "title": "Partner portal — AutoRoom",
+        "description": "Sign in to the AutoRoom partner portal to manage your cars and bookings."
+      },
+      "login": {
+        "heading": "Partner sign-in",
+        "text": "Sign in to manage the cars and bookings assigned to you.",
+        "emailLabel": "Email",
+        "emailPlaceholder": "example@email.com",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "••••••••",
+        "submit": "Sign in",
+        "submitting": "Signing in…",
+        "errors": {
+          "emailRequired": "Please enter your email",
+          "passwordRequired": "Please enter your password"
+        },
+        "notPartner": "Not a partner yet?",
+        "becomePartner": "Become a partner"
+      },
+      "changePassword": {
+        "heading": "Set a new password",
+        "text": "This is a temporary password. Set a new one to continue into the portal.",
+        "currentLabel": "Temporary password",
+        "newLabel": "New password",
+        "submit": "Save and continue",
+        "submitting": "Saving…"
+      },
+      "dashboard": {
+        "greetingMorning": "Good morning",
+        "greetingAfternoon": "Good afternoon",
+        "greetingEvening": "Good evening",
+        "subheading": "the cars assigned to you and your upcoming bookings, in one place.",
+        "stats": {
+          "cars": "Cars assigned",
+          "publishedCars": "Live on the site",
+          "upcomingBookings": "Upcoming bookings",
+          "bookings": "Bookings total"
+        },
+        "carsHeading": "My cars",
+        "bookingsHeading": "Bookings",
+        "noCars": "No cars are assigned to you yet.",
+        "noBookings": "No bookings yet.",
+        "live": "Live",
+        "draft": "Draft",
+        "vin": "VIN",
+        "table": {
+          "when": "When",
+          "customer": "Customer",
+          "car": "Car",
+          "status": "Status"
+        },
+        "bookingStatus": {
+          "REQUESTED": "Requested",
+          "CONFIRMED": "Confirmed",
+          "COMPLETED": "Completed",
+          "CANCELLED": "Cancelled"
+        },
+        "logout": "Sign out",
+        "condition": {
+          "IN_STOCK": "In stock",
+          "ON_ORDER": "On order",
+          "ON_ROAD": "On the road",
+          "AUCTION": "At auction"
+        }
+      },
+      "errors": {
+        "loadFailed": "Could not load your data."
+      }
+    },
+    "portalCta": {
+      "heading": "Manage your orders from one place",
+      "cta": "Sign in"
     }
   }
 }

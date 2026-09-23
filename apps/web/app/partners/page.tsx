@@ -3,6 +3,7 @@ import { PartnersBookingProvider } from '@/components/partners/PartnersBookingPr
 import { PartnersHero } from '@/components/partners/PartnersHero';
 import { PartnersWhy } from '@/components/partners/PartnersWhy';
 import { PartnersWhoCanJoin } from '@/components/partners/PartnersWhoCanJoin';
+import { PartnersPortalCta } from '@/components/partners/PartnersPortalCta';
 import { Footer } from '@/components/shared/Footer';
 import { getBranches } from '@/lib/branches';
 import { getBrandingLogos } from '@/lib/branding';
@@ -17,9 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * `/partners` — "Become a dealer" (`references/pages.md` §5, Figma node
  * 291:53, file 9Lq4XpWusTJj1VnM6laAZr). §S4 "Portal login" isn't in the
- * current Figma mockup at all and is out of scope here — it belongs with
- * the larger `/partners/portal` authed-dashboard buildout tracked
- * separately.
+ * Figma mockup at all — added anyway, matching the spec line, now that the
+ * `/partners/portal` authed dashboard it links to exists.
  */
 export default async function PartnersPage() {
   const [branches, logo, contacts] = await Promise.all([
@@ -36,6 +36,7 @@ export default async function PartnersPage() {
       <PartnersHero />
       <PartnersWhy />
       <PartnersWhoCanJoin />
+      <PartnersPortalCta />
     </PartnersBookingProvider>
   );
 }

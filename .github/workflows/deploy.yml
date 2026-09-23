@@ -23,6 +23,11 @@ env:
   # Baked into the admin build — see apps/admin/Dockerfile.
   VITE_API_URL: https://admin.autoroom.am/api
   VITE_WEB_URL: https://autoroom.am
+  # Baked into the web build — see apps/web/Dockerfile. The partner portal's
+  # browser-side login/session calls hit this directly; autoroom.am has no
+  # /api of its own (only admin.autoroom.am proxies to the API container), so
+  # this is the same public API origin the admin build uses above.
+  NEXT_PUBLIC_API_URL: https://admin.autoroom.am/api
 
 jobs:
   build-api:
@@ -97,6 +102,8 @@ jobs:
           context: .
           file: apps/web/Dockerfile
           push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ env.NEXT_PUBLIC_API_URL }}
           tags: |
             ${{ env.WEB_IMAGE }}:latest
             ${{ env.WEB_IMAGE }}:${{ github.sha }}

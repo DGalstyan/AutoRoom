@@ -965,7 +965,15 @@
       },
       "noTimes": "На этот день нет свободного времени",
       "calendar": {
-        "weekdaysShort": ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+        "weekdaysShort": [
+          "Пн",
+          "Вт",
+          "Ср",
+          "Чт",
+          "Пт",
+          "Сб",
+          "Вс"
+        ],
         "weekdaysLong": [
           "Воскресенье",
           "Понедельник",
@@ -1004,6 +1012,81 @@
           "Декабрь"
         ]
       }
+    },
+    "portal": {
+      "meta": {
+        "title": "Портал партнёров — AutoRoom",
+        "description": "Войдите в портал партнёров AutoRoom, чтобы управлять своими автомобилями и записями."
+      },
+      "login": {
+        "heading": "Вход для партнёров",
+        "text": "Войдите, чтобы управлять закреплёнными за вами автомобилями и записями.",
+        "emailLabel": "Эл. почта",
+        "emailPlaceholder": "example@email.com",
+        "passwordLabel": "Пароль",
+        "passwordPlaceholder": "••••••••",
+        "submit": "Войти",
+        "submitting": "Вход…",
+        "errors": {
+          "emailRequired": "Укажите эл. почту",
+          "passwordRequired": "Укажите пароль"
+        },
+        "notPartner": "Ещё не партнёр?",
+        "becomePartner": "Стать партнёром"
+      },
+      "changePassword": {
+        "heading": "Задайте новый пароль",
+        "text": "Это временный пароль. Чтобы продолжить, задайте новый пароль.",
+        "currentLabel": "Временный пароль",
+        "newLabel": "Новый пароль",
+        "submit": "Сохранить и продолжить",
+        "submitting": "Сохранение…"
+      },
+      "dashboard": {
+        "greetingMorning": "Доброе утро",
+        "greetingAfternoon": "Добрый день",
+        "greetingEvening": "Добрый вечер",
+        "subheading": "закреплённые за вами автомобили и ближайшие записи — в одном месте.",
+        "stats": {
+          "cars": "Закреплено автомобилей",
+          "publishedCars": "Опубликовано на сайте",
+          "upcomingBookings": "Ближайшие записи",
+          "bookings": "Всего записей"
+        },
+        "carsHeading": "Мои автомобили",
+        "bookingsHeading": "Записи",
+        "noCars": "За вами пока не закреплено ни одного автомобиля.",
+        "noBookings": "Записей пока нет.",
+        "live": "На сайте",
+        "draft": "Черновик",
+        "vin": "VIN",
+        "table": {
+          "when": "Когда",
+          "customer": "Клиент",
+          "car": "Автомобиль",
+          "status": "Статус"
+        },
+        "bookingStatus": {
+          "REQUESTED": "Запрошено",
+          "CONFIRMED": "Подтверждено",
+          "COMPLETED": "Завершено",
+          "CANCELLED": "Отменено"
+        },
+        "logout": "Выйти",
+        "condition": {
+          "IN_STOCK": "В наличии",
+          "ON_ORDER": "Под заказ",
+          "ON_ROAD": "В пути",
+          "AUCTION": "На аукционе"
+        }
+      },
+      "errors": {
+        "loadFailed": "Не удалось загрузить данные."
+      }
+    },
+    "portalCta": {
+      "heading": "Управляйте заказами в одном месте",
+      "cta": "Войти"
     }
   }
 }
