@@ -965,15 +965,7 @@
       },
       "noTimes": "No available times on this day",
       "calendar": {
-        "weekdaysShort": [
-          "Mon",
-          "Tue",
-          "Wed",
-          "Thu",
-          "Fri",
-          "Sat",
-          "Sun"
-        ],
+        "weekdaysShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         "weekdaysLong": [
           "Sunday",
           "Monday",
