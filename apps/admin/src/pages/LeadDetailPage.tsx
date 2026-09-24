@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { LeadStatus } from '@autoroom/api/client';
+import type { Lead, LeadStatus } from '@autoroom/api/client';
 import {
   Alert,
   Box,
   Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
   MenuItem,
   Paper,
   Stack,
@@ -14,6 +20,7 @@ import {
   Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';
+import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
@@ -21,6 +28,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { StatusBadge } from '@/components/StatusBadge';
 import { MEETING_FORMAT_LABEL, STATUSES, statusTone } from '@/pages/leads/status';
 import { formatDateTime } from '@/pages/availability/time';
+import { mono } from '@/theme';
 
 /**
  * The full record behind one `LeadsPage` row, reached by clicking it. Its own
@@ -38,10 +46,15 @@ export function LeadDetailPage() {
 
   const [notes, setNotes] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [converting, setConverting] = useState(false);
 
   const canUpdate = identity?.permissions.includes('leads:UPDATE') ?? false;
   const canDelete = identity?.permissions.includes('leads:DELETE') ?? false;
   const canReadBranches = identity?.permissions.includes('branches:READ') ?? false;
+  const canConvertToPartner =
+    canUpdate &&
+    (identity?.permissions.includes('partners:CREATE') ?? false) &&
+    (identity?.permissions.includes('users:CREATE') ?? false);
 
   const leadQuery = useQuery({
     queryKey: ['lead', id],
@@ -150,6 +163,11 @@ export function LeadDetailPage() {
   ];
   const filledAboutFields = aboutFields.filter(([, value]) => Boolean(value));
 
+  // Only the "Become a dealer" meeting-booking form fills any of these three —
+  // every other lead-capture widget leaves them null. That is the same test
+  // `serializeLead`'s own fields imply, just named for what it gates here.
+  const isDealerLead = Boolean(lead.company || lead.activityType || lead.meetingFormat);
+
   return (
     <Box sx={{ maxWidth: 820 }}>
       <Button
@@ -234,6 +252,32 @@ export function LeadDetailPage() {
           </Paper>
         )}
 
+        {isDealerLead && (canConvertToPartner || lead.convertedPartnerId) && (
+          <Paper variant="outlined" sx={{ borderRadius: 3, p: 3 }}>
+            <Typography sx={{ fontWeight: 600, mb: 2 }}>Partner</Typography>
+            {lead.convertedPartnerId ? (
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                <StatusBadge label="Converted" tone="live" />
+                <Button component={RouterLink} to="/partners" size="small">
+                  View in Partners
+                </Button>
+              </Stack>
+            ) : (
+              <Stack spacing={1.5}>
+                <Typography sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
+                  Creates a Partner record from this lead's name, company and phone, plus a portal
+                  login with the Partner role.
+                </Typography>
+                <Box>
+                  <Button variant="contained" size="small" onClick={() => setConverting(true)}>
+                    Convert to partner
+                  </Button>
+                </Box>
+              </Stack>
+            )}
+          </Paper>
+        )}
+
         <Paper variant="outlined" sx={{ borderRadius: 3, p: 3 }}>
           <Typography sx={{ fontWeight: 600, mb: 2 }}>Status &amp; notes</Typography>
           <Stack spacing={2}>
@@ -297,7 +341,133 @@ export function LeadDetailPage() {
         onConfirm={() => deleteMutation.mutate()}
         onClose={() => setDeleting(false)}
       />
+
+      {converting && (
+        <ConvertToPartnerDialog
+          lead={lead}
+          onClose={() => setConverting(false)}
+          onDone={(message) => {
+            setConverting(false);
+            toast(message);
+            refresh();
+          }}
+        />
+      )}
     </Box>
+  );
+}
+
+/**
+ * Mirrors `PartnersPage`'s `AccountDialog` almost exactly — same
+ * reveal-once temporary password, same "email is the only thing you type"
+ * shape — since this creates exactly that kind of account, just pre-filled
+ * from a lead instead of an existing partner record.
+ */
+function ConvertToPartnerDialog({
+  lead,
+  onClose,
+  onDone,
+}: {
+  lead: Lead;
+  onClose: () => void;
+  onDone: (message: string) => void;
+}) {
+  const { api } = useAuth();
+  const toast = useToast();
+  const [email, setEmail] = useState(lead.email ?? '');
+  const [error, setError] = useState<string | null>(null);
+  /** Set once creation succeeds — switches the dialog to the reveal-once view. */
+  const [issued, setIssued] = useState<string | null>(null);
+  const doneMessage = `${lead.name} was added as a partner.`;
+
+  const mutation = useMutation({
+    mutationFn: () => api.leads.convertToPartner(lead.id, { email, name: lead.name }),
+    onSuccess: (created) => setIssued(created.temporaryPassword),
+    onError: (caught) => setError(errorMessage(caught)),
+  });
+
+  function copyPassword() {
+    if (!issued) return;
+    void navigator.clipboard.writeText(issued).then(() => toast('Copied.'));
+  }
+
+  return (
+    <Dialog
+      open
+      onClose={mutation.isPending ? undefined : issued ? () => onDone(doneMessage) : onClose}
+      maxWidth="xs"
+      fullWidth
+    >
+      {issued ? (
+        <>
+          <DialogTitle>Partner created</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
+              Send this password to {lead.name} outside the panel — it is shown only this once.
+              They will be asked to set their own the moment they sign in.
+            </DialogContentText>
+            <TextField
+              label="Temporary password"
+              value={issued}
+              fullWidth
+              slotProps={{
+                input: {
+                  readOnly: true,
+                  sx: { fontFamily: mono },
+                  endAdornment: (
+                    <IconButton onClick={copyPassword} edge="end" size="small" aria-label="Copy">
+                      <ContentCopyOutlined fontSize="small" />
+                    </IconButton>
+                  ),
+                },
+              }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button variant="contained" onClick={() => onDone(doneMessage)}>
+              Done
+            </Button>
+          </DialogActions>
+        </>
+      ) : (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            setError(null);
+            mutation.mutate();
+          }}
+        >
+          <DialogTitle>Convert to partner</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
+              Creates a Partner named &ldquo;{lead.name}&rdquo;
+              {lead.company ? ` (${lead.company})` : ''} with a portal login. A temporary
+              password is generated for you to pass on — no email is sent.
+            </DialogContentText>
+            <Stack spacing={2.5}>
+              {error && <Alert severity="error">{error}</Alert>}
+              <TextField
+                label="Login email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                autoFocus
+                fullWidth
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button onClick={onClose} disabled={mutation.isPending} color="inherit">
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" disabled={!email || mutation.isPending}>
+              {mutation.isPending ? 'Creating…' : 'Create partner'}
+            </Button>
+          </DialogActions>
+        </form>
+      )}
+    </Dialog>
   );
 }
 

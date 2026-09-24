@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { LeadStatus, MeetingFormat, Prisma } from '@prisma/client';
+import { LeadStatus, MeetingFormat, Prisma, UserStatus } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict, notFound } from '../lib/errors';
@@ -7,6 +7,8 @@ import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
 import { validateBody, validateQuery } from '../middleware/validate';
 import { countHolders, SLOT_TAKEN_MESSAGE } from '../services/availability';
+import { generateTemporaryPassword, hashPassword } from '../lib/password';
+import { serializePartner } from './partners';
 
 /**
  * Leads — every submission from the public site's lead-capture entry points
@@ -113,6 +115,14 @@ const updateLeadBodySchema = z.object({
   notes: optionalText(4000),
 });
 
+/** Same shape as `partners.ts`'s `accountSchema` — this endpoint creates
+ * exactly the account that one does, just pre-filled from a lead instead of
+ * an existing partner. */
+const convertToPartnerBodySchema = z.object({
+  email: z.string().email().max(254).toLowerCase().trim(),
+  name: z.string().trim().min(1).max(120).optional(),
+});
+
 /** Public — any site visitor's browser reaches this indirectly via the
  * web app's Server Action, never directly. */
 leadsRouter.post('/leads', validateBody(createLeadBodySchema), async (req, res) => {
@@ -195,6 +205,94 @@ leadsRouter.patch(
 
     await audit(req.auth?.userId, 'leads.update', id, { status: lead.status });
     res.json(serializeLead(lead));
+  },
+);
+
+/**
+ * Converts a "Become a dealer" lead into a real `Partner` + portal login,
+ * in one step — the manager action the `Lead.meetingFormat` doc comment
+ * points at as what actually claims capacity, versus the lead itself, which
+ * only expresses interest.
+ *
+ * Pre-fills the partner record from the lead (name/company/phone) and only
+ * asks for the login email, since a lead may have no email on it yet or one
+ * staff wants to correct before it becomes the partner's actual login. The
+ * password is generated here, not taken from the request — same reasoning
+ * as `POST /partners/:id/account`: it only needs to survive one login,
+ * `mustChangePassword` forces a real one before it can be relied on again,
+ * and a staff-typed password on someone else's behalf is worse than a
+ * random one. Returned once, in this response.
+ *
+ * Needs `leads:UPDATE` (the lead is marked converted and closed),
+ * `partners:CREATE`, and `users:CREATE` — the same three-way split
+ * `POST /partners/:id/account` already draws between "editing this lead",
+ * "creating a partner record", and "creating an account", rather than one
+ * permission standing in for all three.
+ */
+leadsRouter.post(
+  '/leads/:id/convert-to-partner',
+  requireAuth,
+  requirePermission('leads', 'UPDATE'),
+  requirePermission('partners', 'CREATE'),
+  requirePermission('users', 'CREATE'),
+  validateBody(convertToPartnerBodySchema),
+  async (req, res) => {
+    const id = String(req.params.id ?? '');
+    const body = req.body as z.infer<typeof convertToPartnerBodySchema>;
+
+    const lead = await prisma.lead.findUnique({ where: { id } });
+    if (!lead) throw notFound('Lead not found');
+    if (lead.convertedPartnerId) {
+      throw badRequest('This lead has already been converted to a partner');
+    }
+    if (await prisma.user.findUnique({ where: { email: body.email } })) {
+      throw conflict('An account with this email already exists');
+    }
+
+    const role = await prisma.role.findUnique({ where: { key: 'partner' } });
+    if (!role) throw badRequest('The partner role is missing. Run the seed.');
+
+    const temporaryPassword = generateTemporaryPassword();
+    const passwordHash = await hashPassword(temporaryPassword);
+    const partnerName = body.name ?? lead.name;
+
+    const partner = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: body.email,
+          name: partnerName,
+          passwordHash,
+          status: UserStatus.ACTIVE,
+          roleId: role.id,
+          mustChangePassword: true,
+        },
+      });
+
+      const created = await tx.partner.create({
+        data: {
+          name: partnerName,
+          company: lead.company,
+          phone: lead.phone,
+          email: body.email,
+          active: true,
+          userId: user.id,
+        },
+        include: {
+          user: { select: { id: true, email: true, status: true } },
+          _count: { select: { cars: true, bookings: true } },
+        },
+      });
+
+      await tx.lead.update({
+        where: { id },
+        data: { convertedPartnerId: created.id, status: LeadStatus.CLOSED },
+      });
+
+      return created;
+    });
+
+    await audit(req.auth?.userId, 'leads.convert_to_partner', id, { partnerId: partner.id });
+    res.status(201).json({ ...serializePartner(partner), temporaryPassword });
   },
 );
 
@@ -298,6 +396,7 @@ function serializeLead(lead: Prisma.LeadGetPayload<object>) {
     quizAnswers: (lead.quizAnswersJson as Record<string, string> | null) ?? null,
     status: lead.status,
     notes: lead.notes,
+    convertedPartnerId: lead.convertedPartnerId,
     createdAt: lead.createdAt.toISOString(),
     updatedAt: lead.updatedAt.toISOString(),
   };

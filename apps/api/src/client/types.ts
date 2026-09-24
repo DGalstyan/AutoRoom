@@ -512,6 +512,9 @@ export interface Lead {
   quizAnswers: Record<string, string> | null;
   status: LeadStatus;
   notes: string | null;
+  /** Set once this lead was converted into a real `Partner`
+   * (`POST /leads/:id/convert-to-partner`). */
+  convertedPartnerId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -560,6 +563,16 @@ export interface LeadUpdateInput {
   status?: LeadStatus;
   notes?: string;
 }
+
+/** `POST /leads/:id/convert-to-partner` — same shape as `PartnerAccountRequest`,
+ * since it creates exactly that kind of account, just pre-filled from the lead. */
+export interface LeadConvertToPartnerRequest {
+  email: string;
+  name?: string;
+}
+
+/** The temporary password is present exactly once, in this response. */
+export type LeadConvertToPartnerResponse = Partner & { temporaryPassword: string };
 
 /* ------------------------------------ faq ----------------------------------- */
 

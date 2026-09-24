@@ -27,6 +27,8 @@ import type {
   HealthResponse,
   ImageAlbum,
   Lead,
+  LeadConvertToPartnerRequest,
+  LeadConvertToPartnerResponse,
   LeadInput,
   LeadStatus,
   LeadUpdateInput,
@@ -431,6 +433,21 @@ export function createApiClient(options: ApiClientOptions) {
        * `apps/web`'s Server Action calls this exact method server-to-server. */
       create: (body: LeadInput, init?: RequestOptions) =>
         request<Lead>('POST', '/leads', { ...init, body }),
+      /**
+       * Converts a "Become a dealer" lead into a real `Partner` + portal
+       * login in one step. Needs `leads:UPDATE`, `partners:CREATE` and
+       * `users:CREATE`. The response carries `temporaryPassword` exactly
+       * once — nothing later re-exposes it.
+       */
+      convertToPartner: (
+        id: string,
+        body: LeadConvertToPartnerRequest,
+        init?: RequestOptions,
+      ) =>
+        request<LeadConvertToPartnerResponse>('POST', `/leads/${id}/convert-to-partner`, {
+          ...init,
+          body,
+        }),
     },
 
     /** Homepage S9 and the China/USA page sections. */

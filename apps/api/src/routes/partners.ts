@@ -434,14 +434,14 @@ const BOOKING_INCLUDE = {
   },
 } satisfies Prisma.BookingInclude;
 
-type PartnerRow = Prisma.PartnerGetPayload<{
+export type PartnerRow = Prisma.PartnerGetPayload<{
   include: {
     user: { select: { id: true; email: true; status: true } };
     _count: { select: { cars: true; bookings: true } };
   };
 }>;
 
-function serializePartner(partner: PartnerRow) {
+export function serializePartner(partner: PartnerRow) {
   return {
     id: partner.id,
     name: partner.name,

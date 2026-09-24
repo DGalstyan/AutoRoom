@@ -593,6 +593,13 @@ model Partner {
 
   active Boolean @default(true)
 
+  /// Set when this partner was created by converting a "Become a dealer"
+  /// `Lead` (`POST /leads/:id/convert-to-partner`) rather than typed in
+  /// directly. Back-relation only — the lead is what points here
+  /// (`Lead.convertedPartnerId`), so a lead can convert to at most one
+  /// partner and this side never needs its own foreign key.
+  convertedFromLead Lead?
+
   cars     Car[]
   bookings Booking[]
 
@@ -798,6 +805,16 @@ model Lead {
   /// Free-text notes a manager leaves while working the lead — distinct from
   /// `comment`, which is what the visitor themselves wrote.
   notes  String?
+
+  /// Set once a manager converts this "Become a dealer" lead into a real
+  /// `Partner` + portal login (`POST /leads/:id/convert-to-partner`) — the
+  /// step the `meetingFormat` doc comment above calls out as what actually
+  /// claims capacity, versus a lead merely expressing interest in a window.
+  /// Nullable+unique: most leads are never converted, and a lead backs at
+  /// most one partner. `SetNull` on delete: removing the partner later must
+  /// not delete the original enquiry that led to them.
+  convertedPartnerId String?  @unique
+  convertedPartner   Partner? @relation(fields: [convertedPartnerId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
