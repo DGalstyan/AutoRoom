@@ -3,7 +3,17 @@ import { createApiClient, ApiError } from '@autoroom/api/client';
 export { ApiError };
 export type { ApiClient } from '@autoroom/api/client';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+/**
+ * Relative, same-origin — every call here goes to this site's own
+ * `app/api/portal/**\/route.ts` proxy, never to the admin API's origin
+ * directly. That used to be a genuinely cross-origin browser call
+ * (`autoroom.am` → `admin.autoroom.am/api`, gated on `CORS_ORIGINS`), which
+ * broke in production because that env var was never actually opened for
+ * this site's origin on the server — see `lib/portal/proxy.ts`'s doc
+ * comment for the full story and why a same-origin proxy, not a CORS fix,
+ * is the reliable way to keep this working.
+ */
+const baseUrl = '/api';
 
 /**
  * Builds a client bound to the current access token — same contract as
@@ -14,11 +24,10 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
  * React state, and rebuilding the closure when it changes means a request can
  * never pick up a stale one mid-render.
  *
- * `credentials: 'include'` is what carries the refresh and CSRF cookies. The
- * public site and the API are different origins in both dev
- * (`localhost:3000` / `localhost:4000`) and production
- * (`autoroom.am` / `admin.autoroom.am`) — but the same *site* (same
- * registrable domain) in both, so the SameSite=Lax cookies are still sent.
+ * `credentials: 'include'` is what carries the `ar_refresh`/`ar_csrf`
+ * cookies to this same-origin proxy — same-origin `fetch` would send them
+ * by default anyway, but this makes the requirement explicit rather than
+ * relying on a browser default this file doesn't otherwise state.
  */
 export function makeClient(accessToken?: string | null) {
   return createApiClient({
