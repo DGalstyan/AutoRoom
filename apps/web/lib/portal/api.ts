@@ -76,9 +76,23 @@ export function withReauth<T extends object>(client: T, rotate: () => Promise<st
   return wrap(client, []);
 }
 
-/** Turns an API failure into something worth showing a person. */
+/**
+ * Turns an API failure into something worth showing a person.
+ *
+ * A 400 from `validateBody` carries a generic top-level `message` ("Request
+ * validation failed") plus the actual reason in
+ * `details.fields[].message` (e.g. "Password must be at least 6
+ * characters") — same shape `apps/admin/src/lib/api.ts`'s
+ * `extractFieldErrors` reads. The portal has no per-field error UI, so this
+ * prefers those specific messages over the generic one rather than adding a
+ * second helper only one caller would use.
+ */
 export function errorMessage(error: unknown, fallback = 'Ինչ-որ բան այնպես չգնաց։ Փորձեք կրկին։') {
-  if (error instanceof ApiError) return error.message;
+  if (error instanceof ApiError) {
+    const details = error.details as { fields?: { path: string; message: string }[] } | undefined;
+    if (details?.fields?.length) return details.fields.map((field) => field.message).join(' ');
+    return error.message;
+  }
   if (error instanceof TypeError) {
     return 'Հնարավոր չէ կապվել սերվերի հետ։';
   }

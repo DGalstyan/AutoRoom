@@ -15,10 +15,9 @@
  * drifts — the two disagreeing shows up as a form that submits happily and
  * comes back 400.
  *
- * 10, not a complexity rule: length is worth more entropy than forcing a
- * digit or a symbol, and the panel is reachable from the public internet.
+ * A length floor, not a complexity rule — no forced digit or symbol.
  */
-export const MIN_PASSWORD_LENGTH = 10;
+export const MIN_PASSWORD_LENGTH = 6;
 
 export type ErrorCode =
   | 'VALIDATION_ERROR'

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { MIN_PASSWORD_LENGTH } from '@autoroom/api/client';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { errorMessage } from '@/lib/portal/api';
 import { usePortalAuth } from '@/components/partners/portal/PortalAuthProvider';
@@ -76,7 +77,7 @@ export function PortalChangePasswordForm() {
               type="password"
               autoComplete="new-password"
               required
-              minLength={8}
+              minLength={MIN_PASSWORD_LENGTH}
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               className={FIELD_CLASSES}
