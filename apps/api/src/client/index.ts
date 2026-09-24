@@ -439,11 +439,7 @@ export function createApiClient(options: ApiClientOptions) {
        * `users:CREATE`. The response carries `temporaryPassword` exactly
        * once — nothing later re-exposes it.
        */
-      convertToPartner: (
-        id: string,
-        body: LeadConvertToPartnerRequest,
-        init?: RequestOptions,
-      ) =>
+      convertToPartner: (id: string, body: LeadConvertToPartnerRequest, init?: RequestOptions) =>
         request<LeadConvertToPartnerResponse>('POST', `/leads/${id}/convert-to-partner`, {
           ...init,
           body,

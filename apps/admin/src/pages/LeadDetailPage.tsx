@@ -403,8 +403,8 @@ function ConvertToPartnerDialog({
           <DialogTitle>Partner created</DialogTitle>
           <DialogContent>
             <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
-              Send this password to {lead.name} outside the panel — it is shown only this once.
-              They will be asked to set their own the moment they sign in.
+              Send this password to {lead.name} outside the panel — it is shown only this once. They
+              will be asked to set their own the moment they sign in.
             </DialogContentText>
             <TextField
               label="Temporary password"
@@ -441,8 +441,8 @@ function ConvertToPartnerDialog({
           <DialogContent>
             <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
               Creates a Partner named &ldquo;{lead.name}&rdquo;
-              {lead.company ? ` (${lead.company})` : ''} with a portal login. A temporary
-              password is generated for you to pass on — no email is sent.
+              {lead.company ? ` (${lead.company})` : ''} with a portal login. A temporary password
+              is generated for you to pass on — no email is sent.
             </DialogContentText>
             <Stack spacing={2.5}>
               {error && <Alert severity="error">{error}</Alert>}
