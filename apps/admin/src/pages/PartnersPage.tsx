@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Partner, PartnerInput } from '@autoroom/api/client';
+import { MIN_PASSWORD_LENGTH } from '@autoroom/api/client';
 import {
   Alert,
   Box,
@@ -23,10 +24,11 @@ import AddIcon from '@mui/icons-material/Add';
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useAuth } from '@/auth/AuthProvider';
-import { errorMessage } from '@/lib/api';
+import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DataTable } from '@/components/DataTable';
+import { PasswordField } from '@/components/PasswordField';
 import { StatusBadge } from '@/components/StatusBadge';
 import { brand, mono } from '@/theme';
 
@@ -57,6 +59,7 @@ export function PartnersPage() {
   const [menu, setMenu] = useState<{ anchor: HTMLElement; partner: Partner } | null>(null);
   const [editing, setEditing] = useState<{ partner?: Partner } | null>(null);
   const [account, setAccount] = useState<Partner | null>(null);
+  const [settingPassword, setSettingPassword] = useState<Partner | null>(null);
   const [deleting, setDeleting] = useState<Partner | null>(null);
 
   const canCreate = identity?.permissions.includes('partners:CREATE') ?? false;
@@ -65,6 +68,10 @@ export function PartnersPage() {
   // The catalogue is where the entry leads, so its permission is what gates it.
   const canReadCars = identity?.permissions.includes('cars:READ') ?? false;
   const canCreateUsers = identity?.permissions.includes('users:CREATE') ?? false;
+  // Resetting a password is a pure User mutation, same as `UsersPage`'s own
+  // "Set password" action — no `partners:*` grant involved, since it touches
+  // no Partner field.
+  const canSetPassword = identity?.permissions.includes('users:UPDATE') ?? false;
 
   const partnersQuery = useQuery({
     queryKey: ['partners', search],
@@ -274,6 +281,16 @@ export function PartnersPage() {
             Give portal access
           </MenuItem>
         )}
+        {canSetPassword && menu && menu.partner.account && (
+          <MenuItem
+            onClick={() => {
+              setSettingPassword(menu.partner);
+              setMenu(null);
+            }}
+          >
+            Set password
+          </MenuItem>
+        )}
         {canDelete && menu && (
           <MenuItem
             onClick={() => {
@@ -307,6 +324,17 @@ export function PartnersPage() {
             setAccount(null);
             toast(message);
             void refresh();
+          }}
+        />
+      )}
+
+      {settingPassword && (
+        <PartnerPasswordDialog
+          partner={settingPassword}
+          onClose={() => setSettingPassword(null)}
+          onDone={(message) => {
+            setSettingPassword(null);
+            toast(message);
           }}
         />
       )}
@@ -543,6 +571,103 @@ function AccountDialog({
           </DialogActions>
         </form>
       )}
+    </Dialog>
+  );
+}
+
+/**
+ * Set a partner's portal password on their behalf — the same recovery path
+ * `pages/users/PasswordDialog.tsx` gives staff accounts, reused here rather
+ * than reinvented: it already calls `POST /users/:id/password`, which only
+ * needs the underlying `User` id, and a partner with a login already has
+ * one (`partner.account.id`). No new backend route, no `partners:*` grant —
+ * this never touches the Partner record itself.
+ */
+function PartnerPasswordDialog({
+  partner,
+  onClose,
+  onDone,
+}: {
+  partner: Partner;
+  onClose: () => void;
+  onDone: (message: string) => void;
+}) {
+  const { api } = useAuth();
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const accountId = partner.account?.id;
+
+  const mutation = useMutation({
+    mutationFn: () => api.users.setPassword(accountId!, password),
+    onSuccess: () =>
+      onDone(`Password set for ${partner.name}. Their existing sessions were signed out.`),
+    onError: (caught) => {
+      setFieldErrors(extractFieldErrors(caught));
+      setError(errorMessage(caught));
+    },
+  });
+
+  const tooShort = password.length > 0 && password.length < MIN_PASSWORD_LENGTH;
+  const mismatch = confirmation.length > 0 && confirmation !== password;
+  const ready =
+    Boolean(accountId) && password.length >= MIN_PASSWORD_LENGTH && confirmation === password;
+
+  return (
+    <Dialog open onClose={mutation.isPending ? undefined : onClose} maxWidth="xs" fullWidth>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          setError(null);
+          setFieldErrors({});
+          mutation.mutate();
+        }}
+      >
+        <DialogTitle>Set password</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ fontSize: '0.875rem', mb: 3 }}>
+            {partner.name} will be signed out everywhere. Give them the new password directly — no
+            email is sent.
+          </DialogContentText>
+
+          <Stack spacing={2.5}>
+            {error && <Alert severity="error">{error}</Alert>}
+
+            <PasswordField
+              label="New password"
+              value={password}
+              onChange={setPassword}
+              autoComplete="new-password"
+              required
+              error={tooShort || Boolean(fieldErrors.password)}
+              helperText={
+                fieldErrors.password ??
+                (tooShort ? `At least ${MIN_PASSWORD_LENGTH} characters.` : undefined)
+              }
+            />
+
+            <PasswordField
+              label="Confirm password"
+              value={confirmation}
+              onChange={setConfirmation}
+              autoComplete="new-password"
+              required
+              error={mismatch}
+              helperText={mismatch ? 'Passwords do not match.' : undefined}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={onClose} disabled={mutation.isPending} color="inherit">
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" disabled={!ready || mutation.isPending}>
+            {mutation.isPending ? 'Saving…' : 'Set password'}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }
