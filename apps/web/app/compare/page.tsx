@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Section } from '@/components/ui/Section';
 import { CompareTable } from '@/components/shared/CompareTable';
+import { CompareCarFinder } from '@/components/shared/CompareCarFinder';
 import { getCarBySlug } from '@/lib/cars';
 import { getFinanceCalculatorSettings } from '@/lib/settings';
 import { getServerMessages } from '@/lib/i18n';
@@ -62,6 +63,13 @@ export default async function ComparePage({
           </Link>
         </div>
       )}
+
+      {/* "Neither of these is it" escape hatch, right on the results page —
+          Figma node 393:530 shows this same 5-question finder below the
+          compare content in both its mock states. */}
+      <div className="mt-16">
+        <CompareCarFinder />
+      </div>
     </Section>
   );
 }

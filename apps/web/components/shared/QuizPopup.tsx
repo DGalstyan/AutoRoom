@@ -5,48 +5,16 @@ import { Dialog } from '@/components/ui/Dialog';
 import { Chip } from '@/components/ui/Chip';
 import { Button } from '@/components/ui/Button';
 import { MiniCarCard } from '@/components/shared/MiniCarCard';
-import { MOCK_CARS } from '@/lib/data/mockCars';
 import { interpolate } from '@/lib/messages';
 import { useMessages } from '@/components/shared/LocaleProvider';
-import type { Car } from '@/lib/types/car';
 import type { LeadBudget, LeadInterest } from '@/lib/leads';
-
-type Fuel = 'ev' | 'hybrid' | 'benzin';
-type Usage = 'city' | 'family' | 'travel';
-type Country = 'usa' | 'china' | 'any';
-type Timing = 'now' | '1-3m' | 'browsing';
-
-interface QuizAnswers {
-  budget?: LeadBudget;
-  fuel?: Fuel;
-  usage?: Usage;
-  country?: Country;
-  timing?: Timing;
-}
-
-const QUESTION_ORDER = ['budget', 'fuel', 'usage', 'country', 'timing'] as const;
-type QuestionKey = (typeof QUESTION_ORDER)[number];
-
-const FUEL_TO_POWERTRAIN: Record<Fuel, Car['powertrain']> = {
-  ev: 'EV',
-  hybrid: 'HYBRID',
-  benzin: 'BENZIN',
-};
-
-function recommendCars(answers: QuizAnswers): Car[] {
-  let pool = MOCK_CARS.slice();
-  if (answers.country === 'usa') pool = pool.filter((car) => car.origin === 'USA');
-  else if (answers.country === 'china') pool = pool.filter((car) => car.origin === 'CHINA');
-
-  if (answers.fuel) {
-    const matched = pool.filter((car) => car.powertrain === FUEL_TO_POWERTRAIN[answers.fuel!]);
-    if (matched.length > 0) pool = matched;
-  }
-
-  // Simplistic placeholder matcher — pending a real recommendation engine.
-  if (pool.length < 3) pool = MOCK_CARS.slice();
-  return pool.slice(0, 3);
-}
+import {
+  QUIZ_QUESTION_ORDER as QUESTION_ORDER,
+  recommendCars,
+  serializeQuizAnswers,
+  type QuizAnswers,
+  type QuizQuestionKey as QuestionKey,
+} from '@/lib/quiz';
 
 export interface QuizPopupProps {
   open: boolean;
@@ -99,9 +67,7 @@ export function QuizPopup({ open, onClose, sourceCta, onOpenUniversal }: QuizPop
       sourceCta,
       preselect: { interest, budget: answers.budget },
       comment: `${t.resultCommentPrefix}${carNames}`,
-      quizAnswers: Object.fromEntries(
-        Object.entries(answers).filter(([, value]) => value !== undefined),
-      ) as Record<string, string>,
+      quizAnswers: serializeQuizAnswers(answers),
     });
   }
 
