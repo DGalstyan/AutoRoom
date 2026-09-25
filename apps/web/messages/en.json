@@ -189,6 +189,7 @@
     "carDetail": {
       "ctaOffer": "Personal offer",
       "ctaLoan": "Loan terms",
+      "ctaCompare": "Compare this car",
       "gallery": {
         "exterior": "Exterior",
         "interior": "Interior",
@@ -198,6 +199,7 @@
       "specs": {
         "heading": "General specifications",
         "make": "Make",
+        "model": "Model",
         "condition": "Condition",
         "deliveryEta": "Delivery time",
         "deliveryEtaValue": "{days} days",
@@ -306,6 +308,34 @@
           "text": "3 branches in Armenia"
         }
       ]
+    },
+    "compare": {
+      "toggle": "Compare",
+      "toggleSelected": "Added",
+      "bar": {
+        "heading": "Selected cars: {count}",
+        "cta": "Compare",
+        "clear": "Clear"
+      },
+      "modal": {
+        "heading": "Compare with another model",
+        "searchLabel": "Search",
+        "searchPlaceholder": "Search by make or model",
+        "noResults": "Nothing found",
+        "cancel": "Cancel",
+        "confirm": "Compare"
+      },
+      "page": {
+        "heading": "Compare your selected cars",
+        "back": "Back",
+        "priceHeading": "Price",
+        "priceFinal": "Final cost in Armenia",
+        "priceMonthly": "Monthly payment",
+        "generalHeading": "General info",
+        "specsHeading": "Technical specs",
+        "empty": "Pick 2 cars to compare",
+        "browseCta": "Browse cars"
+      }
     }
   },
   "home": {

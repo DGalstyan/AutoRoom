@@ -4,6 +4,9 @@ import './globals.css';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { LeadWidgetProvider } from '@/components/shared/LeadWidgetProvider';
+import { CompareProvider } from '@/components/shared/CompareProvider';
+import { CompareModal } from '@/components/shared/CompareModal';
+import { CompareBar } from '@/components/shared/CompareBar';
 import { LocaleProvider } from '@/components/shared/LocaleProvider';
 import { MaintenanceNotice } from '@/components/shared/MaintenanceNotice';
 import { getBrandingLogos } from '@/lib/branding';
@@ -66,11 +69,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         ) : (
           <LocaleProvider locale={locale} messages={messages} enabledLocales={enabledLocales}>
             <LeadWidgetProvider>
-              <Header logo={logo} />
-              <main className="flex-1">{children}</main>
-              <Footer logo={logo} contacts={contacts} />
-              {/* StickyCta removed for now, per request — component untouched,
-                  just not mounted here. Re-add <StickyCta /> to bring it back. */}
+              <CompareProvider>
+                <Header logo={logo} />
+                <main className="flex-1">{children}</main>
+                <Footer logo={logo} contacts={contacts} />
+                {/* StickyCta removed for now, per request — component untouched,
+                    just not mounted here. Re-add <StickyCta /> to bring it back. */}
+                <CompareModal />
+                <CompareBar />
+              </CompareProvider>
             </LeadWidgetProvider>
           </LocaleProvider>
         )}

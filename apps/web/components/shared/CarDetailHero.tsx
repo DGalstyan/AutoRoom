@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
+import { useCompare } from '@/components/shared/CompareProvider';
 import { CarGallery } from '@/components/shared/CarGallery';
 import { CarSpecs } from '@/components/shared/CarSpecs';
 import { BuyWithLoan } from '@/components/shared/BuyWithLoan';
@@ -38,6 +39,7 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
   const t = useMessages().common.carDetail;
   const { openUniversal } = useLeadWidgets();
+  const { openPicker } = useCompare();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
 
   const colors = car.condition === 'ON_ORDER' ? car.colors : [];
@@ -80,6 +82,24 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
           >
             {t.ctaOffer}
             <ArrowGlyph />
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              openPicker({
+                id: car.id,
+                slug: car.slug,
+                make: car.make,
+                model: car.model,
+                year: car.year,
+                imageUrl: car.images[0]?.url,
+                origin: car.origin,
+                condition: car.condition,
+              })
+            }
+            className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
+          >
+            {t.ctaCompare}
           </button>
         </div>
       </div>

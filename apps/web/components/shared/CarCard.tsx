@@ -5,6 +5,7 @@ import { carHref, formatUsd } from '@/lib/types/car';
 import { getServerMessages } from '@/lib/i18n';
 import { interpolate } from '@/lib/messages';
 import { PromoCountdown } from '@/components/shared/PromoCountdown';
+import { CarCompareToggle } from '@/components/shared/CarCompareToggle';
 
 /**
  * The full listing-grid car card — China (and later USA) page S2, and the
@@ -40,6 +41,7 @@ import { PromoCountdown } from '@/components/shared/PromoCountdown';
 export async function CarCard({ car, priority = false }: { car: CarSummary; priority?: boolean }) {
   const { messages } = await getServerMessages();
   const t = messages.common.carCard;
+  const compareT = messages.common.compare;
   const imageSrc = car.images[0]?.url;
 
   const hasDiscount = car.oldPrice != null && car.oldPrice > car.price;
@@ -120,6 +122,20 @@ export async function CarCard({ car, priority = false }: { car: CarSummary; prio
               )}
             </>
           )}
+          <CarCompareToggle
+            car={{
+              id: car.id,
+              slug: car.slug,
+              make: car.make,
+              model: car.model,
+              year: car.year,
+              imageUrl: imageSrc,
+              origin: car.origin,
+              condition: car.condition,
+            }}
+            label={compareT.toggle}
+            labelSelected={compareT.toggleSelected}
+          />
         </div>
 
         <div className="flex flex-col items-start gap-[10px]">

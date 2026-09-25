@@ -189,6 +189,7 @@
     "carDetail": {
       "ctaOffer": "Անհատական առաջարկ",
       "ctaLoan": "Վարկի պայմաններ",
+      "ctaCompare": "Համեմատիր այս մեքենան",
       "gallery": {
         "exterior": "Էքստերիեր",
         "interior": "Ինտերիեր",
@@ -198,6 +199,7 @@
       "specs": {
         "heading": "Ընդհանուր տվյալներ",
         "make": "Մակնիշ",
+        "model": "Մոդել",
         "condition": "Վիճակ",
         "deliveryEta": "Առաքման ժամկետ",
         "deliveryEtaValue": "{days} օր",
@@ -306,6 +308,34 @@
           "text": "3 մասնաճյուղ Հայաստանում"
         }
       ]
+    },
+    "compare": {
+      "toggle": "Համեմատել",
+      "toggleSelected": "Ավելացված է",
+      "bar": {
+        "heading": "Ընտրված մեքենաներ՝ {count}",
+        "cta": "Համեմատել",
+        "clear": "Մաքրել"
+      },
+      "modal": {
+        "heading": "Համեմատել այլ մոդելի հետ",
+        "searchLabel": "Որոնում",
+        "searchPlaceholder": "Փնտրիր մակնիշով կամ մոդելով",
+        "noResults": "Ոչինչ չի գտնվել",
+        "cancel": "Չեղարկել",
+        "confirm": "Համեմատել"
+      },
+      "page": {
+        "heading": "Համեմատիր քո նախընտրած մեքենաները",
+        "back": "Հետ",
+        "priceHeading": "Գին",
+        "priceFinal": "Հայաստանում վերջնական արժեք",
+        "priceMonthly": "Ամսական վճար",
+        "generalHeading": "Ընդհանուր տվյալներ",
+        "specsHeading": "Տեխնիկական տվյալներ",
+        "empty": "Ընտրիր 2 մեքենա՝ համեմատելու համար",
+        "browseCta": "Դիտել մեքենաները"
+      }
     }
   },
   "home": {

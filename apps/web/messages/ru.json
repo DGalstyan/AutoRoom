@@ -189,6 +189,7 @@
     "carDetail": {
       "ctaOffer": "Индивидуальное предложение",
       "ctaLoan": "Условия кредита",
+      "ctaCompare": "Сравнить этот автомобиль",
       "gallery": {
         "exterior": "Экстерьер",
         "interior": "Интерьер",
@@ -198,6 +199,7 @@
       "specs": {
         "heading": "Общие характеристики",
         "make": "Марка",
+        "model": "Модель",
         "condition": "Состояние",
         "deliveryEta": "Срок доставки",
         "deliveryEtaValue": "{days} дн.",
@@ -306,6 +308,34 @@
           "text": "3 филиала в Армении"
         }
       ]
+    },
+    "compare": {
+      "toggle": "Сравнить",
+      "toggleSelected": "Добавлено",
+      "bar": {
+        "heading": "Выбрано автомобилей: {count}",
+        "cta": "Сравнить",
+        "clear": "Очистить"
+      },
+      "modal": {
+        "heading": "Сравнить с другой моделью",
+        "searchLabel": "Поиск",
+        "searchPlaceholder": "Поиск по марке или модели",
+        "noResults": "Ничего не найдено",
+        "cancel": "Отмена",
+        "confirm": "Сравнить"
+      },
+      "page": {
+        "heading": "Сравните выбранные автомобили",
+        "back": "Назад",
+        "priceHeading": "Цена",
+        "priceFinal": "Итоговая стоимость в Армении",
+        "priceMonthly": "Ежемесячный платёж",
+        "generalHeading": "Общие данные",
+        "specsHeading": "Технические данные",
+        "empty": "Выберите 2 автомобиля для сравнения",
+        "browseCta": "Смотреть автомобили"
+      }
     }
   },
   "home": {
