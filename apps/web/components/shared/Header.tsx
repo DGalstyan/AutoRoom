@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useScrolled } from '@/lib/hooks/useScrolled';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
@@ -28,6 +29,16 @@ interface HeaderProps {
 export function Header({ logo = null }: HeaderProps = {}) {
   const nav = useMessages().common.nav;
   const scrolled = useScrolled();
+  // Every other page opens on a dark hero photo, which is what the default
+  // translucent-dark glass pill (`bg-bg/30`) is tuned for — verified against
+  // Figma's homepage capture (node comment below). The partner portal has no
+  // hero at all, just a plain light page from the very top, and Figma's own
+  // "Dealers portal" mock (node 378:6118, file 9Lq4XpWusTJj1VnM6laAZr) draws
+  // this exact same header as a solid white pill there instead — the dark
+  // glass treatment read as a visibly wrong, unexplained dark bar floating
+  // over a white page before this.
+  const pathname = usePathname();
+  const isLightHeader = pathname?.startsWith('/partners/portal') ?? false;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerId = useId();
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -61,8 +72,10 @@ export function Header({ logo = null }: HeaderProps = {}) {
         // component's pre-existing judgment call for legibility over
         // arbitrary scrolled-past content, now anchored to the correct
         // unscrolled baseline.
-        className={`mx-auto flex max-w-header items-center justify-between gap-4 rounded-pill border border-white/10 bg-bg/30 px-4 py-2 shadow-card backdrop-blur-lg transition-colors duration-standard sm:px-6 lg:py-4 ${
-          scrolled ? 'bg-bg/80' : ''
+        className={`mx-auto flex max-w-header items-center justify-between gap-4 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:px-6 lg:py-4 ${
+          isLightHeader
+            ? 'border border-line-light bg-white'
+            : `border border-white/10 backdrop-blur-lg ${scrolled ? 'bg-bg/80' : 'bg-bg/30'}`
         }`}
       >
         <Link href="/" aria-label={nav.home} className="flex items-center gap-2 pl-2">
@@ -100,7 +113,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
             <Link
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap text-small font-normal text-white transition-colors duration-micro hover:text-accent"
+              className={`whitespace-nowrap text-small font-normal transition-colors duration-micro hover:text-accent ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
             </Link>
@@ -121,7 +134,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
 
         <button
           type="button"
-          className="flex h-11 w-11 items-center justify-center rounded-pill text-white xl:hidden"
+          className={`flex h-11 w-11 items-center justify-center rounded-pill xl:hidden ${isLightHeader ? 'text-ink' : 'text-white'}`}
           aria-expanded={drawerOpen}
           aria-controls={drawerId}
           aria-label={drawerOpen ? nav.menuClose : nav.menuOpen}
