@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
@@ -31,6 +31,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useAuth } from '@/auth/AuthProvider';
+import { useDirtyGuard, useDirtyGuardBypass } from '@/dirty/DirtyGuardProvider';
 import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ImageAlbums, type StagedImage } from '@/pages/cars/ImageAlbums';
@@ -131,6 +132,7 @@ export function CarFormPage() {
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const bypassDirtyGuard = useDirtyGuardBypass();
 
   const canCreate = identity?.permissions.includes('cars:CREATE') ?? false;
   const canUpdate = identity?.permissions.includes('cars:UPDATE') ?? false;
@@ -154,6 +156,11 @@ export function CarFormPage() {
   const partners = partnersQuery.data?.items ?? [];
 
   const [draft, setDraft] = useState<CarInput>(BLANK);
+  // The last-saved shape to diff `draft` against for the unsaved-changes
+  // guard below — `null` while an existing car's data hasn't loaded yet, so
+  // `dirty` doesn't false-positive against BLANK during that window. Fixed
+  // at BLANK for a new car, since there's nothing else to consider "saved".
+  const [savedSnapshot, setSavedSnapshot] = useState<CarInput | null>(creating ? BLANK : null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [slugTouched, setSlugTouched] = useState(false);
   const [pendingImages, setPendingImages] = useState<StagedImage[]>([]);
@@ -203,7 +210,9 @@ export function CarFormPage() {
       void images;
       void createdAt;
       void updatedAt;
-      setDraft({ ...input, similarCarIds: similarCars.map((car) => car.id) });
+      const nextDraft = { ...input, similarCarIds: similarCars.map((car) => car.id) };
+      setDraft(nextDraft);
+      setSavedSnapshot(nextDraft);
       setSlugTouched(true);
     }
   }, [carQuery.data]);
@@ -236,7 +245,13 @@ export function CarFormPage() {
       toast(creating ? 'Car created.' : 'Saved.');
       void queryClient.invalidateQueries({ queryKey: ['cars'] });
       void queryClient.invalidateQueries({ queryKey: ['car', car.id] });
-      if (creating) navigate(`/cars/${car.id}`, { replace: true });
+      if (creating) {
+        // The draft is still "dirty" against BLANK at this exact instant —
+        // this redirect is the guard's own consequence, not a navigation
+        // away from unsaved work, so it must not trigger its own prompt.
+        bypassDirtyGuard();
+        navigate(`/cars/${car.id}`, { replace: true });
+      }
     },
     onError: (error) => {
       const fields = extractFieldErrors(error);
@@ -260,6 +275,26 @@ export function CarFormPage() {
       }
     },
   });
+
+  // Staged image uploads (create flow) are already committed to storage but
+  // not yet attached to a car, so losing that state on navigation would
+  // silently orphan an uploaded file — folded into `dirty` alongside the
+  // field draft rather than tracked separately.
+  const dirty = useMemo(() => {
+    if (readOnly || savedSnapshot === null) return false;
+    return JSON.stringify(draft) !== JSON.stringify(savedSnapshot) || pendingImages.length > 0;
+  }, [draft, savedSnapshot, pendingImages, readOnly]);
+
+  const saveAsync = useCallback(async () => {
+    try {
+      await saveMutation.mutateAsync(draft);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [draft, saveMutation]);
+
+  useDirtyGuard(creating ? 'car-form-new' : `car-form-${id}`, dirty, saveAsync);
 
   async function handleAddImage(album: ImageAlbum, file: File) {
     const uploaded = await api.upload(file);

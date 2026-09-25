@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SettingKey, SettingRecord, SettingValues } from '@autoroom/api/client';
 import { useAuth } from '@/auth/AuthProvider';
@@ -66,6 +66,21 @@ export function useSettingSection<K extends SettingKey>(
     setDraft((current) => (current === null ? current : { ...current, ...changes }));
   }
 
+  // Awaitable form of the same save, for the app-wide unsaved-changes guard
+  // (DirtyGuardProvider), which needs to know whether its "Save and leave"
+  // actually succeeded before it navigates away. Resolves false rather than
+  // throwing — mutation.onError already surfaces the failure via toast/field
+  // errors, so the guard just needs a yes/no on whether it's safe to proceed.
+  const saveAsync = useCallback(async () => {
+    if (draft === null) return false;
+    try {
+      await mutation.mutateAsync(draft);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [draft, mutation]);
+
   return {
     value: draft,
     setValue: setDraft,
@@ -74,6 +89,7 @@ export function useSettingSection<K extends SettingKey>(
     saving: mutation.isPending,
     fieldErrors,
     save: () => draft !== null && mutation.mutate(draft),
+    saveAsync,
     reset: () => {
       if (saved !== undefined) setDraft(saved);
       setFieldErrors({});

@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { brand } from '@/theme';
+import { useDirtyGuard } from '@/dirty/DirtyGuardProvider';
 
 /**
  * Frame for one saveable settings group.
@@ -8,6 +9,11 @@ import { brand } from '@/theme';
  * Save sits with the fields it saves rather than in one page-level bar: the
  * groups are independent writes to independent keys, and a single Save would
  * imply the page commits as a unit when it does not.
+ *
+ * Also registers this group's dirty/save with the app-wide unsaved-changes
+ * guard (`DirtyGuardProvider`, mounted once in `AppShell`) — every settings
+ * section gets in-app-nav and tab-close protection for free through this one
+ * choke point, without each settings page having to wire it up itself.
  */
 export function SectionCard({
   title,
@@ -16,6 +22,7 @@ export function SectionCard({
   saving,
   readOnly,
   onSave,
+  onSaveAsync,
   onReset,
   children,
 }: {
@@ -25,9 +32,14 @@ export function SectionCard({
   saving: boolean;
   readOnly?: boolean;
   onSave: () => void;
+  /** Awaitable save, resolving whether it's safe to navigate away — see `useSettingSection`'s `saveAsync`. */
+  onSaveAsync: () => Promise<boolean>;
   onReset: () => void;
   children: ReactNode;
 }) {
+  const guardId = useId();
+  useDirtyGuard(guardId, Boolean(dirty && !readOnly), onSaveAsync);
+
   return (
     <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
       <Box sx={{ px: { xs: 2.5, md: 3 }, pt: { xs: 2.5, md: 3 }, pb: 2 }}>

@@ -29,6 +29,7 @@ export function ContactsSettings({
         saving={general.saving}
         readOnly={readOnly}
         onSave={general.save}
+        onSaveAsync={general.saveAsync}
         onReset={general.reset}
       >
         <Stack spacing={2.5}>
@@ -108,6 +109,7 @@ export function ContactsSettings({
         saving={social.saving}
         readOnly={readOnly}
         onSave={social.save}
+        onSaveAsync={social.saveAsync}
         onReset={social.reset}
       >
         <Stack spacing={2.5}>
@@ -133,6 +135,7 @@ export function ContactsSettings({
         saving={messengers.saving}
         readOnly={readOnly}
         onSave={messengers.save}
+        onSaveAsync={messengers.saveAsync}
         onReset={messengers.reset}
       >
         <Stack spacing={2.5}>

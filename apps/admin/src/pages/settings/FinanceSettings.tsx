@@ -29,6 +29,7 @@ export function FinanceSettings({
         saving={finance.saving}
         readOnly={readOnly}
         onSave={finance.save}
+        onSaveAsync={finance.saveAsync}
         onReset={finance.reset}
       >
         <Stack spacing={2.5}>

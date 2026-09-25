@@ -36,6 +36,7 @@ export function BrandingSettings({
           saving={identity.saving}
           readOnly={readOnly}
           onSave={identity.save}
+          onSaveAsync={identity.saveAsync}
           onReset={identity.reset}
         >
           <Stack spacing={2.5}>
@@ -112,6 +113,7 @@ export function BrandingSettings({
           saving={theme.saving}
           readOnly={readOnly}
           onSave={theme.save}
+          onSaveAsync={theme.saveAsync}
           onReset={theme.reset}
         >
           <Stack spacing={3}>
@@ -153,6 +155,7 @@ export function BrandingSettings({
           saving={typography.saving}
           readOnly={readOnly}
           onSave={typography.save}
+          onSaveAsync={typography.saveAsync}
           onReset={typography.reset}
         >
           <Stack spacing={2.5}>

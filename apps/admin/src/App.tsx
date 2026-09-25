@@ -1,4 +1,10 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import {
+  Navigate,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+} from 'react-router-dom';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme } from '@/theme';
@@ -36,51 +42,62 @@ const queryClient = new QueryClient({
   },
 });
 
+// A data router (rather than the declarative <BrowserRouter>/<Routes>) is
+// required for useBlocker, which the unsaved-changes nav guard
+// (DirtyGuardProvider, mounted in AppShell) depends on — the declarative
+// router has no equivalent hook. Everything else about the route tree is
+// unchanged, just re-expressed as router config instead of JSX children of
+// <Routes>.
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      {/* Sign-in is the only screen a signed-out visitor can reach.
+          No self-registration and no self-serve password recovery: the
+          first super_admin comes from the seed, and every later account
+          is created by a super_admin from within the panel. */}
+      <Route element={<PublicOnlyRoute />}>
+        <Route path="/login" element={<LoginPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<HomeRoute />} />
+          <Route path="/cars" element={<CarsPage />} />
+          <Route path="/cars/:id" element={<CarFormPage />} />
+          <Route path="/leads" element={<LeadsPage />} />
+          <Route path="/leads/:id" element={<LeadDetailPage />} />
+          <Route path="/partners" element={<PartnersPage />} />
+          <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/availability" element={<AvailabilityPage />} />
+          <Route path="/branches" element={<BranchesPage />} />
+          <Route path="/banks" element={<BanksPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/stories" element={<StoriesPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/roles" element={<RolesPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </>,
+  ),
+  // The panel is mounted at /admin — every route above is relative to it.
+  { basename: '/admin' },
+);
+
 export function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
-        {/* The panel is mounted at /admin — every route below is relative to it. */}
-        <BrowserRouter basename="/admin">
-          <AuthProvider>
-            <ToastProvider>
-              <Routes>
-                {/* Sign-in is the only screen a signed-out visitor can reach.
-                    No self-registration and no self-serve password recovery: the
-                    first super_admin comes from the seed, and every later account
-                    is created by a super_admin from within the panel. */}
-                <Route element={<PublicOnlyRoute />}>
-                  <Route path="/login" element={<LoginPage />} />
-                </Route>
-
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<AppShell />}>
-                    <Route path="/" element={<HomeRoute />} />
-                    <Route path="/cars" element={<CarsPage />} />
-                    <Route path="/cars/:id" element={<CarFormPage />} />
-                    <Route path="/leads" element={<LeadsPage />} />
-                    <Route path="/leads/:id" element={<LeadDetailPage />} />
-                    <Route path="/partners" element={<PartnersPage />} />
-                    <Route path="/bookings" element={<BookingsPage />} />
-                    <Route path="/availability" element={<AvailabilityPage />} />
-                    <Route path="/branches" element={<BranchesPage />} />
-                    <Route path="/banks" element={<BanksPage />} />
-                    <Route path="/faq" element={<FaqPage />} />
-                    <Route path="/stories" element={<StoriesPage />} />
-                    <Route path="/team" element={<TeamPage />} />
-                    <Route path="/gallery" element={<GalleryPage />} />
-                    <Route path="/users" element={<UsersPage />} />
-                    <Route path="/roles" element={<RolesPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                  </Route>
-                </Route>
-
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </ToastProvider>
-          </AuthProvider>
-        </BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

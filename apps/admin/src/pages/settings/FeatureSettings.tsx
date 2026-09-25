@@ -42,6 +42,7 @@ export function FeatureSettings({
         saving={features.saving}
         readOnly={readOnly}
         onSave={features.save}
+        onSaveAsync={features.saveAsync}
         onReset={features.reset}
       >
         <Stack divider={<Box sx={{ borderBottom: `1px solid ${brand.lineLight}` }} />}>

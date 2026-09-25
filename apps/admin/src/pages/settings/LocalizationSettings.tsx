@@ -45,6 +45,7 @@ export function LocalizationSettings({
         saving={localization.saving}
         readOnly={readOnly}
         onSave={localization.save}
+        onSaveAsync={localization.saveAsync}
         onReset={localization.reset}
       >
         <Stack spacing={3}>

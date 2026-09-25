@@ -25,6 +25,7 @@ import { NotificationBell } from '@/components/NotificationBell';
 import { useAuth } from '@/auth/AuthProvider';
 import { NAV_GROUPS, crumbsFor, type NavGroup } from '@/layouts/navigation';
 import { brand } from '@/theme';
+import { DirtyGuardProvider } from '@/dirty/DirtyGuardProvider';
 
 const SIDEBAR_WIDTH = 248;
 
@@ -321,7 +322,9 @@ export function AppShell() {
         </Toolbar>
 
         <Box component="main" sx={{ flex: 1, px: { xs: 2, md: 4 }, py: { xs: 3, md: 4 } }}>
-          <Outlet />
+          <DirtyGuardProvider>
+            <Outlet />
+          </DirtyGuardProvider>
         </Box>
       </Box>
     </Box>
