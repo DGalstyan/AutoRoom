@@ -101,7 +101,7 @@ const carBodySchema = z.object({
   trim: z.string().trim().max(80).nullish(),
 
   powertrain: z.nativeEnum(Powertrain),
-  range: z.number().int().min(0).max(3000).nullish(),
+  range: z.number().int().min(0).max(1_000_000).nullish(),
   battery: z.string().trim().max(60).nullish(),
   engine: z.string().trim().max(80).nullish(),
   drivetrain: z.string().trim().max(60).nullish(),
