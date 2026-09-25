@@ -267,7 +267,7 @@ function AnalogClock({ now, timeZone }: { now: Date | null; timeZone: string }) 
         <div
           key={tick}
           className="absolute left-1/2 top-1/2 h-2 w-[2.5px] origin-top rounded-full bg-gradient-to-b from-white to-[#cdcdcd]"
-          style={{ transform: `translateX(-50%) rotate(${tick * 30}deg) translateY(6px)` }}
+          style={{ transform: `translateX(-50%) rotate(${tick * 30}deg) translateY(78px)` }}
         />
       ))}
       <ClockHand angle={angles.hour} length={44} width={5} />
