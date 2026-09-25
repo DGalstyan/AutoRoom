@@ -512,19 +512,27 @@ async function seedSettings() {
   console.log(`  settings: ${SETTINGS.length}`);
 }
 
+/**
+ * Branches seed only the *first* time this ever runs against a given
+ * database (an empty `branch` table), never again after — matched on name,
+ * re-running by name used to mean "deleting or renaming a branch in admin
+ * gets it silently recreated (original name, original everything) the next
+ * time the container restarts or redeploys," since a deploy is exactly a
+ * seed re-run and there was no way to tell "never seeded" apart from
+ * "an admin removed this on purpose." A live bug, not hypothetical — see
+ * `seedTeam`'s own identical fix for the reported case of this.
+ */
 async function seedBranchesAndBanks() {
-  for (const [index, branch] of BRANCHES.entries()) {
-    const existing = await prisma.branch.findFirst({ where: { name: branch.name } });
-    if (existing) {
-      await prisma.branch.update({
-        where: { id: existing.id },
-        data: { ...branch, position: index },
-      });
-    } else {
+  const existingBranches = await prisma.branch.count();
+  if (existingBranches === 0) {
+    for (const [index, branch] of BRANCHES.entries()) {
       await prisma.branch.create({ data: { ...branch, position: index } });
     }
   }
 
+  // Banks are keyed on a real unique constraint and `upsert`, not
+  // findFirst-by-name — the same "deleted then resurrected" risk exists
+  // here too in principle, just not the one that was actually reported.
   for (const [index, bank] of BANKS.entries()) {
     await prisma.bank.upsert({
       where: { name: bank.name },
@@ -533,23 +541,35 @@ async function seedBranchesAndBanks() {
     });
   }
 
-  console.log(`  branches: ${BRANCHES.length}, banks: ${BANKS.length}`);
+  console.log(
+    `  branches: ${existingBranches === 0 ? BRANCHES.length : 'skipped (already seeded)'}, banks: ${BANKS.length}`,
+  );
 }
 
 /**
- * Matched on name, same as branches — there is no unique constraint on
- * `TeamMember.name` (two people can share one), but this seed list only
- * ever contains one of each, so `findFirst` is enough to keep re-running
- * idempotent without clobbering a photo an admin has since uploaded.
+ * Seeds only the *first* time this ever runs against a given database (an
+ * empty `team_members` table), never again after.
+ *
+ * Previously matched on `name` and re-created any row whose name wasn't
+ * found — which, on every container restart or redeploy (this seed runs on
+ * every boot, not just the first), silently resurrected any team member an
+ * admin had deleted, and duplicated any member an admin had renamed (the
+ * old name no longer matched anything, so the seed recreated it fresh,
+ * original name, no photo, alongside the renamed row). Reported directly:
+ * "Измененные сотрудники возвращаются через время" (edited members come
+ * back after a while). A one-time count check is enough — this list only
+ * exists to give a brand-new database a non-empty team section, not to stay
+ * in sync with it forever.
  */
 async function seedTeam() {
+  const existingCount = await prisma.teamMember.count();
+  if (existingCount > 0) {
+    console.log(`  team: skipped (already seeded, ${existingCount} row(s) present)`);
+    return;
+  }
+
   for (const [index, member] of TEAM_MEMBERS.entries()) {
-    const existing = await prisma.teamMember.findFirst({ where: { name: member.name } });
-    if (existing) {
-      await prisma.teamMember.update({ where: { id: existing.id }, data: { position: index } });
-    } else {
-      await prisma.teamMember.create({ data: { ...member, position: index } });
-    }
+    await prisma.teamMember.create({ data: { ...member, position: index } });
   }
 
   console.log(`  team: ${TEAM_MEMBERS.length}`);
