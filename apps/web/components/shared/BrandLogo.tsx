@@ -7,30 +7,37 @@ import type { BrandingLogos } from '@/lib/branding';
 // The real AutoRoom logo mark, exported from Figma (node `9321:6404`
 // `logo_vector 1` / the footer's larger `2001:1772` "Layer_x0020_1" instance —
 // same vector, same `fill: white`, just scaled up 2.505x for the footer) and
-// committed here as a permanent, production-safe asset. `getBrandingLogos`'s
-// own doc comment confirms nobody has uploaded a custom logo in production
-// yet (`logoLightUrl`/`logoDarkUrl` are both `null`), so without this default
-// the site would ship logo-less — a plain text wordmark in the Header, a
-// hand-drawn placeholder glyph in the Footer. This file is the fallback used
-// until an admin uploads a real replacement through the CMS.
+// committed here as a permanent, production-safe asset — plus a recolored
+// `#0D0D0D` (`ink`) variant for light surfaces (the partner portal's white
+// header; see `Header.tsx`'s `isLightHeader`), since `logoLightUrl`
+// (white artwork) reads invisible on a white pill. These are the fallbacks
+// used until an admin uploads a real replacement of each through the CMS.
 const DEFAULT_LOGO_SRC = '/brand/logo-mark.svg';
+const DEFAULT_LOGO_DARK_SRC = '/brand/logo-mark-dark.svg';
 
 interface BrandLogoProps {
-  /** Admin-managed branding logo, fetched server-side; falls back to `DEFAULT_LOGO_SRC` until one is uploaded. */
+  /** Admin-managed branding logo, fetched server-side; falls back to the bundled default(s) until one is uploaded. */
   logo?: BrandingLogos | null;
   /** Box size, e.g. `"h-9 w-24"`. Fixed so an unknown-aspect-ratio uploaded logo never shifts layout. */
   className?: string;
   /** `sizes` hint passed through to `next/image`; should match the box's rendered width. */
   sizes?: string;
+  /**
+   * Which surface this renders on: `'dark'` (default) for the usual dark
+   * hero/glass-header/footer surfaces, where the white `logoLightUrl`
+   * artwork reads correctly; `'light'` for a plain white/light surface
+   * (the portal's white header), which needs the dark-ink `logoDarkUrl`
+   * artwork instead — the field names are the *color of the artwork*, not
+   * the surface it's drawn on, easy to misread as the opposite.
+   */
+  tone?: 'dark' | 'light';
 }
 
 /**
- * Single source of truth for "which logo image to render." Both the fallback
- * mark and every admin-uploaded logo are drawn as plain white artwork, so
- * this is safe on any of the dark surfaces (Header's glass pill, Footer's
- * dark band) it currently appears on — see Header's original sourcing note
- * for why `logoLightUrl` (not `logoDarkUrl`) is the correct field to read on
- * those surfaces despite the easy-to-misread field name.
+ * Single source of truth for "which logo image to render," now surface-aware:
+ * `tone='dark'` (the default — matches every pre-existing call site) reads
+ * `logoLightUrl` (white artwork, for dark surfaces); `tone='light'` reads
+ * `logoDarkUrl` (dark-ink artwork, for light surfaces).
  *
  * A client component (not a Server Component reading `getServerMessages()`
  * directly) because `Header.tsx` — a client component — renders it inline;
@@ -38,9 +45,17 @@ interface BrandLogoProps {
  * via composition (`children`/props from a Server ancestor), never imported
  * and instantiated directly.
  */
-export function BrandLogo({ logo = null, className = 'h-9 w-24', sizes = '96px' }: BrandLogoProps) {
+export function BrandLogo({
+  logo = null,
+  className = 'h-9 w-24',
+  sizes = '96px',
+  tone = 'dark',
+}: BrandLogoProps) {
   const brand = useMessages().common.brand;
-  const logoSrc = logo?.logoLightUrl ?? logo?.logoDarkUrl ?? DEFAULT_LOGO_SRC;
+  const logoSrc =
+    tone === 'light'
+      ? (logo?.logoDarkUrl ?? DEFAULT_LOGO_DARK_SRC)
+      : (logo?.logoLightUrl ?? DEFAULT_LOGO_SRC);
 
   return (
     <span className={`relative block ${className}`}>

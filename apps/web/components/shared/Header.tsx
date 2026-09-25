@@ -85,7 +85,12 @@ export function Header({ logo = null }: HeaderProps = {}) {
             enough that `object-contain` won't noticeably letterbox an
             admin-uploaded logo of similar proportions.
           */}
-          <BrandLogo logo={logo} className="h-9 w-24" sizes="96px" />
+          <BrandLogo
+            logo={logo}
+            className="h-9 w-24"
+            sizes="96px"
+            tone={isLightHeader ? 'light' : 'dark'}
+          />
         </Link>
 
         {/*
