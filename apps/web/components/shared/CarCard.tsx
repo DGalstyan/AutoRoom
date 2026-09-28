@@ -42,7 +42,7 @@ export async function CarCard({ car, priority = false }: { car: CarSummary; prio
   const { messages } = await getServerMessages();
   const t = messages.common.carCard;
   const compareT = messages.common.compare;
-  const imageSrc = car.images[0]?.url;
+  const imageSrc = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
 
   const hasDiscount = car.oldPrice != null && car.oldPrice > car.price;
   const deadline = car.promoDeadline ? new Date(car.promoDeadline) : null;

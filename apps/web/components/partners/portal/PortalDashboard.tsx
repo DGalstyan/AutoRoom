@@ -219,7 +219,13 @@ function CarCard({
     <div className="overflow-hidden rounded-2xl border border-line-light">
       <div className="relative aspect-[16/10] bg-neutral-25">
         {cover ? (
-          <Image src={cover.url} alt="" fill sizes="360px" className="object-cover" />
+          <Image
+            src={cover.thumbnailUrl ?? cover.url}
+            alt=""
+            fill
+            sizes="360px"
+            className="object-cover"
+          />
         ) : (
           <div className="flex h-full items-center justify-center text-small text-neutral-700">
             {t.noCars}

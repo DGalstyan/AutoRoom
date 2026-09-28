@@ -43,7 +43,7 @@ export function LoanCalculator({
   const [downPayment, setDownPayment] = useState(defaultDownPayment);
   const clamped = Math.min(max, Math.max(min, downPayment));
   const monthly = computeMonthlyPaymentAmd(car.price, clamped, finance);
-  const carImage = car.images[0]?.url;
+  const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
 
   return (
     <div id="loan-calculator" className="flex flex-col gap-16">

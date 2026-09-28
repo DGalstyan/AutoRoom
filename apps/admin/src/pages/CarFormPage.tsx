@@ -33,6 +33,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useAuth } from '@/auth/AuthProvider';
 import { useDirtyGuard, useDirtyGuardBypass } from '@/dirty/DirtyGuardProvider';
 import { errorMessage, extractFieldErrors } from '@/lib/api';
+import { makeThumbnail } from '@/lib/imageResize';
 import { useToast } from '@/components/ToastProvider';
 import { ImageAlbums, type StagedImage } from '@/pages/cars/ImageAlbums';
 import { ColourEditor } from '@/pages/cars/ColourEditor';
@@ -237,7 +238,11 @@ export function CarFormPage() {
       // still staged rather than silently dropped.
       if (creating && pendingImages.length > 0) {
         for (const image of pendingImages) {
-          await api.cars.addImage(car.id, { album: image.album, url: image.url });
+          await api.cars.addImage(car.id, {
+            album: image.album,
+            url: image.url,
+            thumbnailUrl: image.thumbnailUrl,
+          });
         }
         setPendingImages([]);
       }
@@ -298,14 +303,28 @@ export function CarFormPage() {
 
   async function handleAddImage(album: ImageAlbum, file: File) {
     const uploaded = await api.upload(file);
+    // Videos have no separate thumbnail; only the album's own photos do.
+    const thumbnail = album === 'VIDEO' ? null : await makeThumbnail(file);
+    const uploadedThumbnail =
+      thumbnail === null || thumbnail === file ? null : await api.upload(thumbnail);
+
     if (creating) {
       setPendingImages((current) => [
         ...current,
-        { id: crypto.randomUUID(), album, url: uploaded.url },
+        {
+          id: crypto.randomUUID(),
+          album,
+          url: uploaded.url,
+          thumbnailUrl: uploadedThumbnail?.url ?? null,
+        },
       ]);
       return;
     }
-    await api.cars.addImage(id!, { album, url: uploaded.url });
+    await api.cars.addImage(id!, {
+      album,
+      url: uploaded.url,
+      thumbnailUrl: uploadedThumbnail?.url ?? null,
+    });
     await queryClient.invalidateQueries({ queryKey: ['car', id] });
   }
 

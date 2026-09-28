@@ -29,7 +29,7 @@ export async function FeaturedCars() {
           <MiniCarCard
             key={car.id}
             car={car}
-            imageSrc={car.images[0]?.url}
+            imageSrc={car.images[0]?.thumbnailUrl ?? car.images[0]?.url}
             priority={index === 0}
           />
         ))}

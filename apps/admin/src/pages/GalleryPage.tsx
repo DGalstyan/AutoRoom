@@ -119,7 +119,7 @@ export function GalleryPage() {
               >
                 <Box
                   component="img"
-                  src={image.imageUrl}
+                  src={image.thumbnailUrl ?? image.imageUrl}
                   alt=""
                   sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />

@@ -17,6 +17,8 @@ export const galleryRouter = Router();
 
 const galleryImageBodySchema = z.object({
   imageUrl: z.string().url().max(2048),
+  /** A smaller, client-resized variant of `imageUrl` for the collage tile. */
+  thumbnailUrl: z.string().url().max(2048).nullish(),
   /// Display order of the tiles in the collage — lower shows first.
   position: z.number().int().min(0).max(999).default(0),
 });
@@ -133,6 +135,7 @@ function serializeGalleryImage(image: Prisma.GalleryImageGetPayload<object>) {
   return {
     id: image.id,
     imageUrl: image.imageUrl,
+    thumbnailUrl: image.thumbnailUrl,
     position: image.position,
   };
 }

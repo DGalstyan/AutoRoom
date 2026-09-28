@@ -32,8 +32,8 @@ export function GalleryImageDialog({
 
   const [draft, setDraft] = useState<GalleryImageInput>(() =>
     image
-      ? { imageUrl: image.imageUrl, position: image.position }
-      : { imageUrl: '', position: nextPosition },
+      ? { imageUrl: image.imageUrl, thumbnailUrl: image.thumbnailUrl, position: image.position }
+      : { imageUrl: '', thumbnailUrl: null, position: nextPosition },
   );
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -71,6 +71,8 @@ export function GalleryImageDialog({
               accept="image/*"
               value={draft.imageUrl || null}
               onChange={(url) => set('imageUrl', url ?? '')}
+              withThumbnail
+              onThumbnailChange={(url) => set('thumbnailUrl', url)}
               helperText={
                 fieldErrors.imageUrl ??
                 'A landscape crop looks best — tiles fill a wide aspect ratio.'

@@ -330,7 +330,7 @@ export function CarsPage() {
                   {cover && (
                     <Box
                       component="img"
-                      src={cover.url}
+                      src={cover.thumbnailUrl ?? cover.url}
                       alt=""
                       sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />

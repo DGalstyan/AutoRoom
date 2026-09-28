@@ -145,7 +145,7 @@ function CompareRow({ label, valueA, valueB }: { label: string; valueA: string; 
 }
 
 function CarHeaderCard({ car, onRemove }: { car: Car; onRemove: () => void }) {
-  const image = car.images[0]?.url;
+  const image = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
   return (
     <div className="flex flex-1 items-center gap-6 rounded-2xl bg-white p-3">
       {image ? (

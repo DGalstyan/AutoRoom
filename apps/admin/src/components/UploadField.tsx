@@ -3,6 +3,7 @@ import { Box, Button, CircularProgress, Stack, TextField, Typography } from '@mu
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
+import { makeThumbnail } from '@/lib/imageResize';
 import { brand } from '@/theme';
 
 /**
@@ -24,6 +25,8 @@ export function UploadField({
   disabled = false,
   preview,
   maxSizeLabel = 'Up to 25 MB',
+  withThumbnail = false,
+  onThumbnailChange,
 }: {
   label: string;
   /** An `accept` attribute, e.g. `video/mp4,video/webm` or `image/*`. */
@@ -39,6 +42,12 @@ export function UploadField({
    * so this isn't one constant for every field. Defaults to the limit that
    * applied before video needed its own, much larger one. */
   maxSizeLabel?: string;
+  /** Also generates and uploads a smaller, dimension-only-resized copy
+   * alongside the original, for a field whose record has a paired thumbnail
+   * column (a team photo, a gallery tile) — not every `UploadField` needs
+   * one (a brand logo, a video poster), so this defaults off. */
+  withThumbnail?: boolean;
+  onThumbnailChange?: (url: string | null) => void;
 }) {
   const { api } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +61,12 @@ export function UploadField({
     try {
       const uploaded = await api.upload(file);
       onChange(uploaded.url);
+
+      if (withThumbnail) {
+        const thumbnail = await makeThumbnail(file);
+        const uploadedThumbnail = thumbnail === file ? null : await api.upload(thumbnail);
+        onThumbnailChange?.(uploadedThumbnail?.url ?? null);
+      }
     } catch (caught) {
       setError(errorMessage(caught, 'Upload failed.'));
     } finally {
@@ -85,7 +100,15 @@ export function UploadField({
           {busy ? 'Uploading…' : 'Upload'}
         </Button>
         {value && !busy && (
-          <Button size="small" color="inherit" onClick={() => onChange(null)} disabled={disabled}>
+          <Button
+            size="small"
+            color="inherit"
+            onClick={() => {
+              onChange(null);
+              if (withThumbnail) onThumbnailChange?.(null);
+            }}
+            disabled={disabled}
+          >
             Clear
           </Button>
         )}

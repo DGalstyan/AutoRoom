@@ -51,6 +51,9 @@ export interface CarImage {
   carId: string;
   album: ImageAlbum;
   url: string;
+  /** A smaller, dimension-only-resized variant of `url` for card/grid
+   * contexts — falls back to `url` on a row that predates this field. */
+  thumbnailUrl: string | null;
   position: number;
 }
 

@@ -260,7 +260,7 @@ export function createApiClient(options: ApiClientOptions) {
 
       addImage: (
         id: string,
-        image: { album: ImageAlbum; url: string; position?: number },
+        image: { album: ImageAlbum; url: string; thumbnailUrl?: string | null; position?: number },
         init?: RequestOptions,
       ) => request<CarImage>('POST', `/cars/${id}/images`, { ...init, body: image }),
       removeImage: (id: string, imageId: string, init?: RequestOptions) =>

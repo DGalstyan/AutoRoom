@@ -22,6 +22,11 @@ const teamMemberBodySchema = z.object({
     .union([z.string().url().max(2048), z.literal(''), z.null()])
     .transform((value) => (value === '' ? null : value))
     .nullish(),
+  /** A smaller, client-resized variant of `photoUrl` for the team grid card. */
+  photoThumbnailUrl: z
+    .union([z.string().url().max(2048), z.literal(''), z.null()])
+    .transform((value) => (value === '' ? null : value))
+    .nullish(),
   linkedinUrl: z
     .union([z.string().url().max(2048), z.literal(''), z.null()])
     .transform((value) => (value === '' ? null : value))
@@ -103,6 +108,7 @@ function toWriteData(body: z.infer<typeof teamMemberBodySchema>) {
     name: body.name,
     title: body.title,
     photoUrl: body.photoUrl ?? null,
+    photoThumbnailUrl: body.photoThumbnailUrl ?? null,
     linkedinUrl: body.linkedinUrl ?? null,
     position: body.position,
   };
@@ -114,6 +120,7 @@ function serializeTeamMember(member: Prisma.TeamMemberGetPayload<object>) {
     name: member.name,
     title: member.title,
     photoUrl: member.photoUrl,
+    photoThumbnailUrl: member.photoThumbnailUrl,
     linkedinUrl: member.linkedinUrl,
     position: member.position,
   };

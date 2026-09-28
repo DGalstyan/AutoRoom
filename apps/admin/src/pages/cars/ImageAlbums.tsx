@@ -17,6 +17,7 @@ export interface StagedImage {
   id: string;
   album: ImageAlbum;
   url: string;
+  thumbnailUrl: string | null;
 }
 
 /**
@@ -243,7 +244,7 @@ function AlbumRow({
                   ) : (
                     <Box
                       component="img"
-                      src={image.url}
+                      src={image.thumbnailUrl ?? image.url}
                       alt=""
                       loading="lazy"
                       draggable={false}

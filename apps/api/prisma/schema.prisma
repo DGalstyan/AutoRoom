@@ -234,7 +234,7 @@ model Branch {
   /// Display order on the public site.
   position Int     @default(0)
 
-  slots AvailabilitySlot[]
+  slots        AvailabilitySlot[]
   /// Leads whose booked meeting is at this office — the "Become a dealer"
   /// form's `🏢 AutoRoom գրասենյակում` choice.
   meetingLeads Lead[]
@@ -356,12 +356,15 @@ model Bank {
 /// controls display order. `linkedinUrl` is optional per the Figma card,
 /// which only shows the icon for people who have one.
 model TeamMember {
-  id          String  @id @default(cuid())
-  name        String
-  title       String
-  photoUrl    String?
-  linkedinUrl String?
-  position    Int     @default(0)
+  id                String  @id @default(cuid())
+  name              String
+  title             String
+  photoUrl          String?
+  /// A smaller, dimension-only-resized variant of `photoUrl` for the team
+  /// grid card — see `CarImage.thumbnailUrl`'s doc comment for the pattern.
+  photoThumbnailUrl String?
+  linkedinUrl       String?
+  position          Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -375,9 +378,13 @@ model TeamMember {
 /// (sorted by `position`) and disappears from the page entirely when empty,
 /// same "no placeholder content" contract as `TeamMember`.
 model GalleryImage {
-  id       String @id @default(cuid())
-  imageUrl String
-  position Int    @default(0)
+  id           String  @id @default(cuid())
+  imageUrl     String
+  /// A smaller, dimension-only-resized variant of `imageUrl` for the
+  /// collage tile — see `CarImage.thumbnailUrl`'s doc comment for the
+  /// pattern.
+  thumbnailUrl String?
+  position     Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -460,16 +467,16 @@ model Car {
   seats        Int?
   warranty     String?
 
-  vin       String?
-  lotNumber String?
-  mileage   Int?
+  vin             String?
+  lotNumber       String?
+  mileage         Int?
   /// The AutoRoom-provided View-Only (Guest Login) link a visitor follows to
   /// watch this specific Copart/IAAI listing live — USA auction detail S2.3's
   /// "Տեսնել մեքենան օնլայն" CTA. Null for every non-`AUCTION` car, and for
   /// an auction car until staff attach it; the button itself is skipped
   /// while unset, same "field renders nothing until set" contract as every
   /// other optional column here (see `CarSpecs`).
-  auctionViewUrl String?
+  auctionViewUrl  String?
   /// Set alongside `auctionViewUrl` for an `AUCTION` car — see
   /// `AuctionPlatform`'s own comment.
   auctionPlatform AuctionPlatform?
@@ -550,13 +557,19 @@ model CarSimilar {
 }
 
 model CarImage {
-  id       String     @id @default(cuid())
-  carId    String
-  car      Car        @relation(fields: [carId], references: [id], onDelete: Cascade)
-  album    ImageAlbum
-  url      String
+  id           String     @id @default(cuid())
+  carId        String
+  car          Car        @relation(fields: [carId], references: [id], onDelete: Cascade)
+  album        ImageAlbum
+  url          String
+  /// A smaller, dimension-only-resized variant of `url` for grid/card
+  /// contexts (the album editor's own thumbnails, the public car cards) —
+  /// generated client-side at upload time, same original encoding quality.
+  /// Nullable: rows created before this existed have none, and fall back to
+  /// `url` wherever it's read.
+  thumbnailUrl String?
   /// Display order within its album.
-  position Int        @default(0)
+  position     Int        @default(0)
 
   createdAt DateTime @default(now())
 
@@ -634,7 +647,7 @@ model AvailabilitySlot {
 
   note String?
 
-  bookings Booking[]
+  bookings     Booking[]
   /// Public "Become a dealer" enquiries that asked for this window. These do
   /// *not* count towards `capacity` — only `bookings` do — see `Lead`.
   meetingLeads Lead[]

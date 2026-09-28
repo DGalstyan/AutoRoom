@@ -517,6 +517,7 @@ function serializePortalCar(car: PortalCarRow) {
       id: image.id,
       album: image.album,
       url: image.url,
+      thumbnailUrl: image.thumbnailUrl,
       position: image.position,
     })),
   };

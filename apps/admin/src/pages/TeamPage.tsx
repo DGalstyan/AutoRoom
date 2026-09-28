@@ -113,7 +113,7 @@ export function TeamPage() {
                 {member.photoUrl && (
                   <Box
                     component="img"
-                    src={member.photoUrl}
+                    src={member.photoThumbnailUrl ?? member.photoUrl}
                     alt=""
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />

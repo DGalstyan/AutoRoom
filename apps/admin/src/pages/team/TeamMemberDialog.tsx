@@ -36,6 +36,7 @@ export function TeamMemberDialog({
           name: member.name,
           title: member.title,
           photoUrl: member.photoUrl,
+          photoThumbnailUrl: member.photoThumbnailUrl,
           linkedinUrl: member.linkedinUrl,
           position: member.position,
         }
@@ -43,6 +44,7 @@ export function TeamMemberDialog({
           name: '',
           title: '',
           photoUrl: null,
+          photoThumbnailUrl: null,
           linkedinUrl: null,
           position: nextPosition,
         },
@@ -105,6 +107,8 @@ export function TeamMemberDialog({
               accept="image/*"
               value={draft.photoUrl ?? null}
               onChange={(url) => set('photoUrl', url)}
+              withThumbnail
+              onThumbnailChange={(url) => set('photoThumbnailUrl', url)}
               helperText={
                 fieldErrors.photoUrl ??
                 'Shown as the full card background — a portrait crop looks best.'

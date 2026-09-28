@@ -260,6 +260,9 @@ function facetWhere(
 const imageSchema = z.object({
   album: z.nativeEnum(ImageAlbum),
   url: z.string().url().max(2048),
+  /** A smaller, client-resized variant of `url` for grid/card contexts.
+   * Optional — a row can exist without one (pre-existing rows, or a video). */
+  thumbnailUrl: z.string().url().max(2048).nullish(),
   position: z.number().int().min(0).max(999).optional(),
 });
 
@@ -503,6 +506,7 @@ carsRouter.post(
         carId,
         album: body.album,
         url: body.url,
+        thumbnailUrl: body.thumbnailUrl ?? null,
         position: body.position ?? (last ? last.position + 1 : 0),
       },
     });
@@ -764,6 +768,7 @@ function serializeImage(image: {
   carId: string;
   album: ImageAlbum;
   url: string;
+  thumbnailUrl: string | null;
   position: number;
 }) {
   return {
@@ -771,6 +776,7 @@ function serializeImage(image: {
     carId: image.carId,
     album: image.album,
     url: image.url,
+    thumbnailUrl: image.thumbnailUrl,
     position: image.position,
   };
 }

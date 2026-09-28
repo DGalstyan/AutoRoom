@@ -182,6 +182,10 @@ export interface CarImage {
   carId: string;
   album: ImageAlbum;
   url: string;
+  /** A smaller, dimension-only-resized variant of `url` for card/grid
+   * contexts — null on a row that predates this field, or has no thumbnail
+   * (e.g. a video). */
+  thumbnailUrl: string | null;
   position: number;
 }
 
@@ -441,6 +445,9 @@ export interface TeamMember {
   name: string;
   title: string;
   photoUrl: string | null;
+  /** A smaller, dimension-only-resized variant of `photoUrl` for the team
+   * grid card. */
+  photoThumbnailUrl: string | null;
   linkedinUrl: string | null;
   position: number;
 }
@@ -450,6 +457,9 @@ export type TeamMemberInput = Omit<TeamMember, 'id'>;
 export interface GalleryImage {
   id: string;
   imageUrl: string;
+  /** A smaller, dimension-only-resized variant of `imageUrl` for the
+   * collage tile. */
+  thumbnailUrl: string | null;
   position: number;
 }
 
@@ -771,7 +781,13 @@ export interface PortalCar {
   mileage: number | null;
   vin: string | null;
   publishedAt: string | null;
-  images: { id: string; album: ImageAlbum; url: string; position: number }[];
+  images: {
+    id: string;
+    album: ImageAlbum;
+    url: string;
+    thumbnailUrl: string | null;
+    position: number;
+  }[];
 }
 
 export interface UploadResponse {
