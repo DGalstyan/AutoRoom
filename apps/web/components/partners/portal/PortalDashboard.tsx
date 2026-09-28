@@ -86,7 +86,7 @@ export function PortalDashboard() {
     <div className="mx-auto max-w-[1344px] px-4 py-16 sm:px-6 lg:py-24">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-home-h2 font-light text-ink">
+          <h1 className="mt-[10px] font-display text-home-h2 font-light text-ink">
             {greeting(t.dashboard)}, {identity?.name.split(' ')[0]} 👋
           </h1>
           <p className="mt-2 text-body text-neutral-700">

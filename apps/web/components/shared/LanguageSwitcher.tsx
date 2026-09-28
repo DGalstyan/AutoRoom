@@ -12,8 +12,20 @@ const LABELS: Record<Locale, string> = { hy: 'ՀԱՅ', en: 'EN', ru: 'РУС' };
  * enabled, since a switcher with a single option isn't a switcher. Writes
  * the visitor's choice as a cookie (`setLocaleAction`) and refreshes the
  * current route so every Server Component re-renders in the new language.
+ *
+ * `tone='light'` (the partner portal's white header, same split as
+ * `BrandLogo`'s — see `Header.tsx`'s `isLightHeader`) swaps the translucent
+ * white pill/text for an ink-tinted one: the default `bg-white/10` pill and
+ * `text-white` inactive labels are only visible against a dark surface, and
+ * read as invisible (white-on-white) on a light one.
  */
-export function LanguageSwitcher({ className = '' }: { className?: string }) {
+export function LanguageSwitcher({
+  className = '',
+  tone = 'dark',
+}: {
+  className?: string;
+  tone?: 'dark' | 'light';
+}) {
   const locale = useLocale();
   const enabledLocales = useEnabledLocales();
   const { setLocale, isPending } = useSetLocale();
@@ -24,7 +36,7 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
     <div
       role="group"
       aria-label="Language"
-      className={`flex items-center gap-1 rounded-pill bg-white/10 p-1 ${className}`}
+      className={`flex items-center gap-1 rounded-pill p-1 ${tone === 'light' ? 'bg-ink/5' : 'bg-white/10'} ${className}`}
     >
       {enabledLocales.map((code) => (
         <button
@@ -34,7 +46,11 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
           disabled={isPending}
           onClick={() => setLocale(code)}
           className={`rounded-pill px-3 py-1.5 text-[13px] font-medium transition-colors duration-standard disabled:opacity-60 ${
-            locale === code ? 'bg-accent text-ink' : 'text-white hover:bg-white/10'
+            locale === code
+              ? 'bg-accent text-ink'
+              : tone === 'light'
+                ? 'text-ink hover:bg-ink/5'
+                : 'text-white hover:bg-white/10'
           }`}
         >
           {LABELS[code]}

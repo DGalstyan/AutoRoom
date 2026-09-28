@@ -126,7 +126,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
-          <LanguageSwitcher />
+          <LanguageSwitcher tone={isLightHeader ? 'light' : 'dark'} />
           <button
             type="button"
             onClick={() => openUniversal({ sourceCta: 'header-cta' })}
