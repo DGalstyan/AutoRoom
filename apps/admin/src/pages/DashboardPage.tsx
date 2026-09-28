@@ -1,18 +1,34 @@
 import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/auth/AuthProvider';
 import { brand, mono } from '@/theme';
 
 /**
  * Landing screen.
  *
- * Deliberately not a wall of placeholder metrics: the counts A7 will show —
- * new leads, active orders, cars by status — need Phase B–C data that does not
- * exist yet, and inventing them would make the panel look finished when it is
- * not. What it shows instead is true today and genuinely useful: who you are
- * signed in as and exactly what your role can reach.
+ * Order/payment-pipeline metrics (Phase C4 — see `ADMIN-TASKS.md`) still
+ * don't exist, so this doesn't invent those. Cars and leads counts are real
+ * data the API already has (Phase A/C1), so those two are shown for real —
+ * `take: 1` on each query, since only `total` is needed, not the rows.
  */
 export function DashboardPage() {
-  const { identity } = useAuth();
+  const { identity, api } = useAuth();
+
+  const canReadCars = identity?.permissions.includes('cars:READ') ?? false;
+  const canReadLeads = identity?.permissions.includes('leads:READ') ?? false;
+
+  const carsQuery = useQuery({
+    queryKey: ['dashboard', 'cars-count'],
+    queryFn: () => api.cars.list({ take: 1 }),
+    enabled: canReadCars,
+  });
+  const newLeadsQuery = useQuery({
+    queryKey: ['dashboard', 'new-leads-count'],
+    queryFn: () => api.leads.list({ status: 'NEW', take: 1 }),
+    enabled: canReadLeads,
+  });
+
   if (!identity) return null;
 
   const byResource = groupPermissions(identity.permissions);
@@ -28,6 +44,25 @@ export function DashboardPage() {
       <Typography sx={{ color: 'text.secondary', mb: 4 }}>
         The catalogue, CRM and order modules arrive in the next phases. Your access is already live.
       </Typography>
+
+      {(canReadCars || canReadLeads) && (
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
+          {canReadCars && (
+            <Fact
+              label="Cars uploaded"
+              value={carsQuery.isPending ? '—' : String(carsQuery.data?.total ?? 0)}
+              to="/cars"
+            />
+          )}
+          {canReadLeads && (
+            <Fact
+              label="New leads"
+              value={newLeadsQuery.isPending ? '—' : String(newLeadsQuery.data?.total ?? 0)}
+              to="/leads"
+            />
+          )}
+        </Stack>
+      )}
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
         <Fact label="Role" value={identity.role.name} />
@@ -85,9 +120,24 @@ export function DashboardPage() {
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value, to }: { label: string; value: string; to?: string }) {
   return (
-    <Paper variant="outlined" sx={{ px: 2.5, py: 2, borderRadius: 3, flex: 1, minWidth: 0 }}>
+    <Paper
+      variant="outlined"
+      {...(to ? { component: RouterLink, to } : {})}
+      sx={{
+        px: 2.5,
+        py: 2,
+        borderRadius: 3,
+        flex: 1,
+        minWidth: 0,
+        display: 'block',
+        textDecoration: 'none',
+        color: 'inherit',
+        transition: 'border-color 120ms ease',
+        ...(to ? { '&:hover': { borderColor: 'text.secondary' } } : {}),
+      }}
+    >
       <Typography variant="overline" sx={{ color: 'text.secondary', display: 'block' }}>
         {label}
       </Typography>
