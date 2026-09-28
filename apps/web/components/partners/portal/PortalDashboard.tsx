@@ -43,6 +43,8 @@ export function PortalDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'cars' | 'orders' | 'bookings'>('cars');
   const [originFilter, setOriginFilter] = useState<CarOrigin | 'ALL'>('ALL');
+  const [branchFilter, setBranchFilter] = useState<string | 'ALL'>('ALL');
+  const [dateSort, setDateSort] = useState<'desc' | 'asc'>('desc');
   const [orderSearch, setOrderSearch] = useState('');
 
   useEffect(() => {
@@ -73,11 +75,21 @@ export function PortalDashboard() {
     };
   }, [orders]);
 
+  /** Distinct branches across this partner's orders — nothing to pick from
+   * until at least one order's car has a `location` set. */
+  const branchOptions = useMemo(() => {
+    const list = orders ?? [];
+    const seen = new Set<string>();
+    for (const order of list) if (order.car.location) seen.add(order.car.location);
+    return Array.from(seen).sort();
+  }, [orders]);
+
   const filteredOrders = useMemo(() => {
     const list = orders ?? [];
     const term = orderSearch.trim().toLowerCase();
-    return list.filter((order) => {
+    const filtered = list.filter((order) => {
       if (originFilter !== 'ALL' && order.car.origin !== originFilter) return false;
+      if (branchFilter !== 'ALL' && order.car.location !== branchFilter) return false;
       if (!term) return true;
       return (
         order.orderNumber.toLowerCase().includes(term) ||
@@ -86,7 +98,11 @@ export function PortalDashboard() {
         order.car.model.toLowerCase().includes(term)
       );
     });
-  }, [orders, originFilter, orderSearch]);
+    return [...filtered].sort((a, b) => {
+      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return dateSort === 'asc' ? diff : -diff;
+    });
+  }, [orders, originFilter, branchFilter, orderSearch, dateSort]);
 
   if (error) {
     return (
@@ -226,6 +242,33 @@ export function PortalDashboard() {
                 onClick={() => setOriginFilter('USA')}
                 label={`${nav.usa} (${orderCounts.USA})`}
               />
+
+              <select
+                value={dateSort}
+                onChange={(event) => setDateSort(event.target.value as 'desc' | 'asc')}
+                aria-label={t.dashboard.ordersTable.date}
+                className="h-9 rounded-pill border border-line-light bg-white px-3 text-[13px] text-ink outline-none focus:ring-2 focus:ring-accent"
+              >
+                <option value="desc">{t.dashboard.filters.sortNewest}</option>
+                <option value="asc">{t.dashboard.filters.sortOldest}</option>
+              </select>
+
+              {branchOptions.length > 0 && (
+                <select
+                  value={branchFilter}
+                  onChange={(event) => setBranchFilter(event.target.value)}
+                  aria-label={t.dashboard.ordersTable.branch}
+                  className="h-9 rounded-pill border border-line-light bg-white px-3 text-[13px] text-ink outline-none focus:ring-2 focus:ring-accent"
+                >
+                  <option value="ALL">{t.dashboard.filters.allBranches}</option>
+                  {branchOptions.map((branch) => (
+                    <option key={branch} value={branch}>
+                      {branch}
+                    </option>
+                  ))}
+                </select>
+              )}
+
               <input
                 type="text"
                 value={orderSearch}

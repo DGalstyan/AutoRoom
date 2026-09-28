@@ -1140,7 +1140,10 @@
         },
         "filters": {
           "all": "Բոլորը",
-          "searchPlaceholder": "Որոնում…"
+          "searchPlaceholder": "Որոնում…",
+          "allBranches": "Բոլոր մասնաճյուղերը",
+          "sortNewest": "Նորերը սկզբում",
+          "sortOldest": "Հները սկզբում"
         }
       },
       "errors": {

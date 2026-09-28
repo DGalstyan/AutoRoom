@@ -1140,7 +1140,10 @@
         },
         "filters": {
           "all": "Все",
-          "searchPlaceholder": "Поиск…"
+          "searchPlaceholder": "Поиск…",
+          "allBranches": "Все филиалы",
+          "sortNewest": "Сначала новые",
+          "sortOldest": "Сначала старые"
         }
       },
       "errors": {

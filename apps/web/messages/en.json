@@ -1140,7 +1140,10 @@
         },
         "filters": {
           "all": "All",
-          "searchPlaceholder": "Search…"
+          "searchPlaceholder": "Search…",
+          "allBranches": "All branches",
+          "sortNewest": "Newest first",
+          "sortOldest": "Oldest first"
         }
       },
       "errors": {
