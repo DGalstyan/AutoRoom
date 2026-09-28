@@ -141,20 +141,20 @@ export const ROLES: RoleDefinition[] = [
     name: 'Partner',
     description:
       'Partner portal only — the cars assigned to them, their bookings and their orders. Never sees the admin panel.',
-    grants: {
-      // Deliberately no `cars:READ` or `bookings:READ`, even though the portal
-      // shows both. Those grants are checked by the *admin* routes, which
-      // return the whole catalogue and every partner's bookings — handing one
-      // to a partner would open exactly what the portal exists to narrow.
-      //
-      // Record-level scoping ("their own") is not expressible in this matrix at
-      // all, so the `/portal/*` routes carry it instead: they require a signed-in
-      // account with a Partner attached and filter by that partner's id, with no
-      // parameter that could ask for anyone else's rows.
-      orders: ['READ'],
-      documents: ['READ'],
-      payments: ['READ'],
-    },
+    // Deliberately empty. A partner holds no `resource:READ` grant at all —
+    // not `cars`, `bookings`, `orders`, `documents` nor `payments` — even
+    // though the portal shows all five. Those grants are checked by the
+    // *admin* routes, which return the whole catalogue/every partner's rows —
+    // handing one to a partner would open exactly what the portal exists to
+    // narrow (a real gap this once was: `orders:READ` briefly sat here and
+    // let a partner account reach the admin `/orders` list directly).
+    //
+    // Record-level scoping ("their own") is not expressible in this matrix at
+    // all, so the `/portal/*` routes carry it instead: they require a signed-in
+    // account with a Partner attached and filter by that partner's id, with no
+    // parameter that could ask for anyone else's rows, and check no permission
+    // at all — `requirePartner` alone is the gate.
+    grants: {},
   },
 ];
 

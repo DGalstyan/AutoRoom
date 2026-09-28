@@ -1104,6 +1104,43 @@
           "ON_ORDER": "Պատվերով",
           "ON_ROAD": "Ճանապարհին",
           "AUCTION": "Աճուրդում"
+        },
+        "stageStats": {
+          "heading": "Ակտիվ մեքենաներ",
+          "active": "Ակտիվ մեքենաներ",
+          "loading": "Բեռնման փուլում",
+          "inTransit": "Ճանապարհին",
+          "arrived": "Հասել է Հայաստան",
+          "delivered": "Հանձնված"
+        },
+        "paymentStats": {
+          "heading": "Վճարումների ամփոփում",
+          "pending": "Վճարման ենթակա",
+          "partial": "Մասամբ վճարված",
+          "paid": "Ամբողջությամբ վճարված"
+        },
+        "ordersHeading": "Պատվերներ",
+        "noOrders": "Դեռ պատվեր չկա։",
+        "ordersTable": {
+          "date": "Ամսաթիվ",
+          "orderNumber": "Պատվերի համար",
+          "vin": "VIN",
+          "make": "Մակնիշ",
+          "model": "Մոդել",
+          "status": "Ստատուս",
+          "country": "Երկիր",
+          "branch": "Մասնաճյուղ"
+        },
+        "orderStage": {
+          "CREATED": "Ստեղծված",
+          "LOADING": "Բեռնման փուլում",
+          "IN_TRANSIT": "Ճանապարհին",
+          "ARRIVED": "Հասել է Հայաստան",
+          "DELIVERED": "Հանձնված"
+        },
+        "filters": {
+          "all": "Բոլորը",
+          "searchPlaceholder": "Որոնում…"
         }
       },
       "errors": {

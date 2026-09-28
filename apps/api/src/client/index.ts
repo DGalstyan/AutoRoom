@@ -16,8 +16,10 @@ import type {
   CarInput,
   CarListQuery,
   CarListResponse,
+  CarOrigin,
   ChangePasswordRequest,
   CreateUserRequest,
+  DocumentInput,
   ErrorCode,
   Faq,
   FaqInput,
@@ -39,10 +41,18 @@ import type {
   MediaKind,
   Booking,
   BookingInput,
+  Order,
+  OrderDocument,
+  OrderInput,
+  OrderPayment,
+  OrderStageAdvanceInput,
+  OrderStageName,
+  OrderUpdateInput,
   Partner,
   PartnerAccountRequest,
   PartnerAccountResponse,
   PartnerInput,
+  PaymentInput,
   PermissionCatalogue,
   PermissionPair,
   PortalCar,
@@ -352,6 +362,42 @@ export function createApiClient(options: ApiClientOptions) {
         request<void>('DELETE', `/bookings/${id}`, init),
     },
 
+    orders: {
+      list: (
+        query: {
+          partnerId?: string;
+          origin?: CarOrigin;
+          stage?: OrderStageName;
+          search?: string;
+          take?: number;
+          skip?: number;
+        } = {},
+        init?: RequestOptions,
+      ) =>
+        request<{ items: Order[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/orders${toSearch(query)}`,
+          init,
+        ),
+      get: (id: string, init?: RequestOptions) => request<Order>('GET', `/orders/${id}`, init),
+      create: (body: OrderInput, init?: RequestOptions) =>
+        request<Order>('POST', '/orders', { ...init, body }),
+      update: (id: string, body: OrderUpdateInput, init?: RequestOptions) =>
+        request<Order>('PUT', `/orders/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/orders/${id}`, init),
+      /** Adds a timeline entry and advances (or corrects) the order's current stage. */
+      advanceStage: (id: string, body: OrderStageAdvanceInput, init?: RequestOptions) =>
+        request<Order>('POST', `/orders/${id}/stages`, { ...init, body }),
+      addDocument: (id: string, body: DocumentInput, init?: RequestOptions) =>
+        request<OrderDocument>('POST', `/orders/${id}/documents`, { ...init, body }),
+      removeDocument: (id: string, documentId: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/orders/${id}/documents/${documentId}`, init),
+      addPayment: (id: string, body: PaymentInput, init?: RequestOptions) =>
+        request<OrderPayment>('POST', `/orders/${id}/payments`, { ...init, body }),
+      removePayment: (id: string, paymentId: string, init?: RequestOptions) =>
+        request<void>('DELETE', `/orders/${id}/payments/${paymentId}`, init),
+    },
+
     branches: {
       list: (init?: RequestOptions) =>
         request<{ items: Branch[]; total: number }>('GET', '/branches', init),
@@ -535,6 +581,8 @@ export function createApiClient(options: ApiClientOptions) {
         request<{ items: PortalCar[]; total: number }>('GET', '/portal/cars', init),
       bookings: (init?: RequestOptions) =>
         request<{ items: Booking[]; total: number }>('GET', '/portal/bookings', init),
+      orders: (init?: RequestOptions) =>
+        request<{ items: Order[]; total: number }>('GET', '/portal/orders', init),
       /** Open, future slots only — what this partner may actually book into. */
       availability: (init?: RequestOptions) =>
         request<{ items: AvailabilitySlot[]; total: number }>('GET', '/portal/availability', init),

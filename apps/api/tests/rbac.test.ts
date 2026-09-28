@@ -1,7 +1,16 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { UserStatus } from '@prisma/client';
 import { prisma } from '../src/lib/prisma';
-import { agent, auth, carBody, createCar, createUser, disconnect, resetData } from './helpers';
+import {
+  agent,
+  auth,
+  carBody,
+  createCar,
+  createOrder,
+  createUser,
+  disconnect,
+  resetData,
+} from './helpers';
 
 /**
  * The `role × resource × action` matrix, asserted through real HTTP requests.
@@ -22,6 +31,7 @@ type Method = 'get' | 'post' | 'put' | 'delete';
 interface Probe {
   name: string;
   method: Method;
+  /** `__CAR__`/`__ORDER__` are substituted with a fresh fixture's id. */
   path: string;
   /** Sent as the request body when present. Supertest will not accept `null`. */
   body?: object;
@@ -137,6 +147,54 @@ const PROBES: Probe[] = [
     path: '/uploads',
     allowed: ['super_admin', 'admin', 'content_editor'],
   },
+
+  // ---- orders ----
+  {
+    name: 'list orders',
+    method: 'get',
+    path: '/orders',
+    allowed: ['super_admin', 'admin', 'manager'],
+  },
+  {
+    name: 'create order',
+    method: 'post',
+    path: '/orders',
+    body: { carId: '__CAR__', orderNumber: 'ORD-PROBE' },
+    // Manager holds only orders:READ/UPDATE — "view and advance status", not create/delete.
+    allowed: ['super_admin', 'admin'],
+  },
+  {
+    name: 'advance an order stage',
+    method: 'post',
+    path: '/orders/__ORDER__/stages',
+    body: { stage: 'LOADING', occurredAt: '2026-01-01T00:00:00.000Z' },
+    allowed: ['super_admin', 'admin', 'manager'],
+  },
+  {
+    name: 'delete an order',
+    method: 'delete',
+    path: '/orders/__ORDER__',
+    allowed: ['super_admin', 'admin'],
+  },
+
+  // ---- documents ----
+  {
+    name: 'add a document',
+    method: 'post',
+    path: '/orders/__ORDER__/documents',
+    body: { name: 'Invoice', url: 'https://example.com/invoice.pdf' },
+    allowed: ['super_admin', 'admin'],
+  },
+
+  // ---- payments ----
+  {
+    name: 'add a payment',
+    method: 'post',
+    path: '/orders/__ORDER__/payments',
+    body: { amount: 1000, paidAt: '2026-01-01T00:00:00.000Z' },
+    // Admin holds payments:READ only — billing is deliberately not theirs to write.
+    allowed: ['super_admin'],
+  },
 ];
 
 describe('RBAC matrix', () => {
@@ -158,10 +216,22 @@ describe('RBAC matrix', () => {
         it(`${shouldAllow ? 'allows' : 'refuses'} ${role}`, async () => {
           const { token } = await createUser(role);
           const car = await createCar();
-          const path = probe.path.replace('__CAR__', car.id);
+          const order = await createOrder(car.id);
+          const path = probe.path.replace('__CAR__', car.id).replace('__ORDER__', order.id);
+          // Bodies reference fixture ids the same way paths do — substituted
+          // as JSON string literals rather than typed, since a probe's body
+          // is otherwise a plain object.
+          const body =
+            probe.body === undefined
+              ? undefined
+              : (JSON.parse(
+                  JSON.stringify(probe.body)
+                    .replaceAll('"__CAR__"', JSON.stringify(car.id))
+                    .replaceAll('"__ORDER__"', JSON.stringify(order.id)),
+                ) as object);
 
           const call = agent()[probe.method](path).set(auth(token));
-          const response = probe.body === undefined ? await call : await call.send(probe.body);
+          const response = body === undefined ? await call : await call.send(body);
 
           if (shouldAllow) {
             expect(response.status, `${role} should reach ${probe.name}`).not.toBe(403);

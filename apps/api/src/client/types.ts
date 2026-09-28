@@ -398,6 +398,103 @@ export interface BookingInput {
   notes?: string | null;
 }
 
+/* --------------------------------- orders ------------------------------------ */
+
+export type OrderStageName = 'CREATED' | 'LOADING' | 'IN_TRANSIT' | 'ARRIVED' | 'DELIVERED';
+export type DocumentKind = 'INVOICE' | 'CUSTOMS' | 'TITLE' | 'OTHER';
+export type PaymentStatus = 'PENDING' | 'PARTIAL' | 'PAID';
+
+export interface OrderStageEntry {
+  id: string;
+  stage: OrderStageName;
+  /** ISO 8601 — when this stage actually happened, set by staff. */
+  occurredAt: string;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface OrderDocument {
+  id: string;
+  kind: DocumentKind;
+  name: string;
+  url: string;
+  createdAt: string;
+}
+
+export interface OrderPayment {
+  id: string;
+  /** Whole currency units, matching `Car.price`'s convention. */
+  amount: number;
+  method: string | null;
+  paidAt: string;
+  createdAt: string;
+}
+
+/** One shipment of one specific car — `references/admin.md` C4. */
+export interface Order {
+  id: string;
+  orderNumber: string;
+  carId: string;
+  car: {
+    id: string;
+    slug: string;
+    make: string;
+    model: string;
+    year: number;
+    vin: string | null;
+    origin: CarOrigin;
+    location: string | null;
+    price: number;
+  };
+  partnerId: string | null;
+  partner: { id: string; name: string } | null;
+  stage: OrderStageName;
+  stageSetAt: string;
+  containerNumber: string | null;
+  shipName: string | null;
+  trackingUrl: string | null;
+  /** Full history behind `stage`, oldest first. */
+  stages: OrderStageEntry[];
+  documents: OrderDocument[];
+  payments: OrderPayment[];
+  /** Derived from `payments` vs. `car.price` — not stored. */
+  amountPaid: number;
+  amountDue: number;
+  paymentStatus: PaymentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderInput {
+  carId: string;
+  orderNumber: string;
+  /** Omit to default to the car's own assigned partner; explicit `null` leaves it unassigned. */
+  partnerId?: string | null;
+  containerNumber?: string | null;
+  shipName?: string | null;
+  trackingUrl?: string | null;
+}
+
+export type OrderUpdateInput = Omit<OrderInput, 'carId'>;
+
+export interface OrderStageAdvanceInput {
+  stage: OrderStageName;
+  occurredAt: string;
+  note?: string | null;
+}
+
+export interface DocumentInput {
+  kind: DocumentKind;
+  name: string;
+  url: string;
+}
+
+export interface PaymentInput {
+  amount: number;
+  method?: string | null;
+  paidAt: string;
+}
+
 /* ------------------------------- availability ------------------------------- */
 
 export interface BranchRef {
@@ -756,6 +853,16 @@ export interface PortalIdentity {
     publishedCars: number;
     bookings: number;
     upcomingBookings: number;
+  };
+  orderStats: {
+    stageCounts: {
+      active: number;
+      loading: number;
+      inTransit: number;
+      arrived: number;
+      delivered: number;
+    };
+    paymentSummary: { pending: number; partial: number; paid: number };
   };
 }
 

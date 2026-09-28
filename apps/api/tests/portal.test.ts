@@ -5,6 +5,7 @@ import {
   auth,
   createBooking,
   createCar,
+  createOrder,
   createPartner,
   createPartnerWithAccount,
   createUser,
@@ -24,7 +25,7 @@ describe('partner portal scoping', () => {
   beforeEach(resetData);
   afterAll(disconnect);
 
-  /** Two partners, each with a car and a booking. Returns the first one's session. */
+  /** Two partners, each with a car, a booking and an order. Returns the first one's session. */
   async function twoPartners() {
     const mine = await createPartnerWithAccount({ name: 'Mine' });
     const theirs = await createPartnerWithAccount({ name: 'Theirs' });
@@ -35,7 +36,10 @@ describe('partner portal scoping', () => {
     const myBooking = await createBooking(mine.partner.id, { customerName: 'Aram' });
     const theirBooking = await createBooking(theirs.partner.id, { customerName: 'Nare' });
 
-    return { mine, theirs, myCar, theirCar, myBooking, theirBooking };
+    const myOrder = await createOrder(myCar.id, { partnerId: mine.partner.id });
+    const theirOrder = await createOrder(theirCar.id, { partnerId: theirs.partner.id });
+
+    return { mine, theirs, myCar, theirCar, myBooking, theirBooking, myOrder, theirOrder };
   }
 
   describe('reads are limited to the signed-in partner', () => {
@@ -68,6 +72,39 @@ describe('partner portal scoping', () => {
       expect(response.body.id).toBe(mine.partner.id);
       expect(response.body.counts.cars).toBe(1);
       expect(response.body.counts.bookings).toBe(1);
+      expect(response.body.orderStats.stageCounts.active).toBe(1);
+    });
+
+    it('returns only their own orders', async () => {
+      const { mine, myOrder } = await twoPartners();
+
+      const response = await agent().get('/portal/orders').set(auth(mine.token));
+
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.items.map((order: { id: string }) => order.id)).toEqual([myOrder.id]);
+    });
+
+    it('breaks the dashboard order stats down by stage and payment status', async () => {
+      const mine = await createPartnerWithAccount();
+      const carA = await createCar({ partnerId: mine.partner.id, price: 40_000 });
+      const carB = await createCar({ partnerId: mine.partner.id, price: 20_000 });
+      await createOrder(carA.id, { partnerId: mine.partner.id, stage: 'LOADING' });
+      const orderB = await createOrder(carB.id, { partnerId: mine.partner.id, stage: 'DELIVERED' });
+      await prisma.payment.create({
+        data: { orderId: orderB.id, amount: 20_000, paidAt: new Date() },
+      });
+
+      const response = await agent().get('/portal/me').set(auth(mine.token));
+
+      expect(response.body.orderStats.stageCounts).toEqual({
+        active: 2,
+        loading: 1,
+        inTransit: 0,
+        arrived: 0,
+        delivered: 1,
+      });
+      expect(response.body.orderStats.paymentSummary).toEqual({ pending: 1, partial: 0, paid: 1 });
     });
 
     it('ignores a partnerId supplied by the caller', async () => {
@@ -86,6 +123,12 @@ describe('partner portal scoping', () => {
         .set(auth(mine.token));
       expect(bookings.body.total).toBe(1);
       expect(bookings.body.items[0].partnerId).toBe(mine.partner.id);
+
+      const orders = await agent()
+        .get(`/portal/orders?partnerId=${theirs.partner.id}`)
+        .set(auth(mine.token));
+      expect(orders.body.total).toBe(1);
+      expect(orders.body.items[0].partnerId).toBe(mine.partner.id);
     });
 
     it('shows nothing when nothing is assigned', async () => {
@@ -118,7 +161,7 @@ describe('partner portal scoping', () => {
 
   describe('who may reach the portal at all', () => {
     it('refuses anonymous callers', async () => {
-      for (const path of ['/portal/me', '/portal/cars', '/portal/bookings']) {
+      for (const path of ['/portal/me', '/portal/cars', '/portal/bookings', '/portal/orders']) {
         expect((await agent().get(path)).status, path).toBe(401);
       }
     });
@@ -126,7 +169,7 @@ describe('partner portal scoping', () => {
     it('refuses a partner-role account with no partner record attached', async () => {
       const { token } = await createUser('partner');
 
-      for (const path of ['/portal/me', '/portal/cars', '/portal/bookings']) {
+      for (const path of ['/portal/me', '/portal/cars', '/portal/bookings', '/portal/orders']) {
         expect((await agent().get(path).set(auth(token))).status, path).toBe(403);
       }
     });

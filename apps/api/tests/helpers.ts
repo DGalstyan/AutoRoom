@@ -37,7 +37,7 @@ export async function resetData() {
   // side effect of somebody else's cascade is a test isolation rule nobody can
   // see.
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE leads, bookings, availability_slots, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
+    'TRUNCATE TABLE leads, bookings, availability_slots, payments, documents, order_stages, orders, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
   );
 }
 
@@ -149,6 +149,27 @@ export async function createSlot(
       ...overrides,
     },
   });
+}
+
+export async function createOrder(
+  carId: string,
+  overrides: Partial<Prisma.OrderUncheckedCreateInput> = {},
+) {
+  return prisma.order.create({
+    data: {
+      carId,
+      orderNumber: overrides.orderNumber ?? `ORD-${Math.random().toString(36).slice(2, 10)}`,
+      ...overrides,
+    },
+  });
+}
+
+/** A valid order body, so a 403 in a test is about permission and never validation. */
+export function orderBody(overrides: Record<string, unknown> = {}) {
+  return {
+    orderNumber: `ORD-${Math.random().toString(36).slice(2, 10)}`,
+    ...overrides,
+  };
 }
 
 /** A valid car body, so a 403 in a test is about permission and never validation. */

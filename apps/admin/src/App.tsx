@@ -22,6 +22,8 @@ import { HomeRoute } from '@/pages/HomeRoute';
 import { LeadsPage } from '@/pages/LeadsPage';
 import { LeadDetailPage } from '@/pages/LeadDetailPage';
 import { PartnersPage } from '@/pages/PartnersPage';
+import { OrdersPage } from '@/pages/OrdersPage';
+import { OrderDetailPage } from '@/pages/OrderDetailPage';
 import { BookingsPage } from '@/pages/BookingsPage';
 import { AvailabilityPage } from '@/pages/AvailabilityPage';
 import { BranchesPage } from '@/pages/BranchesPage';
@@ -67,6 +69,8 @@ const router = createBrowserRouter(
           <Route path="/leads" element={<LeadsPage />} />
           <Route path="/leads/:id" element={<LeadDetailPage />} />
           <Route path="/partners" element={<PartnersPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/availability" element={<AvailabilityPage />} />
           <Route path="/branches" element={<BranchesPage />} />

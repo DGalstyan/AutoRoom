@@ -518,6 +518,9 @@ model Car {
 
   images   CarImage[]
   bookings Booking[]
+  /// At most one — an order is one specific shipment of one specific car,
+  /// not a repeatable relationship the way `bookings` is.
+  order    Order?
 
   /// Admin-curated "Նմանատիպ առաջարկներ" for this car, ordered by
   /// `CarSimilar.position`. The public China car-detail page falls back to
@@ -615,6 +618,7 @@ model Partner {
 
   cars     Car[]
   bookings Booking[]
+  orders   Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -840,4 +844,126 @@ model Lead {
   @@index([meetingSlotId])
   @@index([meetingBranchId])
   @@map("leads")
+}
+
+/**
+ * ------------------------------- orders (C4) --------------------------------
+ */
+
+/// Where a shipment is in its journey — the same five stages the partner
+/// portal's "Ակտիվ մեքենաներ" breakdown counts by. Named `OrderStageName`
+/// rather than `OrderStage` so it doesn't collide with the timeline model
+/// below, which is the thing actually called "OrderStage" in admin.md's C4.
+enum OrderStageName {
+  CREATED
+  LOADING
+  IN_TRANSIT
+  ARRIVED
+  DELIVERED
+}
+
+enum DocumentKind {
+  INVOICE
+  CUSTOMS
+  TITLE
+  OTHER
+}
+
+/// One shipment of one specific car. 1:1 with `Car` — a car ships once;
+/// reselling a car that already shipped is a new `Car` row, not a second
+/// `Order` on this one. Photo albums (auction/receipt/handover) piggyback
+/// on the car's own `CarImage.album` rather than a separate model here —
+/// `ImageAlbum` already has those three values, built alongside the car
+/// image gallery long before this model existed.
+model Order {
+  id String @id @default(cuid())
+
+  carId String @unique
+  car   Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  /// Null until staff assign the car to a partner — same "belongs to nobody
+  /// yet" contract as `Car.partnerId`.
+  partnerId String?
+  partner   Partner? @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+
+  /// AutoRoom's own reference, shown to the partner — distinct from the
+  /// car's `lotNumber` (the auction's number) and `vin`.
+  orderNumber String @unique
+
+  /// Denormalized current stage, kept in sync with the latest `OrderStage`
+  /// row on every advance (`POST /orders/:id/stages`) — the dashboard's
+  /// stage-breakdown counts and the orders table both read this directly
+  /// rather than a "latest row per order" query on every request.
+  stage      OrderStageName @default(CREATED)
+  stageSetAt DateTime       @default(now())
+
+  containerNumber String?
+  shipName        String?
+  trackingUrl     String?
+
+  /// The full history behind `stage` — one row per advance, each with the
+  /// date staff actually set (not necessarily "now").
+  stages    OrderStage[]
+  documents Document[]
+  payments  Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId])
+  @@index([stage])
+  @@map("orders")
+}
+
+model OrderStage {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  stage      OrderStageName
+  /// When this stage actually happened, set by staff — not row-creation time.
+  occurredAt DateTime
+  note       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@map("order_stages")
+}
+
+/// Paperwork, not photos — invoices, customs forms, a title. Auction,
+/// receipt and handover photos live on `CarImage` instead (see `Order`'s
+/// doc comment).
+model Document {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  kind DocumentKind @default(OTHER)
+  name String
+  url  String
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@map("documents")
+}
+
+model Payment {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  /// Whole currency units, matching `Car.price`'s convention — AutoRoom
+  /// quotes round figures and never handles cents.
+  amount Int
+  /// Free text — "Cash", "Bank transfer — ref 4471", etc. Not an enum: how a
+  /// partner actually pays varies too much to close-list.
+  method String?
+  paidAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@map("payments")
 }

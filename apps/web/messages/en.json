@@ -1104,6 +1104,43 @@
           "ON_ORDER": "On order",
           "ON_ROAD": "On the road",
           "AUCTION": "At auction"
+        },
+        "stageStats": {
+          "heading": "Active cars",
+          "active": "Active cars",
+          "loading": "Loading",
+          "inTransit": "In transit",
+          "arrived": "Arrived in Armenia",
+          "delivered": "Delivered"
+        },
+        "paymentStats": {
+          "heading": "Payments summary",
+          "pending": "Pending payment",
+          "partial": "Partially paid",
+          "paid": "Fully paid"
+        },
+        "ordersHeading": "Orders",
+        "noOrders": "No orders yet.",
+        "ordersTable": {
+          "date": "Date",
+          "orderNumber": "Order #",
+          "vin": "VIN",
+          "make": "Make",
+          "model": "Model",
+          "status": "Status",
+          "country": "Country",
+          "branch": "Branch"
+        },
+        "orderStage": {
+          "CREATED": "Created",
+          "LOADING": "Loading",
+          "IN_TRANSIT": "In transit",
+          "ARRIVED": "Arrived in Armenia",
+          "DELIVERED": "Delivered"
+        },
+        "filters": {
+          "all": "All",
+          "searchPlaceholder": "Search…"
         }
       },
       "errors": {

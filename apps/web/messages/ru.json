@@ -1104,6 +1104,43 @@
           "ON_ORDER": "Под заказ",
           "ON_ROAD": "В пути",
           "AUCTION": "На аукционе"
+        },
+        "stageStats": {
+          "heading": "Активные автомобили",
+          "active": "Активные автомобили",
+          "loading": "Погрузка",
+          "inTransit": "В пути",
+          "arrived": "Прибыл в Армению",
+          "delivered": "Доставлен"
+        },
+        "paymentStats": {
+          "heading": "Сводка платежей",
+          "pending": "Ожидает оплаты",
+          "partial": "Частично оплачено",
+          "paid": "Полностью оплачено"
+        },
+        "ordersHeading": "Заказы",
+        "noOrders": "Пока нет заказов.",
+        "ordersTable": {
+          "date": "Дата",
+          "orderNumber": "№ заказа",
+          "vin": "VIN",
+          "make": "Марка",
+          "model": "Модель",
+          "status": "Статус",
+          "country": "Страна",
+          "branch": "Филиал"
+        },
+        "orderStage": {
+          "CREATED": "Создан",
+          "LOADING": "Погрузка",
+          "IN_TRANSIT": "В пути",
+          "ARRIVED": "Прибыл в Армению",
+          "DELIVERED": "Доставлен"
+        },
+        "filters": {
+          "all": "Все",
+          "searchPlaceholder": "Поиск…"
         }
       },
       "errors": {

@@ -32,6 +32,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Leads', to: '/leads', permission: 'leads:READ' },
       { label: 'Partners', to: '/partners', permission: 'partners:READ' },
+      { label: 'Orders', to: '/orders', permission: 'orders:READ' },
       { label: 'Bookings', to: '/bookings', permission: 'bookings:READ' },
       { label: 'Availability', to: '/availability', permission: 'availability:READ' },
     ],
@@ -65,6 +66,7 @@ export const NAV_GROUPS: NavGroup[] = [
 const EXTRA_ROUTES: { pattern: string; label: string }[] = [
   { pattern: '/cars/new', label: 'New car' },
   { pattern: '/cars/:id', label: 'Edit car' },
+  { pattern: '/orders/:id', label: 'Order' },
 ];
 
 export interface Crumb {

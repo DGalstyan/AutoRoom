@@ -368,7 +368,7 @@ partnersRouter.get('/portal/me', requireAuth, requirePartner, async (req, res) =
   });
   if (!partner) throw notFound('Partner not found');
 
-  const [upcoming, published] = await Promise.all([
+  const [upcoming, published, orders] = await Promise.all([
     prisma.booking.count({
       where: {
         partnerId: partner.id,
@@ -377,7 +377,39 @@ partnersRouter.get('/portal/me', requireAuth, requirePartner, async (req, res) =
       },
     }),
     prisma.car.count({ where: { partnerId: partner.id, publishedAt: { not: null } } }),
+    // Fetched in full (not a set of `count()` calls) because `paymentStatus`
+    // is derived per order from its payments vs. its car's price — the same
+    // computation `orders.ts`'s `serializeOrder` does — and there is no
+    // count-with-having for that without raw SQL. Partner-scale row counts
+    // make that cost nothing.
+    prisma.order.findMany({
+      where: { partnerId: partner.id },
+      select: {
+        stage: true,
+        car: { select: { price: true } },
+        payments: { select: { amount: true } },
+      },
+    }),
   ]);
+
+  const stageCounts = {
+    active: orders.length,
+    loading: orders.filter((order) => order.stage === 'LOADING').length,
+    inTransit: orders.filter((order) => order.stage === 'IN_TRANSIT').length,
+    arrived: orders.filter((order) => order.stage === 'ARRIVED').length,
+    delivered: orders.filter((order) => order.stage === 'DELIVERED').length,
+  };
+
+  const paymentSummary = orders.reduce(
+    (acc, order) => {
+      const paid = order.payments.reduce((sum, payment) => sum + payment.amount, 0);
+      if (paid <= 0) acc.pending += 1;
+      else if (paid >= order.car.price) acc.paid += 1;
+      else acc.partial += 1;
+      return acc;
+    },
+    { pending: 0, partial: 0, paid: 0 },
+  );
 
   res.json({
     id: partner.id,
@@ -391,6 +423,7 @@ partnersRouter.get('/portal/me', requireAuth, requirePartner, async (req, res) =
       bookings: partner._count.bookings,
       upcomingBookings: upcoming,
     },
+    orderStats: { stageCounts, paymentSummary },
   });
 });
 

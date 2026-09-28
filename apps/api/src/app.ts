@@ -13,6 +13,7 @@ import { faqRouter } from './routes/faq';
 import { galleryRouter } from './routes/gallery';
 import { leadsRouter } from './routes/leads';
 import { mediaRouter } from './routes/media';
+import { ordersRouter } from './routes/orders';
 import { partnersRouter } from './routes/partners';
 import { rolesRouter } from './routes/roles';
 import { settingsRouter } from './routes/settings';
@@ -74,6 +75,7 @@ export function createApp(): Express {
   app.use(galleryRouter);
   app.use(leadsRouter);
   app.use(mediaRouter);
+  app.use(ordersRouter);
   app.use(partnersRouter);
   app.use(rolesRouter);
   app.use(settingsRouter);

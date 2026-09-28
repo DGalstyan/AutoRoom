@@ -34,6 +34,7 @@ export function ImageAlbums({
   onAdd,
   onRemove,
   onReorder,
+  albums = ALBUMS,
 }: {
   images: (CarImage | StagedImage)[];
   readOnly: boolean;
@@ -42,10 +43,14 @@ export function ImageAlbums({
   onRemove: (image: CarImage | StagedImage) => Promise<void>;
   /** Persists the album's full new front-to-back id order after a swap. */
   onReorder: (album: ImageAlbum, imageIds: string[]) => Promise<void>;
+  /** Defaults to all seven — the order detail page narrows this to just the
+   * three order-related ones (auction/receipt/handover), since the other four
+   * belong to the car's own listing, edited from `CarFormPage` instead. */
+  albums?: typeof ALBUMS;
 }) {
   return (
     <Stack spacing={3}>
-      {ALBUMS.map((album) => (
+      {albums.map((album) => (
         <AlbumRow
           key={album.value}
           album={album.value}
