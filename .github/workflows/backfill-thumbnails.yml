@@ -1,0 +1,31 @@
+name: Backfill thumbnails
+
+# Manual, one-off: runs prisma/backfillThumbnails.ts against production over
+# the same SSH secrets Deploy already uses. Never on push — it deliberately
+# walks every existing car/gallery/team image on the live API container with
+# a pause between each one, so it must only run when someone asks for it.
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: backfill-thumbnails
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run the backfill on the server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Default is 10m — this walks every un-thumbed image at a
+          # deliberately slow pace (BACKFILL_DELAY_MS, 3s by default), so a
+          # sizeable image library needs much longer than that to finish.
+          command_timeout: 3h
+          script: |
+            set -e
+            cd /opt/autoroom
+            docker compose -f docker-compose.prod.yml exec -T api npm run backfill:thumbnails
