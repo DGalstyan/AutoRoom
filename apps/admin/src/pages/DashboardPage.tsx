@@ -1,22 +1,26 @@
-import { Box, Chip, Paper, Stack, Typography } from '@mui/material';
+import { Box, Paper, Stack, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { BarChart } from '@mui/x-charts/BarChart';
 import { useAuth } from '@/auth/AuthProvider';
-import { brand, mono } from '@/theme';
+import { STAGES } from '@/pages/orders/orderOptions';
+import { brand } from '@/theme';
 
 /**
  * Landing screen.
  *
- * Order/payment-pipeline metrics (Phase C4 — see `ADMIN-TASKS.md`) still
- * don't exist, so this doesn't invent those. Cars and leads counts are real
- * data the API already has (Phase A/C1), so those two are shown for real —
- * `take: 1` on each query, since only `total` is needed, not the rows.
+ * Cars, leads and orders counts are all real data the API already has
+ * (Phase A/C1/C4) — `take: 1` on the cars/leads queries, since only `total`
+ * is needed, not the rows. The orders chart needs actual rows (to bucket by
+ * stage), so that one query takes more than `1`; row counts at this
+ * business's scale make that cost nothing.
  */
 export function DashboardPage() {
   const { identity, api } = useAuth();
 
   const canReadCars = identity?.permissions.includes('cars:READ') ?? false;
   const canReadLeads = identity?.permissions.includes('leads:READ') ?? false;
+  const canReadOrders = identity?.permissions.includes('orders:READ') ?? false;
 
   const carsQuery = useQuery({
     queryKey: ['dashboard', 'cars-count'],
@@ -28,10 +32,20 @@ export function DashboardPage() {
     queryFn: () => api.leads.list({ status: 'NEW', take: 1 }),
     enabled: canReadLeads,
   });
+  const ordersQuery = useQuery({
+    queryKey: ['dashboard', 'orders'],
+    queryFn: () => api.orders.list({ take: 100 }),
+    enabled: canReadOrders,
+  });
 
   if (!identity) return null;
 
   const byResource = groupPermissions(identity.permissions);
+
+  const stageCounts = STAGES.map((stage) => ({
+    label: stage.label,
+    count: (ordersQuery.data?.items ?? []).filter((order) => order.stage === stage.value).length,
+  }));
 
   return (
     <Box sx={{ maxWidth: 980 }}>
@@ -41,11 +55,9 @@ export function DashboardPage() {
       <Typography variant="h2" sx={{ mt: 0.5, mb: 1 }}>
         {greeting()}, {identity.name.split(' ')[0]}.
       </Typography>
-      <Typography sx={{ color: 'text.secondary', mb: 4 }}>
-        The catalogue, CRM and order modules arrive in the next phases. Your access is already live.
-      </Typography>
+      <Typography sx={{ color: 'text.secondary', mb: 4 }}>Your access is already live.</Typography>
 
-      {(canReadCars || canReadLeads) && (
+      {(canReadCars || canReadLeads || canReadOrders) && (
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
           {canReadCars && (
             <Fact
@@ -61,6 +73,13 @@ export function DashboardPage() {
               to="/leads"
             />
           )}
+          {canReadOrders && (
+            <Fact
+              label="Orders"
+              value={ordersQuery.isPending ? '—' : String(ordersQuery.data?.total ?? 0)}
+              to="/orders"
+            />
+          )}
         </Stack>
       )}
 
@@ -70,52 +89,36 @@ export function DashboardPage() {
         <Fact label="Resources" value={String(Object.keys(byResource).length)} />
       </Stack>
 
-      <Paper variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 3 }}>
-        <Typography variant="h5" sx={{ mb: 0.5 }}>
-          What you can do
-        </Typography>
-        <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', mb: 3 }}>
-          Granted by the {identity.role.name} role. A super admin can change these at any time.
-        </Typography>
+      {canReadOrders && (
+        <Paper variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 3 }}>
+          <Typography variant="h5" sx={{ mb: 0.5 }}>
+            Orders by stage
+          </Typography>
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', mb: 3 }}>
+            Every order this account can see, bucketed by where it is in the shipping pipeline.
+          </Typography>
 
-        <Stack spacing={1.5}>
-          {Object.entries(byResource)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([resource, actions]) => (
-              <Box
-                key={resource}
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', sm: '150px 1fr' },
-                  gap: { xs: 0.75, sm: 2 },
-                  alignItems: 'center',
-                  pb: 1.5,
-                  borderBottom: `1px solid ${brand.lineLight}`,
-                  '&:last-of-type': { borderBottom: 'none', pb: 0 },
-                }}
-              >
-                <Typography sx={{ fontFamily: mono, fontSize: '0.8125rem' }}>{resource}</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                  {actions.map((action) => (
-                    <Chip
-                      key={action}
-                      label={action.toLowerCase()}
-                      size="small"
-                      sx={{
-                        height: 22,
-                        fontSize: '0.6875rem',
-                        fontFamily: mono,
-                        letterSpacing: '0.04em',
-                        bgcolor: `${brand.ink}0A`,
-                        color: brand.ink,
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            ))}
-        </Stack>
-      </Paper>
+          {ordersQuery.isPending ? (
+            <Box sx={{ display: 'grid', placeItems: 'center', py: 8 }}>
+              <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+                Loading…
+              </Typography>
+            </Box>
+          ) : (ordersQuery.data?.items.length ?? 0) === 0 ? (
+            <Typography sx={{ color: 'text.secondary', fontSize: '0.875rem', py: 4 }}>
+              No orders yet.
+            </Typography>
+          ) : (
+            <BarChart
+              height={280}
+              dataset={stageCounts}
+              xAxis={[{ scaleType: 'band', dataKey: 'label' }]}
+              series={[{ dataKey: 'count', label: 'Orders', color: brand.accent }]}
+              grid={{ horizontal: true }}
+            />
+          )}
+        </Paper>
+      )}
     </Box>
   );
 }
