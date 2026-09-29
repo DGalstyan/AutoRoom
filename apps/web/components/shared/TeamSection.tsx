@@ -53,7 +53,7 @@ function TeamCard({ member }: { member: TeamMember }) {
       />
       <div
         className="absolute flex flex-col gap-[2px]"
-        style={{ left: '4.893%', top: '85.714%', width: '50.765%' }}
+        style={{ left: '4.893%', top: '85.714%', width: '50.765%', transform: 'translateY(-16px)' }}
       >
         <p className="font-display text-[16px] font-bold leading-[20px] text-white">
           {member.name}
