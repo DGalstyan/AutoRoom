@@ -58,7 +58,7 @@ function TeamCard({ member }: { member: TeamMember }) {
         <p className="font-display text-[16px] font-bold leading-[20px] text-white">
           {member.name}
         </p>
-        <p className="font-display text-[16px] font-normal leading-[24px] text-white">
+        <p className="pt-[5px] font-display text-[16px] font-normal leading-[24px] text-white">
           {member.title}
         </p>
       </div>
