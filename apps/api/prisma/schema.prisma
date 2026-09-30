@@ -866,7 +866,13 @@ enum DocumentKind {
   INVOICE
   CUSTOMS
   TITLE
+  BILL_OF_SALE
   OTHER
+}
+
+enum InspectionStatus {
+  PENDING
+  CONFIRMED
 }
 
 /// One shipment of one specific car. 1:1 with `Car` — a car ships once;
@@ -898,8 +904,53 @@ model Order {
   stageSetAt DateTime       @default(now())
 
   containerNumber String?
+  /// The vessel's own name — "Vessel Name" on the partner-facing Cars inner
+  /// page (Figma node `431:976`). Reused as-is rather than adding a second
+  /// column; a container ships on one named vessel.
   shipName        String?
   trackingUrl     String?
+
+  /// This specific physical unit's color once known — distinct from
+  /// `Car.colors`, which is the marketing variant-picker list for an
+  /// ON_ORDER listing, not what actually showed up.
+  color String?
+
+  /// ---- sale origin ----
+  saleOrigin   String?
+  purchaseDate DateTime?
+  paidDate     DateTime?
+  seller       String?
+
+  /// ---- delivery ----
+  deliveryBranch   String?
+  truckingRequired Boolean @default(false)
+
+  /// ---- exporter & receiver ----
+  exporter       String?
+  consignee      String?
+  receivingAgent String?
+
+  /// ---- shipping ----
+  /// Whether this container's cargo is consolidated with other shipments.
+  consolidate      Boolean @default(false)
+  finalDestination String?
+  shippingLine     String?
+
+  /// ---- commodity details ----
+  /// AutoRoom's buyer code with the auction house, and the pickup gate
+  /// pass/PIN — both distinct from `Car.lotNumber` (the auction's own lot
+  /// number) and `orderNumber` (AutoRoom's reference to the partner).
+  buyerCode      String?
+  gatePassId     String?
+  oceanCargoType String?
+
+  /// ---- inspection ----
+  inspectionStatus InspectionStatus @default(PENDING)
+  hasKeys          Boolean          @default(false)
+
+  /// Whether this shipment has cargo insurance — drives the "Your order is
+  /// not protected" banner on the partner-facing page when false.
+  insured Boolean @default(false)
 
   /// The full history behind `stage` — one row per advance, each with the
   /// date staff actually set (not necessarily "now").

@@ -401,8 +401,9 @@ export interface BookingInput {
 /* --------------------------------- orders ------------------------------------ */
 
 export type OrderStageName = 'CREATED' | 'LOADING' | 'IN_TRANSIT' | 'ARRIVED' | 'DELIVERED';
-export type DocumentKind = 'INVOICE' | 'CUSTOMS' | 'TITLE' | 'OTHER';
+export type DocumentKind = 'INVOICE' | 'CUSTOMS' | 'TITLE' | 'BILL_OF_SALE' | 'OTHER';
 export type PaymentStatus = 'PENDING' | 'PARTIAL' | 'PAID';
+export type InspectionStatus = 'PENDING' | 'CONFIRMED';
 
 export interface OrderStageEntry {
   id: string;
@@ -442,17 +443,53 @@ export interface Order {
     model: string;
     year: number;
     vin: string | null;
+    lotNumber: string | null;
     origin: CarOrigin;
     location: string | null;
     price: number;
+    powertrain: 'EV' | 'HYBRID' | 'BENZIN';
   };
   partnerId: string | null;
   partner: { id: string; name: string } | null;
   stage: OrderStageName;
   stageSetAt: string;
   containerNumber: string | null;
+  /** The vessel's own name. */
   shipName: string | null;
   trackingUrl: string | null;
+  /** This specific physical unit's color, once known. */
+  color: string | null;
+  saleOrigin: string | null;
+  purchaseDate: string | null;
+  paidDate: string | null;
+  seller: string | null;
+  deliveryBranch: string | null;
+  truckingRequired: boolean;
+  exporter: string | null;
+  consignee: string | null;
+  receivingAgent: string | null;
+  consolidate: boolean;
+  finalDestination: string | null;
+  shippingLine: string | null;
+  buyerCode: string | null;
+  gatePassId: string | null;
+  oceanCargoType: string | null;
+  inspectionStatus: InspectionStatus;
+  hasKeys: boolean;
+  /** Derived from `car.powertrain` — not a separate stored field. */
+  electric: boolean;
+  insured: boolean;
+  /** Whether a `TITLE`/`BILL_OF_SALE` document has been uploaded. */
+  hasTitleDocument: boolean;
+  hasBillOfSaleDocument: boolean;
+  /** The car's own images, grouped by album (`AUCTION`/`RECEIPT`/`HANDOVER`). */
+  photos: { pickUp: string[]; received: string[]; handover: string[] };
+  /** Computed, not stored — see `serializeOrder`'s own comment on the
+   * rules. Codes (`MISSING_TITLE`, `TRUCKING_NO_BRANCH`, `NO_TRACKING_URL`,
+   * `NOT_INSURED`), not prose — each caller translates them into its own
+   * locale's copy. */
+  blockers: string[];
+  warnings: string[];
   /** Full history behind `stage`, oldest first. */
   stages: OrderStageEntry[];
   documents: OrderDocument[];
@@ -475,7 +512,29 @@ export interface OrderInput {
   trackingUrl?: string | null;
 }
 
-export type OrderUpdateInput = Omit<OrderInput, 'carId'>;
+export interface OrderLogisticsInput {
+  color?: string | null;
+  saleOrigin?: string | null;
+  purchaseDate?: string | null;
+  paidDate?: string | null;
+  seller?: string | null;
+  deliveryBranch?: string | null;
+  truckingRequired?: boolean;
+  exporter?: string | null;
+  consignee?: string | null;
+  receivingAgent?: string | null;
+  consolidate?: boolean;
+  finalDestination?: string | null;
+  shippingLine?: string | null;
+  buyerCode?: string | null;
+  gatePassId?: string | null;
+  oceanCargoType?: string | null;
+  inspectionStatus?: InspectionStatus;
+  hasKeys?: boolean;
+  insured?: boolean;
+}
+
+export type OrderUpdateInput = Omit<OrderInput, 'carId'> & OrderLogisticsInput;
 
 export interface OrderStageAdvanceInput {
   stage: OrderStageName;

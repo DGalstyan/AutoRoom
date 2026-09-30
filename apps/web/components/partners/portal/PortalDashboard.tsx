@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import type {
   Booking,
@@ -35,6 +36,7 @@ export function PortalDashboard() {
   const t = useMessages().partners.portal;
   const nav = useMessages().common.nav;
   const { identity, api, signOut } = usePortalAuth();
+  const router = useRouter();
 
   const [me, setMe] = useState<PortalIdentity | null>(null);
   const [cars, setCars] = useState<PortalCar[] | null>(null);
@@ -295,7 +297,17 @@ export function PortalDashboard() {
                   </thead>
                   <tbody>
                     {filteredOrders.map((order) => (
-                      <tr key={order.id} className="border-b border-line-light last:border-0">
+                      <tr
+                        key={order.id}
+                        onClick={() => router.push(`/partners/portal/orders/${order.id}`)}
+                        onKeyDown={(event) => {
+                          if (event.key !== 'Enter') return;
+                          router.push(`/partners/portal/orders/${order.id}`);
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer border-b border-line-light last:border-0 hover:bg-neutral-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+                      >
                         <Td>{formatDate(order.createdAt)}</Td>
                         <Td>{order.orderNumber}</Td>
                         <Td>{order.car.vin ?? '—'}</Td>

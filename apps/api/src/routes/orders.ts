@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CarOrigin, DocumentKind, OrderStageName, Prisma } from '@prisma/client';
+import { CarOrigin, DocumentKind, InspectionStatus, OrderStageName, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict, notFound } from '../lib/errors';
@@ -35,7 +35,39 @@ const orderCreateSchema = z.object({
   trackingUrl: urlOrNull.nullish(),
 });
 
-const orderUpdateSchema = orderCreateSchema.omit({ carId: true });
+const nullableDateTimeString = z
+  .union([z.string().datetime({ offset: true }), z.string().datetime()])
+  .nullish();
+
+/** Everything on the partner-facing "Cars inner page" (Figma node `431:633`)
+ * beyond the original container/ship/tracking trio — sale origin, delivery,
+ * exporter & receiver, shipping, commodity and inspection details. Not part
+ * of `orderCreateSchema`: an order starts with just a car and a number, and
+ * staff fill these in afterward from `OrderDetailPage`'s "Logistics &
+ * customs" section. */
+const logisticsSchema = z.object({
+  color: z.string().trim().max(60).nullish(),
+  saleOrigin: z.string().trim().max(200).nullish(),
+  purchaseDate: nullableDateTimeString,
+  paidDate: nullableDateTimeString,
+  seller: z.string().trim().max(300).nullish(),
+  deliveryBranch: z.string().trim().max(120).nullish(),
+  truckingRequired: z.boolean().default(false),
+  exporter: z.string().trim().max(200).nullish(),
+  consignee: z.string().trim().max(200).nullish(),
+  receivingAgent: z.string().trim().max(200).nullish(),
+  consolidate: z.boolean().default(false),
+  finalDestination: z.string().trim().max(120).nullish(),
+  shippingLine: z.string().trim().max(120).nullish(),
+  buyerCode: z.string().trim().max(80).nullish(),
+  gatePassId: z.string().trim().max(80).nullish(),
+  oceanCargoType: z.string().trim().max(120).nullish(),
+  inspectionStatus: z.nativeEnum(InspectionStatus).default('PENDING'),
+  hasKeys: z.boolean().default(false),
+  insured: z.boolean().default(false),
+});
+
+const orderUpdateSchema = orderCreateSchema.omit({ carId: true }).merge(logisticsSchema);
 
 const stageAdvanceSchema = z.object({
   stage: z.nativeEnum(OrderStageName),
@@ -180,6 +212,25 @@ ordersRouter.put(
           containerNumber: body.containerNumber ?? null,
           shipName: body.shipName ?? null,
           trackingUrl: body.trackingUrl ?? null,
+          color: body.color ?? null,
+          saleOrigin: body.saleOrigin ?? null,
+          purchaseDate: body.purchaseDate ? new Date(body.purchaseDate) : null,
+          paidDate: body.paidDate ? new Date(body.paidDate) : null,
+          seller: body.seller ?? null,
+          deliveryBranch: body.deliveryBranch ?? null,
+          truckingRequired: body.truckingRequired,
+          exporter: body.exporter ?? null,
+          consignee: body.consignee ?? null,
+          receivingAgent: body.receivingAgent ?? null,
+          consolidate: body.consolidate,
+          finalDestination: body.finalDestination ?? null,
+          shippingLine: body.shippingLine ?? null,
+          buyerCode: body.buyerCode ?? null,
+          gatePassId: body.gatePassId ?? null,
+          oceanCargoType: body.oceanCargoType ?? null,
+          inspectionStatus: body.inspectionStatus,
+          hasKeys: body.hasKeys,
+          insured: body.insured,
         },
         include: ORDER_INCLUDE,
       });
@@ -329,6 +380,21 @@ ordersRouter.get('/portal/orders', requireAuth, requirePartner, async (req, res)
   res.json({ items: orders.map(serializeOrder), total: orders.length });
 });
 
+/** One of this partner's own orders — the "Cars inner page" a click on a
+ * dashboard row opens. Scoped by `partnerId` in the query itself (not a
+ * fetch-then-check) so a partner can never even distinguish "not mine" from
+ * "doesn't exist" for someone else's order. */
+ordersRouter.get('/portal/orders/:id', requireAuth, requirePartner, async (req, res) => {
+  const id = String(req.params.id ?? '');
+  const order = await prisma.order.findFirst({
+    where: { id, partnerId: req.partnerId! },
+    include: ORDER_INCLUDE,
+  });
+  if (!order) throw notFound('Order not found');
+
+  res.json(serializeOrder(order));
+});
+
 /* --------------------------------- helpers --------------------------------- */
 
 const ORDER_INCLUDE = {
@@ -340,9 +406,12 @@ const ORDER_INCLUDE = {
       model: true,
       year: true,
       vin: true,
+      lotNumber: true,
       origin: true,
       location: true,
       price: true,
+      powertrain: true,
+      images: { select: { album: true, url: true } },
     },
   },
   partner: { select: { id: true, name: true } },
@@ -363,11 +432,46 @@ export function serializeOrder(order: OrderRow) {
   const paymentStatus: 'PENDING' | 'PARTIAL' | 'PAID' =
     amountPaid <= 0 ? 'PENDING' : amountPaid >= order.car.price ? 'PAID' : 'PARTIAL';
 
+  const { images, ...car } = order.car;
+  const urlsForAlbum = (album: string) =>
+    images.filter((image) => image.album === album).map((image) => image.url);
+  const photos = {
+    pickUp: urlsForAlbum('AUCTION'),
+    received: urlsForAlbum('RECEIPT'),
+    handover: urlsForAlbum('HANDOVER'),
+  };
+
+  const hasTitleDocument = order.documents.some((document) => document.kind === 'TITLE');
+  const hasBillOfSaleDocument = order.documents.some(
+    (document) => document.kind === 'BILL_OF_SALE',
+  );
+
+  /** Simple, honest rules — not a general workflow engine. A blocker is
+   * something that actually stops the shipment; a warning is worth a
+   * partner's attention but doesn't. Every count is computed from real data
+   * the moment this is read, never stored, so it can't go stale.
+   *
+   * Codes, not prose: the partner portal is Armenian and the admin panel is
+   * English, and this same array feeds both — a hardcoded English sentence
+   * here would show up untranslated on the Armenian page. Each caller maps
+   * the code to its own locale's copy. */
+  const blockers: string[] = [];
+  const warnings: string[] = [];
+  const arrivedOrLater = order.stage === 'ARRIVED' || order.stage === 'DELIVERED';
+  if (arrivedOrLater && !hasTitleDocument) blockers.push('MISSING_TITLE');
+  if (order.truckingRequired && !order.deliveryBranch) {
+    blockers.push('TRUCKING_NO_BRANCH');
+  }
+  if ((order.stage === 'IN_TRANSIT' || arrivedOrLater) && !order.trackingUrl) {
+    warnings.push('NO_TRACKING_URL');
+  }
+  if (!order.insured) warnings.push('NOT_INSURED');
+
   return {
     id: order.id,
     orderNumber: order.orderNumber,
     carId: order.carId,
-    car: order.car,
+    car,
     partnerId: order.partnerId,
     partner: order.partner,
     stage: order.stage,
@@ -375,6 +479,31 @@ export function serializeOrder(order: OrderRow) {
     containerNumber: order.containerNumber,
     shipName: order.shipName,
     trackingUrl: order.trackingUrl,
+    color: order.color,
+    saleOrigin: order.saleOrigin,
+    purchaseDate: order.purchaseDate?.toISOString() ?? null,
+    paidDate: order.paidDate?.toISOString() ?? null,
+    seller: order.seller,
+    deliveryBranch: order.deliveryBranch,
+    truckingRequired: order.truckingRequired,
+    exporter: order.exporter,
+    consignee: order.consignee,
+    receivingAgent: order.receivingAgent,
+    consolidate: order.consolidate,
+    finalDestination: order.finalDestination,
+    shippingLine: order.shippingLine,
+    buyerCode: order.buyerCode,
+    gatePassId: order.gatePassId,
+    oceanCargoType: order.oceanCargoType,
+    inspectionStatus: order.inspectionStatus,
+    hasKeys: order.hasKeys,
+    electric: car.powertrain === 'EV',
+    insured: order.insured,
+    hasTitleDocument,
+    hasBillOfSaleDocument,
+    photos,
+    blockers,
+    warnings,
     stages: order.stages.map((stage) => ({
       id: stage.id,
       stage: stage.stage,

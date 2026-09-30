@@ -583,6 +583,8 @@ export function createApiClient(options: ApiClientOptions) {
         request<{ items: Booking[]; total: number }>('GET', '/portal/bookings', init),
       orders: (init?: RequestOptions) =>
         request<{ items: Order[]; total: number }>('GET', '/portal/orders', init),
+      orderDetail: (id: string, init?: RequestOptions) =>
+        request<Order>('GET', `/portal/orders/${id}`, init),
       /** Open, future slots only — what this partner may actually book into. */
       availability: (init?: RequestOptions) =>
         request<{ items: AvailabilitySlot[]; total: number }>('GET', '/portal/availability', init),

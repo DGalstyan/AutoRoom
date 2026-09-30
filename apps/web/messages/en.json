@@ -1148,6 +1148,102 @@
       },
       "errors": {
         "loadFailed": "Could not load your data."
+      },
+      "orderDetail": {
+        "back": "Back",
+        "orderNumberPrefix": "Order #",
+        "customerTitle": "Customer:",
+        "branch": "Branch:",
+        "notFound": "This order isn't available.",
+        "stepper": {
+          "dateLabel": "Date:"
+        },
+        "actions": {
+          "heading": "Actions and notifications",
+          "subtitle": "The order may proceed to the next status.",
+          "actionsLabel": "Actions",
+          "noActionsNeeded": "No actions needed",
+          "blockers": "Blockers",
+          "warnings": "Warnings",
+          "updates": "Updates",
+          "noBlockersHeading": "No blockers",
+          "noBlockersBody": "There are currently no blockers",
+          "reasons": {
+            "MISSING_TITLE": "Title document hasn't been uploaded yet",
+            "TRUCKING_NO_BRANCH": "Trucking is required but no delivery branch is set",
+            "NO_TRACKING_URL": "No tracking URL yet",
+            "NOT_INSURED": "This order has no cargo insurance"
+          }
+        },
+        "saleOrigin": {
+          "heading": "Sale origin",
+          "saleOrigin": "Sale origin",
+          "purchaseDate": "Purchase date",
+          "paidDate": "Paid date",
+          "seller": "Seller"
+        },
+        "delivery": {
+          "heading": "Delivery to branch",
+          "truckingRequired": "Trucking required",
+          "deliveryTo": "Delivery to:"
+        },
+        "exporterReceiver": {
+          "heading": "Exporter & receiver",
+          "exporter": "Exporter",
+          "consignee": "Consignee",
+          "receivingAgent": "Receiving agent",
+          "warning": "Please contact the receiving agent regarding import clearance and duties"
+        },
+        "shipping": {
+          "heading": "Shipping",
+          "consolidate": "Consolidate:",
+          "yes": "Yes",
+          "no": "No",
+          "finalDestination": "Final destination",
+          "shippingLine": "Shipping line",
+          "vesselName": "Vessel name",
+          "containerNumber": "Container number",
+          "trackingUrl": "Tracking URL"
+        },
+        "commodity": {
+          "heading": "Commodity details",
+          "vin": "VIN",
+          "vehicle": "Vehicle",
+          "cargoType": "Ocean/flight cargo type",
+          "buyerCode": "Buyer code",
+          "lotNumber": "Lot number",
+          "gatePassId": "Gate pass ID / pickup PIN",
+          "vehicleValue": "Vehicle value"
+        },
+        "inspection": {
+          "heading": "Inspection information",
+          "status": "Inspection status",
+          "confirmed": "Confirmed",
+          "pending": "Pending",
+          "keys": "Keys",
+          "color": "Color",
+          "electric": "Electric",
+          "yes": "Yes",
+          "no": "No"
+        },
+        "documents": {
+          "heading": "Commodity documents",
+          "title": "Title",
+          "billOfSale": "Bill of sale",
+          "yes": "Yes",
+          "no": "No"
+        },
+        "photos": {
+          "heading": "Photos",
+          "pickUp": "Pick up",
+          "received": "Received",
+          "photosCount": "{count} photos",
+          "downloadAll": "Download all"
+        },
+        "insurance": {
+          "notProtectedTitle": "Your order is not protected.",
+          "notProtectedBody": "If you're interested in obtaining insurance, please contact your branch for assistance."
+        }
       }
     },
     "portalCta": {

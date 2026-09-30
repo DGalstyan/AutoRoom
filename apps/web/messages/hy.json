@@ -1148,6 +1148,102 @@
       },
       "errors": {
         "loadFailed": "Չհաջողվեց բեռնել ձեր տվյալները։"
+      },
+      "orderDetail": {
+        "back": "Հետ",
+        "orderNumberPrefix": "Պատվերի համար #",
+        "customerTitle": "Պատվիրատու՝",
+        "branch": "Մասնաճյուղ՝",
+        "notFound": "Այս պատվերը հասանելի չէ։",
+        "stepper": {
+          "dateLabel": "Ամսաթիվ՝"
+        },
+        "actions": {
+          "heading": "Գործողություններ և ծանուցումներ",
+          "subtitle": "Պատվերը կարող է անցնել հաջորդ փուլին։",
+          "actionsLabel": "Գործողություններ",
+          "noActionsNeeded": "Գործողություն չի պահանջվում",
+          "blockers": "Արգելքներ",
+          "warnings": "Զգուշացումներ",
+          "updates": "Թարմացումներ",
+          "noBlockersHeading": "Արգելքներ չկան",
+          "noBlockersBody": "Ներկայումս արգելքներ չկան",
+          "reasons": {
+            "MISSING_TITLE": "Սեփականության վկայականը դեռ չի ներբեռնվել",
+            "TRUCKING_NO_BRANCH": "Պահանջվում է փոխադրում, բայց առաքման մասնաճյուղը նշված չէ",
+            "NO_TRACKING_URL": "Հետևման հղումը դեռ հասանելի չէ",
+            "NOT_INSURED": "Այս պատվերն ապահովագրված չէ"
+          }
+        },
+        "saleOrigin": {
+          "heading": "Վաճառքի ծագում",
+          "saleOrigin": "Աճուրդ",
+          "purchaseDate": "Գնման ամսաթիվ",
+          "paidDate": "Վճարման ամսաթիվ",
+          "seller": "Վաճառող"
+        },
+        "delivery": {
+          "heading": "Առաքում դեպի մասնաճյուղ",
+          "truckingRequired": "Պահանջվում է փոխադրում ցամաքով",
+          "deliveryTo": "Առաքում՝"
+        },
+        "exporterReceiver": {
+          "heading": "Արտահանող և ստացող",
+          "exporter": "Արտահանող",
+          "consignee": "Ստացող",
+          "receivingAgent": "Ստացող գործակալ",
+          "warning": "Մաքսային ձևակերպումների և տուրքերի հարցերով խնդրում ենք կապվել ստացող գործակալի հետ"
+        },
+        "shipping": {
+          "heading": "Փոխադրում",
+          "consolidate": "Համախմբված՝",
+          "yes": "Այո",
+          "no": "Ոչ",
+          "finalDestination": "Վերջնական նպատակակետ",
+          "shippingLine": "Նավագնացային գիծ",
+          "vesselName": "Նավի անվանում",
+          "containerNumber": "Կոնտեյների համար",
+          "trackingUrl": "Հետևման հղում"
+        },
+        "commodity": {
+          "heading": "Ապրանքի մանրամասներ",
+          "vin": "VIN",
+          "vehicle": "Ավտոմեքենա",
+          "cargoType": "Բեռնափոխադրման տեսակ",
+          "buyerCode": "Գնորդի կոդ",
+          "lotNumber": "Լոտի համար",
+          "gatePassId": "Անցագրի ID / PIN",
+          "vehicleValue": "Ավտոմեքենայի արժեքը"
+        },
+        "inspection": {
+          "heading": "Զննման տվյալներ",
+          "status": "Զննման կարգավիճակ",
+          "confirmed": "Հաստատված",
+          "pending": "Սպասման մեջ",
+          "keys": "Բանալիներ",
+          "color": "Գույն",
+          "electric": "Էլեկտրական",
+          "yes": "Այո",
+          "no": "Ոչ"
+        },
+        "documents": {
+          "heading": "Ապրանքի փաստաթղթեր",
+          "title": "Սեփականության վկայական",
+          "billOfSale": "Առուվաճառքի հաշիվ",
+          "yes": "Այո",
+          "no": "Ոչ"
+        },
+        "photos": {
+          "heading": "Լուսանկարներ",
+          "pickUp": "Վերցում",
+          "received": "Ստացված",
+          "photosCount": "{count} լուսանկար",
+          "downloadAll": "Ներբեռնել բոլորը"
+        },
+        "insurance": {
+          "notProtectedTitle": "Ձեր պատվերն ապահովագրված չէ։",
+          "notProtectedBody": "Եթե հետաքրքրված եք ապահովագրությամբ, խնդրում ենք կապվել համապատասխան մասնաճյուղի հետ։"
+        }
       }
     },
     "portalCta": {

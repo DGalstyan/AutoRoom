@@ -1148,6 +1148,102 @@
       },
       "errors": {
         "loadFailed": "Не удалось загрузить данные."
+      },
+      "orderDetail": {
+        "back": "Назад",
+        "orderNumberPrefix": "Заказ №",
+        "customerTitle": "Клиент:",
+        "branch": "Филиал:",
+        "notFound": "Этот заказ недоступен.",
+        "stepper": {
+          "dateLabel": "Дата:"
+        },
+        "actions": {
+          "heading": "Действия и уведомления",
+          "subtitle": "Заказ может перейти в следующий статус.",
+          "actionsLabel": "Действия",
+          "noActionsNeeded": "Действий не требуется",
+          "blockers": "Блокеры",
+          "warnings": "Предупреждения",
+          "updates": "Обновления",
+          "noBlockersHeading": "Блокеров нет",
+          "noBlockersBody": "На данный момент блокеров нет",
+          "reasons": {
+            "MISSING_TITLE": "Документ о праве собственности ещё не загружен",
+            "TRUCKING_NO_BRANCH": "Требуется автоперевозка, но филиал доставки не указан",
+            "NO_TRACKING_URL": "Ссылка отслеживания пока недоступна",
+            "NOT_INSURED": "Этот заказ не застрахован"
+          }
+        },
+        "saleOrigin": {
+          "heading": "Происхождение продажи",
+          "saleOrigin": "Источник продажи",
+          "purchaseDate": "Дата покупки",
+          "paidDate": "Дата оплаты",
+          "seller": "Продавец"
+        },
+        "delivery": {
+          "heading": "Доставка в филиал",
+          "truckingRequired": "Требуется автоперевозка",
+          "deliveryTo": "Доставка в:"
+        },
+        "exporterReceiver": {
+          "heading": "Экспортёр и получатель",
+          "exporter": "Экспортёр",
+          "consignee": "Грузополучатель",
+          "receivingAgent": "Агент по приёму",
+          "warning": "По вопросам таможенного оформления и пошлин, пожалуйста, свяжитесь с агентом по приёму"
+        },
+        "shipping": {
+          "heading": "Перевозка",
+          "consolidate": "Консолидация:",
+          "yes": "Да",
+          "no": "Нет",
+          "finalDestination": "Конечный пункт назначения",
+          "shippingLine": "Судоходная линия",
+          "vesselName": "Название судна",
+          "containerNumber": "Номер контейнера",
+          "trackingUrl": "Ссылка отслеживания"
+        },
+        "commodity": {
+          "heading": "Данные о грузе",
+          "vin": "VIN",
+          "vehicle": "Автомобиль",
+          "cargoType": "Тип перевозки",
+          "buyerCode": "Код покупателя",
+          "lotNumber": "Номер лота",
+          "gatePassId": "ID пропуска / PIN",
+          "vehicleValue": "Стоимость автомобиля"
+        },
+        "inspection": {
+          "heading": "Данные осмотра",
+          "status": "Статус осмотра",
+          "confirmed": "Подтверждено",
+          "pending": "В ожидании",
+          "keys": "Ключи",
+          "color": "Цвет",
+          "electric": "Электромобиль",
+          "yes": "Да",
+          "no": "Нет"
+        },
+        "documents": {
+          "heading": "Документы на груз",
+          "title": "Право собственности",
+          "billOfSale": "Договор купли-продажи",
+          "yes": "Да",
+          "no": "Нет"
+        },
+        "photos": {
+          "heading": "Фотографии",
+          "pickUp": "Получение",
+          "received": "Получено",
+          "photosCount": "{count} фото",
+          "downloadAll": "Скачать всё"
+        },
+        "insurance": {
+          "notProtectedTitle": "Ваш заказ не застрахован.",
+          "notProtectedBody": "Если вас интересует страхование, пожалуйста, свяжитесь с вашим филиалом."
+        }
       }
     },
     "portalCta": {

@@ -21,6 +21,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { ImageAlbums } from '@/pages/cars/ImageAlbums';
 import { ALBUMS, ORIGIN_LABEL, formatMoney } from '@/pages/cars/carOptions';
 import { DocumentsPanel } from '@/pages/orders/DocumentsPanel';
+import { LogisticsFields } from '@/pages/orders/LogisticsFields';
 import { PaymentsPanel } from '@/pages/orders/PaymentsPanel';
 import { StageTimeline } from '@/pages/orders/StageTimeline';
 import { mono } from '@/theme';
@@ -83,6 +84,25 @@ export function OrderDetailPage() {
         containerNumber: order.containerNumber,
         shipName: order.shipName,
         trackingUrl: order.trackingUrl,
+        color: order.color,
+        saleOrigin: order.saleOrigin,
+        purchaseDate: order.purchaseDate,
+        paidDate: order.paidDate,
+        seller: order.seller,
+        deliveryBranch: order.deliveryBranch,
+        truckingRequired: order.truckingRequired,
+        exporter: order.exporter,
+        consignee: order.consignee,
+        receivingAgent: order.receivingAgent,
+        consolidate: order.consolidate,
+        finalDestination: order.finalDestination,
+        shippingLine: order.shippingLine,
+        buyerCode: order.buyerCode,
+        gatePassId: order.gatePassId,
+        oceanCargoType: order.oceanCargoType,
+        inspectionStatus: order.inspectionStatus,
+        hasKeys: order.hasKeys,
+        insured: order.insured,
       });
     }
   }, [order]);
@@ -275,6 +295,19 @@ export function OrderDetailPage() {
             )}
           </Stack>
         </Paper>
+
+        <LogisticsFields draft={draft} setDraft={setDraft} disabled={readOnlyDelivery} />
+        {canUpdate && (
+          <Box>
+            <Button
+              variant="contained"
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending}
+            >
+              {saveMutation.isPending ? 'Saving…' : 'Save'}
+            </Button>
+          </Box>
+        )}
 
         <StageTimeline order={order} canAdvance={canUpdate} />
 
