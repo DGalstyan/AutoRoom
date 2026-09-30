@@ -1,57 +1,43 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
-import { MOCK_STORIES, type CustomerStory } from '@/lib/data/mockStories';
+import type { CustomerStory } from '@/lib/media';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * Video wall — grid of real portrait stills (real 60–90s videos pending from
- * the content team; see `lib/data/mockStories.ts`). Matches Figma's 4x2
- * grid (node `110:432`, verified via get_design_context: cards are
- * edge-to-edge with square corners, and the play icon is 122px, not a
- * smaller pill), which carries no visible section heading — kept as an
- * sr-only `h2` for the a11y outline.
+ * Video wall — grid of real customer-story clips, admin-managed via the
+ * Stories screen (`Media` rows, `kind: CUSTOMER_STORY`), fetched server-side
+ * by the Homepage (`lib/media.ts#listCustomerStories`) and passed down here.
+ * Matches Figma's 4x2 grid (node `110:432`, verified via get_design_context:
+ * cards are edge-to-edge with square corners, and the play icon is 122px,
+ * not a smaller pill), which carries no visible section heading — kept as
+ * an sr-only `h2` for the a11y outline.
+ *
+ * Each tile shows its poster still by default and only starts playing (muted,
+ * looping) on hover/focus — a lightweight preview, not the real story. A
+ * click opens the lightbox with the actual `<video controls>`, sound on.
+ * Renders nothing when there's nothing published yet, same as every other
+ * admin-curated grid on the site — no static placeholder stand-in.
  */
-export function CustomerStoryWall() {
+export function CustomerStoryWall({ stories }: { stories: CustomerStory[] }) {
   const t = useMessages().home.stories;
   const [active, setActive] = useState<CustomerStory | null>(null);
+
+  if (stories.length === 0) return null;
 
   return (
     <div>
       <h2 className="sr-only">{t.heading}</h2>
 
       <div className="grid grid-cols-2 gap-0 md:grid-cols-4">
-        {MOCK_STORIES.map((story, index) => (
-          <button
+        {stories.map((story) => (
+          <StoryCard
             key={story.id}
-            type="button"
-            onClick={() => setActive(story)}
-            className="group relative aspect-[336/502] w-full overflow-hidden transition-transform duration-standard ease-expo hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-          >
-            <Image
-              src={story.image}
-              alt=""
-              fill
-              priority={index === 0}
-              sizes="(min-width: 768px) 25vw, 50vw"
-              className="object-cover"
-            />
-            <div
-              className="absolute inset-0 bg-black/15 transition-colors duration-standard group-hover:bg-black/35"
-              aria-hidden="true"
-            />
-            <span
-              aria-hidden="true"
-              className="absolute left-1/2 top-1/2 flex h-[122px] w-[122px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-white/20 text-white backdrop-blur transition-transform duration-standard group-hover:scale-110"
-            >
-              <PlayGlyph size={36} />
-            </span>
-            <span className="sr-only">
-              {story.customerName} — {story.car}, {t.playLabel}
-            </span>
-          </button>
+            story={story}
+            playLabel={t.playLabel}
+            onOpen={() => setActive(story)}
+          />
         ))}
       </div>
 
@@ -60,8 +46,77 @@ export function CustomerStoryWall() {
   );
 }
 
+function StoryCard({
+  story,
+  playLabel,
+  onOpen,
+}: {
+  story: CustomerStory;
+  playLabel: string;
+  onOpen: () => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const startPreview = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.currentTime = 0;
+    void video.play().catch(() => {
+      // Autoplay can be blocked even when muted (rare, policy-dependent) —
+      // the poster stays on screen, which is a fine fallback.
+    });
+  };
+
+  const stopPreview = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+    video.currentTime = 0;
+  };
+
+  const label = [story.customerName, story.carLabel].filter(Boolean).join(' — ');
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      onMouseEnter={startPreview}
+      onMouseLeave={stopPreview}
+      onFocus={startPreview}
+      onBlur={stopPreview}
+      className="group relative aspect-[336/502] w-full overflow-hidden transition-transform duration-standard ease-expo hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    >
+      <video
+        ref={videoRef}
+        src={story.videoUrl}
+        poster={story.posterUrl ?? undefined}
+        muted
+        loop
+        playsInline
+        preload="none"
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div
+        className="absolute inset-0 bg-black/15 transition-colors duration-standard group-hover:bg-black/35"
+        aria-hidden="true"
+      />
+      <span
+        aria-hidden="true"
+        className="absolute left-1/2 top-1/2 flex h-[122px] w-[122px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-white/20 text-white backdrop-blur transition-transform duration-standard group-hover:scale-110"
+      >
+        <PlayGlyph size={36} />
+      </span>
+      <span className="sr-only">
+        {label || playLabel} — {playLabel}
+      </span>
+    </button>
+  );
+}
+
 function StoryLightbox({ story, onClose }: { story: CustomerStory; onClose: () => void }) {
   const messages = useMessages();
+  const nav = messages.common.nav;
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useFocusTrap(panelRef, true, onClose);
@@ -73,6 +128,13 @@ function StoryLightbox({ story, onClose }: { story: CustomerStory; onClose: () =
       document.body.style.overflow = overflow;
     };
   }, []);
+
+  const originLabel =
+    story.origin === 'CHINA' ? nav.china : story.origin === 'USA' ? nav.usa : null;
+  const subtitle = [originLabel, story.whyChosen].filter(Boolean).join(' · ');
+  const title =
+    [story.customerName, story.carLabel].filter(Boolean).join(' — ') ||
+    messages.home.stories.lightboxTitle;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/90 p-4">
@@ -93,20 +155,23 @@ function StoryLightbox({ story, onClose }: { story: CustomerStory; onClose: () =
           ×
         </button>
         <div className="relative aspect-video w-full bg-black">
-          <Image src={story.image} alt="" fill sizes="448px" className="object-cover opacity-70" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* TODO(content): swap for the real <video muted={false} playsInline controls>
-                once the 60–90s customer footage is delivered. */}
-            <PlayGlyph size={40} />
-          </div>
+          <video
+            src={story.videoUrl}
+            poster={story.posterUrl ?? undefined}
+            className="absolute inset-0 h-full w-full object-cover"
+            controls
+            autoPlay
+            playsInline
+          >
+            <track kind="captions" />
+          </video>
         </div>
         <div className="p-6">
           <p id={titleId} className="font-display font-semibold">
-            {story.customerName} — {story.car}
+            {title}
           </p>
-          <p className="text-small text-white/60">
-            {story.origin} · {story.whyChosen}
-          </p>
+          {subtitle && <p className="text-small text-white/60">{subtitle}</p>}
+          {story.experience && <p className="mt-2 text-small text-white/80">{story.experience}</p>}
         </div>
       </div>
     </div>

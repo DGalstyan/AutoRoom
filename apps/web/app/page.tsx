@@ -12,7 +12,7 @@ import { HowItWorksStep } from '@/components/shared/HowItWorksStep';
 import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
 import { getBranches } from '@/lib/branches';
-import { getFounderVideo } from '@/lib/media';
+import { getFounderVideo, listCustomerStories } from '@/lib/media';
 
 // How-it-works photo row — matches Figma's 7-card strip (one wide "hero" card
 // with the full step-1 copy, six narrow numbered strips after it).
@@ -27,10 +27,11 @@ const STEP_PHOTOS = [
 ];
 
 export default async function HomePage() {
-  const [{ messages }, branchList, founderVideo] = await Promise.all([
+  const [{ messages }, branchList, founderVideo, customerStories] = await Promise.all([
     getServerMessages(),
     getBranches(),
     getFounderVideo(),
+    listCustomerStories(),
   ]);
   const hero = messages.home.hero;
   const howItWorks = messages.home.howItWorks;
@@ -201,10 +202,14 @@ export default async function HomePage() {
         <FounderVideo video={founderVideo} />
       </Section>
 
-      {/* S7 — Customer Story Wall (node 110:432) */}
-      <Section tone="light">
-        <CustomerStoryWall />
-      </Section>
+      {/* S7 — Customer Story Wall (node 110:432). Renders nothing (not this
+          whole `Section`) until an admin publishes at least one story — see
+          `CustomerStoryWall`'s own comment. */}
+      {customerStories.length > 0 && (
+        <Section tone="light">
+          <CustomerStoryWall stories={customerStories} />
+        </Section>
+      )}
 
       {/* S8 — "Միշտ քո կողքին" branches, real Armenia map with animated pins
           (node 110:496; the map itself is an intentional upgrade over
