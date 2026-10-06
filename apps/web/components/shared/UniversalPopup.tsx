@@ -20,6 +20,8 @@ import {
 } from '@/lib/leads';
 import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
+import { useMessengerLinks } from '@/components/shared/MessengersProvider';
+import { withPrefilledText } from '@/lib/messengerLinks';
 
 export interface UniversalPopupCarContext {
   /** `Car.id` — rides along in the lead's hidden context. */
@@ -67,6 +69,7 @@ export function UniversalPopup({
 }: UniversalPopupProps) {
   const t = useMessages().common.popup;
   const locale = useLocale();
+  const messengerLinks = useMessengerLinks();
   const titleId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -151,6 +154,21 @@ export function UniversalPopup({
         channel: successChannel ? CHANNEL_INSTRUMENTAL[successChannel] : t.successChannelDefault,
       });
 
+  // "Continue in <messenger>" — only when the visitor picked one of the three
+  // and the admin has configured a verified link for it.
+  const messengerLink =
+    successChannel && successChannel !== 'call' ? messengerLinks[successChannel] : null;
+  const greeting = car
+    ? interpolate(t.messengerGreetingCar, { name: successName, car: car.name })
+    : interpolate(t.messengerGreeting, { name: successName });
+  const successAction =
+    successChannel && successChannel !== 'call' && messengerLink
+      ? {
+          label: interpolate(t.openInMessenger, { channel: t.channelOptions[successChannel] }),
+          href: withPrefilledText(successChannel, messengerLink, greeting),
+        }
+      : undefined;
+
   const dialogTitle = car ? interpolate(t.perCarTitle, { model: car.name }) : t.step1Title;
 
   if (status === 'success') {
@@ -161,6 +179,7 @@ export function UniversalPopup({
         heading={t.successHeading}
         body={successText}
         closeLabel={t.close}
+        action={successAction}
       />
     );
   }

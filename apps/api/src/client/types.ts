@@ -1023,9 +1023,15 @@ export interface ContactsSocial {
 }
 
 export interface ContactsMessengers {
+  /** Canonical handles: digits (international) for WhatsApp/Viber, a bare username for Telegram. */
   whatsapp: string | null;
   viber: string | null;
   telegram: string | null;
+}
+
+/** `/settings/public`'s `contacts.messengers`: the handles plus ready-made deep links. */
+export interface PublicContactsMessengers extends ContactsMessengers {
+  links: ContactsMessengers;
 }
 
 /** `apps/api/src/lib/settings.ts`'s `finance.calculator` — drives the public `LoanCalculator`. */

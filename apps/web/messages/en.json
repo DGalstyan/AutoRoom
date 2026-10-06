@@ -98,7 +98,10 @@
         "phoneRequired": "Please enter your phone number",
         "phoneInvalid": "The phone number must have 8 digits after +374"
       },
-      "closeDialog": "Close dialog"
+      "closeDialog": "Close dialog",
+      "openInMessenger": "Continue in {channel}",
+      "messengerGreeting": "Hello, I'm {name}. I just sent a request on the AutoRoom website.",
+      "messengerGreetingCar": "Hello, I'm {name}. I just sent a request about {car} on the AutoRoom website."
     },
     "quiz": {
       "title": "Find your car in 60 seconds",
@@ -683,8 +686,11 @@
       "errors": {
         "nameRequired": "Please enter your name",
         "phoneInvalid": "Please enter a valid phone number",
-        "emailInvalid": "Please enter a valid email address"
-      }
+        "emailInvalid": "Please enter a valid email address",
+        "submitFailed": "We couldn’t send your request. Please try again or call us.",
+        "nameInvalid": "The name must contain letters"
+      },
+      "requiredHint": "* required fields"
     },
     "branches": {
       "heading": "Branches",

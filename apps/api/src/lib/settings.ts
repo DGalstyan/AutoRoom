@@ -1,6 +1,7 @@
 import { SettingGroup } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from './prisma';
+import { buildMessengerLinks, parseMessenger, type Messenger } from '../client/messengers';
 
 /**
  * The settings registry — `references/admin.md` A3.
@@ -75,10 +76,30 @@ const contactsSocial = z.object({
   linkedin: optionalUrl,
 });
 
+/**
+ * A messenger handle is parsed strictly and stored in canonical form (digits
+ * for WhatsApp/Viber, a bare username for Telegram) so that only a handle that
+ * can form a working deep link is ever saved — see `client/messengers.ts`.
+ * Blank means "not set" and hides the link.
+ */
+const messengerHandle = (messenger: Messenger) =>
+  z
+    .union([z.string(), z.null()])
+    .optional()
+    .transform((value, ctx) => {
+      if (value === null || value === undefined || value.trim() === '') return null;
+      const parsed = parseMessenger(messenger, value);
+      if (!parsed.ok) {
+        ctx.addIssue({ code: 'custom', message: parsed.message });
+        return z.NEVER;
+      }
+      return parsed.value;
+    });
+
 const contactsMessengers = z.object({
-  whatsapp: optionalText,
-  viber: optionalText,
-  telegram: optionalText,
+  whatsapp: messengerHandle('whatsapp'),
+  viber: messengerHandle('viber'),
+  telegram: messengerHandle('telegram'),
 });
 
 const financeCalculator = z.object({
@@ -360,7 +381,14 @@ export async function getPublicSettings(): Promise<PublicSettings> {
     ),
   );
 
-  const value = Object.fromEntries(entries);
+  const value: Record<string, unknown> = Object.fromEntries(entries);
+  // Visitors get ready-to-use deep links, built here from the validated
+  // handles, rather than rebuilding them (and drifting) in every client.
+  const messengers = value['contacts.messengers'] as
+    { whatsapp: string | null; viber: string | null; telegram: string | null } | undefined;
+  if (messengers) {
+    value['contacts.messengers'] = { ...messengers, links: buildMessengerLinks(messengers) };
+  }
   publicCache = { value, expiresAt: Date.now() + PUBLIC_TTL_MS };
   return value;
 }

@@ -43,8 +43,24 @@ const optionalText = (max: number) =>
 
 const createLeadBodySchema = z
   .object({
-    name: z.string().trim().min(1, 'A name is required').max(120),
-    phone: z.string().trim().min(1, 'A phone number is required').max(40),
+    // Required on every lead form — enforced here as well as in the browser, so
+    // a client that skips (or has stale) validation still can't save a lead nobody
+    // can call back. Kept in step with `apps/web/lib/leadValidation.ts`.
+    name: z
+      .string()
+      .trim()
+      .min(1, 'A name is required')
+      .max(120)
+      .refine((value) => /\p{L}/u.test(value), 'The name must contain letters'),
+    phone: z
+      .string()
+      .trim()
+      .min(1, 'A phone number is required')
+      .max(40)
+      .refine((value) => {
+        const digits = value.replace(/\D/g, '').length;
+        return digits >= 8 && digits <= 15;
+      }, 'Enter a valid phone number (8–15 digits)'),
     email: optionalText(200),
 
     topic: optionalText(120),

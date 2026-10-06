@@ -77,6 +77,7 @@ import type {
 } from './types';
 
 export * from './types';
+export * from './messengers';
 
 /**
  * Typed API client. Both consumers import this instead of hand-rolling `fetch`

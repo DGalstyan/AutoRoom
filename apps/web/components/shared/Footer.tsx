@@ -4,7 +4,8 @@ import { getServerMessages } from '@/lib/i18n';
 import { FooterCta } from '@/components/shared/FooterCta';
 import { BrandLogo } from '@/components/shared/BrandLogo';
 import type { BrandingLogos } from '@/lib/branding';
-import type { GeneralContacts, SocialLinks } from '@/lib/contacts';
+import type { GeneralContacts, MessengerLinks, SocialLinks } from '@/lib/contacts';
+import { configuredMessengers } from '@/components/shared/MessengerLinks';
 
 // Figma's Homepage footer (node `125:1366`) only shows a logo row, then
 // socials + contact paired with a big "let's talk" CTA — no nav/branch
@@ -29,7 +30,7 @@ interface FooterProps {
   /** Same admin-managed branding logo `layout.tsx` passes to `Header`; falls back to the bundled mark until one is uploaded. */
   logo?: BrandingLogos | null;
   /** Admin-managed general contact info/socials; a field renders nothing (not a placeholder) until an admin fills it in. */
-  contacts?: { general: GeneralContacts; social: SocialLinks };
+  contacts?: { general: GeneralContacts; social: SocialLinks; messengers?: MessengerLinks };
 }
 
 const NO_CONTACTS: GeneralContacts = { email: null, phones: [], workingHours: null };
@@ -43,6 +44,9 @@ export async function Footer({
   const nav = messages.common.nav;
   const footer = messages.common.footer;
   const { general, social } = contacts;
+  const messengers = configuredMessengers(
+    contacts.messengers ?? { whatsapp: null, viber: null, telegram: null },
+  );
   const email = general.email;
   const phone = general.phones[0] ?? null;
   const socialLinks = SOCIAL_LABELS.filter(({ key }) => social[key]);
@@ -93,7 +97,7 @@ export async function Footer({
               </div>
             )}
 
-            {(email || phone) && (
+            {(email || phone || messengers.length > 0) && (
               <div>
                 <p className="text-small font-semibold uppercase tracking-wide text-white/50">
                   {footer.contactHeading}
@@ -121,6 +125,19 @@ export async function Footer({
                       </a>
                     </li>
                   )}
+                  {messengers.map(({ key, name, href }) => (
+                    <li key={key}>
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
+                      >
+                        <ArrowGlyph size={14} />
+                        {name}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}

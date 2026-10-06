@@ -4,6 +4,7 @@ import './globals.css';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { LeadWidgetProvider } from '@/components/shared/LeadWidgetProvider';
+import { MessengersProvider } from '@/components/shared/MessengersProvider';
 import { CompareProvider } from '@/components/shared/CompareProvider';
 import { CompareModal } from '@/components/shared/CompareModal';
 import { CompareBar } from '@/components/shared/CompareBar';
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
         ) : (
           <LocaleProvider locale={locale} messages={messages} enabledLocales={enabledLocales}>
+            <MessengersProvider links={contacts.messengers}>
             <LeadWidgetProvider>
               <CompareProvider>
                 <Header logo={logo} />
@@ -79,6 +81,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <CompareBar />
               </CompareProvider>
             </LeadWidgetProvider>
+            </MessengersProvider>
           </LocaleProvider>
         )}
       </body>

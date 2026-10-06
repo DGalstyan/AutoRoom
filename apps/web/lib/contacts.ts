@@ -31,24 +31,38 @@ export interface SocialLinks {
   linkedin: string | null;
 }
 
+/** Verified deep links built by the API from admin settings (`contacts.messengers`); null = not configured. */
+export interface MessengerLinks {
+  whatsapp: string | null;
+  viber: string | null;
+  telegram: string | null;
+}
+
 interface PublicSettingsResponse {
   'contacts.general'?: { phones: string[]; email: string | null; workingHours: string };
   'contacts.social'?: SocialLinks;
+  'contacts.messengers'?: { links?: Partial<MessengerLinks> };
 }
 
 const NO_CONTACTS: GeneralContacts = { email: null, phones: [], workingHours: null };
 const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
+export const NO_MESSENGERS: MessengerLinks = { whatsapp: null, viber: null, telegram: null };
 
-export async function getContacts(): Promise<{ general: GeneralContacts; social: SocialLinks }> {
+export async function getContacts(): Promise<{
+  general: GeneralContacts;
+  social: SocialLinks;
+  messengers: MessengerLinks;
+}> {
   const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 
   try {
     const res = await fetch(`${base}/settings/public`, { next: { revalidate: 60 } });
-    if (!res.ok) return { general: NO_CONTACTS, social: NO_SOCIAL };
+    if (!res.ok) return { general: NO_CONTACTS, social: NO_SOCIAL, messengers: NO_MESSENGERS };
 
     const data = (await res.json()) as PublicSettingsResponse;
     const general = data['contacts.general'];
     const social = data['contacts.social'];
+    const links = data['contacts.messengers']?.links;
 
     return {
       general: general
@@ -59,9 +73,14 @@ export async function getContacts(): Promise<{ general: GeneralContacts; social:
           }
         : NO_CONTACTS,
       social: social ?? NO_SOCIAL,
+      messengers: {
+        whatsapp: links?.whatsapp ?? null,
+        viber: links?.viber ?? null,
+        telegram: links?.telegram ?? null,
+      },
     };
   } catch {
     // Network error, DNS failure, API not running at build time, etc.
-    return { general: NO_CONTACTS, social: NO_SOCIAL };
+    return { general: NO_CONTACTS, social: NO_SOCIAL, messengers: NO_MESSENGERS };
   }
 }

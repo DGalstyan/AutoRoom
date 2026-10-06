@@ -1,4 +1,5 @@
 import { getContacts } from '@/lib/contacts';
+import { configuredMessengers } from '@/components/shared/MessengerLinks';
 import { branchTelHref } from '@/lib/branches';
 import { getServerMessages } from '@/lib/i18n';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
@@ -52,12 +53,13 @@ const SOCIAL_LABELS = [
  * (`gap-2`) this had.
  */
 export async function ContactInfo() {
-  const [{ general, social }, { messages }] = await Promise.all([
+  const [{ general, social, messengers }, { messages }] = await Promise.all([
     getContacts(),
     getServerMessages(),
   ]);
   const t = messages.contact;
   const socialLinks = SOCIAL_LABELS.filter(({ key }) => social[key]);
+  const messengerLinks = configuredMessengers(messengers);
 
   return (
     <div className="rounded-xl bg-white p-9 shadow-card">
@@ -83,6 +85,19 @@ export async function ContactInfo() {
             >
               <PhoneIcon />
               {phone}
+            </a>
+          </li>
+        ))}
+        {messengerLinks.map(({ key, name, href }) => (
+          <li key={key}>
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-lead text-neutral-800 hover:text-accent"
+            >
+              <ArrowUpRightIcon className="size-4" />
+              {name}
             </a>
           </li>
         ))}

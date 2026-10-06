@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
-import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
+import { formatArmenianPhone } from '@/lib/phone';
+import { isValidLeadName, isValidLeadPhone } from '@/lib/leadValidation';
 import { buildLeadHidden, submitLead } from '@/lib/leads';
 import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
@@ -58,23 +59,51 @@ export function ContactForm() {
   const [phone, setPhone] = useState('+374 ');
   const [topic, setTopic] = useState<(typeof TOPIC_KEYS)[number] | ''>('');
   const [comment, setComment] = useState('');
-  const [touched, setTouched] = useState(false);
+  // Per-field "touched" so leaving one field doesn't flag the others; a failed
+  // submit touches everything.
+  const [touched, setTouched] = useState({ name: false, phone: false, email: false });
   const [status, setStatus] = useState<Status>('idle');
   const [successName, setSuccessName] = useState('');
+  // Errors the API itself returned (it enforces the same rules), shown on the
+  // matching field — and a generic banner when the request failed outright.
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
+  const [submitFailed, setSubmitFailed] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
-  const nameError = touched && name.trim().length === 0;
-  const phoneError = touched && !isValidArmenianPhone(phone);
-  const emailError = touched && email.trim().length > 0 && !EMAIL_RE.test(email.trim());
-  const isValid = name.trim().length > 0 && isValidArmenianPhone(phone) && !emailError;
+  const nameMissing = name.trim().length === 0;
+  const nameInvalid = !nameMissing && !isValidLeadName(name);
+  const phoneInvalid = !isValidLeadPhone(phone);
+  const emailInvalid = email.trim().length > 0 && !EMAIL_RE.test(email.trim());
+
+  const nameMessage = touched.name
+    ? nameMissing
+      ? t.errors.nameRequired
+      : nameInvalid
+        ? t.errors.nameInvalid
+        : undefined
+    : undefined;
+  const phoneMessage = touched.phone && phoneInvalid ? t.errors.phoneInvalid : undefined;
+  const emailMessage = touched.email && emailInvalid ? t.errors.emailInvalid : undefined;
+  const nameError = Boolean(nameMessage ?? serverErrors.name);
+  const phoneError = Boolean(phoneMessage ?? serverErrors.phone);
+  const emailError = Boolean(emailMessage);
+  const isValid = !nameMissing && !nameInvalid && !phoneInvalid && !emailInvalid;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    setSubmitFailed(false);
     if (!isValid) {
-      setTouched(true);
+      setTouched({ name: true, phone: true, email: true });
+      // Move focus to the first field that needs attention.
+      const first = nameMissing || nameInvalid ? nameRef : phoneInvalid ? phoneRef : emailRef;
+      first.current?.focus();
       return;
     }
+    setServerErrors({});
     setStatus('submitting');
-    await submitLead({
+    const result = await submitLead({
       answers: {
         name: name.trim(),
         phone,
@@ -88,6 +117,16 @@ export function ContactForm() {
         locale,
       }),
     });
+    if (!result.ok) {
+      // Not a success: the lead wasn't saved. Show what the server objected to
+      // (or a generic failure) and let the visitor correct and retry.
+      setServerErrors(result.fieldErrors ?? {});
+      setSubmitFailed(!result.fieldErrors);
+      setStatus('idle');
+      if (result.fieldErrors?.name) nameRef.current?.focus();
+      else if (result.fieldErrors?.phone) phoneRef.current?.focus();
+      return;
+    }
     setSuccessName(name.trim());
     setStatus('success');
   }
@@ -103,7 +142,9 @@ export function ContactForm() {
     setPhone('+374 ');
     setTopic('');
     setComment('');
-    setTouched(false);
+    setTouched({ name: false, phone: false, email: false });
+    setServerErrors({});
+    setSubmitFailed(false);
   }
 
   return (
@@ -124,23 +165,27 @@ export function ContactForm() {
           <div>
             <label htmlFor="contact-name" className={LABEL_CLASSES}>
               {t.nameLabel}
+              <RequiredMark />
             </label>
             <input
               id="contact-name"
+              ref={nameRef}
               name="name"
               type="text"
               autoComplete="name"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              onBlur={() => setTouched(true)}
+              onBlur={() => setTouched((prev) => ({ ...prev, name: true }))}
+              required
+              aria-required="true"
               aria-invalid={nameError}
               aria-describedby={nameError ? 'contact-name-error' : undefined}
               placeholder={t.namePlaceholder}
               className={FIELD_CLASSES}
             />
             {nameError && (
-              <p id="contact-name-error" className="mt-1 text-small text-accent">
-                {t.errors.nameRequired}
+              <p id="contact-name-error" role="alert" className="mt-1 text-small text-error">
+                {nameMessage ?? t.errors.nameInvalid}
               </p>
             )}
           </div>
@@ -149,23 +194,27 @@ export function ContactForm() {
             <div>
               <label htmlFor="contact-phone" className={LABEL_CLASSES}>
                 {t.phoneLabel}
+                <RequiredMark />
               </label>
               <input
                 id="contact-phone"
+                ref={phoneRef}
                 name="phone"
                 type="tel"
                 inputMode="numeric"
                 autoComplete="tel"
                 value={phone}
                 onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
-                onBlur={() => setTouched(true)}
+                onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
+                required
+                aria-required="true"
                 aria-invalid={phoneError}
                 aria-describedby={phoneError ? 'contact-phone-error' : undefined}
                 className={FIELD_CLASSES}
               />
               {phoneError && (
-                <p id="contact-phone-error" className="mt-1 text-small text-accent">
-                  {t.errors.phoneInvalid}
+                <p id="contact-phone-error" role="alert" className="mt-1 text-small text-error">
+                  {phoneMessage ?? t.errors.phoneInvalid}
                 </p>
               )}
             </div>
@@ -176,19 +225,20 @@ export function ContactForm() {
               </label>
               <input
                 id="contact-email"
+                ref={emailRef}
                 name="email"
                 type="email"
                 autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                onBlur={() => setTouched(true)}
+                onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
                 aria-invalid={emailError}
                 aria-describedby={emailError ? 'contact-email-error' : undefined}
                 placeholder={t.emailPlaceholder}
                 className={FIELD_CLASSES}
               />
               {emailError && (
-                <p id="contact-email-error" className="mt-1 text-small text-accent">
+                <p id="contact-email-error" role="alert" className="mt-1 text-small text-error">
                   {t.errors.emailInvalid}
                 </p>
               )}
@@ -233,6 +283,13 @@ export function ContactForm() {
             />
           </div>
 
+          <p className="text-small text-neutral-700">{t.requiredHint}</p>
+          {submitFailed && (
+            <p role="alert" className="text-small text-error">
+              {t.errors.submitFailed}
+            </p>
+          )}
+
           {/* 60px gold pill, dark text — Figma's own `BTN` instance here, not
             the shared `Button` component's 44px/white-text default. */}
           <button
@@ -252,5 +309,14 @@ export function ContactForm() {
         </div>
       </form>
     </>
+  );
+}
+
+/** Visual "required" asterisk; the input itself carries `required` + `aria-required` for assistive tech. */
+function RequiredMark() {
+  return (
+    <span aria-hidden="true" className="ml-0.5 text-error">
+      *
+    </span>
   );
 }

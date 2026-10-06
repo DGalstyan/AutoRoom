@@ -18,7 +18,13 @@
 
 import type { LeadPayload } from '@/lib/leads';
 
-export async function submitLead(payload: LeadPayload): Promise<{ ok: boolean }> {
+export interface SubmitLeadResult {
+  ok: boolean;
+  /** Present when the API rejected the lead with per-field validation errors (HTTP 400): field name → message. */
+  fieldErrors?: Record<string, string>;
+}
+
+export async function submitLead(payload: LeadPayload): Promise<SubmitLeadResult> {
   const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
   const { answers, hidden } = payload;
 
@@ -51,7 +57,24 @@ export async function submitLead(payload: LeadPayload): Promise<{ ok: boolean }>
         quizAnswers: hidden.quizAnswers,
       }),
     });
-    return { ok: res.ok };
+    if (res.ok) return { ok: true };
+    if (res.status === 400) {
+      try {
+        const body = (await res.json()) as {
+          error?: { details?: { fields?: { path: string; message: string }[] } };
+        };
+        const fields = body.error?.details?.fields ?? [];
+        if (fields.length > 0) {
+          return {
+            ok: false,
+            fieldErrors: Object.fromEntries(fields.map((f) => [f.path, f.message])),
+          };
+        }
+      } catch {
+        // Unparseable error body — fall through to the plain failure.
+      }
+    }
+    return { ok: false };
   } catch {
     // Network error, API not running, etc. — the caller shows its own
     // success screen regardless (see `UniversalPopup`'s TODO on retry/error

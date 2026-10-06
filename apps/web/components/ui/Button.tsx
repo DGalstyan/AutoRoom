@@ -62,9 +62,9 @@ export function Button({
 
   if ('href' in rest && rest.href) {
     const { href, ...anchorProps } = rest as ButtonAsLink;
-    // tel:/mailto:/external links are not app routes — a plain <a> avoids
+    // tel:/mailto:/viber:/external links are not app routes — a plain <a> avoids
     // Next's client-side router trying (and failing) to resolve them.
-    if (/^(tel:|mailto:|https?:)/.test(href)) {
+    if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
       return (
         <a href={href} className={classes} {...anchorProps}>
           {children}

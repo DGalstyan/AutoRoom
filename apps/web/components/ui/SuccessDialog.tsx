@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from 'react';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
+import { Button } from '@/components/ui/Button';
 
 export interface SuccessDialogProps {
   open: boolean;
@@ -14,6 +15,8 @@ export interface SuccessDialogProps {
   detail?: string;
   /** aria-label for the top-right X — every caller already has a `close`-shaped string. */
   closeLabel: string;
+  /** Optional follow-up, e.g. "Continue in WhatsApp" — an external/deep link. */
+  action?: { label: string; href: string };
 }
 
 /**
@@ -39,6 +42,7 @@ export function SuccessDialog({
   body,
   detail,
   closeLabel,
+  action,
 }: SuccessDialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -106,6 +110,11 @@ export function SuccessDialog({
           <p className="text-body text-ink/80">{body}</p>
           {detail && <p className="text-small text-muted">{detail}</p>}
         </div>
+        {action && (
+          <Button href={action.href} target="_blank" rel="noopener noreferrer" size="lg">
+            {action.label}
+          </Button>
+        )}
       </div>
     </div>
   );

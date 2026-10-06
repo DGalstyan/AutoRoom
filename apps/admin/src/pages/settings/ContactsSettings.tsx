@@ -2,6 +2,7 @@ import type { SettingRecord } from '@autoroom/api/client';
 import { Box, Button, IconButton, Stack, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
+import { buildMessengerLink, parseMessenger, type Messenger } from '@autoroom/api/client';
 import { SectionCard } from '@/pages/settings/SectionCard';
 import { useSettingSection } from '@/pages/settings/useSettingSection';
 
@@ -130,7 +131,7 @@ export function ContactsSettings({
 
       <SectionCard
         title="Messengers"
-        description="Numbers or handles, as the messenger expects them."
+        description="Used for the “continue in your messenger” button after a lead is sent, and shown in the footer and on the contact page. Blank hides the link."
         dirty={messengers.dirty}
         saving={messengers.saving}
         readOnly={readOnly}
@@ -139,18 +140,46 @@ export function ContactsSettings({
         onReset={messengers.reset}
       >
         <Stack spacing={2.5}>
-          {(['whatsapp', 'viber', 'telegram'] as const).map((messenger) => (
-            <TextField
-              key={messenger}
-              label={LABELS[messenger]}
-              value={messengers.value![messenger] ?? ''}
-              onChange={(event) => messengers.patch({ [messenger]: event.target.value || null })}
-              error={Boolean(messengers.fieldErrors[messenger])}
-              helperText={messengers.fieldErrors[messenger]}
-              disabled={readOnly}
-              fullWidth
-            />
-          ))}
+          {MESSENGERS.map((messenger) => {
+            const input = messengers.value![messenger] ?? '';
+            const parsed = input.trim() ? parseMessenger(messenger, input) : null;
+            const link = parsed?.ok === true ? buildMessengerLink(messenger, parsed.value) : null;
+            const serverError = messengers.fieldErrors[messenger];
+            const inputError = parsed && !parsed.ok ? parsed.message : undefined;
+            return (
+              <Box key={messenger}>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
+                  <TextField
+                    label={LABELS[messenger]}
+                    value={input}
+                    placeholder={PLACEHOLDERS[messenger]}
+                    onChange={(event) =>
+                      messengers.patch({ [messenger]: event.target.value || null })
+                    }
+                    error={Boolean(serverError ?? inputError)}
+                    helperText={
+                      serverError ??
+                      inputError ??
+                      (link ? `Visitors get: ${link}` : HINTS[messenger])
+                    }
+                    disabled={readOnly}
+                    fullWidth
+                  />
+                  <Button
+                    component="a"
+                    href={link ?? undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    disabled={!link}
+                    size="small"
+                    sx={{ mt: 1, whiteSpace: 'nowrap' }}
+                  >
+                    Test link
+                  </Button>
+                </Stack>
+              </Box>
+            );
+          })}
         </Stack>
       </SectionCard>
     </Stack>
@@ -165,4 +194,18 @@ const LABELS: Record<string, string> = {
   whatsapp: 'WhatsApp',
   viber: 'Viber',
   telegram: 'Telegram',
+};
+
+const MESSENGERS: Messenger[] = ['whatsapp', 'viber', 'telegram'];
+
+const PLACEHOLDERS: Record<Messenger, string> = {
+  whatsapp: '+374 93 88 28 18',
+  viber: '+374 93 88 28 18',
+  telegram: '@autoroom_am',
+};
+
+const HINTS: Record<Messenger, string> = {
+  whatsapp: 'Phone number with country code, or a wa.me link.',
+  viber: 'Phone number with country code.',
+  telegram: 'Username (@name) or a t.me link.',
 };

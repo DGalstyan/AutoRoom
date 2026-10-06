@@ -121,3 +121,29 @@ describe('Footer', () => {
     );
   });
 });
+
+describe('Footer messengers', () => {
+  it('shows only the messengers the admin has configured, as verified deep links', async () => {
+    renderWithLocale(
+      await Footer({
+        contacts: {
+          ...FILLED_CONTACTS,
+          messengers: {
+            whatsapp: 'https://wa.me/37493882818',
+            viber: null,
+            telegram: 'https://t.me/autoroom_am',
+          },
+        },
+      }),
+    );
+    expect(screen.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute(
+      'href',
+      'https://wa.me/37493882818',
+    );
+    expect(screen.getByRole('link', { name: 'Telegram' })).toHaveAttribute(
+      'href',
+      'https://t.me/autoroom_am',
+    );
+    expect(screen.queryByRole('link', { name: 'Viber' })).not.toBeInTheDocument();
+  });
+});
