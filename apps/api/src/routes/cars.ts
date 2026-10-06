@@ -10,6 +10,7 @@ import {
 } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { publicVinLot } from '../lib/demoVinLot';
 import { badRequest, conflict, notFound } from '../lib/errors';
 import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
@@ -598,7 +599,7 @@ carsRouter.get('/public/cars', validateQuery(listQuerySchema), async (req, res) 
   ]);
 
   res.set('Cache-Control', 'public, max-age=60');
-  res.json({ items: items.map(serializeCar), total, take: query.take, skip: query.skip });
+  res.json({ items: items.map(serializePublicCar), total, take: query.take, skip: query.skip });
 });
 
 carsRouter.get('/public/cars/:slug', async (req, res) => {
@@ -609,7 +610,7 @@ carsRouter.get('/public/cars/:slug', async (req, res) => {
   if (!car) throw notFound('Car not found');
 
   res.set('Cache-Control', 'public, max-age=60');
-  res.json(serializeCar(car));
+  res.json(serializePublicCar(car));
 });
 
 /* --------------------------------- helpers --------------------------------- */
@@ -754,6 +755,19 @@ function normalizePriceJourney(
           : ((chip.note as LocalizedText | null) ?? null),
     };
   });
+}
+
+/**
+ * The public site's view of a car: identical to the admin's, except a demo /
+ * placeholder VIN or lot (see `lib/demoVinLot.ts`) is withheld — on the car
+ * itself and on every similar-car pick. The stored value is untouched.
+ */
+function serializePublicCar(car: CarRow) {
+  const serialized = serializeCar(car);
+  return {
+    ...publicVinLot(serialized),
+    similarCars: serialized.similarCars.map((similar) => publicVinLot(similar)),
+  };
 }
 
 function serializeCar(car: CarRow) {

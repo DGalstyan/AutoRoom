@@ -22,6 +22,7 @@ import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 import { useMessengerLinks } from '@/components/shared/MessengersProvider';
 import { withPrefilledText } from '@/lib/messengerLinks';
+import { formatArrivalDate } from '@/lib/arrival';
 
 export interface UniversalPopupCarContext {
   /** `Car.id` — rides along in the lead's hidden context. */
@@ -30,6 +31,8 @@ export interface UniversalPopupCarContext {
   vin?: string;
   /** Auction lot number, when the car has one. */
   lot?: string;
+  /** `YYYY-MM-DD` expected arrival — set for the "Reserve before it arrives" CTA on on-the-road cars. */
+  arrivalDate?: string;
   price?: string;
   image?: string;
   url: string;
@@ -231,6 +234,11 @@ export function UniversalPopup({
             <div>
               <p className="font-display font-semibold text-ink">{car.name}</p>
               {car.price && <p className="text-small text-muted">{car.price}</p>}
+              {car.arrivalDate && (
+                <p className="text-small text-muted">
+                  {t.arrivalLabel}: {formatArrivalDate(car.arrivalDate)}
+                </p>
+              )}
             </div>
           </div>
         )}

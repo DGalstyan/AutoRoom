@@ -1,0 +1,47 @@
+name: Remove demo VIN/Lot records
+
+# Manual only. Defaults to a DRY RUN that lists what would be cleared and
+# changes nothing. To actually clear, re-run with `apply` ticked after reading
+# the dry-run output. Only blanks the VIN / lot fields of recognised
+# placeholder values — never deletes a car, order or lead — and records every
+# cleared value in the audit log.
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Actually clear the values (leave unticked for a dry run)'
+        type: boolean
+        default: false
+      extra_args:
+        description: 'Extra flags, e.g. --include-suspect --vin=ABC --lot=123 --car=<carId>'
+        type: string
+        default: ''
+
+concurrency:
+  group: remove-demo-vin-lot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run on the server
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APPLY: ${{ inputs.apply }}
+          EXTRA_ARGS: ${{ inputs.extra_args }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: APPLY,EXTRA_ARGS
+          script: |
+            set -e
+            cd /opt/autoroom
+            if [ "$APPLY" = "true" ]; then
+              docker compose -f docker-compose.prod.yml exec -T -e CONFIRM_REMOVE_DEMO_VIN_LOT=yes api \
+                npm run cleanup:demo-vin-lot -- --apply $EXTRA_ARGS
+            else
+              docker compose -f docker-compose.prod.yml exec -T api \
+                npm run cleanup:demo-vin-lot -- $EXTRA_ARGS
+            fi

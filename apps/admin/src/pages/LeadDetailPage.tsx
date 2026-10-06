@@ -152,6 +152,7 @@ export function LeadDetailPage() {
     ['Vehicle ID', lead.carId],
     ['VIN', lead.carVin],
     ['Lot', lead.carLot],
+    ['Expected arrival', lead.carArrivalDate],
     ['Car link', lead.carLink],
     ['Topic', lead.topic],
     ['Interest', lead.interest],

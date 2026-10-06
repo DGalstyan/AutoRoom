@@ -48,6 +48,7 @@ export async function submitLead(payload: LeadPayload): Promise<SubmitLeadResult
         carId: hidden.car?.id,
         carVin: hidden.car?.vin,
         carLot: hidden.car?.lot,
+        carArrivalDate: hidden.car?.arrivalDate,
         carLink: answers.carLink,
         sourcePage: hidden.sourcePage,
         sourceCta: hidden.sourceCta,

@@ -45,6 +45,29 @@ describe('UniversalPopup lead context', () => {
     expect(hidden.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(['mobile', 'tablet', 'desktop']).toContain(hidden.device);
   });
+
+  it('carries the expected arrival day for a "reserve before it arrives" lead and shows it on the car card', async () => {
+    renderWithLocale(
+      <UniversalPopup
+        open
+        onClose={() => {}}
+        sourcePage="/china/li-auto-l9"
+        sourceCta="car-detail-reserve-before-arrival"
+        car={{ id: 'car_1', name: 'Li Auto L9', vin: 'VIN1', url: '/x', arrivalDate: '2026-10-27' }}
+      />,
+      'en',
+    );
+    expect(screen.getByText(`${m.arrivalLabel}: 27.10.2026`)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText(m.nameLabel), { target: { value: 'Anna' } });
+    fireEvent.change(screen.getByLabelText(m.phoneLabel), { target: { value: '77123456' } });
+    fireEvent.click(screen.getByRole('button', { name: m.submitPerCar }));
+    await waitFor(() => expect(submitLead).toHaveBeenCalled());
+    expect(submitLead.mock.calls[0]![0].hidden.car).toMatchObject({
+      id: 'car_1',
+      vin: 'VIN1',
+      arrivalDate: '2026-10-27',
+    });
+  });
 });
 
 describe('UniversalPopup — continue in messenger', () => {

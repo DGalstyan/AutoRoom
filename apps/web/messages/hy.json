@@ -101,7 +101,8 @@
       "closeDialog": "Փակել պատուհանը",
       "openInMessenger": "Շարունակել {channel}-ում",
       "messengerGreeting": "Բարև, ես {name}-ն եմ։ Հենց նոր հայտ եմ թողել AutoRoom կայքում։",
-      "messengerGreetingCar": "Բարև, ես {name}-ն եմ։ Հենց նոր հայտ եմ թողել AutoRoom կայքում՝ {car}-ի վերաբերյալ։"
+      "messengerGreetingCar": "Բարև, ես {name}-ն եմ։ Հենց նոր հայտ եմ թողել AutoRoom կայքում՝ {car}-ի վերաբերյալ։",
+      "arrivalLabel": "Ժամանման օր"
     },
     "quiz": {
       "title": "Գտիր քո մեքենան 60 վայրկյանում",
@@ -277,7 +278,8 @@
         ],
         "viewOnlineCta": "Տեսնել մեքենան օնլայն",
         "contactCta": "Կապ հաստատիր մեզ հետ"
-      }
+      },
+      "ctaReserve": "Ամրագրել մինչև հասնելը"
     },
     "carAnatomy": {
       "hotspots": [

@@ -77,6 +77,17 @@ const createLeadBodySchema = z
     /** `Car.id` and auction lot of the vehicle the lead was opened from. */
     carId: optionalText(64),
     carLot: optionalText(40),
+    /** `YYYY-MM-DD` — expected arrival day of an on-the-road car the lead reserves. */
+    carArrivalDate: z
+      .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD'), z.literal('')])
+      .optional()
+      .transform((value) => (value ? value : undefined))
+      .refine((value) => {
+        if (!value) return true;
+        const parsed = new Date(`${value}T00:00:00Z`);
+        // Round-trips only for a real calendar day (rejects 2026-02-31, 2026-13-45).
+        return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+      }, 'Not a real date'),
     carLink: optionalText(500),
 
     /* The "Become a dealer" meeting-booking form's own fields. Optional like
@@ -166,6 +177,7 @@ leadsRouter.post('/leads', validateBody(createLeadBodySchema), async (req, res) 
       carVin: body.carVin ?? null,
       carId: body.carId ?? null,
       carLot: body.carLot ?? null,
+      carArrivalDate: body.carArrivalDate ? new Date(`${body.carArrivalDate}T00:00:00Z`) : null,
       submittedAt: body.timestamp ? new Date(body.timestamp) : null,
       carLink: body.carLink ?? null,
       company: body.company ?? null,
@@ -407,6 +419,7 @@ function serializeLead(lead: Prisma.LeadGetPayload<object>) {
     carVin: lead.carVin,
     carId: lead.carId,
     carLot: lead.carLot,
+    carArrivalDate: lead.carArrivalDate?.toISOString().slice(0, 10) ?? null,
     submittedAt: lead.submittedAt?.toISOString() ?? null,
     carLink: lead.carLink,
     company: lead.company,

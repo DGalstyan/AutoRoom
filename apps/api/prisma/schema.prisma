@@ -809,6 +809,10 @@ model Lead {
   /// or deleted, and the CRM only needs to say *which* vehicle, not join to it.
   carId  String?
   carLot String?
+  /// For a car that is still on the road (`ON_ROAD`) "Reserve before it arrives" lead:
+  /// the day the visitor was told it should arrive (`today + deliveryEtaDays` when
+  /// they pressed the button). A plain date — no time-of-day.
+  carArrivalDate DateTime? @db.Date
   /// When the visitor's browser sent the form (their clock) — distinct from
   /// `createdAt`, the server's receipt time; both are useful when a slow
   /// connection or a queued retry separates them.

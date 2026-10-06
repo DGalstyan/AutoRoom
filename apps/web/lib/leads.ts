@@ -50,7 +50,7 @@ export interface LeadAnswers {
 export interface LeadHiddenContext {
   sourcePage: string;
   sourceCta: string;
-  car?: { id?: string; name: string; vin?: string; lot?: string };
+  car?: { id?: string; name: string; vin?: string; lot?: string; arrivalDate?: string };
   timestamp: string;
   locale: string;
   device: LeadDevice;
@@ -82,14 +82,20 @@ export function buildLeadHidden(input: {
   sourcePage: string;
   sourceCta: string;
   locale: string;
-  car?: { id?: string; name: string; vin?: string; lot?: string };
+  car?: { id?: string; name: string; vin?: string; lot?: string; arrivalDate?: string };
   quizAnswers?: Record<string, string>;
 }): LeadHiddenContext {
   return {
     sourcePage: input.sourcePage,
     sourceCta: input.sourceCta,
     car: input.car
-      ? { id: input.car.id, name: input.car.name, vin: input.car.vin, lot: input.car.lot }
+      ? {
+          id: input.car.id,
+          name: input.car.name,
+          vin: input.car.vin,
+          lot: input.car.lot,
+          arrivalDate: input.car.arrivalDate,
+        }
       : undefined,
     timestamp: new Date().toISOString(),
     locale: input.locale,

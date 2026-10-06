@@ -13,7 +13,13 @@ describe('submitLead', () => {
       sourcePage: '/usa/auctions/rav4',
       sourceCta: 'auction-contact',
       locale: 'en',
-      car: { id: 'car_9', name: 'Toyota RAV4', vin: 'VIN123', lot: 'LOT456' },
+      car: {
+        id: 'car_9',
+        name: 'Toyota RAV4',
+        vin: 'VIN123',
+        lot: 'LOT456',
+        arrivalDate: '2026-10-27',
+      },
     });
     const result = await submitLead({
       answers: { name: 'Anna', phone: '+374 77 123456', budget: '10-20k', channel: 'viber' },
@@ -26,6 +32,7 @@ describe('submitLead', () => {
       carId: 'car_9',
       carVin: 'VIN123',
       carLot: 'LOT456',
+      carArrivalDate: '2026-10-27',
       carName: 'Toyota RAV4',
       sourcePage: '/usa/auctions/rav4',
       sourceCta: 'auction-contact',

@@ -95,6 +95,8 @@ module.exports = {
       },
       maxWidth: {
         container: '1280px',
+        // New "Main pages" Figma frames: 1440 canvas, 48px gutters → a 1344px column.
+        page: '1440px',
         // Header "pill" frame width measured directly off Figma node
         // `9321:6395` (Header, inside Homepage "Light" `9321:6135`):
         // absoluteBoundingBox.width = 1408 on a 1440-wide page frame, i.e. a

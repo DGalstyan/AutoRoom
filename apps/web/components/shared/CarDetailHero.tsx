@@ -9,6 +9,7 @@ import { BuyWithLoan } from '@/components/shared/BuyWithLoan';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
+import { arrivalDateFromEta } from '@/lib/arrival';
 import type { Bank } from '@/lib/banks';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -43,6 +44,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
   const { openPicker } = useCompare();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
 
+  const isOnRoad = car.condition === 'ON_ROAD';
   const colors = car.condition === 'ON_ORDER' ? car.colors : [];
   const selectedColorImage = colors.find((c) => c.name === selectedColor)?.imageUrl ?? null;
 
@@ -77,12 +79,31 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
             {t.ctaLoan}
             <ArrowGlyph />
           </a>
+          {isOnRoad && (
+            <button
+              type="button"
+              onClick={() =>
+                openUniversal({
+                  sourceCta: 'car-detail-reserve-before-arrival',
+                  // Vehicle data + VIN/lot ride in `carContext`; the arrival
+                  // day is computed now (today + this car's delivery ETA).
+                  car: { ...carContext, arrivalDate: arrivalDateFromEta(car.deliveryEtaDays) },
+                })
+              }
+              className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-accent-600"
+            >
+              {t.ctaReserve}
+              <ArrowGlyph />
+            </button>
+          )}
           <button
             type="button"
             onClick={() =>
               openUniversal({ sourceCta: 'car-detail-per-car-offer', car: carContext })
             }
-            className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-accent-600"
+            className={`inline-flex h-12 items-center gap-1 rounded-pill px-6 text-[14px] text-neutral-900 transition-colors duration-standard ${
+              isOnRoad ? 'bg-neutral-50 hover:bg-neutral-100' : 'bg-accent hover:bg-accent-600'
+            }`}
           >
             {t.ctaOffer}
             <ArrowGlyph />

@@ -656,6 +656,8 @@ export interface Lead {
   /** `Car.id` and auction lot number of the vehicle the lead came from. */
   carId: string | null;
   carLot: string | null;
+  /** `YYYY-MM-DD` — expected arrival of the on-the-road car this lead reserves. */
+  carArrivalDate: string | null;
   /** ISO 8601 — the visitor's own clock when the form was sent. */
   submittedAt: string | null;
   /** Auction lot number or a pasted listing link — the USA contact popup's own
@@ -707,6 +709,7 @@ export interface LeadInput {
   carVin?: string;
   carId?: string;
   carLot?: string;
+  carArrivalDate?: string;
   /** ISO 8601 — the visitor's own clock when the form was sent. */
   timestamp?: string;
   carLink?: string;

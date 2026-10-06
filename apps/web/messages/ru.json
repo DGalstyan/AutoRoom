@@ -101,7 +101,8 @@
       "closeDialog": "Закрыть окно",
       "openInMessenger": "Продолжить в {channel}",
       "messengerGreeting": "Здравствуйте, я {name}. Только что оставил(а) заявку на сайте AutoRoom.",
-      "messengerGreetingCar": "Здравствуйте, я {name}. Только что оставил(а) заявку на сайте AutoRoom по автомобилю {car}."
+      "messengerGreetingCar": "Здравствуйте, я {name}. Только что оставил(а) заявку на сайте AutoRoom по автомобилю {car}.",
+      "arrivalLabel": "Дата прибытия"
     },
     "quiz": {
       "title": "Найди свой автомобиль за 60 секунд",
@@ -277,7 +278,8 @@
         ],
         "viewOnlineCta": "Смотреть автомобиль онлайн",
         "contactCta": "Связаться с нами"
-      }
+      },
+      "ctaReserve": "Забронировать до прибытия"
     },
     "carAnatomy": {
       "hotspots": [

@@ -101,7 +101,8 @@
       "closeDialog": "Close dialog",
       "openInMessenger": "Continue in {channel}",
       "messengerGreeting": "Hello, I'm {name}. I just sent a request on the AutoRoom website.",
-      "messengerGreetingCar": "Hello, I'm {name}. I just sent a request about {car} on the AutoRoom website."
+      "messengerGreetingCar": "Hello, I'm {name}. I just sent a request about {car} on the AutoRoom website.",
+      "arrivalLabel": "Arrival date"
     },
     "quiz": {
       "title": "Find your car in 60 seconds",
@@ -277,7 +278,8 @@
         ],
         "viewOnlineCta": "View the car online",
         "contactCta": "Contact us"
-      }
+      },
+      "ctaReserve": "Reserve before it arrives"
     },
     "carAnatomy": {
       "hotspots": [

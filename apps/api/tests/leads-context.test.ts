@@ -127,3 +127,51 @@ describe('POST /leads — required name & phone (server-side)', () => {
     expect(fieldsOf(response)).toEqual(expect.arrayContaining(['name', 'phone']));
   });
 });
+
+describe('POST /leads — reserve before arrival (carArrivalDate)', () => {
+  beforeEach(resetData);
+  afterAll(disconnect);
+
+  const base = {
+    name: 'Anna',
+    phone: '+374 77 123456',
+    carName: 'Li Auto L9',
+    carId: 'car_123',
+    carVin: 'LW433B1K5N1000001',
+    sourcePage: '/china/li-auto-l9',
+    sourceCta: 'car-detail-reserve-before-arrival',
+    locale: 'hy',
+    device: 'desktop',
+  };
+
+  it('stores the expected arrival day with the vehicle and VIN', async () => {
+    const response = await agent()
+      .post('/leads')
+      .send({ ...base, carArrivalDate: '2026-10-27' });
+    expect(response.status).toBe(201);
+    expect(response.body).toMatchObject({
+      carId: 'car_123',
+      carVin: 'LW433B1K5N1000001',
+      carArrivalDate: '2026-10-27',
+      sourceCta: 'car-detail-reserve-before-arrival',
+    });
+    const row = await prisma.lead.findFirstOrThrow();
+    expect(row.carArrivalDate?.toISOString().slice(0, 10)).toBe('2026-10-27');
+  });
+
+  it('is optional', async () => {
+    const response = await agent().post('/leads').send(base);
+    expect(response.status).toBe(201);
+    expect(response.body.carArrivalDate).toBeNull();
+  });
+
+  it.each(['27/10/2026', 'tomorrow', '2026-13-45', '2026-02-31', '2026-02-31x'])(
+    'rejects a malformed date %j',
+    async (carArrivalDate) => {
+      const response = await agent()
+        .post('/leads')
+        .send({ ...base, carArrivalDate });
+      expect(response.status).toBe(400);
+    },
+  );
+});
