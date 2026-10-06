@@ -1156,7 +1156,8 @@
           "searchPlaceholder": "Որոնում…",
           "allBranches": "Բոլոր մասնաճյուղերը",
           "sortNewest": "Նորերը սկզբում",
-          "sortOldest": "Հները սկզբում"
+          "sortOldest": "Հները սկզբում",
+          "searchLabel": "Որոնում պատվերներում"
         }
       },
       "errors": {

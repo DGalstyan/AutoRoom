@@ -1156,7 +1156,8 @@
           "searchPlaceholder": "Поиск…",
           "allBranches": "Все филиалы",
           "sortNewest": "Сначала новые",
-          "sortOldest": "Сначала старые"
+          "sortOldest": "Сначала старые",
+          "searchLabel": "Поиск по заказам"
         }
       },
       "errors": {

@@ -737,7 +737,7 @@ export function PartnerBookingPopup({
           </div>
 
           <div className="mt-8 flex items-center justify-end gap-3">
-            <Button type="button" variant="ghost" className="text-ink" onClick={onClose}>
+            <Button type="button" variant="tertiary" className="text-ink" onClick={onClose}>
               {t.close}
             </Button>
             <Button type="submit" variant="primary" disabled={status === 'submitting' || !isValid}>

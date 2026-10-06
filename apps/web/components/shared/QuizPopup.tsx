@@ -114,7 +114,7 @@ export function QuizPopup({ open, onClose, sourceCta, onOpenUniversal }: QuizPop
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <Button variant="ghost" className="text-ink" onClick={() => setStep(0)}>
+            <Button variant="tertiary" className="text-ink" onClick={() => setStep(0)}>
               {t.restart}
             </Button>
             <Button variant="primary" onClick={handleGetOffer}>
@@ -169,7 +169,7 @@ function QuizQuestion({
         ))}
       </div>
       {onBack && (
-        <Button variant="ghost" className="mt-6 text-ink" onClick={onBack}>
+        <Button variant="tertiary" className="mt-6 text-ink" onClick={onBack}>
           {t.back}
         </Button>
       )}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
+import { Field } from '@/components/ui/Field';
 import { recommendCars, serializeQuizAnswers, type QuizAnswers } from '@/lib/quiz';
 import type { LeadBudget } from '@/lib/leads';
 
@@ -121,36 +122,42 @@ function FinderSelect({
   options: Record<string, string>;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-[16px] font-medium text-neutral-700">{label}</label>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className={FIELD_CLASSES}
-        >
-          <option value="" />
-          {Object.entries(options).map(([key, optionLabel]) => (
-            <option key={key} value={key}>
-              {optionLabel}
-            </option>
-          ))}
-        </select>
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          className="pointer-events-none absolute right-6 top-1/2 size-4 -translate-y-1/2 text-ink"
-        >
-          <path
-            d="M5 7.5 10 12.5 15 7.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-        </svg>
-      </div>
-    </div>
+    <Field
+      label={label}
+      className="gap-2"
+      labelClassName="text-[16px] font-medium text-neutral-700"
+    >
+      {(a11y) => (
+        <div className="relative">
+          <select
+            {...a11y}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            className={FIELD_CLASSES}
+          >
+            <option value="" />
+            {Object.entries(options).map(([key, optionLabel]) => (
+              <option key={key} value={key}>
+                {optionLabel}
+              </option>
+            ))}
+          </select>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            className="pointer-events-none absolute right-6 top-1/2 size-4 -translate-y-1/2 text-ink"
+          >
+            <path
+              d="M5 7.5 10 12.5 15 7.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+        </div>
+      )}
+    </Field>
   );
 }

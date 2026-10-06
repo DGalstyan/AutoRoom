@@ -283,7 +283,7 @@ export function UsaAuctionContactPopup({
         </div>
 
         <div className="mt-6 flex items-center justify-end gap-3">
-          <Button type="button" variant="ghost" className="text-ink" onClick={onClose}>
+          <Button type="button" variant="tertiary" className="text-ink" onClick={onClose}>
             {t.cancel}
           </Button>
           <Button type="submit" variant="primary" disabled={status === 'submitting'}>

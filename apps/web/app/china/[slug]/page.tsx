@@ -52,9 +52,6 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
     url: carHref(car),
   };
 
-  const finalAmount =
-    car.estFinalPriceAM ?? car.priceJourney.reduce((sum, chip) => sum + chip.amount, 0);
-
   return (
     <>
       {/* pt-32/pt-40 clears the fixed pill header — see the listing page's
@@ -69,7 +66,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
       <Section tone="light">
         <div className="flex flex-col gap-24 sm:gap-[150px]">
           {car.priceJourney.length > 0 && (
-            <PriceJourney chips={car.priceJourney} finalAmount={finalAmount} car={carContext} />
+            <PriceJourney chips={car.priceJourney} car={carContext} />
           )}
           <LoanCalculator car={car} finance={finance} />
           <SimilarOffers cars={similarCars} />

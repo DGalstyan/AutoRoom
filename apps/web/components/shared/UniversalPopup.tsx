@@ -346,7 +346,7 @@ export function UniversalPopup({
           {step > 1 ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="tertiary"
               className="text-ink"
               onClick={() => setStep((step - 1) as Step)}
             >

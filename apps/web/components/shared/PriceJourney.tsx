@@ -5,6 +5,7 @@ import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import type { PriceChip } from '@/lib/types/car';
 import { formatUsd, localizeText } from '@/lib/types/car';
+import { buildPriceFormula, countUpValue, sumChips } from '@/lib/priceJourney';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -38,11 +39,9 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  */
 export function PriceJourney({
   chips,
-  finalAmount,
   car,
 }: {
   chips: PriceChip[];
-  finalAmount: number;
   car: UniversalPopupCarContext;
 }) {
   const t = useMessages().common.carDetail.priceJourney;
@@ -50,7 +49,15 @@ export function PriceJourney({
   const { openUniversal } = useLeadWidgets();
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
-  const [displayedTotal, setDisplayedTotal] = useState(0);
+  // The total is always the sum of the chips listed above it — never a
+  // separately-stored figure that can drift from them. It starts at the real
+  // sum (so SSR, no-JS, reduced-motion and a never-firing observer all show
+  // the right number, not "0 $") and only dips to 0 to count up once the
+  // section actually scrolls into view.
+  const total = sumChips(chips);
+  // `null` = not animating → show the real sum.
+  const [animatedTotal, setAnimatedTotal] = useState<number | null>(null);
+  const displayedTotal = animatedTotal ?? total;
 
   useEffect(() => {
     const node = ref.current;
@@ -62,7 +69,7 @@ export function PriceJourney({
           observer.disconnect();
         }
       },
-      { threshold: 0.25 },
+      { threshold: 0 },
     );
     observer.observe(node);
     return () => observer.disconnect();
@@ -71,21 +78,22 @@ export function PriceJourney({
   useEffect(() => {
     if (!inView) return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const durationMs = reduceMotion ? 0 : 900;
+    if (reduceMotion) return;
+    const durationMs = 900;
     const start = performance.now();
     let frame: number;
     function tick(now: number) {
-      const progress = durationMs === 0 ? 1 : Math.min(1, (now - start) / durationMs);
-      setDisplayedTotal(Math.round(finalAmount * progress));
+      const progress = Math.min(1, (now - start) / durationMs);
+      setAnimatedTotal(progress < 1 ? countUpValue(total, progress) : null);
       if (progress < 1) frame = requestAnimationFrame(tick);
     }
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [inView, finalAmount]);
+  }, [inView, total]);
 
   if (chips.length === 0) return null;
 
-  const formula = `${chips.map((chip) => formatUsd(chip.amount)).join(' + ')} = ${formatUsd(displayedTotal)}`;
+  const formula = buildPriceFormula(chips, displayedTotal);
 
   return (
     <div ref={ref} className="flex flex-col gap-16">

@@ -1,12 +1,26 @@
 import Link from 'next/link';
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'outline';
-type Size = 'md' | 'lg';
+/**
+ * CTA levels — one primary per view, everything else steps down:
+ *   L1 `primary`   gold fill, ink text (white-on-gold fails contrast). The ONE
+ *                  action the section exists for: "get an offer", "submit".
+ *   L2 `outline`   same shape, 1px border, no fill — the alternative action
+ *                  next to a primary. (`secondary` = white-filled L2 for use
+ *                  on dark photography where an outline would be lost.)
+ *   L3 `tertiary`  text-only with an underline on hover — "Back", "Cancel",
+ *                  in-copy "Learn more". `ghost` is the legacy alias.
+ * Sizes: `md` 44px (default, inline/forms), `lg` 48px (card/section CTAs),
+ * `xl` 56px (hero and final-CTA bands only).
+ */
+type Variant = 'primary' | 'secondary' | 'outline' | 'tertiary' | 'ghost';
+type Size = 'md' | 'lg' | 'xl';
 
 const VARIANT_CLASSES: Record<Variant, string> = {
-  primary: 'bg-accent text-white hover:bg-accent-600 focus-visible:outline-accent',
+  primary: 'bg-accent text-ink hover:bg-accent-600 focus-visible:outline-accent',
   secondary: 'bg-white text-ink hover:bg-white/90 focus-visible:outline-white',
+  tertiary:
+    'bg-transparent text-inherit underline-offset-4 hover:underline focus-visible:outline-current',
   ghost: 'bg-transparent text-inherit hover:bg-white/10 focus-visible:outline-current',
   outline:
     'bg-transparent border border-current text-inherit hover:bg-white/10 focus-visible:outline-current',
@@ -15,6 +29,7 @@ const VARIANT_CLASSES: Record<Variant, string> = {
 const SIZE_CLASSES: Record<Size, string> = {
   md: 'h-11 px-5 text-sm',
   lg: 'h-12 px-7 text-base',
+  xl: 'h-14 px-8 text-lg',
 };
 
 const BASE =

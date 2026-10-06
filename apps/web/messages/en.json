@@ -1156,7 +1156,8 @@
           "searchPlaceholder": "Search…",
           "allBranches": "All branches",
           "sortNewest": "Newest first",
-          "sortOldest": "Oldest first"
+          "sortOldest": "Oldest first",
+          "searchLabel": "Search orders"
         }
       },
       "errors": {

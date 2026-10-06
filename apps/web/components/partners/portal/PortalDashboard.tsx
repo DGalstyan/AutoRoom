@@ -1,5 +1,6 @@
 'use client';
 
+import { Field } from '@/components/ui/Field';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -271,13 +272,22 @@ export function PortalDashboard() {
                 </select>
               )}
 
-              <input
-                type="text"
-                value={orderSearch}
-                onChange={(event) => setOrderSearch(event.target.value)}
-                placeholder={t.dashboard.filters.searchPlaceholder}
-                className="ml-auto h-9 min-w-[200px] rounded-pill border border-line-light bg-white px-4 text-[13px] text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
-              />
+              <Field
+                label={t.dashboard.filters.searchLabel}
+                className="ml-auto"
+                labelClassName="text-[12px] font-medium text-neutral-700"
+              >
+                {(a11y) => (
+                  <input
+                    {...a11y}
+                    type="search"
+                    value={orderSearch}
+                    onChange={(event) => setOrderSearch(event.target.value)}
+                    placeholder={t.dashboard.filters.searchPlaceholder}
+                    className="h-11 min-w-[200px] rounded-pill border border-line-light bg-white px-4 text-[13px] text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+                  />
+                )}
+              </Field>
             </div>
 
             <div className="mt-4 overflow-hidden rounded-2xl border border-line-light">

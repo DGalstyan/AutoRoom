@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
+import { Field as UiField, type FieldControlProps } from '@/components/ui/Field';
 
 type Powertrain = 'EV' | 'HYBRID' | 'BENZIN';
 type Age = 'under3' | 'between3And5' | 'between5And10' | 'over10';
@@ -92,88 +93,112 @@ export function CustomsCalculator() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Field label={t.carValueLabel}>
-          <NumberInput value={carValue} onChange={setCarValue} prefix="$" />
+          {(a11y) => <NumberInput {...a11y} value={carValue} onChange={setCarValue} prefix="$" />}
         </Field>
 
-        <Field label={t.auctionLabel}>
-          <div className="flex h-9 gap-1 rounded-pill bg-neutral-25 p-1">
-            {AUCTIONS.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => setAuction(option)}
-                className={`flex-1 rounded-pill text-[12px] font-medium transition-colors ${
-                  auction === option ? 'bg-neutral-700 text-white' : 'text-neutral-800'
-                }`}
-              >
-                {t.auctionOptions[option]}
-              </button>
-            ))}
-          </div>
+        <Field label={t.auctionLabel} group>
+          {() => (
+            <div className="flex h-9 gap-1 rounded-pill bg-neutral-25 p-1">
+              {AUCTIONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  aria-pressed={auction === option}
+                  onClick={() => setAuction(option)}
+                  className={`flex-1 rounded-pill text-[12px] font-medium transition-colors ${
+                    auction === option ? 'bg-neutral-700 text-white' : 'text-neutral-800'
+                  }`}
+                >
+                  {t.auctionOptions[option]}
+                </button>
+              ))}
+            </div>
+          )}
         </Field>
 
         <Field label={t.auctionLocationLabel}>
-          <SelectInput
-            value={auctionLocation}
-            onChange={setAuctionLocation}
-            placeholder={t.auctionLocationPlaceholder}
-          >
-            {stateOptions.map(([key, label]) => (
-              <option key={key} value={key}>
-                {label}
-              </option>
-            ))}
-          </SelectInput>
+          {(a11y) => (
+            <SelectInput
+              {...a11y}
+              value={auctionLocation}
+              onChange={setAuctionLocation}
+              placeholder={t.auctionLocationPlaceholder}
+            >
+              {stateOptions.map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </SelectInput>
+          )}
         </Field>
 
         <Field label={t.transportFeeLabel}>
-          <NumberInput value={transportFee} onChange={setTransportFee} prefix="$" />
+          {(a11y) => (
+            <NumberInput {...a11y} value={transportFee} onChange={setTransportFee} prefix="$" />
+          )}
         </Field>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Field label={t.engineTypeLabel}>
-          <SelectInput value={engineType} onChange={(v) => setEngineType(v as Powertrain)}>
-            {POWERTRAINS.map((option) => (
-              <option key={option} value={option}>
-                {powertrainLabels[option]}
-              </option>
-            ))}
-          </SelectInput>
+          {(a11y) => (
+            <SelectInput
+              {...a11y}
+              value={engineType}
+              onChange={(v) => setEngineType(v as Powertrain)}
+            >
+              {POWERTRAINS.map((option) => (
+                <option key={option} value={option}>
+                  {powertrainLabels[option]}
+                </option>
+              ))}
+            </SelectInput>
+          )}
         </Field>
 
         <Field label={t.ageLabel}>
-          <SelectInput value={age} onChange={(v) => setAge(v as Age)}>
-            {AGES.map((option) => (
-              <option key={option} value={option}>
-                {t.ageOptions[option]}
-              </option>
-            ))}
-          </SelectInput>
+          {(a11y) => (
+            <SelectInput {...a11y} value={age} onChange={(v) => setAge(v as Age)}>
+              {AGES.map((option) => (
+                <option key={option} value={option}>
+                  {t.ageOptions[option]}
+                </option>
+              ))}
+            </SelectInput>
+          )}
         </Field>
 
         <Field label={t.productionYearLabel}>
-          <SelectInput value={productionYear} onChange={setProductionYear}>
-            {PRODUCTION_YEARS.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </SelectInput>
+          {(a11y) => (
+            <SelectInput {...a11y} value={productionYear} onChange={setProductionYear}>
+              {PRODUCTION_YEARS.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </SelectInput>
+          )}
         </Field>
 
         <Field label={t.engineVolumeLabel}>
-          <NumberInput value={engineVolume} onChange={setEngineVolume} />
+          {(a11y) => <NumberInput {...a11y} value={engineVolume} onChange={setEngineVolume} />}
         </Field>
 
         <Field label={t.vehicleTypeLabel}>
-          <SelectInput value={vehicleType} onChange={(v) => setVehicleType(v as VehicleType)}>
-            {VEHICLE_TYPES.map((option) => (
-              <option key={option} value={option}>
-                {t.vehicleTypeOptions[option]}
-              </option>
-            ))}
-          </SelectInput>
+          {(a11y) => (
+            <SelectInput
+              {...a11y}
+              value={vehicleType}
+              onChange={(v) => setVehicleType(v as VehicleType)}
+            >
+              {VEHICLE_TYPES.map((option) => (
+                <option key={option} value={option}>
+                  {t.vehicleTypeOptions[option]}
+                </option>
+              ))}
+            </SelectInput>
+          )}
         </Field>
       </div>
 
@@ -187,12 +212,21 @@ export function CustomsCalculator() {
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+const CALC_LABEL = 'text-[12px] font-medium text-neutral-700';
+
+function Field({
+  label,
+  group,
+  children,
+}: {
+  label: string;
+  group?: boolean;
+  children: (props: FieldControlProps) => ReactNode;
+}) {
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-[12px] font-medium text-neutral-700">{label}</span>
+    <UiField label={label} group={group} labelClassName={CALC_LABEL} className="gap-2">
       {children}
-    </div>
+    </UiField>
   );
 }
 
@@ -200,7 +234,8 @@ function NumberInput({
   value,
   onChange,
   prefix,
-}: {
+  ...a11y
+}: FieldControlProps & {
   value: string;
   onChange: (value: string) => void;
   prefix?: string;
@@ -209,6 +244,7 @@ function NumberInput({
     <div className="flex h-9 items-center gap-1 rounded-pill bg-neutral-25 px-3">
       {prefix && <span className="text-[12px] text-neutral-600">{prefix}</span>}
       <input
+        {...a11y}
         type="number"
         min={0}
         value={value}
@@ -224,7 +260,8 @@ function SelectInput({
   onChange,
   placeholder,
   children,
-}: {
+  ...a11y
+}: FieldControlProps & {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -232,6 +269,7 @@ function SelectInput({
 }) {
   return (
     <select
+      {...a11y}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       className="h-9 w-full appearance-none rounded-pill bg-neutral-25 px-3 text-[12px] font-medium text-neutral-800 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-8"
