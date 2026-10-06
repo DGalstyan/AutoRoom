@@ -1,7 +1,12 @@
 'use client';
 
 import type { Locale } from '@/lib/i18n';
-import { useEnabledLocales, useLocale, useSetLocale } from '@/components/shared/LocaleProvider';
+import {
+  useEnabledLocales,
+  useLocale,
+  useMessages,
+  useSetLocale,
+} from '@/components/shared/LocaleProvider';
 
 const LABELS: Record<Locale, string> = { hy: 'ՀԱՅ', en: 'EN', ru: 'РУС' };
 
@@ -29,13 +34,14 @@ export function LanguageSwitcher({
   const locale = useLocale();
   const enabledLocales = useEnabledLocales();
   const { setLocale, isPending } = useSetLocale();
+  const languageLabel = useMessages().common.languageLabel;
 
   if (enabledLocales.length <= 1) return null;
 
   return (
     <div
       role="group"
-      aria-label="Language"
+      aria-label={languageLabel}
       className={`flex items-center gap-1 rounded-pill p-1 ${tone === 'light' ? 'bg-ink/5' : 'bg-white/10'} ${className}`}
     >
       {enabledLocales.map((code) => (
@@ -45,7 +51,7 @@ export function LanguageSwitcher({
           aria-pressed={locale === code}
           disabled={isPending}
           onClick={() => setLocale(code)}
-          className={`rounded-pill px-3 py-1.5 text-[13px] font-medium transition-colors duration-standard disabled:opacity-60 ${
+          className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-pill px-3 text-[13px] font-medium transition-colors duration-standard disabled:opacity-60 ${
             locale === code
               ? 'bg-accent text-ink'
               : tone === 'light'

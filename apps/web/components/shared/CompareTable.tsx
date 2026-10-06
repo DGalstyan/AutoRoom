@@ -145,6 +145,7 @@ function CompareRow({ label, valueA, valueB }: { label: string; valueA: string; 
 }
 
 function CarHeaderCard({ car, onRemove }: { car: Car; onRemove: () => void }) {
+  const removeLabel = useMessages().common.compare.page.removeCar;
   const image = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
   return (
     <div className="flex flex-1 items-center gap-6 rounded-2xl bg-white p-3">
@@ -167,8 +168,8 @@ function CarHeaderCard({ car, onRemove }: { car: Car; onRemove: () => void }) {
         <button
           type="button"
           onClick={onRemove}
-          aria-label={car.make}
-          className="flex size-7 shrink-0 items-center justify-center text-neutral-500 hover:text-ink"
+          aria-label={interpolate(removeLabel, { name: `${car.make} ${car.model}` })}
+          className="flex size-11 shrink-0 items-center justify-center text-neutral-500 hover:text-ink"
         >
           <XGlyph />
         </button>

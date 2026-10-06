@@ -75,7 +75,7 @@ export function ArmeniaMap({ branches, activeId, onSelect }: ArmeniaMapProps) {
                 onSelect(branch.id);
                 setOpenId(branch.id);
               }}
-              className="relative flex size-6 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+              className="relative flex size-11 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
             >
               {/* Pulsing ring — the animation itself; the solid dot underneath
                   stays the actually-clickable/visible marker when motion is

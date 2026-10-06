@@ -112,7 +112,7 @@ export function CompareModal() {
               type="button"
               onClick={() => remove(car.id)}
               aria-label={closeLabel}
-              className="flex size-5 shrink-0 items-center justify-center text-neutral-700 hover:text-ink"
+              className="flex size-11 shrink-0 items-center justify-center text-neutral-700 hover:text-ink"
             >
               <XGlyph />
             </button>

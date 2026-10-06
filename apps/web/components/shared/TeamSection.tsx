@@ -68,7 +68,7 @@ function TeamCard({ member }: { member: TeamMember }) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${member.name} — LinkedIn`}
-          className="absolute transition-transform duration-standard ease-expo hover:scale-110"
+          className="absolute transition-transform duration-standard ease-expo before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:scale-110"
           style={{ left: '85.627%', top: '87.347%', width: '9.480%', height: '6.327%' }}
         >
           <Image src="/icons/linkedin.svg" alt="" fill className="object-contain" />

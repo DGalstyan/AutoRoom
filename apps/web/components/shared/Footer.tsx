@@ -62,7 +62,7 @@ export async function Footer({
             {messages.common.brand}
           </p>
           <p className="mt-1 text-caption uppercase tracking-[0.3em] text-white/50">
-            Auto Import Company
+            {footer.companyDescriptor}
           </p>
         </Link>
 

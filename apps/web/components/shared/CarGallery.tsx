@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import type { CarImage, ImageAlbum } from '@/lib/types/car';
 import { useMessages } from '@/components/shared/LocaleProvider';
+import { interpolate } from '@/lib/messages';
 
 const ALBUM_ORDER: ImageAlbum[] = ['EXTERIOR', 'INTERIOR', 'DETAILS', 'VIDEO'];
 
@@ -142,6 +143,7 @@ export function CarGallery({
                   key={image.id}
                   type="button"
                   onClick={() => selectThumbnail(index)}
+                  aria-label={interpolate(t.photoLabel, { n: String(index + 1) })}
                   className={`relative h-[86px] w-[154px] shrink-0 overflow-hidden rounded-[16px] bg-neutral-800 ${
                     !showColorOverride && index === activeIndex
                       ? 'border-[3px] border-neutral-900'
@@ -156,7 +158,7 @@ export function CarGallery({
               <button
                 type="button"
                 onClick={scrollStripRight}
-                aria-label="Scroll thumbnails"
+                aria-label={t.scrollThumbnails}
                 className="absolute right-0 top-0 flex h-[86px] w-[170px] items-center justify-center bg-gradient-to-r from-surface-light/0 to-surface-light to-[91%]"
               >
                 <span className="flex size-6 items-center justify-center rounded-full bg-white text-neutral-800 shadow-card">

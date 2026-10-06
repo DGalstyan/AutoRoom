@@ -253,7 +253,7 @@ export function UsaAuctionContactPopup({
               aria-checked={financingNeeded}
               aria-labelledby="uap-financing-label"
               onClick={() => setFinancingNeeded((prev) => !prev)}
-              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-pill p-1 transition-colors duration-standard ${
+              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-pill p-1 before:absolute before:-inset-2 before:content-[''] transition-colors duration-standard ${
                 financingNeeded ? 'bg-ink' : 'bg-neutral-100'
               }`}
             >

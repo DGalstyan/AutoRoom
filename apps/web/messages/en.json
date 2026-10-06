@@ -33,7 +33,8 @@
       "ctaButton": "Let's talk",
       "rights": "All rights reserved.",
       "privacyPolicy": "Privacy Policy",
-      "terms": "Terms of Use"
+      "terms": "Terms of Use",
+      "companyDescriptor": "Auto Import Company"
     },
     "popup": {
       "close": "Close",
@@ -194,7 +195,9 @@
         "exterior": "Exterior",
         "interior": "Interior",
         "details": "Details",
-        "video": "Video"
+        "video": "Video",
+        "scrollThumbnails": "Scroll thumbnails",
+        "photoLabel": "Photo {n}"
       },
       "specs": {
         "heading": "General specifications",
@@ -334,13 +337,15 @@
         "generalHeading": "General info",
         "specsHeading": "Technical specs",
         "empty": "Pick 2 cars to compare",
-        "browseCta": "Browse cars"
+        "browseCta": "Browse cars",
+        "removeCar": "Remove {name} from comparison"
       },
       "finder": {
         "cancel": "Cancel",
         "submit": "Find my car"
       }
-    }
+    },
+    "languageLabel": "Language"
   },
   "home": {
     "hero": {

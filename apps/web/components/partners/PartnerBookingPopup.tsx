@@ -577,7 +577,7 @@ export function PartnerBookingPopup({
                           (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
                         )
                       }
-                      className="flex h-8 w-8 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
+                      className="flex size-11 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
                     >
                       ‹
                     </button>
@@ -594,7 +594,7 @@ export function PartnerBookingPopup({
                           (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
                         )
                       }
-                      className="flex h-8 w-8 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
+                      className="flex size-11 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
                     >
                       ›
                     </button>
