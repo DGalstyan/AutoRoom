@@ -141,12 +141,12 @@ export async function Footer({
               : `© ${new Date().getFullYear()} Autoroom — ${footer.rights}`}
           </p>
           <div className="flex gap-5">
-            <a href="#" className="hover:text-white">
-              {footer.cookiePolicy}
-            </a>
-            <a href="#" className="hover:text-white">
+            <Link href="/privacy" className="hover:text-white">
               {footer.privacyPolicy}
-            </a>
+            </Link>
+            <Link href="/terms" className="hover:text-white">
+              {footer.terms}
+            </Link>
           </div>
         </div>
       </div>

@@ -111,7 +111,13 @@ describe('Footer', () => {
 
   it('shows the copyright row', async () => {
     renderWithLocale(await Footer());
-    expect(screen.getByText(messages.common.footer.cookiePolicy)).toBeInTheDocument();
-    expect(screen.getByText(messages.common.footer.privacyPolicy)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: messages.common.footer.privacyPolicy })).toHaveAttribute(
+      'href',
+      '/privacy',
+    );
+    expect(screen.getByRole('link', { name: messages.common.footer.terms })).toHaveAttribute(
+      'href',
+      '/terms',
+    );
   });
 });

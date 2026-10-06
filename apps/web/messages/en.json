@@ -32,8 +32,8 @@
       "ctaHeading": "Ready to start?",
       "ctaButton": "Let's talk",
       "rights": "All rights reserved.",
-      "cookiePolicy": "Cookie Policy",
-      "privacyPolicy": "Privacy Policy"
+      "privacyPolicy": "Privacy Policy",
+      "terms": "Terms of Use"
     },
     "popup": {
       "close": "Close",
@@ -999,7 +999,15 @@
       },
       "noTimes": "No available times on this day",
       "calendar": {
-        "weekdaysShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        "weekdaysShort": [
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri",
+          "Sat",
+          "Sun"
+        ],
         "weekdaysLong": [
           "Sunday",
           "Monday",
@@ -1250,5 +1258,397 @@
       "heading": "Manage your orders from one place",
       "cta": "Sign in"
     }
+  },
+  "privacy": {
+    "meta": {
+      "title": "Privacy Policy — AutoRoom",
+      "description": "How AutoRoom LLC collects, uses and protects your personal data."
+    },
+    "title": "Privacy Policy",
+    "company": "AutoRoom LLC",
+    "updated": "Last updated: 2026",
+    "sections": [
+      {
+        "heading": "1. Introduction",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "AutoRoom LLC (\"AutoRoom\", \"we\", \"our\") respects your privacy and is committed to protecting your personal data. This Privacy Policy explains how we collect, use, store and protect your information when you visit our website, submit a car import request, or use our car search tool and import calculator."
+          },
+          {
+            "type": "p",
+            "text": "By using our website and services, you consent to the terms described in this Privacy Policy."
+          }
+        ]
+      },
+      {
+        "heading": "2. What data we collect",
+        "blocks": [
+          {
+            "type": "h3",
+            "text": "Personal and contractual data:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Name and details (phone number, passport/ID, car link or lot number, budget, comment)",
+              "Car preferences, budget and purchase history",
+              "Financing/loan application data (if you apply for car financing through our partner banks)"
+            ]
+          },
+          {
+            "type": "h3",
+            "text": "Technical and usage data:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "IP address, browser type and device data",
+              "Pages viewed, visit duration and referral sources"
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "3. How we use your data",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "We use the collected data for the following purposes:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Processing car orders and preparing the final cost calculation.",
+              "Assisting with car loan applications through our partner financial institutions in Armenia.",
+              "Improving the website user experience (UX) and providing updates about our services."
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "4. Car search and import data",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "To carry out international car purchases, we may:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Review and verify vehicle history reports (for example CARFAX, technical inspection records).",
+              "Pass the necessary buyer or vehicle data to freight companies, transit insurers and licensed customs brokers.",
+              "Keep the transaction history to provide post-import support and continuity of service."
+            ]
+          },
+          {
+            "type": "p",
+            "text": "We do not sell your personal data to third parties."
+          }
+        ]
+      },
+      {
+        "heading": "5. Cookies and analytics",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Our website uses analytics tools (such as Google Analytics and Meta Pixel):"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "To ensure the website and calculators run smoothly and correctly.",
+              "To analyze user behavior and improve the structure and content of the website.",
+              "To run targeted advertising and retargeting campaigns."
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "6. Third-party services",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "We share data only with trusted partners, for the proper delivery of our services:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "International search and logistics. Foreign auctions, dealer networks, sea and land freight carriers in the USA, China, Korea, Japan and the UAE.",
+              "Customs and legal. Licensed customs brokers and government customs clearance systems in Armenia.",
+              "Banks and credit organizations. Partner banks, to handle the car financing process.",
+              "Digital infrastructure. Cloud hosting, CRM systems and marketing analytics tools."
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "7. International data transfer",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Because AutoRoom searches for and imports cars from all over the world, your data (for example the buyer's name, contacts or the car's VIN code) may be transferred to and processed in foreign countries, including the USA, China, South Korea, Japan and the UAE."
+          }
+        ]
+      },
+      {
+        "heading": "8. Data security",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "We apply commercially reasonable technical and organizational security measures to protect your personal data from unauthorized access, loss, misuse or alteration. However, no method of data transmission over the internet can be guaranteed to be 100% secure."
+          }
+        ]
+      },
+      {
+        "heading": "9. Data retention",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "We keep personal data for as long as necessary to fulfil the car import order, maintain customer service history, meet the legislative and tax requirements of the Republic of Armenia, and resolve possible disputes. After contractual obligations have ended, you may request the deletion of your data."
+          }
+        ]
+      },
+      {
+        "heading": "10. Your rights",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Depending on applicable law, you have the following rights:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Request access to your personal data",
+              "Correct inaccurate or incomplete data",
+              "Request deletion or restriction of processing of your personal data",
+              "Withdraw your consent to receive marketing messages."
+            ]
+          },
+          {
+            "type": "p",
+            "text": "To exercise these rights, you can contact us using the details below."
+          }
+        ]
+      },
+      {
+        "heading": "11. Contact us",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "For questions about this Privacy Policy or to exercise your rights, you can contact us:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Company name: AutoRoom LLC",
+              "Email: autoroom.aic@gmail.com",
+              "Phone: 093-88-28-18",
+              "Head office: Armenia, Yerevan, Sayat-Nova Ave. 20/2",
+              "Regional branches: Armavir"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "meta": {
+      "title": "Terms of Use — AutoRoom",
+      "description": "The terms for using the AutoRoom website, calculators and services."
+    },
+    "title": "Terms of Use",
+    "company": "AutoRoom LLC",
+    "updated": "Last updated: 2026",
+    "sections": [
+      {
+        "heading": "1. Acceptance of terms",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "By using the website, mobile interfaces or online calculators of AutoRoom LLC (\"AutoRoom\", \"we\", \"our\"), you accept these Terms of Use and agree to comply with them. If you do not agree with any of these terms, please stop using our website."
+          }
+        ]
+      },
+      {
+        "heading": "2. Services",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "AutoRoom provides car import from international markets, logistics and consulting services, including:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Importing cars from international markets, and technical inspection and guidance on auctions (USA, China, Europe, Japan, Korea, UAE).",
+              "Organizing sea and land freight logistics.",
+              "Support with customs clearance and regulatory documents in Armenia.",
+              "Car loan and financing consulting through partner financial institutions.",
+              "Estimating preliminary car costs and providing buyers with informational guides and contracts."
+            ]
+          },
+          {
+            "type": "p",
+            "text": "All descriptions of cars, specifications and services presented on the website are informational and may change without prior notice."
+          }
+        ]
+      },
+      {
+        "heading": "3. Website content and intellectual property",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Our services cover car import and logistics."
+          },
+          {
+            "type": "p",
+            "text": "All content of this website ... belongs to AutoRoom LLC, unless stated otherwise."
+          },
+          {
+            "type": "p",
+            "text": "It is prohibited to:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Republish, sell or license the website content.",
+              "Reproduce, duplicate or copy materials for commercial purposes.",
+              "Use AutoRoom's branding, logos or trademarks without written permission."
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "4. User responsibility",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "By using our website and digital tools, you agree:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Not to submit false, misleading or fraudulent contact details or order requests.",
+              "Not to attempt unauthorized access to our systems, servers or user databases.",
+              "Not to upload or distribute malicious software, viruses or harmful code.",
+              "Not to use automated scripts or bots to scrape data, prices or car listings from the website.",
+              "Not to misrepresent your identity or your affiliation with any person or legal entity."
+            ]
+          }
+        ]
+      },
+      {
+        "heading": "5. Requests and preliminary price calculations",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Submitting a car request form, leaving a callback request or using our online calculators (import/customs clearance):"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Is NOT a binding purchase order or a price guarantee.",
+              "Does NOT reserve or hold the car at an international auction or dealership.",
+              "Does NOT guarantee mandatory loan approval by partner banks."
+            ]
+          },
+          {
+            "type": "p",
+            "text": "Final car prices, delivery times and customs duties are subject to change depending on market fluctuations, auction fees and the official customs valuations at the time of purchase."
+          }
+        ]
+      },
+      {
+        "heading": "6. Customer contracts",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Official services of car acquisition, international transportation, customs formalities or software activation are governed by separate, bilaterally concluded contracts. These Terms of Use do not replace or cancel individual contracts concluded between AutoRoom and its customers."
+          }
+        ]
+      },
+      {
+        "heading": "7. Informational and calculator disclaimer",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Articles, customs clearance calculators, and technical and other car specifications presented on the website are intended for general guidance only. Although we strive for maximum accuracy, they do not constitute official legal, financial or tax advice."
+          }
+        ]
+      },
+      {
+        "heading": "8. Third-party links and services",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Our website may contain links or integrated tools to third-party services, including international auction portals and partner banks. AutoRoom is not responsible for the content, security policies or availability of these external sites."
+          }
+        ]
+      },
+      {
+        "heading": "9. Disclaimer of warranties",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "The website is provided on an \"as is\" and \"as available\" basis. AutoRoom does not guarantee that the website will operate without interruption, without errors, or be fully protected from external cyber threats, although standard protective measures are continuously maintained."
+          }
+        ]
+      },
+      {
+        "heading": "10. Limitation of liability",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "To the maximum extent permitted by applicable law, AutoRoom LLC is not liable for any indirect, incidental or consequential damages, business interruption or data loss arising from the use of, or inability to use, this website or its digital tools."
+          }
+        ]
+      },
+      {
+        "heading": "11. Privacy",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Your use of our website is also governed by our Privacy Policy, which describes how we collect, store and process your personal and transactional data."
+          }
+        ]
+      },
+      {
+        "heading": "12. Changes to the terms",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "We reserve the right to update or modify these Terms of Use at any time. Any change takes effect immediately upon publication on this page. Your continued use of the website after changes confirms your agreement to the updated terms."
+          }
+        ]
+      },
+      {
+        "heading": "13. Governing law",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "These Terms are governed by and interpreted in accordance with the legislation of the Republic of Armenia. Any legal dispute arising from these terms is subject to the jurisdiction of the courts of the Republic of Armenia."
+          }
+        ]
+      },
+      {
+        "heading": "14. Contact information",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "For questions or requests about these Terms of Use, you can contact us:"
+          },
+          {
+            "type": "ul",
+            "items": [
+              "Company name: AutoRoom LLC",
+              "Email: autoroom.aic@gmail.com",
+              "Phone: 093-88-28-18",
+              "Head office: Armenia, Yerevan, Sayat-Nova Ave. 20/2",
+              "Regional branches: Armavir"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }
