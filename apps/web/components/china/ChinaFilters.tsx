@@ -235,8 +235,8 @@ function PriceRangeDropdown({
           </div>
 
           <div className="mt-2 flex justify-between text-[12px] text-muted">
-            <span>{PRICE_MIN.toLocaleString('en-US')}$</span>
-            <span>{PRICE_MAX.toLocaleString('en-US')}$</span>
+            <span className="tabular-nums">{PRICE_MIN.toLocaleString('en-US')}$</span>
+            <span className="tabular-nums">{PRICE_MAX.toLocaleString('en-US')}$</span>
           </div>
         </div>
       )}

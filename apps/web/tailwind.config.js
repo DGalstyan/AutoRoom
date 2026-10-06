@@ -67,6 +67,13 @@ module.exports = {
         // H2-Reg Mid" text style, measured via Dev Mode CSS) — distinct from
         // `home-card-title` above: bigger, and weight 400 not 700.
         'branch-card-title': ['36px', { lineHeight: '48px' }], // weight 400
+        // Canonical price sizes — always bold (700) + tabular numerals; use
+        // `<Price>` (components/ui/Price.tsx) rather than these directly.
+        price: ['20px', { lineHeight: '28px', fontWeight: '700' }],
+        'price-lg': ['24px', { lineHeight: '32px', fontWeight: '700' }],
+        // Calculator/journey TOTAL — the single biggest number in the block
+        // (28px on phones; `Price size="total"` steps up to 36px from `sm`).
+        'price-total': ['28px', { lineHeight: '36px', fontWeight: '700' }],
       },
       fontFamily: {
         display: ['var(--font-sora)', 'var(--font-noto-am)', 'sans-serif'],

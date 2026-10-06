@@ -24,5 +24,17 @@ Sizes: `md` 44px (default) · `lg` 48px · `xl` 56px (hero / final-CTA bands onl
 - Groups of buttons/radios use `<Field group>` (labels a `role="group"`).
 - Documented exception: compact filter bars (`ChinaFilters`, `UsaAuctionFilters`, portal sort/branch selects) may use `aria-label` because the selected value is always visible.
 
+## Prices — `Price`
+Always **700 + tabular numerals** (Inter, which ships `tnum`). `md` 20px for cards/rows/chips · `lg` 24px for a view's headline price (car detail hero) · `total` 28px → 36px (≥`sm`) **only** for a calculator result. Pass a string already formatted by `formatUsd` / `formatAmd`.
+
+## Calculator hierarchy — `TotalBar`, `BreakdownRow`
+Three tiers that must look different: **inputs** (white card, bold label + control, `Field`) → **breakdown** (`BreakdownRow`: 16px regular label, 16px/500 value, hairline dividers — never bold, never larger than body) → **total** (`TotalBar`: the only dark block, `Price size="total"`). Used by `LoanCalculator` and `PriceJourney`; the sum's addends sit under the total in small muted text.
+
+## Lead qualification — `QuickChoice`, `LeadQualification`
+Budget, financing, timing and channel are answered with one tap: ≤4 options render as chips (`QuickChoice`), more fall back to a dropdown. Every answer is optional and clears when tapped again. `LeadQualification` renders the four shared questions so every lead form uses identical options and payload values.
+
+## Lead context
+Every lead carries `buildLeadHidden(...)`: vehicle id, VIN, auction lot, page, CTA, **live** locale (`useLocale()`, never a literal), device class and timestamp.
+
 ## Not yet migrated
 ~20 hand-written `rounded-pill bg-accent …` CTAs (heroes, final CTAs, forms) still carry their own pixel-matched sizing; move them to `Button` (`md`/`lg`/`xl`) one page at a time with a Figma check.

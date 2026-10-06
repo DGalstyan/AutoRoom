@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPriceFormula, countUpValue, sumChips } from '@/lib/priceJourney';
+import { buildAddends, buildPriceFormula, countUpValue, sumChips } from '@/lib/priceJourney';
 
 // Li Auto L9 — the car whose formula used to end in "= 0 $".
 const LI_L9 = [{ amount: 52000 }, { amount: 4300 }, { amount: 9800 }, { amount: 2500 }];
@@ -36,5 +36,11 @@ describe('buildPriceFormula', () => {
   });
   it('shows a mid-animation total when given one', () => {
     expect(buildPriceFormula(LI_L9, 100)).toMatch(/= 100 \$$/);
+  });
+});
+
+describe('buildAddends', () => {
+  it('lists the chips without the total', () => {
+    expect(buildAddends(LI_L9)).toBe('52,000 $ + 4,300 $ + 9,800 $ + 2,500 $');
   });
 });

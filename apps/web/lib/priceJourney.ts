@@ -18,6 +18,11 @@ export function countUpValue(total: number, progress: number): number {
   return clamped >= 1 ? total : Math.round(total * clamped);
 }
 
+/** `"12,000 $ + 3,500 $ + 9,800 $"` — the addends alone, shown under the total. */
+export function buildAddends(chips: Pick<PriceChip, 'amount'>[]): string {
+  return chips.map((chip) => formatUsd(chip.amount)).join(' + ');
+}
+
 /** `"12,000 $ + 3,500 $ + … = 20,000 $"`. `displayedTotal` defaults to the real sum. */
 export function buildPriceFormula(
   chips: Pick<PriceChip, 'amount'>[],

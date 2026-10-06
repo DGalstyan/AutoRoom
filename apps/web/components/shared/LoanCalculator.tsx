@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
+import { BreakdownRow, TotalBar } from '@/components/ui/TotalBar';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -76,33 +77,23 @@ export function LoanCalculator({
               aria-label={t.downPayment}
             />
             <div className="flex justify-between text-[12px] text-neutral-700">
-              <span>{formatUsd(min)}</span>
-              <span>{formatUsd(max)}</span>
+              <span className="tabular-nums">{formatUsd(min)}</span>
+              <span className="tabular-nums">{formatUsd(max)}</span>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Row label={t.term} value={String(finance.termMonths)} />
-            <Row label={t.nominalRate} value={`${finance.nominalRate}%`} />
-            <Row
-              label={t.effectiveRate}
-              value={`${finance.effectiveRateMin} - ${finance.effectiveRateMax}%`}
-            />
           </div>
         </div>
 
         <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white p-8 sm:p-12 lg:flex-[589]">
-          <div className="flex flex-col gap-1">
-            <span className="text-[16px] text-neutral-700">{t.downPayment}</span>
-            <span className="text-[16px] font-bold text-neutral-700">{formatUsd(clamped)}</span>
-          </div>
-          <div className="h-px w-full max-w-[226px] bg-line-light" />
           <div>
-            <p className="text-[20px] font-bold text-neutral-900">{t.monthly}</p>
-            <p className="font-display text-[36px] font-bold leading-[56px] text-neutral-900">
-              {formatAmd(monthly)}
-            </p>
+            <BreakdownRow label={t.downPayment} value={formatUsd(clamped)} />
+            <BreakdownRow label={t.term} value={String(finance.termMonths)} />
+            <BreakdownRow label={t.nominalRate} value={`${finance.nominalRate}%`} />
+            <BreakdownRow
+              label={t.effectiveRate}
+              value={`${finance.effectiveRateMin} - ${finance.effectiveRateMax}%`}
+            />
           </div>
+          <TotalBar label={t.monthly} value={formatAmd(monthly)} />
           {finance.disclaimer && (
             <p className="max-w-xs text-[12px] leading-[16px] text-neutral-700">
               {finance.disclaimer}
@@ -116,15 +107,6 @@ export function LoanCalculator({
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-md bg-white p-3">
-      <span className="text-[16px] text-neutral-700">{label}</span>
-      <span className="text-[16px] font-bold text-neutral-800">{value}</span>
     </div>
   );
 }

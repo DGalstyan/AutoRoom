@@ -4,12 +4,13 @@ import { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Dialog } from '@/components/ui/Dialog';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
-import { Chip } from '@/components/ui/Chip';
+import { QuickChoice } from '@/components/ui/QuickChoice';
+import { LeadQualification } from '@/components/shared/LeadQualification';
 import { Button } from '@/components/ui/Button';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
 import {
   CHANNEL_INSTRUMENTAL,
-  detectDevice,
+  buildLeadHidden,
   submitLead,
   type LeadBudget,
   type LeadChannel,
@@ -18,11 +19,15 @@ import {
   type LeadTiming,
 } from '@/lib/leads';
 import { interpolate } from '@/lib/messages';
-import { useMessages } from '@/components/shared/LocaleProvider';
+import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 export interface UniversalPopupCarContext {
+  /** `Car.id` — rides along in the lead's hidden context. */
+  id?: string;
   name: string;
   vin?: string;
+  /** Auction lot number, when the car has one. */
+  lot?: string;
   price?: string;
   image?: string;
   url: string;
@@ -49,10 +54,6 @@ type Step = 1 | 2 | 3;
 type Status = 'idle' | 'submitting' | 'success';
 
 const INTEREST_KEYS: LeadInterest[] = ['usa', 'china', 'in-stock', 'undecided'];
-const BUDGET_KEYS: LeadBudget[] = ['lt10k', '10-20k', '20-35k', '35k+'];
-const FINANCING_KEYS: LeadFinancing[] = ['need', 'no', 'unsure'];
-const TIMING_KEYS: LeadTiming[] = ['now', '1-3m', 'browsing'];
-const CHANNEL_KEYS: LeadChannel[] = ['call', 'whatsapp', 'viber', 'telegram'];
 
 export function UniversalPopup({
   open,
@@ -65,6 +66,7 @@ export function UniversalPopup({
   quizAnswers,
 }: UniversalPopupProps) {
   const t = useMessages().common.popup;
+  const locale = useLocale();
   const titleId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -135,15 +137,7 @@ export function UniversalPopup({
         comment: commentParts.filter(Boolean).join(' — ') || undefined,
         color,
       },
-      hidden: {
-        sourcePage,
-        sourceCta,
-        car: car ? { name: car.name, vin: car.vin } : undefined,
-        timestamp: new Date().toISOString(),
-        locale: 'hy',
-        device: detectDevice(),
-        quizAnswers,
-      },
+      hidden: buildLeadHidden({ sourcePage, sourceCta, locale, car, quizAnswers }),
     });
     setSuccessName(name.trim());
     setSuccessChannel(channel);
@@ -280,7 +274,7 @@ export function UniversalPopup({
             {car ? (
               car.colors &&
               car.colors.length > 0 && (
-                <ChipGroup
+                <QuickChoice
                   label={t.colorLabel}
                   options={car.colors.map((c) => ({ key: c, label: c }))}
                   value={color}
@@ -288,39 +282,23 @@ export function UniversalPopup({
                 />
               )
             ) : (
-              <ChipGroup
+              <QuickChoice
                 label={t.interestLabel}
                 options={INTEREST_KEYS.map((key) => ({ key, label: t.interestOptions[key] }))}
                 value={interest}
-                onChange={(value) => setInterest(value as LeadInterest)}
+                onChange={(value) => setInterest(value as LeadInterest | undefined)}
               />
             )}
 
-            <ChipGroup
-              label={t.budgetLabel}
-              options={BUDGET_KEYS.map((key) => ({ key, label: t.budgetOptions[key] }))}
-              value={budget}
-              onChange={(value) => setBudget(value as LeadBudget)}
-            />
-            <ChipGroup
-              label={t.financingLabel}
-              options={FINANCING_KEYS.map((key) => ({ key, label: t.financingOptions[key] }))}
-              value={financing}
-              onChange={(value) => setFinancing(value as LeadFinancing)}
-            />
-            {!car && (
-              <ChipGroup
-                label={t.timingLabel}
-                options={TIMING_KEYS.map((key) => ({ key, label: t.timingOptions[key] }))}
-                value={timing}
-                onChange={(value) => setTiming(value as LeadTiming)}
-              />
-            )}
-            <ChipGroup
-              label={t.channelLabel}
-              options={CHANNEL_KEYS.map((key) => ({ key, label: t.channelOptions[key] }))}
-              value={channel}
-              onChange={(value) => setChannel(value as LeadChannel)}
+            <LeadQualification
+              values={{ budget, financing, timing, channel }}
+              onChange={(patch) => {
+                if ('budget' in patch) setBudget(patch.budget);
+                if ('financing' in patch) setFinancing(patch.financing);
+                if ('timing' in patch) setTiming(patch.timing);
+                if ('channel' in patch) setChannel(patch.channel);
+              }}
+              fields={car ? ['budget', 'financing', 'channel'] : undefined}
             />
           </div>
         )}
@@ -380,34 +358,5 @@ export function UniversalPopup({
         </div>
       </form>
     </Dialog>
-  );
-}
-
-function ChipGroup<K extends string>({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: { key: K; label: string }[];
-  value: K | undefined;
-  onChange: (value: K) => void;
-}) {
-  return (
-    <fieldset>
-      <legend className="mb-2 text-small font-medium text-ink">{label}</legend>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <Chip
-            key={option.key}
-            selected={value === option.key}
-            onClick={() => onChange(option.key)}
-          >
-            {option.label}
-          </Chip>
-        ))}
-      </div>
-    </fieldset>
   );
 }

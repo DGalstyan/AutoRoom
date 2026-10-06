@@ -35,9 +35,11 @@ describe('PriceJourney total row', () => {
 
   it('shows the real sum even if the section never scrolls into view', () => {
     renderWithLocale(<PriceJourney chips={LI_L9_CHIPS} car={CAR} />);
-    const formula = screen.getByText(/^52,000 \$ \+ 4,300 \$ \+ 9,800 \$ \+ 2,500 \$ =/);
-    expect(formula).toHaveTextContent('= 68,600 $');
-    expect(formula).not.toHaveTextContent('= 0 $');
+    const total = screen.getByText('68,600 $');
+    expect(total).toHaveClass('text-price-total', 'font-bold', 'tabular-nums');
+    expect(screen.queryByText('0 $')).not.toBeInTheDocument();
+    // The addends sit under the total, so the arithmetic is still visible.
+    expect(screen.getByText('52,000 $ + 4,300 $ + 9,800 $ + 2,500 $')).toBeInTheDocument();
   });
 
   it('shows the real sum immediately with reduced motion', () => {
@@ -60,7 +62,7 @@ describe('PriceJourney total row', () => {
       removeEventListener() {},
     })) as never;
     renderWithLocale(<PriceJourney chips={LI_L9_CHIPS} car={CAR} />);
-    expect(screen.getByText(/= 68,600 \$$/)).toBeInTheDocument();
+    expect(screen.getByText('68,600 $')).toBeInTheDocument();
   });
 
   it('renders nothing without chips', () => {

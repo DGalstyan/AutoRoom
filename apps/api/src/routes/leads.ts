@@ -58,6 +58,9 @@ const createLeadBodySchema = z
 
     carName: optionalText(200),
     carVin: optionalText(40),
+    /** `Car.id` and auction lot of the vehicle the lead was opened from. */
+    carId: optionalText(64),
+    carLot: optionalText(40),
     carLink: optionalText(500),
 
     /* The "Become a dealer" meeting-booking form's own fields. Optional like
@@ -76,6 +79,8 @@ const createLeadBodySchema = z
     sourceCta: z.string().trim().min(1).max(200),
     locale: z.string().trim().min(1).max(10),
     device: z.string().trim().min(1).max(20),
+    /** The visitor's own clock at submit time (ISO 8601). */
+    timestamp: z.string().datetime({ offset: true }).or(z.string().datetime()).optional(),
     quizAnswers: z.record(z.string(), z.string()).optional(),
   })
   /* A booked meeting is all-or-nothing. A format with no time is a lead nobody
@@ -143,6 +148,9 @@ leadsRouter.post('/leads', validateBody(createLeadBodySchema), async (req, res) 
       comment: body.comment ?? null,
       carName: body.carName ?? null,
       carVin: body.carVin ?? null,
+      carId: body.carId ?? null,
+      carLot: body.carLot ?? null,
+      submittedAt: body.timestamp ? new Date(body.timestamp) : null,
       carLink: body.carLink ?? null,
       company: body.company ?? null,
       activityType: body.activityType ?? null,
@@ -381,6 +389,9 @@ function serializeLead(lead: Prisma.LeadGetPayload<object>) {
     comment: lead.comment,
     carName: lead.carName,
     carVin: lead.carVin,
+    carId: lead.carId,
+    carLot: lead.carLot,
+    submittedAt: lead.submittedAt?.toISOString() ?? null,
     carLink: lead.carLink,
     company: lead.company,
     activityType: lead.activityType,

@@ -5,7 +5,9 @@ import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import type { PriceChip } from '@/lib/types/car';
 import { formatUsd, localizeText } from '@/lib/types/car';
-import { buildPriceFormula, countUpValue, sumChips } from '@/lib/priceJourney';
+import { Price } from '@/components/ui/Price';
+import { TotalBar } from '@/components/ui/TotalBar';
+import { buildAddends, countUpValue, sumChips } from '@/lib/priceJourney';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -93,7 +95,7 @@ export function PriceJourney({
 
   if (chips.length === 0) return null;
 
-  const formula = buildPriceFormula(chips, displayedTotal);
+  const addends = buildAddends(chips);
 
   return (
     <div ref={ref} className="flex flex-col gap-16">
@@ -119,9 +121,9 @@ export function PriceJourney({
                     <p className="text-[16px] font-medium text-neutral-900">
                       {localizeText(chip.label, locale)}
                     </p>
-                    <p className="text-[16px] font-bold text-neutral-800">
+                    <Price as="p" className="text-neutral-800">
                       {formatUsd(chip.amount)}
-                    </p>
+                    </Price>
                     {note && <p className="text-[12px] text-neutral-700">{note}</p>}
                   </div>
                 </div>
@@ -129,10 +131,9 @@ export function PriceJourney({
             })}
           </div>
 
-          <div className="rounded-[20px] bg-white px-4 py-6">
-            <p className="text-[16px] text-neutral-900">{t.finalLabel}</p>
-            <p className="mt-3 text-[20px] font-bold text-neutral-800">{formula}</p>
-          </div>
+          <TotalBar label={t.finalLabel} value={formatUsd(displayedTotal)}>
+            {addends}
+          </TotalBar>
         </div>
 
         <div

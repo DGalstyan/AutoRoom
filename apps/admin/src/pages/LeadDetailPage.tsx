@@ -149,7 +149,9 @@ export function LeadDetailPage() {
 
   const aboutFields: [string, string | null][] = [
     ['Car', lead.carName],
+    ['Vehicle ID', lead.carId],
     ['VIN', lead.carVin],
+    ['Lot', lead.carLot],
     ['Car link', lead.carLink],
     ['Topic', lead.topic],
     ['Interest', lead.interest],
@@ -203,6 +205,10 @@ export function LeadDetailPage() {
           <Typography sx={{ fontWeight: 600, mb: 2 }}>Submission</Typography>
           <Stack spacing={1.5}>
             <Field label="Received" value={formatDateTime(lead.createdAt)} />
+            <Field
+              label="Sent from device at"
+              value={lead.submittedAt ? formatDateTime(lead.submittedAt) : '—'}
+            />
             <Field label="Source" value={`${lead.sourcePage} · ${lead.sourceCta}`} />
             <Field label="Locale" value={lead.locale} />
             <Field label="Device" value={lead.device} />

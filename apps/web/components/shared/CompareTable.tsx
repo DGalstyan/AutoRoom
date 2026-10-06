@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
+import { Price } from '@/components/ui/Price';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useCompare } from '@/components/shared/CompareProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
@@ -54,11 +55,13 @@ export function CompareTable({
           label={t.priceFinal}
           valueA={formatUsd(carA.estFinalPriceAM ?? carA.price)}
           valueB={formatUsd(carB.estFinalPriceAM ?? carB.price)}
+          price
         />
         <CompareRow
           label={t.priceMonthly}
           valueA={formatAmd(monthlyA)}
           valueB={formatAmd(monthlyB)}
+          price
         />
       </CompareSection>
 
@@ -127,19 +130,42 @@ function CompareSection({ heading, children }: { heading: string; children: Reac
   );
 }
 
-function CompareRow({ label, valueA, valueB }: { label: string; valueA: string; valueB: string }) {
+function CompareRow({
+  label,
+  valueA,
+  valueB,
+  price = false,
+}: {
+  label: string;
+  valueA: string;
+  valueB: string;
+  /** Price rows use the canonical price type (20px/700, tabular) and a wider value column. */
+  price?: boolean;
+}) {
   const differs = valueA !== valueB;
   return (
     <div className="flex w-full items-center justify-center gap-6 rounded-xl bg-white p-3 sm:gap-12">
-      <span className="w-[150px] shrink-0 text-[16px] font-medium text-neutral-700">{valueA}</span>
+      {price ? (
+        <Price className="w-[190px] shrink-0 text-neutral-700">{valueA}</Price>
+      ) : (
+        <span className="w-[150px] shrink-0 text-[16px] font-medium tabular-nums text-neutral-700">
+          {valueA}
+        </span>
+      )}
       <span
-        className={`w-[351px] shrink-0 text-center text-[20px] font-bold leading-8 ${
+        className={`${price ? 'w-[271px]' : 'w-[351px]'} shrink-0 text-center text-[20px] font-bold leading-8 ${
           differs ? 'text-error' : 'text-ink'
         }`}
       >
         {label}
       </span>
-      <span className="w-[150px] shrink-0 text-[16px] font-medium text-neutral-700">{valueB}</span>
+      {price ? (
+        <Price className="w-[190px] shrink-0 text-neutral-700">{valueB}</Price>
+      ) : (
+        <span className="w-[150px] shrink-0 text-[16px] font-medium tabular-nums text-neutral-700">
+          {valueB}
+        </span>
+      )}
     </div>
   );
 }

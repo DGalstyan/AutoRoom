@@ -5,7 +5,9 @@ import { Dialog } from '@/components/ui/Dialog';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { Button } from '@/components/ui/Button';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
-import { detectDevice, submitLead } from '@/lib/leads';
+import { buildLeadHidden, submitLead } from '@/lib/leads';
+import type { LeadFinancing } from '@/lib/leads';
+import { LeadQualification, type QualificationValues } from '@/components/shared/LeadQualification';
 import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
@@ -78,8 +80,9 @@ export function UsaAuctionContactPopup({
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+374 ');
   const [carLink, setCarLink] = useState('');
-  const [budget, setBudget] = useState('');
-  const [financingNeeded, setFinancingNeeded] = useState(true);
+  // Quick one-tap answers (shared with the Universal popup). Financing starts
+  // on "need" — the Figma frame's default-ON toggle, kept as the default chip.
+  const [qualification, setQualification] = useState<QualificationValues>({ financing: 'need' });
   const [comment, setComment] = useState('');
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<Status>('idle');
@@ -94,8 +97,7 @@ export function UsaAuctionContactPopup({
       setName('');
       setPhone('+374 ');
       setCarLink('');
-      setBudget('');
-      setFinancingNeeded(true);
+      setQualification({ financing: 'need' });
       setComment('');
       setTouched(false);
       setStatus('idle');
@@ -117,17 +119,13 @@ export function UsaAuctionContactPopup({
         name: name.trim(),
         phone,
         carLink: carLink.trim() || undefined,
-        budget: budget.trim() || undefined,
-        financing: financingNeeded ? 'yes' : 'no',
+        budget: qualification.budget,
+        financing: qualification.financing as LeadFinancing | undefined,
+        timing: qualification.timing,
+        channel: qualification.channel,
         comment: comment.trim() || undefined,
       },
-      hidden: {
-        sourcePage,
-        sourceCta,
-        timestamp: new Date().toISOString(),
-        locale,
-        device: detectDevice(),
-      },
+      hidden: buildLeadHidden({ sourcePage, sourceCta, locale }),
     });
     setSuccessName(name.trim());
     setStatus('success');
@@ -227,44 +225,11 @@ export function UsaAuctionContactPopup({
             />
           </div>
 
-          <div>
-            <label htmlFor="uap-budget" className="mb-1 block text-small font-medium text-ink">
-              {t.budgetLabel}
-            </label>
-            <input
-              id="uap-budget"
-              name="budget"
-              type="text"
-              inputMode="numeric"
-              value={budget}
-              onChange={(event) => setBudget(event.target.value)}
-              placeholder={t.budgetPlaceholder}
-              className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
-            <span id="uap-financing-label" className="text-small font-medium text-ink">
-              {t.financingLabel}
-            </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={financingNeeded}
-              aria-labelledby="uap-financing-label"
-              onClick={() => setFinancingNeeded((prev) => !prev)}
-              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-pill p-1 before:absolute before:-inset-2 before:content-[''] transition-colors duration-standard ${
-                financingNeeded ? 'bg-ink' : 'bg-neutral-100'
-              }`}
-            >
-              <span
-                aria-hidden="true"
-                className={`inline-block size-5 rounded-pill bg-white shadow-sm transition-transform duration-standard ${
-                  financingNeeded ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div>
+          <LeadQualification
+            values={qualification}
+            onChange={(patch) => setQualification((prev) => ({ ...prev, ...patch }))}
+            labels={{ budget: t.budgetLabel, financing: t.financingLabel }}
+          />
 
           <div>
             <label htmlFor="uap-comment" className="mb-1 block text-small font-medium text-ink">

@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
-import { detectDevice, submitLead } from '@/lib/leads';
+import { buildLeadHidden, submitLead } from '@/lib/leads';
 import { interpolate } from '@/lib/messages';
-import { useMessages } from '@/components/shared/LocaleProvider';
+import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 type Status = 'idle' | 'submitting' | 'success';
 
@@ -51,6 +51,7 @@ const LABEL_CLASSES = 'mb-2 block text-[16px] font-medium leading-5 text-neutral
  */
 export function ContactForm() {
   const t = useMessages().contact.form;
+  const locale = useLocale();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -81,13 +82,11 @@ export function ContactForm() {
         topic: topic ? t.topicOptions[topic] : undefined,
         comment: comment.trim() || undefined,
       },
-      hidden: {
+      hidden: buildLeadHidden({
         sourcePage: '/contact',
         sourceCta: 'contact-s1-form',
-        timestamp: new Date().toISOString(),
-        locale: 'hy',
-        device: detectDevice(),
-      },
+        locale,
+      }),
     });
     setSuccessName(name.trim());
     setStatus('success');

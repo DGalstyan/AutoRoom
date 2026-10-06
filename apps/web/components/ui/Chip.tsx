@@ -16,7 +16,7 @@ export function Chip({ selected, onClick, children, className = '' }: ChipProps)
       onClick={onClick}
       className={`min-h-11 rounded-pill border px-4 py-2 text-sm font-medium transition-colors duration-micro ease-expo focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
         selected
-          ? 'border-accent bg-accent text-white'
+          ? 'border-accent bg-accent text-ink'
           : 'border-line-light bg-white text-ink hover:border-accent/60'
       } ${className}`}
     >

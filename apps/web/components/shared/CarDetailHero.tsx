@@ -8,6 +8,7 @@ import { CarSpecs } from '@/components/shared/CarSpecs';
 import { BuyWithLoan } from '@/components/shared/BuyWithLoan';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
+import { Price } from '@/components/ui/Price';
 import type { Bank } from '@/lib/banks';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -46,7 +47,10 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
   const selectedColorImage = colors.find((c) => c.name === selectedColor)?.imageUrl ?? null;
 
   const carContext = {
+    id: car.id,
     name: `${car.make} ${car.model}`,
+    vin: car.vin ?? undefined,
+    lot: car.lotNumber ?? undefined,
     price: formatUsd(car.price),
     image: car.images[0]?.url ?? undefined,
     url: carHref(car),
@@ -60,9 +64,9 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
           <h1 className="font-display text-[36px] font-bold leading-[56px] text-neutral-900">
             {car.make} {car.model}
           </h1>
-          <span className="font-display text-[24px] font-light leading-[36px] text-neutral-900">
+          <Price size="lg" className="text-neutral-900">
             {formatUsd(car.price)}
-          </span>
+          </Price>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">

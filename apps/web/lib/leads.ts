@@ -50,7 +50,7 @@ export interface LeadAnswers {
 export interface LeadHiddenContext {
   sourcePage: string;
   sourceCta: string;
-  car?: { name: string; vin?: string };
+  car?: { id?: string; name: string; vin?: string; lot?: string };
   timestamp: string;
   locale: string;
   device: LeadDevice;
@@ -69,6 +69,33 @@ export function detectDevice(): LeadDevice {
   if (width < 640) return 'mobile';
   if (width < 1024) return 'tablet';
   return 'desktop';
+}
+
+/**
+ * The one place every lead widget builds its hidden context, so each lead
+ * arrives with the same fields: the vehicle (id, VIN, auction lot — when the
+ * widget was opened from a car), the page and CTA it came from, the visitor's
+ * language, their device class and a timestamp. `locale` must be the live
+ * locale (`useLocale()`), never a literal.
+ */
+export function buildLeadHidden(input: {
+  sourcePage: string;
+  sourceCta: string;
+  locale: string;
+  car?: { id?: string; name: string; vin?: string; lot?: string };
+  quizAnswers?: Record<string, string>;
+}): LeadHiddenContext {
+  return {
+    sourcePage: input.sourcePage,
+    sourceCta: input.sourceCta,
+    car: input.car
+      ? { id: input.car.id, name: input.car.name, vin: input.car.vin, lot: input.car.lot }
+      : undefined,
+    timestamp: new Date().toISOString(),
+    locale: input.locale,
+    device: detectDevice(),
+    quizAnswers: input.quizAnswers,
+  };
 }
 
 /**

@@ -804,6 +804,15 @@ model Lead {
   /// Set when the lead was opened from a specific car's page/popup.
   carName String?
   carVin  String?
+  /// The `Car.id` the lead was opened from, and that car's auction lot number —
+  /// plain strings, not a relation: a lead must survive its car being unpublished
+  /// or deleted, and the CRM only needs to say *which* vehicle, not join to it.
+  carId  String?
+  carLot String?
+  /// When the visitor's browser sent the form (their clock) — distinct from
+  /// `createdAt`, the server's receipt time; both are useful when a slow
+  /// connection or a queued retry separates them.
+  submittedAt DateTime?
   /// Auction lot number or a pasted link to the specific Copart/IAAI/Manheim
   /// listing — the USA auction contact popup's own field (Figma node
   /// 242:1345's "Մեքենայի հղում կամ լոտի համար"), distinct from `carVin`
@@ -843,6 +852,7 @@ model Lead {
   // per row without them.
   @@index([meetingSlotId])
   @@index([meetingBranchId])
+  @@index([carId])
   @@map("leads")
 }
 

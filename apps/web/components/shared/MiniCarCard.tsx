@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
+import { Price } from '@/components/ui/Price';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -62,8 +63,8 @@ export function MiniCarCard({
       />
       <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 sm:inset-x-6 sm:bottom-6">
         <div>
-          <p className="text-small font-medium text-white/90">
-            {t.fromPrice} {formatUsd(car.price)}
+          <p className="flex items-baseline gap-2 text-small font-medium text-white/90">
+            {t.fromPrice} <Price className="text-white">{formatUsd(car.price)}</Price>
           </p>
           <p className="font-display text-home-card-title font-normal text-white">
             {car.make} {car.model}

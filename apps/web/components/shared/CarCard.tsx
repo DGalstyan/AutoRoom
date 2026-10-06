@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { CarSummary } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
+import { Price } from '@/components/ui/Price';
 import { getServerMessages } from '@/lib/i18n';
 import { interpolate } from '@/lib/messages';
 import { PromoCountdown } from '@/components/shared/PromoCountdown';
@@ -154,11 +155,13 @@ export async function CarCard({ car, priority = false }: { car: CarSummary; prio
               ))}
               <span className="flex items-center gap-[10px] rounded-pill bg-white/10 px-[10px] py-[10px] text-[16px] font-medium leading-[20px]">
                 {hasDiscount && (
-                  <span className="text-white line-through">{formatUsd(car.oldPrice!)}</span>
+                  <span className="tabular-nums text-white line-through">
+                    {formatUsd(car.oldPrice!)}
+                  </span>
                 )}
-                <span className={hasDiscount ? 'text-error' : 'text-white'}>
+                <Price className={hasDiscount ? 'text-error' : 'text-white'}>
                   {formatUsd(car.price)}
-                </span>
+                </Price>
               </span>
             </div>
             <span

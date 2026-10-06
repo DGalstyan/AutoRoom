@@ -1,6 +1,7 @@
 'use client';
 
 import { Field } from '@/components/ui/Field';
+import { Price } from '@/components/ui/Price';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -460,7 +461,9 @@ function CarCard({
           {car.location ? ` · ${car.location}` : ''}
         </p>
 
-        <p className="mt-2 text-[18px] font-semibold text-ink">{formatMoney(car.price)}</p>
+        <Price as="p" className="mt-2 text-ink">
+          {formatMoney(car.price)}
+        </Price>
 
         {car.vin && (
           <p className="mt-2 font-mono text-[11px] text-neutral-700">

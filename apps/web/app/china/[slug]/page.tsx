@@ -46,7 +46,10 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
   ]);
 
   const carContext = {
+    id: car.id,
     name: `${car.make} ${car.model}`,
+    vin: car.vin ?? undefined,
+    lot: car.lotNumber ?? undefined,
     price: formatUsd(car.price),
     image: car.images[0]?.url,
     url: carHref(car),
