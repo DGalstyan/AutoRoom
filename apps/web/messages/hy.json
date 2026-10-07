@@ -526,7 +526,17 @@
       "model": "Մոդել",
       "price": "Գինը",
       "priceFrom": "Սկսված",
-      "priceTo": "Մինչև"
+      "priceTo": "Մինչև",
+      "searchLabel": "Որոնել մեքենա",
+      "searchPlaceholder": "Որոնել մակնիշ կամ մոդել…",
+      "searchSubmit": "Որոնել",
+      "reset": "Մաքրել ֆիլտրերը",
+      "resultCount": "Գտնվել է {count} մեքենա",
+      "resultCountNone": "Մեքենա չի գտնվել",
+      "activeFilters": "Ակտիվ ֆիլտրեր",
+      "removeFilter": "Հեռացնել ֆիլտրը՝ {label}",
+      "chipSearch": "Որոնում՝ {value}",
+      "chipPrice": "Գին՝ {from}$ – {to}$"
     },
     "empty": "Այս ֆիլտրերով մեքենաներ առայժմ չկան։",
     "financing": {

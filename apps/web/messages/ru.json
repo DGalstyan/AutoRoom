@@ -526,7 +526,17 @@
       "model": "Модель",
       "price": "Цена",
       "priceFrom": "От",
-      "priceTo": "До"
+      "priceTo": "До",
+      "searchLabel": "Поиск автомобиля",
+      "searchPlaceholder": "Поиск по марке или модели…",
+      "searchSubmit": "Найти",
+      "reset": "Сбросить фильтры",
+      "resultCount": "Найдено автомобилей: {count}",
+      "resultCountNone": "Автомобили не найдены",
+      "activeFilters": "Активные фильтры",
+      "removeFilter": "Убрать фильтр: {label}",
+      "chipSearch": "Поиск: {value}",
+      "chipPrice": "Цена: {from}$ – {to}$"
     },
     "empty": "По этим фильтрам автомобилей пока нет.",
     "financing": {

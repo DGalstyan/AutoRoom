@@ -48,6 +48,8 @@ export interface CarListFilters {
   model?: string;
   priceMin?: number;
   priceMax?: number;
+  /** Free-text match on make/model. */
+  search?: string;
   /** USA "best auctions" platform tabs (Copart/IAAI/Manheim). */
   auctionPlatform?: AuctionPlatform;
   take?: number;
@@ -74,6 +76,7 @@ export async function listCars(filters: CarListFilters = {}): Promise<{
   if (filters.model) params.set('model', filters.model);
   if (filters.priceMin !== undefined) params.set('priceMin', String(filters.priceMin));
   if (filters.priceMax !== undefined) params.set('priceMax', String(filters.priceMax));
+  if (filters.search) params.set('search', filters.search);
   if (filters.auctionPlatform) params.set('auctionPlatform', filters.auctionPlatform);
   params.set('take', String(filters.take ?? 24));
   if (filters.skip) params.set('skip', String(filters.skip));

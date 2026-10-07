@@ -585,6 +585,23 @@ carsRouter.get('/public/cars', validateQuery(listQuerySchema), async (req, res) 
     ...(query.condition ? { condition: query.condition } : {}),
     ...(query.featured === undefined ? {} : { featured: query.featured }),
     ...facetWhere(query),
+    // Public text search matches the car's name only — never VIN or lot, which
+    // the public API hides, and a search over them would leak them by probing.
+    ...(query.search
+      ? {
+          // Every word must match the make or the model: "byd seal" is one car, not all BYDs.
+          AND: query.search
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 5)
+            .map((word) => ({
+              OR: [
+                { make: { contains: word, mode: 'insensitive' as const } },
+                { model: { contains: word, mode: 'insensitive' as const } },
+              ],
+            })),
+        }
+      : {}),
   };
 
   const [items, total] = await Promise.all([

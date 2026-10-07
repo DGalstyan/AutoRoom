@@ -129,4 +129,23 @@ describe('public car listing', () => {
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(0);
   });
+
+  it('searches the make and model, every word having to match', async () => {
+    const { byd, zeekr } = await seedCatalogue();
+
+    const byMake = await agent().get('/public/cars?search=byd');
+    expect(byMake.body.items.map((c: { id: string }) => c.id)).toEqual([byd.id]);
+
+    const both = await agent().get('/public/cars?search=zeekr%20001');
+    expect(both.body.items.map((c: { id: string }) => c.id)).toEqual([zeekr.id]);
+
+    const mismatch = await agent().get('/public/cars?search=zeekr%20seal');
+    expect(mismatch.body.items).toHaveLength(0);
+  });
+
+  it('does not search by VIN, so the hidden VIN cannot be probed', async () => {
+    await seedCatalogue();
+    const response = await agent().get('/public/cars?search=LW433B1K5N1000001');
+    expect(response.body.items).toHaveLength(0);
+  });
 });

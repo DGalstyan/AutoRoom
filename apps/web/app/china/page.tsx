@@ -44,11 +44,12 @@ export default async function ChinaPage({
   const condition = toCondition(one(sp.condition));
   const make = one(sp.make);
   const model = one(sp.model);
+  const search = one(sp.q)?.trim().slice(0, 120) || undefined;
   const priceMin = one(sp.priceMin) ? Number(one(sp.priceMin)) : undefined;
   const priceMax = one(sp.priceMax) ? Number(one(sp.priceMax)) : undefined;
 
-  const [{ items: cars }, facets, banks, { messages }] = await Promise.all([
-    listCars({ origin: 'CHINA', condition, make, model, priceMin, priceMax, take: 24 }),
+  const [{ items: cars, total }, facets, banks, { messages }] = await Promise.all([
+    listCars({ origin: 'CHINA', condition, make, model, search, priceMin, priceMax, take: 24 }),
     listMakeModelFacets('CHINA'),
     getBanks(),
     getServerMessages(),
@@ -67,7 +68,7 @@ export default async function ChinaPage({
           own pt-36/pt-44, but this page's first section has no hero to
           borrow that clearance from. */}
       <Section tone="light" className="pb-0 pt-32 sm:pt-40">
-        <ChinaFilters makeModels={makeModels} />
+        <ChinaFilters makeModels={makeModels} total={total} />
       </Section>
 
       {/* pt override: Figma has this grid sitting just 5px below the filter

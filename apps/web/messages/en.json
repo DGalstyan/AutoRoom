@@ -526,7 +526,17 @@
       "model": "Model",
       "price": "Price",
       "priceFrom": "From",
-      "priceTo": "To"
+      "priceTo": "To",
+      "searchLabel": "Search cars",
+      "searchPlaceholder": "Search make or model…",
+      "searchSubmit": "Search",
+      "reset": "Reset filters",
+      "resultCount": "{count} cars found",
+      "resultCountNone": "No cars found",
+      "activeFilters": "Active filters",
+      "removeFilter": "Remove filter: {label}",
+      "chipSearch": "Search: {value}",
+      "chipPrice": "Price: ${from} – ${to}"
     },
     "empty": "No cars match these filters yet.",
     "financing": {
