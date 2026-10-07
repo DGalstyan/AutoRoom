@@ -17,7 +17,7 @@ vi.mock('@/components/shared/LeadWidgetProvider', () => ({
   useLeadWidgets: () => ({ openUniversal, openQuiz: vi.fn(), isAnyOpen: false }),
 }));
 
-const EXPECTED_NAV_HREFS = ['/china', '/usa', '/offers', '/partners', '/about', '/contact'];
+const EXPECTED_NAV_HREFS = ['/china', '/usa', '/partners', '/about', '/offers', '/contact'];
 
 describe('Header', () => {
   it('renders the home logo link', () => {

@@ -17,7 +17,7 @@ export interface LegalContent {
 export function LegalDocument({ content }: { content: LegalContent }) {
   return (
     <Section tone="light" className="pt-32 sm:pt-40">
-      <article className="mx-auto max-w-3xl">
+      <article className="mx-auto max-w-3xl [overflow-wrap:anywhere]">
         <h1 className="font-display text-h1 font-extrabold text-ink">{content.title}</h1>
         <p className="mt-2 text-body font-semibold text-ink/80">{content.company}</p>
         <p className="mt-1 text-small text-ink/60">{content.updated}</p>

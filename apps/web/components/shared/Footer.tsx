@@ -1,193 +1,199 @@
 import Link from 'next/link';
-import { branchTelHref } from '@/lib/branches';
+import { branchTelHref, getBranches } from '@/lib/branches';
 import { getServerMessages } from '@/lib/i18n';
-import { FooterCta } from '@/components/shared/FooterCta';
 import { BrandLogo } from '@/components/shared/BrandLogo';
+import { FooterLanguages } from '@/components/shared/FooterLanguages';
+import { SocialDisc, type SocialKey } from '@/components/shared/SocialIcons';
 import type { BrandingLogos } from '@/lib/branding';
 import type { GeneralContacts, MessengerLinks, SocialLinks } from '@/lib/contacts';
-import { configuredMessengers } from '@/components/shared/MessengerLinks';
 
-// Figma's Homepage footer (node `125:1366`) only shows a logo row, then
-// socials + contact paired with a big "let's talk" CTA — no nav/branch
-// columns, matching an agency-template footer rather than AutoRoom-authored
-// content. A secondary site-nav row used to be added here on top of that
-// (reasoning: Footer is global, every other page needs that wayfinding),
-// but per explicit request this footer now matches Figma's own content
-// exactly instead — the Header's nav already covers wayfinding.
-//
-// Labels only, deliberately — hrefs come from admin-managed `contacts.social`
-// (see `SocialList` below), which only has these four platforms. No
-// Pinterest/Youtube field exists on the backend, so they're not listed here
-// rather than shipped as permanently-dead '#' links.
-const SOCIAL_LABELS: { key: keyof SocialLinks; name: string }[] = [
-  { key: 'instagram', name: 'Instagram' },
-  { key: 'facebook', name: 'Facebook' },
-  { key: 'tiktok', name: 'TikTok' },
-  { key: 'linkedin', name: 'Linkedin' },
+/**
+ * Site footer — Figma 436:2045 (1440×542, `#0d0d0d`, 64px/56px padding): two
+ * 560px blocks. Left: the logo, and at the bottom the social discs (two columns,
+ * bottom-aligned) beside the copyright. Right: the nav row at the top, and at
+ * the bottom "Contact Us", "Locations" and "Languages".
+ *
+ * The design's text there is template placeholder copy ("Saryan street 1…",
+ * "hello@autoroom.co"), so everything real is data: contacts and social links
+ * are admin settings, the addresses come from the admin-managed branches, and
+ * the nav labels/hrefs are the site's own navigation. A field with no data
+ * renders nothing rather than a placeholder.
+ */
+const SOCIALS: { key: keyof SocialLinks; icon: SocialKey; label: string }[] = [
+  { key: 'facebook', icon: 'facebook', label: 'Facebook' },
+  { key: 'tiktok', icon: 'tiktok', label: 'TikTok' },
+  { key: 'instagram', icon: 'instagram', label: 'Instagram' },
+  { key: 'linkedin', icon: 'linkedin', label: 'LinkedIn' },
 ];
+const MESSENGERS: { key: keyof MessengerLinks; icon: SocialKey; label: string }[] = [
+  { key: 'whatsapp', icon: 'whatsapp', label: 'WhatsApp' },
+  { key: 'telegram', icon: 'telegram', label: 'Telegram' },
+  { key: 'viber', icon: 'viber', label: 'Viber' },
+];
+
+const NAV = [
+  { key: 'china', href: '/china' },
+  { key: 'usa', href: '/usa' },
+  { key: 'partners', href: '/partners' },
+  { key: 'about', href: '/about' },
+  { key: 'offers', href: '/offers' },
+] as const;
 
 interface FooterProps {
   /** Same admin-managed branding logo `layout.tsx` passes to `Header`; falls back to the bundled mark until one is uploaded. */
   logo?: BrandingLogos | null;
-  /** Admin-managed general contact info/socials; a field renders nothing (not a placeholder) until an admin fills it in. */
+  /** Admin-managed general contact info/socials/messengers; a field renders nothing (not a placeholder) until an admin fills it in. */
   contacts?: { general: GeneralContacts; social: SocialLinks; messengers?: MessengerLinks };
 }
 
 const NO_CONTACTS: GeneralContacts = { email: null, phones: [], workingHours: null };
 const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
+const NO_MESSENGERS: MessengerLinks = { whatsapp: null, viber: null, telegram: null };
 
 export async function Footer({
   logo = null,
   contacts = { general: NO_CONTACTS, social: NO_SOCIAL },
 }: FooterProps = {}) {
-  const { messages } = await getServerMessages();
+  const [{ messages }, branches] = await Promise.all([getServerMessages(), getBranches()]);
   const nav = messages.common.nav;
   const footer = messages.common.footer;
   const { general, social } = contacts;
-  const messengers = configuredMessengers(
-    contacts.messengers ?? { whatsapp: null, viber: null, telegram: null },
-  );
+  const messengers = contacts.messengers ?? NO_MESSENGERS;
+
+  const socialLinks = [
+    ...SOCIALS.filter(({ key }) => social[key]).map((s) => ({ ...s, href: social[s.key]! })),
+    ...MESSENGERS.filter(({ key }) => messengers[key]).map((m) => ({
+      ...m,
+      href: messengers[m.key]!,
+    })),
+  ];
+  const phones = general.phones;
   const email = general.email;
-  const phone = general.phones[0] ?? null;
-  const socialLinks = SOCIAL_LABELS.filter(({ key }) => social[key]);
-  return (
-    <footer className="border-t border-white/10 bg-bg text-white">
-      <div className="mx-auto max-w-container px-4 pb-16 pt-16 sm:px-6 sm:pt-20">
-        {/* Row 1 — logo alone, full width (node `125:1368`): Figma pairs the
-            logo with nothing else up here; the CTA below moves down to sit
-            with socials/contact instead (node `125:1383`), not next to the
-            logo as this used to have it. */}
-        <Link href="/" aria-label={nav.home} className="inline-block">
-          {/* Box aspect ratio matches the logo mark's real bounding box
-              (121×46 ≈ 2.63:1, Figma node 9321:6404 / footer instance
-              2001:1772) scaled up for the footer's larger presence. */}
-          <BrandLogo logo={logo} className="h-12 w-[126px]" sizes="126px" />
-          <p className="mt-2 font-display text-h2 font-extrabold uppercase leading-none tracking-tight text-white">
-            {messages.common.brand}
-          </p>
-          <p className="mt-1 text-caption uppercase tracking-[0.3em] text-white/50">
-            {footer.companyDescriptor}
-          </p>
+  const year = new Date().getFullYear();
+
+  const legal = (
+    <div className="text-[12px] leading-[1.4] text-[#8f9fa3]">
+      <p>{footer.rights.includes('©') ? footer.rights : `© ${year} Autoroom — ${footer.rights}`}</p>
+      <p className="mt-1 flex flex-wrap gap-x-4">
+        <Link href="/privacy" className="inline-flex min-h-6 items-center hover:text-white">
+          {footer.privacyPolicy}
         </Link>
+        <Link href="/terms" className="inline-flex min-h-6 items-center hover:text-white">
+          {footer.terms}
+        </Link>
+      </p>
+    </div>
+  );
 
-        {/* Row 2 (node `125:1383`) — socials + contact on the left, the
-            "Ready to build..." + big Let's-chat CTA on the right. */}
-        <div className="mt-20 flex flex-col justify-between gap-12 sm:flex-row sm:items-end">
-          <div className="flex flex-wrap gap-x-6 gap-y-10">
+  return (
+    <footer className="bg-ink text-white">
+      <div className="mx-auto flex max-w-page flex-col justify-between gap-14 px-4 py-12 sm:px-6 lg:min-h-[542px] lg:flex-row lg:px-16 lg:py-14">
+        {/* Left block */}
+        <div className="flex flex-col justify-between gap-12 lg:w-[calc(50%-24px)] lg:max-w-[560px] lg:gap-[192px]">
+          <Link href="/" aria-label={nav.home} className="inline-block">
+            <BrandLogo
+              logo={logo}
+              className="h-[64px] w-[168px] lg:h-[98px] lg:w-[257px]"
+              sizes="257px"
+            />
+          </Link>
+
+          <div className="flex items-end justify-between gap-6">
             {socialLinks.length > 0 && (
-              <div>
-                <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-                  {footer.socialHeading}
-                </p>
-                <ul className="mt-4 space-y-2">
-                  {socialLinks.map(({ key, name }) => (
-                    <li key={key}>
-                      <a
-                        href={social[key]!}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                      >
-                        <ArrowGlyph size={14} />
-                        {name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="flex max-w-[110px] flex-wrap-reverse content-end items-end gap-[10px] sm:max-w-[120px]">
+                {socialLinks.map(({ key, icon, label, href }) => (
+                  <li key={key} className="flex h-11 w-11 items-center justify-center">
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="block rounded-full transition-transform duration-standard ease-expo hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      <SocialDisc name={icon} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
             )}
 
-            {(email || phone || messengers.length > 0) && (
-              <div>
-                <p className="text-small font-semibold uppercase tracking-wide text-white/50">
-                  {footer.contactHeading}
-                </p>
-                <ul className="mt-4 space-y-2">
-                  {email && (
-                    <li>
-                      <a
-                        href={`mailto:${email}`}
-                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                      >
-                        <ArrowGlyph size={14} />
-                        {email}
-                      </a>
-                    </li>
-                  )}
-                  {phone && (
-                    <li>
-                      <a
-                        href={branchTelHref(phone)}
-                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                      >
-                        <ArrowGlyph size={14} />
-                        {phone}
-                      </a>
-                    </li>
-                  )}
-                  {messengers.map(({ key, name, href }) => (
-                    <li key={key}>
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex min-h-11 items-center gap-2 text-small text-white/80 hover:text-accent"
-                      >
-                        <ArrowGlyph size={14} />
-                        {name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {/* Desktop: beside the socials, as in the design. */}
+            <div className="ml-auto hidden lg:block">{legal}</div>
           </div>
+        </div>
 
-          <div className="flex flex-col gap-1 sm:max-w-[301px]">
-            <p className="font-display text-home-h2 font-light text-white">{footer.ctaHeading}</p>
-            <FooterCta label={footer.ctaButton} />
+        {/* Right block */}
+        <div className="flex flex-col justify-between gap-12 lg:w-[calc(50%-24px)] lg:max-w-[600px] lg:gap-0">
+          <nav aria-label={nav.primaryNav}>
+            <ul className="flex flex-wrap gap-x-6 gap-y-1 text-[16px] leading-6 text-[#8f9fa3] lg:gap-x-8 min-[1400px]:flex-nowrap min-[1400px]:gap-x-[41px]">
+              {NAV.map(({ key, href }) => (
+                <li key={href}>
+                  <Link href={href} className="inline-flex min-h-11 items-center hover:text-white">
+                    {nav[key]}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex flex-col items-start justify-between gap-10 sm:flex-row sm:items-end lg:w-full">
+            <div className="flex flex-col gap-12">
+              {(phones.length > 0 || email) && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-[20px] font-medium leading-[1.1] tracking-[-0.2px] text-white">
+                    {footer.contactHeading}
+                  </p>
+                  <ul className="flex flex-col text-[14px] font-medium leading-[18px] text-[#8f9fa3]">
+                    {phones.map((phone) => (
+                      <li key={phone}>
+                        <a
+                          href={branchTelHref(phone)}
+                          className="inline-flex min-h-6 items-center hover:text-white"
+                        >
+                          {phone}
+                        </a>
+                      </li>
+                    ))}
+                    {email && (
+                      <li>
+                        <a
+                          href={`mailto:${email}`}
+                          className="inline-flex min-h-6 items-center hover:text-white"
+                        >
+                          {email}
+                        </a>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
+              {branches.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-[20px] font-medium leading-[1.1] tracking-[-0.2px] text-white">
+                    {footer.branchesHeading}
+                  </p>
+                  <ul className="flex flex-col gap-[3px] text-[14px] font-medium leading-[18px] text-[#8f9fa3]">
+                    {branches.map((branch) => (
+                      <li key={branch.id}>
+                        {branch.city ? `${branch.city}, ` : ''}
+                        {branch.address}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <FooterLanguages heading={footer.languagesHeading} />
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-container flex-col gap-2 px-4 py-6 text-caption text-white/50 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>
-            {footer.rights.includes('©')
-              ? footer.rights
-              : `© ${new Date().getFullYear()} Autoroom — ${footer.rights}`}
-          </p>
-          <div className="flex gap-5">
-            <Link href="/privacy" className="hover:text-white">
-              {footer.privacyPolicy}
-            </Link>
-            <Link href="/terms" className="hover:text-white">
-              {footer.terms}
-            </Link>
-          </div>
-        </div>
+      {/* Phones/tablets: the copyright closes the footer rather than sitting mid-way. */}
+      <div className="mx-auto max-w-page border-t border-white/10 px-4 py-6 sm:px-6 lg:hidden">
+        {legal}
       </div>
     </footer>
-  );
-}
-
-function ArrowGlyph({ size = 20 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-      className="shrink-0"
-    >
-      <path
-        d="M4 12 12 4M12 4H5M12 4v7"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

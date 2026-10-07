@@ -60,6 +60,8 @@ export default async function ChinaPage({
 
   return (
     <>
+      {/* The design has no visible page title here; keep one h1 for the document outline. */}
+      <h1 className="sr-only">{messages.common.nav.china}</h1>
       {/* pt-32/pt-40 clears the fixed pill header (Header.tsx, `fixed` +
           `top-9`/`top-2`) — the Homepage gets this for free from its hero's
           own pt-36/pt-44, but this page's first section has no hero to

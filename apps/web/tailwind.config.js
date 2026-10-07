@@ -114,5 +114,18 @@ module.exports = {
       },
     },
   },
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [
+    require('@tailwindcss/typography'),
+    // The design's Armenian face (SF Armenian) is narrower than Noto Sans Armenian, and
+    // proportionally more so at large sizes. Noto's `wdth` axis lets text be condensed to
+    // match: bigger type gets a lower value (measured against the Figma text widths).
+    ({ addUtilities }) =>
+      addUtilities({
+        '.stretch-85': { 'font-stretch': '85%' },
+        '.stretch-88': { 'font-stretch': '88%' },
+        '.stretch-90': { 'font-stretch': '90%' },
+        '.stretch-93': { 'font-stretch': '93%' },
+        '.stretch-97': { 'font-stretch': '97%' },
+      }),
+  ],
 };

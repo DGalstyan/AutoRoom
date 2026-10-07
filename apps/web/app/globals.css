@@ -27,5 +27,17 @@
 
   body {
     overflow-x: hidden;
+    /* Body-size Armenian text: see the `stretch-*` utilities in tailwind.config.js. */
+    font-stretch: 97%;
+  }
+}
+
+/* Section headings use the design's 44px/58px size, which overflows a phone when an Armenian
+   word can't wrap (e.g. on /china). Scale them down below `sm`; `sm:text-home-h2` is unaffected. */
+@media (max-width: 639px) {
+  .text-home-h2 {
+    font-size: 28px;
+    line-height: 38px;
+    overflow-wrap: anywhere;
   }
 }

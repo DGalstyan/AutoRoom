@@ -1,0 +1,8 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="33.6" height="33.6" viewBox="0 0 33.6 33.6" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ico-fullscreen">
+<path d="M33.6 0H21V4.2H29.4V12.6H33.6V0Z" fill="#EAEAEA"/>
+<path d="M33.6 21H29.4V29.4H21V33.6H33.6V21Z" fill="#EAEAEA"/>
+<path d="M4.2 12.6V4.2H12.6V0H0V12.6H4.2Z" fill="#EAEAEA"/>
+<path d="M0 21V33.6H12.6V29.4H4.2V21H0Z" fill="#EAEAEA"/>
+</g>
+</svg>

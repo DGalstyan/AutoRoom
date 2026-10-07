@@ -12,12 +12,13 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 import type { Messages } from '@/lib/i18n';
 import type { BrandingLogos } from '@/lib/branding';
 
-const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string }[] = [
-  { key: 'china', href: '/china' },
+const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string; chevron?: boolean }[] = [
+  // Order and labels follow the design (Figma 436:2154): China, USA, Partners, About, Special offers, Contact.
+  { key: 'china', href: '/china', chevron: true },
   { key: 'usa', href: '/usa' },
-  { key: 'offers', href: '/offers' },
   { key: 'partners', href: '/partners' },
   { key: 'about', href: '/about' },
+  { key: 'offers', href: '/offers' },
   { key: 'contact', href: '/contact' },
 ];
 
@@ -72,13 +73,13 @@ export function Header({ logo = null }: HeaderProps = {}) {
         // component's pre-existing judgment call for legibility over
         // arbitrary scrolled-past content, now anchored to the correct
         // unscrolled baseline.
-        className={`mx-auto flex max-w-header items-center justify-between gap-4 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:px-6 lg:py-4 ${
+        className={`relative mx-auto flex max-w-header items-center justify-between gap-4 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:px-6 lg:py-4 ${
           isLightHeader
             ? 'border border-line-light bg-white'
             : `border border-white/10 backdrop-blur-lg ${scrolled ? 'bg-bg/80' : 'bg-bg/30'}`
         }`}
       >
-        <Link href="/" aria-label={nav.home} className="flex items-center gap-2 pl-2">
+        <Link href="/" aria-label={nav.home} className="flex items-center gap-2 pl-0.5">
           {/*
             Box aspect ratio (96×36 ≈ 2.67:1) matches the logo mark's own
             bounding box in Figma (121×46 ≈ 2.63:1, node `9321:6404`) closely
@@ -87,8 +88,8 @@ export function Header({ logo = null }: HeaderProps = {}) {
           */}
           <BrandLogo
             logo={logo}
-            className="h-9 w-24"
-            sizes="96px"
+            className="h-[46px] w-[121px]"
+            sizes="121px"
             tone={isLightHeader ? 'light' : 'dark'}
           />
         </Link>
@@ -113,20 +114,33 @@ export function Header({ logo = null }: HeaderProps = {}) {
           tight. Revisit sizing if/when dropdown grouping is built to match
           Figma's real item count.
         */}
-        <nav aria-label={nav.primaryNav} className="hidden items-center gap-4 xl:flex">
+        <nav
+          aria-label={nav.primaryNav}
+          className="hidden items-center gap-3 xl:flex min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-6"
+        >
           {NAV_LINKS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`whitespace-nowrap text-small font-normal transition-colors duration-micro hover:text-accent ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              className={`inline-flex items-center gap-1 whitespace-nowrap px-2 py-1 text-[16px] font-normal leading-6 transition-colors duration-micro hover:text-accent ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
+              {item.chevron && (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M4.67 6.33 8 9.67l3.33-3.34"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
             </Link>
           ))}
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
-          <LanguageSwitcher tone={isLightHeader ? 'light' : 'dark'} />
           <button
             type="button"
             onClick={() => openUniversal({ sourceCta: 'header-cta' })}

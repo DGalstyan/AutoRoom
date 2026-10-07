@@ -98,15 +98,19 @@ function StoryCard({
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div
-        className="absolute inset-0 bg-black/15 transition-colors duration-standard group-hover:bg-black/35"
+        className="absolute inset-0 bg-black/0 transition-colors duration-standard group-hover:bg-black/25"
         aria-hidden="true"
       />
-      <span
+      {/* Figma 436:1947: the design's own 122px play disc (20% black, white triangle). */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/home/v2/svg/play.svg"
+        alt=""
         aria-hidden="true"
-        className="absolute left-1/2 top-1/2 flex h-[122px] w-[122px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-pill bg-white/20 text-white backdrop-blur transition-transform duration-standard group-hover:scale-110"
-      >
-        <PlayGlyph size={36} />
-      </span>
+        width={122}
+        height={122}
+        className="absolute left-1/2 top-1/2 size-[122px] -translate-x-1/2 -translate-y-1/2 transition-transform duration-standard ease-expo group-hover:scale-110"
+      />
       <span className="sr-only">
         {label || playLabel} — {playLabel}
       </span>
@@ -175,13 +179,5 @@ function StoryLightbox({ story, onClose }: { story: CustomerStory; onClose: () =
         </div>
       </div>
     </div>
-  );
-}
-
-function PlayGlyph({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M4 2.5v11l10-5.5-10-5.5Z" fill="currentColor" />
-    </svg>
   );
 }

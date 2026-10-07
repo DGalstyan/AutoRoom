@@ -25,7 +25,7 @@ export function AnimatedImage({
   src: string;
   poster: string;
   alt?: string;
-  /** Classes for the wrapper (sizing/rounding). The wrapper is `relative overflow-hidden`. */
+  /** Classes for the wrapper: it must establish positioning (`relative`/`absolute`) and size; it clips with `overflow-hidden`. */
   className?: string;
   /** Classes applied to both images (object-fit/position). */
   imgClassName?: string;
@@ -65,7 +65,7 @@ export function AnimatedImage({
   const imgBase = `absolute inset-0 h-full w-full ${imgClassName}`;
 
   return (
-    <div ref={ref} className={`relative overflow-hidden ${className}`}>
+    <div ref={ref} className={`overflow-hidden ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={poster}

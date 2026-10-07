@@ -49,6 +49,7 @@ export default async function OffersPage() {
 
   return (
     <>
+      <h1 className="sr-only">{t.meta.title}</h1>
       {/* pt-32/pt-40 clears the fixed pill header — this page has no hero to
           borrow that clearance from, same as the China listing/About pages. */}
       <Section tone="light" className="pt-32 sm:pt-40">

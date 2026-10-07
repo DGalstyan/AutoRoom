@@ -11,7 +11,7 @@
       "china": "China",
       "usa": "USA",
       "offers": "Special offers",
-      "partners": "Become a partner",
+      "partners": "Partners",
       "about": "About us",
       "contact": "Contact",
       "menuOpen": "Open menu",
@@ -34,7 +34,8 @@
       "rights": "All rights reserved.",
       "privacyPolicy": "Privacy Policy",
       "terms": "Terms of Use",
-      "companyDescriptor": "Auto Import Company"
+      "companyDescriptor": "Auto Import Company",
+      "languagesHeading": "Languages"
     },
     "popup": {
       "close": "Close",
@@ -439,7 +440,7 @@
       "steps": [
         {
           "title": "Inquiry and consultation",
-          "text": "Send an inquiry — our specialist will get in touch and help choose the car and country."
+          "text": "You tell us your requirements — budget, preferred make, model and any other wishes. Our specialist helps you choose the best option."
         },
         {
           "title": "Order confirmation",
@@ -458,7 +459,7 @@
           "text": "The car travels via Turkey/Greece/Georgia on its way to Armenia."
         },
         {
-          "title": "Armenia and customs clearance (Gyumri)",
+          "title": "Armenia and customs clearance",
           "text": "The car enters Armenia and clears customs in Gyumri."
         },
         {
@@ -483,7 +484,7 @@
     },
     "founder": {
       "eyebrow": "Our story",
-      "heading": "How it all started",
+      "heading": "How AutoRoom began",
       "text": "The founder's short story — from the first imported car to AutoRoom today.",
       "playLabel": "Watch the video",
       "posterAlt": "AutoRoom's founder — video cover"
@@ -497,7 +498,8 @@
     },
     "branches": {
       "eyebrow": "Our branches",
-      "heading": "Always by your side"
+      "heading": "Always by your side",
+      "cta": "Visit your nearest branch"
     },
     "faqSection": {
       "eyebrow": "Got questions?"

@@ -24,7 +24,8 @@ export interface FaqProps {
 /** Accordion — each row is its own rounded card; a real button with `aria-expanded`. */
 export function Faq({ items, heading, hideHeading = false, initialCount }: FaqProps) {
   const t = useMessages().common.faq;
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  // The design (Figma 436:2012) shows the first question open.
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [expanded, setExpanded] = useState(initialCount == null);
   const baseId = useId();
 
@@ -36,13 +37,18 @@ export function Faq({ items, heading, hideHeading = false, initialCount }: FaqPr
       <h2 className={hideHeading ? 'sr-only' : 'font-display text-home-h2 font-light text-ink'}>
         {heading ?? t.heading}
       </h2>
-      <div className={`mx-auto max-w-3xl space-y-4 ${hideHeading ? '' : 'mt-8'}`}>
+      <div className={`mx-auto flex max-w-[760px] flex-col gap-4 ${hideHeading ? '' : 'mt-8'}`}>
         {visibleItems.map((item, index) => {
           const isOpen = openIndex === index;
           const buttonId = `${baseId}-q-${index}`;
           const panelId = `${baseId}-a-${index}`;
           return (
-            <div key={buttonId} className="overflow-hidden rounded-xl bg-white shadow-card">
+            <div
+              key={buttonId}
+              className={`overflow-hidden bg-white transition-[border-radius] duration-500 ease-expo ${
+                isOpen ? 'rounded-[32px]' : 'rounded-[236px]'
+              }`}
+            >
               <h3 className="m-0">
                 <button
                   id={buttonId}
@@ -50,14 +56,16 @@ export function Faq({ items, heading, hideHeading = false, initialCount }: FaqPr
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="flex min-h-11 w-full items-center justify-between gap-4 px-5 py-4 text-left text-[16px] font-medium leading-[20px] text-ink sm:px-6"
+                  className={`flex w-full justify-between gap-4 px-6 text-left text-[16px] font-medium leading-[20px] text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-accent ${
+                    isOpen ? 'items-start pb-0 pt-7' : 'min-h-[76px] items-center py-3'
+                  }`}
                 >
                   <span>{item.q}</span>
                   <span
                     aria-hidden="true"
                     className={`shrink-0 text-neutral-800 transition-transform duration-standard ease-expo ${
                       isOpen ? '-rotate-180' : ''
-                    }`}
+                    } ${isOpen ? 'mt-0.5' : ''}`}
                   >
                     <ChevronDown />
                   </span>
@@ -67,10 +75,22 @@ export function Faq({ items, heading, hideHeading = false, initialCount }: FaqPr
                 id={panelId}
                 role="region"
                 aria-labelledby={buttonId}
-                hidden={!isOpen}
-                className="whitespace-pre-line px-5 pb-5 text-body text-neutral-800 sm:px-6"
+                // `inert` keeps a collapsed answer out of the tab order / a11y tree. Set through a
+                // ref because React 18 doesn't pass the boolean prop through.
+                ref={(node) => {
+                  if (!node) return;
+                  if (isOpen) node.removeAttribute('inert');
+                  else node.setAttribute('inert', '');
+                }}
+                className={`grid transition-[grid-template-rows] duration-500 ease-expo ${
+                  isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                }`}
               >
-                {item.a}
+                <div className="overflow-hidden">
+                  <p className="mt-4 whitespace-pre-line px-6 pb-6 text-[16px] leading-6 text-neutral-800">
+                    {item.a}
+                  </p>
+                </div>
               </div>
             </div>
           );

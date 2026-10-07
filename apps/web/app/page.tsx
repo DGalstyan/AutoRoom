@@ -1,238 +1,114 @@
-import Image from 'next/image';
-import { Section } from '@/components/ui/Section';
-import { CarAnatomy } from '@/components/shared/CarAnatomy';
-import { FeaturedCars } from '@/components/shared/FeaturedCars';
+import { HomeHero } from '@/components/home/HomeHero';
+import { CountryCard } from '@/components/home/CountryCard';
+import { StartCtaBand } from '@/components/home/StartCtaBand';
+import { WeeklyOffers } from '@/components/home/WeeklyOffers';
+import { WhyAutoRoom } from '@/components/home/WhyAutoRoom';
+import { JourneyStrip } from '@/components/home/JourneyStrip';
+import { EcosystemShowcase } from '@/components/home/EcosystemShowcase';
+import { NearYouMap } from '@/components/home/NearYouMap';
 import { FounderVideo } from '@/components/shared/FounderVideo';
 import { CustomerStoryWall } from '@/components/shared/CustomerStoryWall';
-import { BranchMap } from '@/components/shared/BranchMap';
 import { HomeFaq } from '@/components/shared/HomeFaq';
 import { HomeFinalCta } from '@/components/shared/HomeFinalCta';
-import { DirectionCard } from '@/components/shared/DirectionCard';
-import { HowItWorksStep } from '@/components/shared/HowItWorksStep';
 import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
-import { getBranches } from '@/lib/branches';
 import { getFounderVideo, listCustomerStories } from '@/lib/media';
 
-// How-it-works photo row — matches Figma's 7-card strip (one wide "hero" card
-// with the full step-1 copy, six narrow numbered strips after it).
-const STEP_PHOTOS = [
-  '/images/home/step-1.jpg',
-  '/images/home/step-2.jpg',
-  '/images/home/step-3.jpg',
-  '/images/home/step-4.jpg',
-  '/images/home/step-5.jpg',
-  '/images/home/step-6.jpg',
-  '/images/home/step-7.jpg',
-];
+/** Page column of the 1440 design: 1344px with 48px gutters (16 / 24 on phones and tablets). */
+const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
+/** Vertical rhythm between sections: 150px on desktop (Figma), 64px on phones. */
+const GAP = 'mt-16 lg:mt-[150px]';
 
 export default async function HomePage() {
-  const [{ messages }, branchList, founderVideo, customerStories] = await Promise.all([
+  const [{ messages }, founderVideo, customerStories] = await Promise.all([
     getServerMessages(),
-    getBranches(),
     getFounderVideo(),
     listCustomerStories(),
   ]);
-  const hero = messages.home.hero;
-  const howItWorks = messages.home.howItWorks;
-  const ecosystem = messages.home.ecosystem;
-  const branches = messages.home.branches;
+  const { hero, anatomy, howItWorks, ecosystem, branches } = messages.home;
 
   return (
     <>
-      {/* S1 — Hero. Full-bleed desert photo (LCP image), dark scrim for the
-          headline, then a fade down to the page's light background so the
-          stat strip + direction picker read as an extension of the page
-          rather than a hard section cut (matches Figma's blurred tan→white
-          gradient band behind the stats, node 110:510/110:593, verified via
-          get_design_context: 21px backdrop-blur scrim, and the fade starts
-          at an opaque tan #6B5D4E rather than transparent, itself blurred
-          5px). Heading and stats widths/gaps below are Figma's own box
-          numbers (110:642, 110:631) inside the 1280px content column. */}
-      {/* No `overflow-hidden` here on purpose: the fade div below intentionally
-          extends past this section's own bottom edge, and clipping it right
-          at that edge is what caused the seam (see its comment). The `Image`
-          `fill`+`object-cover` never overflows its container on its own, so
-          nothing here actually depended on the clip. */}
-      <section className="relative isolate bg-bg pb-24 pt-36 sm:pb-32 sm:pt-44">
-        <Image
-          src="/images/home/hero-desert.jpg"
-          alt="AutoRoom-ով ներմուծված մեքենան անապատում"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-[21px]" aria-hidden="true" />
-        <div
-          // Extends 24px past the section's own bottom edge (which is also
-          // where `overflow-hidden` clips) so the blur-[5px] filter's edge
-          // halo dissipates against the gradient's own solid interior
-          // instead of being hard-cut mid-fade — a plain `bottom-0 h-1/2`
-          // clips the blur right at its most transparent point, showing as
-          // a thin seam/line where this section meets the next.
-          className="absolute inset-x-0 -bottom-6 h-[calc(50%+24px)] bg-gradient-to-b from-[#6B5D4E] to-surface-light blur-[5px]"
-          aria-hidden="true"
-        />
+      {/* Hero → direction picker → black "start" band → weekly offers → why
+          AutoRoom → journey → ecosystem → founder video → stories → map → FAQ →
+          closing band; spacing and geometry from Figma "Homepage" 436:1891. */}
+      <HomeHero h1={hero.h1} stats={hero.stats} />
 
-        <div className="relative mx-auto max-w-container px-4 sm:px-6">
-          <h1 className="mx-auto max-w-[1026px] animate-fade-up text-center font-display text-home-hero font-bold text-neutral-50 motion-reduce:animate-none">
-            {hero.h1}
-          </h1>
-
-          <div className="relative mx-auto mt-16 grid max-w-[1190px] animate-fade-up grid-cols-1 gap-8 text-center [animation-delay:150ms] motion-reduce:animate-none sm:mt-[384px] sm:grid-cols-3 sm:gap-16">
-            {hero.stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="font-display text-home-stat font-bold text-ink">{stat.value}</p>
-                <p className="mt-1 font-display text-home-label font-bold text-ink">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Direction picker — plain light page background, immediately below
-          the hero's fade (node 110:511/110:514, verified via
-          get_design_context: two unequal-width cards, 597px/588px, with a
-          126px gap — not stretched to equal `1fr` columns). Each card rises
-          into place on scroll (`Reveal`, staggered) — `DirectionCard` itself
-          already carries the hover lift/arrow-color animation. */}
-      <Section tone="light" className="pt-[10px] sm:pt-[10px]">
-        <h2 className="text-center font-display text-home-h2 font-light text-ink">
+      <section className={`${COLUMN} mt-12 lg:mt-16`}>
+        <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
           {hero.pickerHeading}
         </h2>
-        <div className="mx-auto mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-[126px]">
-          <Reveal>
-            <DirectionCard
+        <div className="mt-8 flex flex-col items-center gap-6 lg:mt-16 lg:flex-row lg:justify-center lg:gap-10 min-[1400px]:gap-[126px]">
+          <Reveal className="w-full lg:flex-1 lg:max-w-[597px] min-[1400px]:flex-none">
+            <CountryCard
               href="/usa"
               title={hero.usaCard.title}
-              image="/images/home/direction-usa.webp"
+              image="/images/home/v2/direction-usa.webp"
               imageAlt={hero.usaCard.cta}
-            />
-          </Reveal>
-          <Reveal delayMs={150}>
-            <DirectionCard
-              href="/china"
-              title={hero.chinaCard.title}
-              image="/images/home/direction-china.webp"
-              imageAlt={hero.chinaCard.cta}
-              imageAspect="588/264"
-            />
-          </Reveal>
-        </div>
-      </Section>
-
-      {/* S2 — Featured Cars */}
-      <Section tone="light">
-        <FeaturedCars />
-      </Section>
-
-      {/* S3 — "Ինչո՞ւ ընտրել AutoRoom-ը" (Car Anatomy) */}
-      <Section tone="light">
-        <CarAnatomy />
-      </Section>
-
-      {/* S4 — How it works: a photo strip, one wide card carrying the full
-          step-1 copy, six narrow numbered strips after it (node 110:401/
-          110:594, verified via get_design_context: 64px heading gap, ~7px
-          card gaps, and a wide:narrow width ratio of ~3.2:1). */}
-      <Section tone="light">
-        <h2 className="font-display text-home-h2 font-light text-ink">{howItWorks.heading}</h2>
-        <div className="mt-16 flex gap-2 overflow-x-auto pb-2 sm:gap-[7px] lg:overflow-visible">
-          {howItWorks.steps.map((step, index) => (
-            <HowItWorksStep
-              key={step.title}
-              index={index}
-              title={step.title}
-              text={step.text}
-              image={STEP_PHOTOS[index]}
-              wide={index === 0}
-            />
-          ))}
-        </div>
-      </Section>
-
-      {/* S5 — AutoRoom Ecosystem: photo + overlapping glass list. Pixel-matched
-          to Figma node 110:517/110:520 (9Lq4XpWusTJj1VnM6laAZr, verified via
-          get_design_context/get_metadata): a 32px-radius photo with a
-          bottom-heavy dark gradient (transparent to 89%-black), and a
-          32%-opacity white glass panel — not the ~85-90% opaque card this
-          used to be — positioned near the photo's top-right rather than
-          vertically centered, with a plain 12px-gap item list (no dividers)
-          at 20px/28px type. No visible heading in Figma — kept as an
-          sr-only heading for the a11y outline.
-          The photo (980px) is only 72.917% of Figma's 1344px content
-          column, not full-bleed — the panel's `right-0` is (and was
-          already) anchored to this whole wrapper, not the photo itself, so
-          shrinking the photo lets the panel sit mostly past its right edge
-          like Figma, instead of being capped flush with it. */}
-      <Section tone="light">
-        <h2 className="sr-only">{ecosystem.heading}</h2>
-        <div className="relative overflow-visible rounded-[32px]">
-          <Reveal className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
-            <Image
-              src="/images/home/ecosystem-strip.jpg"
-              alt="AutoRoom-ի մեքենան ճանապարհին"
-              fill
-              sizes="(min-width: 1024px) 980px, 100vw"
-              className="object-cover"
-            />
-            <div
-              className="absolute inset-0 bg-gradient-to-b from-black/0 to-[95.372%] to-black/[0.89]"
-              aria-hidden="true"
+              size="usa"
             />
           </Reveal>
           <Reveal
-            delayMs={200}
-            className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4"
+            delayMs={150}
+            className="w-full lg:flex-1 lg:max-w-[597px] min-[1400px]:flex-none"
           >
-            <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
-              {ecosystem.items.map((item) => (
-                <li key={item} className="text-home-label font-normal leading-[28px] text-ink">
-                  {item.trim()}
-                </li>
-              ))}
-            </ul>
+            <CountryCard
+              href="/china"
+              title={hero.chinaCard.title}
+              image="/images/home/v2/direction-china.webp"
+              imageAlt={hero.chinaCard.cta}
+              size="china"
+            />
           </Reveal>
         </div>
-      </Section>
+      </section>
 
-      {/* S6 — Founder storytelling video (node 110:459) */}
-      <Section tone="light">
+      <div className="mt-16 lg:mt-[160px]">
+        <StartCtaBand />
+      </div>
+
+      <section className={`${COLUMN} ${GAP}`}>
+        <WeeklyOffers />
+      </section>
+
+      <section className={`${COLUMN} ${GAP}`}>
+        <WhyAutoRoom
+          heading={anatomy.heading}
+          hotspots={anatomy.imageHotspots}
+          stats={anatomy.stats}
+        />
+      </section>
+
+      <section className={`${COLUMN} ${GAP}`}>
+        <JourneyStrip heading={howItWorks.heading} steps={howItWorks.steps} />
+      </section>
+
+      <section className={`${COLUMN} ${GAP}`}>
+        <EcosystemShowcase heading={ecosystem.heading} items={ecosystem.items} />
+      </section>
+
+      <section className={`${COLUMN} ${GAP}`}>
         <FounderVideo video={founderVideo} />
-      </Section>
+      </section>
 
-      {/* S7 — Customer Story Wall (node 110:432). Renders nothing (not this
-          whole `Section`) until an admin publishes at least one story — see
-          `CustomerStoryWall`'s own comment. */}
+      {/* Renders nothing until an admin publishes at least one story. */}
       {customerStories.length > 0 && (
-        <Section tone="light">
+        <section className={`${COLUMN} ${GAP}`}>
           <CustomerStoryWall stories={customerStories} />
-        </Section>
+        </section>
       )}
 
-      {/* S8 — "Միշտ քո կողքին" branches, real Armenia map with animated pins
-          (node 110:496; the map itself is an intentional upgrade over
-          Figma's generic placeholder screenshot — see BranchMap's own
-          comment) */}
-      <Section tone="dark" className="bg-bg">
-        <h2 className="text-center font-display text-home-h2 font-light text-white">
-          {branches.heading}
-        </h2>
-        <div className="mt-16">
-          <BranchMap branches={branchList} />
-        </div>
-      </Section>
+      <div className={GAP}>
+        <NearYouMap heading={branches.heading} cta={branches.cta} href="/contact#branches" />
+      </div>
 
-      {/* S9 — FAQ (admin-managed, GENERAL topic — see lib/faq.ts). `id="faq"`
-          is the anchor Contact's `ContactFaq` "Տես բոլոր հարցերը" link
-          points at (`/#faq`). */}
-      <Section id="faq" tone="light">
+      <section id="faq" className={`${COLUMN} mt-4 lg:mt-[17px]`}>
         <HomeFaq />
-      </Section>
+      </section>
 
-      {/* S10 — Final CTA (Quiz Popup, not Universal) */}
-      <HomeFinalCta />
+      <div className={GAP}>
+        <HomeFinalCta />
+      </div>
     </>
   );
 }

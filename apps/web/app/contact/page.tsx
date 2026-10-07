@@ -43,7 +43,7 @@ export default function ContactPage() {
           <ContactForm />
         </div>
 
-        <div className="mt-24">
+        <div id="branches" className="mt-24 scroll-mt-32">
           <BranchCards />
         </div>
 

@@ -37,3 +37,17 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     dispatchEvent: () => false,
   });
 }
+
+// jsdom has no IntersectionObserver — `Reveal` (scroll-in animation) and
+// `AnimatedImage` (lazy animation) use it. A no-op stub keeps them rendering;
+// tests that care about intersection install their own.
+if (typeof globalThis.IntersectionObserver === 'undefined') {
+  globalThis.IntersectionObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  } as unknown as typeof IntersectionObserver;
+}

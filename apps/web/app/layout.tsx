@@ -32,6 +32,9 @@ const inter = Inter({
 const notoSansArmenian = Noto_Sans_Armenian({
   variable: '--font-noto-am',
   subsets: ['armenian'],
+  // The design's Armenian face (SF Armenian) is narrower than Noto's default width;
+  // the variable `wdth` axis lets text be condensed with `font-stretch` to match it.
+  axes: ['wdth'],
   display: 'swap',
 });
 

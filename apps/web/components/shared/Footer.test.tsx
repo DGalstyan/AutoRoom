@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { Footer } from '@/components/shared/Footer';
 import { renderWithLocale } from '@/lib/test-utils';
 import { getMessagesForLocale } from '@/lib/i18n';
+import { getBranches } from '@/lib/branches';
 
 const messages = getMessagesForLocale('hy');
 
@@ -33,6 +34,11 @@ vi.mock('@/components/shared/LeadWidgetProvider', () => ({
 // and `getServerMessages` is pinned to `hy`, matching every assertion below.
 // Each test calls `await Footer(props)` directly (a plain async function
 // call, not JSX) to resolve the element tree before handing it to `render`.
+vi.mock('@/lib/branches', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/branches')>();
+  return { ...actual, getBranches: vi.fn().mockResolvedValue([]) };
+});
+
 vi.mock('@/lib/i18n', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/i18n')>();
   return {
@@ -70,7 +76,7 @@ describe('Footer', () => {
     expect(logoLink).toHaveAttribute('href', '/');
   });
 
-  it('renders the admin-managed email and first phone as click-to-contact links', async () => {
+  it('renders the admin-managed email and phones as click-to-contact links', async () => {
     renderWithLocale(await Footer({ contacts: FILLED_CONTACTS }));
     expect(screen.getByRole('link', { name: /hello@autoroom\.co/ })).toHaveAttribute(
       'href',
@@ -83,8 +89,8 @@ describe('Footer', () => {
         name: (name) => name.includes(FILLED_CONTACTS.general.phones[0]),
       }),
     ).toHaveAttribute('href', expect.stringContaining('tel:'));
-    // Only the first phone is shown, not the rest of the list.
-    expect(screen.queryByText(FILLED_CONTACTS.general.phones[1])).not.toBeInTheDocument();
+    // Every admin-managed phone is listed (the design's "Contact Us" list).
+    expect(screen.getByText(FILLED_CONTACTS.general.phones[1])).toBeInTheDocument();
   });
 
   it('renders nothing in the contact column when no email or phone is set', async () => {
@@ -101,24 +107,57 @@ describe('Footer', () => {
     expect(screen.getByRole('link', { name: 'Instagram' })).toBeInTheDocument();
     // tiktok/linkedin are null in the fixture — no dead links for them.
     expect(screen.queryByRole('link', { name: 'TikTok' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Linkedin' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'LinkedIn' })).not.toBeInTheDocument();
   });
 
-  it('renders nothing in the social column when no platform is set', async () => {
+  it('renders no social links when no platform is set', async () => {
     renderWithLocale(await Footer());
-    expect(screen.queryByText(messages.common.footer.socialHeading)).not.toBeInTheDocument();
+    for (const name of ['Facebook', 'Instagram', 'TikTok', 'LinkedIn']) {
+      expect(screen.queryByRole('link', { name })).not.toBeInTheDocument();
+    }
+  });
+
+  it('lists the admin-managed branch addresses under the locations heading', async () => {
+    vi.mocked(getBranches).mockResolvedValueOnce([
+      {
+        id: 'b1',
+        name: 'N1',
+        city: 'Երևան',
+        address: 'Սայաթ-Նովա 20',
+        phone: '+374 94 077757',
+        hours: '10:00–22:00',
+        mapUrl: null,
+        photoUrl: null,
+      },
+    ]);
+    renderWithLocale(await Footer());
+    expect(screen.getByText(messages.common.footer.branchesHeading)).toBeInTheDocument();
+    expect(screen.getByText('Երևան, Սայաթ-Նովա 20')).toBeInTheDocument();
+  });
+
+  it('shows the site navigation in the design order', async () => {
+    renderWithLocale(await Footer());
+    const nav = screen.getByRole('navigation', { name: messages.common.nav.primaryNav });
+    expect(Array.from(nav.querySelectorAll('a')).map((a) => a.getAttribute('href'))).toEqual([
+      '/china',
+      '/usa',
+      '/partners',
+      '/about',
+      '/offers',
+    ]);
   });
 
   it('shows the copyright row', async () => {
     renderWithLocale(await Footer());
-    expect(screen.getByRole('link', { name: messages.common.footer.privacyPolicy })).toHaveAttribute(
-      'href',
-      '/privacy',
-    );
-    expect(screen.getByRole('link', { name: messages.common.footer.terms })).toHaveAttribute(
-      'href',
-      '/terms',
-    );
+    // The legal block is rendered twice (beside the socials on desktop, closing the footer on phones; CSS shows one).
+    for (const link of screen.getAllByRole('link', {
+      name: messages.common.footer.privacyPolicy,
+    })) {
+      expect(link).toHaveAttribute('href', '/privacy');
+    }
+    for (const link of screen.getAllByRole('link', { name: messages.common.footer.terms })) {
+      expect(link).toHaveAttribute('href', '/terms');
+    }
   });
 });
 
