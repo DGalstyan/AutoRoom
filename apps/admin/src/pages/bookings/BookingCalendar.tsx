@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Booking } from '@autoroom/api/client';
-import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
+import { Box, Button, IconButton, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { brand, mono } from '@/theme';
@@ -47,6 +47,14 @@ export function BookingCalendar({
   const cells = useMemo(() => monthGrid(month), [month]);
   const todayKey = dayKey(new Date().toISOString());
   const monthIndex = month.getMonth();
+  // A seven-column month grid can't fit a phone without scrolling sideways, so phones get an
+  // agenda: the days of this month that have appointments, each with its bookings.
+  const theme = useTheme();
+  const agenda = useMediaQuery(theme.breakpoints.down('md'));
+  const agendaDays = cells.filter(
+    (date) =>
+      date.getMonth() === monthIndex && (byDay.get(dayKey(date.toISOString()))?.length ?? 0) > 0,
+  );
 
   return (
     <Box>
@@ -82,109 +90,182 @@ export function BookingCalendar({
         </Button>
       </Stack>
 
-      <Box sx={{ overflowX: 'auto' }}>
-        <Box sx={{ minWidth: 720 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-            {DAY_LABELS.map((label) => (
-              <Typography
-                key={label}
-                sx={{
-                  px: 1,
-                  py: 1,
-                  fontFamily: mono,
-                  fontSize: '0.6875rem',
-                  color: 'text.secondary',
-                  textAlign: 'center',
-                  borderBottom: `1px solid ${brand.lineLight}`,
-                }}
-              >
-                {label}
-              </Typography>
-            ))}
-          </Box>
-
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
-            {cells.map((date) => {
-              const key = dayKey(date.toISOString());
-              const dayBookings = byDay.get(key) ?? [];
-              const outside = date.getMonth() !== monthIndex;
-
-              return (
-                <Box
-                  key={key}
+      {agenda ? (
+        <Stack spacing={0} sx={{ py: 0.5 }}>
+          {agendaDays.length === 0 && (
+            <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 6, px: 2 }}>
+              No appointments this month.
+            </Typography>
+          )}
+          {agendaDays.map((date) => {
+            const key = dayKey(date.toISOString());
+            return (
+              <Box key={key} sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${brand.lineLight}` }}>
+                <Typography
                   sx={{
-                    minHeight: 104,
-                    p: 0.75,
-                    borderBottom: `1px solid ${brand.lineLight}`,
-                    borderRight: `1px solid ${brand.lineLight}`,
-                    bgcolor: outside ? brand.surfaceLight : 'transparent',
-                    opacity: outside ? 0.55 : 1,
+                    fontFamily: mono,
+                    fontSize: '0.75rem',
+                    mb: 0.75,
+                    color: key === todayKey ? brand.accent : 'text.secondary',
+                    fontWeight: key === todayKey ? 700 : 500,
                   }}
                 >
-                  <Typography
+                  {date.toLocaleDateString(undefined, {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                  })}
+                </Typography>
+                <Stack spacing={0.75}>
+                  {(byDay.get(key) ?? []).map((booking) => {
+                    const entry = statusTone(booking.status);
+                    const color = toneColor(entry.tone);
+                    return (
+                      <Box
+                        key={booking.id}
+                        component="button"
+                        type="button"
+                        onClick={() => onSelect(booking)}
+                        sx={{
+                          display: 'block',
+                          width: '100%',
+                          minHeight: 44,
+                          textAlign: 'left',
+                          border: 'none',
+                          borderLeft: `3px solid ${color}`,
+                          borderRadius: '6px',
+                          px: 1.5,
+                          py: 1,
+                          cursor: 'pointer',
+                          font: 'inherit',
+                          fontSize: '0.875rem',
+                          bgcolor: `${color}14`,
+                          color: 'text.primary',
+                          overflowWrap: 'anywhere',
+                        }}
+                      >
+                        <Box component="span" sx={{ fontFamily: mono, opacity: 0.8, mr: 1 }}>
+                          {formatTime(booking.scheduledAt)}
+                        </Box>
+                        {booking.partner.name}
+                        <Box component="span" sx={{ color: 'text.secondary', ml: 1 }}>
+                          · {entry.label}
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Stack>
+              </Box>
+            );
+          })}
+        </Stack>
+      ) : (
+        <Box sx={{ overflowX: 'auto' }}>
+          <Box sx={{ minWidth: 720 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+              {DAY_LABELS.map((label) => (
+                <Typography
+                  key={label}
+                  sx={{
+                    px: 1,
+                    py: 1,
+                    fontFamily: mono,
+                    fontSize: '0.6875rem',
+                    color: 'text.secondary',
+                    textAlign: 'center',
+                    borderBottom: `1px solid ${brand.lineLight}`,
+                  }}
+                >
+                  {label}
+                </Typography>
+              ))}
+            </Box>
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+              {cells.map((date) => {
+                const key = dayKey(date.toISOString());
+                const dayBookings = byDay.get(key) ?? [];
+                const outside = date.getMonth() !== monthIndex;
+
+                return (
+                  <Box
+                    key={key}
                     sx={{
-                      fontFamily: mono,
-                      fontSize: '0.6875rem',
-                      mb: 0.5,
-                      textAlign: 'right',
-                      color: key === todayKey ? brand.accent : 'text.secondary',
-                      fontWeight: key === todayKey ? 700 : 400,
+                      minHeight: 104,
+                      p: 0.75,
+                      borderBottom: `1px solid ${brand.lineLight}`,
+                      borderRight: `1px solid ${brand.lineLight}`,
+                      bgcolor: outside ? brand.surfaceLight : 'transparent',
+                      opacity: outside ? 0.55 : 1,
                     }}
                   >
-                    {date.getDate()}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: mono,
+                        fontSize: '0.6875rem',
+                        mb: 0.5,
+                        textAlign: 'right',
+                        color: key === todayKey ? brand.accent : 'text.secondary',
+                        fontWeight: key === todayKey ? 700 : 400,
+                      }}
+                    >
+                      {date.getDate()}
+                    </Typography>
 
-                  <Stack spacing={0.5}>
-                    {dayBookings.slice(0, 3).map((booking) => {
-                      const entry = statusTone(booking.status);
-                      const color = toneColor(entry.tone);
-                      return (
-                        <Box
-                          key={booking.id}
-                          component="button"
-                          type="button"
-                          onClick={() => onSelect(booking)}
-                          title={`${booking.partner.name} — ${entry.label}`}
-                          sx={{
-                            display: 'block',
-                            width: '100%',
-                            textAlign: 'left',
-                            border: 'none',
-                            borderLeft: `3px solid ${color}`,
-                            borderRadius: '3px',
-                            px: 0.75,
-                            py: 0.375,
-                            cursor: 'pointer',
-                            font: 'inherit',
-                            fontSize: '0.6875rem',
-                            lineHeight: 1.3,
-                            bgcolor: `${color}14`,
-                            color: 'text.primary',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            '&:hover': { bgcolor: `${color}26` },
-                          }}
+                    <Stack spacing={0.5}>
+                      {dayBookings.slice(0, 3).map((booking) => {
+                        const entry = statusTone(booking.status);
+                        const color = toneColor(entry.tone);
+                        return (
+                          <Box
+                            key={booking.id}
+                            component="button"
+                            type="button"
+                            onClick={() => onSelect(booking)}
+                            title={`${booking.partner.name} — ${entry.label}`}
+                            sx={{
+                              display: 'block',
+                              width: '100%',
+                              textAlign: 'left',
+                              border: 'none',
+                              borderLeft: `3px solid ${color}`,
+                              borderRadius: '3px',
+                              px: 0.75,
+                              py: 0.375,
+                              cursor: 'pointer',
+                              font: 'inherit',
+                              fontSize: '0.6875rem',
+                              lineHeight: 1.3,
+                              bgcolor: `${color}14`,
+                              color: 'text.primary',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              '&:hover': { bgcolor: `${color}26` },
+                            }}
+                          >
+                            <Box component="span" sx={{ fontFamily: mono, opacity: 0.8 }}>
+                              {formatTime(booking.scheduledAt)}
+                            </Box>{' '}
+                            {booking.partner.name}
+                          </Box>
+                        );
+                      })}
+                      {dayBookings.length > 3 && (
+                        <Typography
+                          sx={{ fontSize: '0.6875rem', color: 'text.secondary', pl: 0.75 }}
                         >
-                          <Box component="span" sx={{ fontFamily: mono, opacity: 0.8 }}>
-                            {formatTime(booking.scheduledAt)}
-                          </Box>{' '}
-                          {booking.partner.name}
-                        </Box>
-                      );
-                    })}
-                    {dayBookings.length > 3 && (
-                      <Typography sx={{ fontSize: '0.6875rem', color: 'text.secondary', pl: 0.75 }}>
-                        +{dayBookings.length - 3} more
-                      </Typography>
-                    )}
-                  </Stack>
-                </Box>
-              );
-            })}
+                          +{dayBookings.length - 3} more
+                        </Typography>
+                      )}
+                    </Stack>
+                  </Box>
+                );
+              })}
+            </Box>
           </Box>
         </Box>
-      </Box>
+      )}
     </Box>
   );
 }

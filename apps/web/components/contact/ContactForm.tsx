@@ -59,6 +59,8 @@ export function ContactForm() {
   const [phone, setPhone] = useState('+374 ');
   const [topic, setTopic] = useState<(typeof TOPIC_KEYS)[number] | ''>('');
   const [comment, setComment] = useState('');
+  // The design's form has no comment box; it stays available behind a link (and opens by itself if one was typed).
+  const [showComment, setShowComment] = useState(false);
   // Per-field "touched" so leaving one field doesn't flag the others; a failed
   // submit touches everything.
   const [touched, setTouched] = useState({ name: false, phone: false, email: false });
@@ -158,7 +160,7 @@ export function ContactForm() {
       />
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl bg-white p-9 shadow-card sm:p-10"
+        className="flex flex-col justify-center rounded-xl bg-white p-9 shadow-card sm:p-10 lg:min-h-[552px]"
         noValidate
       >
         <div className="flex flex-col gap-8">
@@ -267,23 +269,23 @@ export function ContactForm() {
             </select>
           </div>
 
-          {/* Not in this Figma mock (see file-top comment) — kept as-is, same field styling. */}
-          <div>
-            <label htmlFor="contact-comment" className={LABEL_CLASSES}>
-              {t.commentLabel}
-            </label>
-            <textarea
-              id="contact-comment"
-              name="comment"
-              rows={4}
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-              placeholder={t.commentPlaceholder}
-              className="w-full rounded-xl bg-neutral-25 px-6 py-4 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
-            />
-          </div>
+          {showComment || comment ? (
+            <div>
+              <label htmlFor="contact-comment" className={LABEL_CLASSES}>
+                {t.commentLabel}
+              </label>
+              <textarea
+                id="contact-comment"
+                name="comment"
+                rows={4}
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                placeholder={t.commentPlaceholder}
+                className="w-full rounded-xl bg-neutral-25 px-6 py-4 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+              />
+            </div>
+          ) : null}
 
-          <p className="text-small text-neutral-700">{t.requiredHint}</p>
           {submitFailed && (
             <p role="alert" className="text-small text-error">
               {t.errors.submitFailed}
@@ -292,20 +294,32 @@ export function ContactForm() {
 
           {/* 60px gold pill, dark text — Figma's own `BTN` instance here, not
             the shared `Button` component's 44px/white-text default. */}
-          <button
-            type="submit"
-            disabled={status === 'submitting'}
-            className="inline-flex h-[60px] w-fit shrink-0 items-center justify-center gap-1 self-start rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
-          >
-            {status === 'submitting' ? (
-              t.sending
-            ) : (
-              <>
-                {t.submit}
-                <ArrowUpRightIcon className="size-5" />
-              </>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <button
+              type="submit"
+              disabled={status === 'submitting'}
+              className="inline-flex h-[60px] w-fit shrink-0 items-center justify-center gap-1 self-start rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-50"
+            >
+              {status === 'submitting' ? (
+                t.sending
+              ) : (
+                <>
+                  {t.submit}
+                  <ArrowUpRightIcon className="size-5" />
+                </>
+              )}
+            </button>
+            {!(showComment || comment) && (
+              <button
+                type="button"
+                onClick={() => setShowComment(true)}
+                className="inline-flex min-h-11 items-center text-[14px] font-medium text-neutral-700 underline-offset-4 hover:text-ink hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                + {t.addComment}
+              </button>
             )}
-          </button>
+            <p className="text-small text-neutral-700">{t.requiredHint}</p>
+          </div>
         </div>
       </form>
     </>

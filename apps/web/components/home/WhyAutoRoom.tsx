@@ -30,10 +30,13 @@ export function WhyAutoRoom({
   heading,
   hotspots,
   stats,
+  markers = 'gold',
 }: {
   heading: string;
   hotspots: Hotspot[];
   stats: { value: string; label: string }[];
+  /** `gold` (Homepage): gold rings + stems drawn over a clean render. `baked` (About): the render with its red ring markers built in. */
+  markers?: 'gold' | 'baked';
 }) {
   return (
     <div className="flex flex-col gap-8 lg:gap-16">
@@ -44,14 +47,18 @@ export function WhyAutoRoom({
       <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-[60px]">
         <Reveal className="relative aspect-[971/555.437] w-full lg:flex-1">
           <Image
-            src="/images/home/v2/anatomy-car.webp"
+            src={
+              markers === 'baked'
+                ? '/images/home/v2/anatomy-car-baked.webp'
+                : '/images/home/v2/anatomy-car.webp'
+            }
             alt=""
             fill
             sizes="(min-width: 1024px) 971px, 100vw"
             className="object-contain"
           />
 
-          {MARKERS.map((m) => (
+          {(markers === 'baked' ? [] : MARKERS).map((m) => (
             <span key={m.src} aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

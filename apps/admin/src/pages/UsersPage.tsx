@@ -174,13 +174,15 @@ export function UsersPage() {
           </Typography>
         ) : (
           <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: 720 }}>
+            <Table sx={{ minWidth: { xs: 0, md: 720 } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
-                  <TableCell>Role</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Role</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Last sign-in</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                    Last sign-in
+                  </TableCell>
                   <TableCell align="right" />
                 </TableRow>
               </TableHead>
@@ -202,12 +204,28 @@ export function UsersPage() {
                           )}
                         </Typography>
                         <Typography
-                          sx={{ fontFamily: mono, fontSize: '0.75rem', color: 'text.secondary' }}
+                          sx={{
+                            fontFamily: mono,
+                            fontSize: '0.75rem',
+                            color: 'text.secondary',
+                            overflowWrap: 'anywhere',
+                          }}
                         >
                           {user.email}
                         </Typography>
+                        {/* Phones drop the Role / Last sign-in columns; the role moves under the name. */}
+                        <Typography
+                          sx={{
+                            display: { xs: 'block', md: 'none' },
+                            fontSize: '0.75rem',
+                            color: 'text.secondary',
+                          }}
+                        >
+                          {user.role?.name ?? 'Not assigned'} ·{' '}
+                          {formatDate(user.lastLoginAt) ?? 'Never signed in'}
+                        </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         <Typography sx={{ fontSize: '0.875rem' }}>
                           {user.role?.name ?? (
                             <Box component="span" sx={{ color: 'text.secondary' }}>
@@ -219,7 +237,13 @@ export function UsersPage() {
                       <TableCell>
                         <StatusChip status={user.status} />
                       </TableCell>
-                      <TableCell sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
+                      <TableCell
+                        sx={{
+                          display: { xs: 'none', md: 'table-cell' },
+                          color: 'text.secondary',
+                          fontSize: '0.8125rem',
+                        }}
+                      >
                         {formatDate(user.lastLoginAt) ?? 'Never'}
                       </TableCell>
                       <TableCell align="right">

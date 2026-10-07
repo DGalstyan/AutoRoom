@@ -158,7 +158,7 @@ export function PortalLoginForm() {
           <button
             type="button"
             onClick={() => openBookingPopup('partners-portal-login')}
-            className="font-medium text-ink underline underline-offset-2"
+            className="inline-flex min-h-11 items-center font-medium text-ink underline underline-offset-2"
           >
             {t.becomePartner}
           </button>

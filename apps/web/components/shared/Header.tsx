@@ -39,7 +39,11 @@ export function Header({ logo = null }: HeaderProps = {}) {
   // glass treatment read as a visibly wrong, unexplained dark bar floating
   // over a white page before this.
   const pathname = usePathname();
-  const isLightHeader = pathname?.startsWith('/partners/portal') ?? false;
+  // Light hero pages (About, Contact — Figma 436:2185/2390) and the portal draw the pill white.
+  const isLightHeader =
+    (pathname?.startsWith('/partners/portal') ?? false) ||
+    pathname === '/about' ||
+    pathname === '/contact';
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerId = useId();
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -88,7 +92,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
           */}
           <BrandLogo
             logo={logo}
-            className="h-[46px] w-[121px]"
+            className={isLightHeader ? 'h-[36.56px] w-[96px]' : 'h-[46px] w-[121px]'}
             sizes="121px"
             tone={isLightHeader ? 'light' : 'dark'}
           />
@@ -122,7 +126,8 @@ export function Header({ logo = null }: HeaderProps = {}) {
             <Link
               key={item.href}
               href={item.href}
-              className={`inline-flex items-center gap-1 whitespace-nowrap px-2 py-1 text-[16px] font-normal leading-6 transition-colors duration-micro hover:text-accent ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              aria-current={pathname === item.href ? 'page' : undefined}
+              className={`inline-flex items-center gap-1 whitespace-nowrap px-2 py-1 text-[16px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
               {item.chevron && (

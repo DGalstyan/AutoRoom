@@ -234,12 +234,23 @@ export function RolesPage() {
               </Box>
 
               <Box sx={{ overflowX: 'auto' }}>
-                <Table size="small" sx={{ minWidth: 620 }}>
+                <Table
+                  size="small"
+                  sx={{ minWidth: { xs: 0, sm: 620 }, tableLayout: { xs: 'fixed', sm: 'auto' } }}
+                >
                   <TableHead>
                     <TableRow>
-                      <TableCell>Resource</TableCell>
+                      <TableCell sx={{ px: { xs: 1, sm: 2 } }}>Resource</TableCell>
                       {ACTION_COLUMNS.map((action) => (
-                        <TableCell key={action} align="center" sx={{ width: 92 }}>
+                        <TableCell
+                          key={action}
+                          align="center"
+                          sx={{
+                            width: { xs: 48, sm: 92 },
+                            px: { xs: 0, sm: 2 },
+                            fontSize: { xs: '0.625rem', sm: 'inherit' },
+                          }}
+                        >
                           {action.toLowerCase()}
                         </TableCell>
                       ))}
@@ -250,7 +261,7 @@ export function RolesPage() {
                       const all = actions.every((action) => granted.has(`${resource}:${action}`));
                       return (
                         <TableRow key={resource} hover>
-                          <TableCell>
+                          <TableCell sx={{ px: { xs: 1, sm: 2 }, overflowWrap: 'anywhere' }}>
                             <Box
                               component={editable ? 'button' : 'span'}
                               type={editable ? 'button' : undefined}
@@ -276,7 +287,7 @@ export function RolesPage() {
                           {ACTION_COLUMNS.map((action) => {
                             const applicable = actions.includes(action);
                             return (
-                              <TableCell key={action} align="center">
+                              <TableCell key={action} align="center" sx={{ px: 0 }}>
                                 {applicable ? (
                                   <Checkbox
                                     size="small"

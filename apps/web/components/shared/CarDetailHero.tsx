@@ -61,9 +61,9 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
 
   return (
     <div className="flex flex-col gap-9">
-      <div className="flex items-center justify-between gap-4 rounded-xl bg-white px-6 py-3">
-        <div className="flex flex-wrap items-center gap-6 whitespace-nowrap">
-          <h1 className="font-display text-[36px] font-bold leading-[56px] text-neutral-900">
+      <div className="flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:whitespace-nowrap">
+          <h1 className="font-display text-[28px] font-bold leading-[40px] text-neutral-900 sm:text-[36px] sm:leading-[56px]">
             {car.make} {car.model}
           </h1>
           <Price size="lg" className="text-neutral-900">

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Section } from '@/components/ui/Section';
 import { ContactInfo } from '@/components/contact/ContactInfo';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { BranchCards } from '@/components/contact/BranchCards';
@@ -34,25 +33,32 @@ export async function generateMetadata(): Promise<Metadata> {
  * this had — a leftover from when this page was pixel-audited without
  * working Figma MCP access (visual Dev-Mode inspection only).
  */
+/** The 1440 design's column: 1344px, 48px gutters (16 / 24 on phones and tablets). */
+const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
+
 export default function ContactPage() {
+  // Spacing from Figma "Contact us" 436:2389: the contact + form cards start 185px down
+  // (below the floating header); 150px between every following block.
   return (
     <>
-      <Section tone="light" className="pt-32 sm:pt-40">
+      <section className={`${COLUMN} pt-32 lg:pt-[185px]`}>
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-[618fr_683fr] sm:gap-x-[43px]">
           <ContactInfo />
           <ContactForm />
         </div>
+      </section>
 
-        <div id="branches" className="mt-24 scroll-mt-32">
-          <BranchCards />
-        </div>
+      <section id="branches" className={`${COLUMN} mt-16 scroll-mt-32 lg:mt-[150px]`}>
+        <BranchCards />
+      </section>
 
-        <div className="mt-24">
-          <ContactFaq />
-        </div>
-      </Section>
+      <section className={`${COLUMN} mt-16 lg:mt-[150px]`}>
+        <ContactFaq />
+      </section>
 
-      <ContactFinalCta />
+      <div className="mt-16 lg:mt-[150px]">
+        <ContactFinalCta />
+      </div>
     </>
   );
 }

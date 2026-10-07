@@ -32,9 +32,12 @@ export function PhotoGallery({ images }: { images: GalleryImage[] }) {
   const rows = chunkIntoRows(sorted);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 lg:gap-6">
       {rows.map((row, rowIndex) => (
-        <div key={rowIndex} className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div
+          key={rowIndex}
+          className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-x-[26px] lg:gap-y-6"
+        >
           {row.images.map((image, tileIndex) => (
             <Tile
               key={image.id}
@@ -60,7 +63,9 @@ function chunkIntoRows(images: GalleryImage[]) {
 
 function Tile({ src, className = '' }: { src: string; className?: string }) {
   return (
-    <div className={`relative aspect-[887/480] w-full overflow-hidden rounded-[32px] ${className}`}>
+    <div
+      className={`relative h-[240px] w-full overflow-hidden rounded-[32px] sm:h-[300px] lg:h-[480px] ${className}`}
+    >
       <Image
         src={src}
         alt=""

@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
-import { Section } from '@/components/ui/Section';
 import { TeamSection } from '@/components/shared/TeamSection';
 import { FounderVideo } from '@/components/shared/FounderVideo';
 import { AboutHero } from '@/components/about/AboutHero';
 import { MissionStatement } from '@/components/about/MissionStatement';
-import { WhyChooseUs } from '@/components/about/WhyChooseUs';
+import { WhyAutoRoom } from '@/components/home/WhyAutoRoom';
 import { PhotoGallery } from '@/components/about/PhotoGallery';
 import { AboutFinalCta } from '@/components/about/AboutFinalCta';
 import { AboutRepeatCta } from '@/components/about/AboutRepeatCta';
@@ -12,6 +11,9 @@ import { getTeamMembers } from '@/lib/team';
 import { getGalleryImages } from '@/lib/gallery';
 import { getFounderVideo } from '@/lib/media';
 import { getServerMessages } from '@/lib/i18n';
+
+/** The 1440 design's column: 1344px, 48px gutters (16 / 24 on phones and tablets). */
+const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
@@ -40,26 +42,44 @@ export default async function AboutPage() {
     getGalleryImages(),
   ]);
 
+  const why = messages.home.anatomy;
+
   return (
     <>
+      {/* Spacing follows Figma "About us" 436:2177: hero → black band 150 → why 150 →
+          team 150 → video 43 → gallery 100 → closing band 150 → intro 80 → footer. */}
       <AboutHero />
       <MissionStatement />
-      <Section tone="light">
-        <WhyChooseUs />
-      </Section>
-      <Section tone="light">
+
+      <section className={`${COLUMN} mt-16 lg:mt-[150px]`}>
+        <WhyAutoRoom
+          heading={messages.about.whyChooseUs.heading}
+          hotspots={why.imageHotspots}
+          stats={messages.about.whyChooseUs.stats}
+          markers="baked"
+        />
+      </section>
+
+      <section className={`${COLUMN} mt-16 lg:mt-[150px]`}>
         <TeamSection members={members} />
-        <div className="mt-24">
-          <FounderVideo heading={messages.about.founder.heading} video={founderVideo} />
-        </div>
-      </Section>
+      </section>
+
+      <section className={`${COLUMN} mt-16 lg:mt-[43px]`}>
+        <FounderVideo heading={messages.about.founder.heading} video={founderVideo} />
+      </section>
+
       {galleryImages.length > 0 && (
-        <Section tone="light" className="pt-0 sm:pt-0">
+        <section className={`${COLUMN} mt-16 lg:mt-[100px]`}>
           <PhotoGallery images={galleryImages} />
-        </Section>
+        </section>
       )}
-      <AboutFinalCta />
-      <AboutRepeatCta />
+
+      <div className="mt-16 lg:mt-[150px]">
+        <AboutFinalCta />
+      </div>
+      <div className="lg:mt-0">
+        <AboutRepeatCta />
+      </div>
     </>
   );
 }

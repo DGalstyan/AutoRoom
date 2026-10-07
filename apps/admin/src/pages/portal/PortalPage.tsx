@@ -129,12 +129,12 @@ export function PortalPage() {
         ) : (
           <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
             <Box sx={{ overflowX: 'auto' }}>
-              <Table sx={{ minWidth: 640 }}>
+              <Table sx={{ minWidth: { xs: 0, md: 640 } }}>
                 <TableHead>
                   <TableRow>
                     <TableCell>When</TableCell>
                     <TableCell>Customer</TableCell>
-                    <TableCell>Car</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Car</TableCell>
                     <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
@@ -153,8 +153,21 @@ export function PortalPage() {
                             {booking.customerPhone}
                           </Typography>
                         )}
+                        {booking.car && (
+                          <Typography
+                            sx={{
+                              display: { xs: 'block', md: 'none' },
+                              fontSize: '0.75rem',
+                              color: 'text.secondary',
+                            }}
+                          >
+                            {`${booking.car.make} ${booking.car.model} ${booking.car.year}`}
+                          </Typography>
+                        )}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.875rem' }}>
+                      <TableCell
+                        sx={{ display: { xs: 'none', md: 'table-cell' }, fontSize: '0.875rem' }}
+                      >
                         {booking.car
                           ? `${booking.car.make} ${booking.car.model} ${booking.car.year}`
                           : '—'}

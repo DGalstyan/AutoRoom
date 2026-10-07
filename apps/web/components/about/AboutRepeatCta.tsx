@@ -26,24 +26,26 @@ export function AboutRepeatCta() {
   const { openUniversal } = useLeadWidgets();
 
   return (
-    <section className="bg-surface-light px-4 py-14 text-ink sm:px-6 sm:py-20">
-      <div className="mx-auto flex max-w-container flex-col items-center text-center">
-        <p className="max-w-3xl text-lead font-normal text-ink">{t.hero.intro}</p>
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-[18px]">
+    <section className="bg-surface-light px-4 py-14 text-ink sm:px-6 lg:px-12 lg:py-20">
+      <div className="mx-auto flex max-w-[1344px] flex-col items-center gap-9 text-center">
+        <p className="stretch-90 text-[18px] font-bold leading-7 text-neutral-800 sm:text-[20px] sm:leading-8 lg:text-[24px] lg:leading-9">
+          {t.hero.intro}
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-[18px]">
           <button
             type="button"
             onClick={() => openUniversal({ sourceCta: 'about-s5b-repeat-consultation' })}
-            className="inline-flex min-h-11 items-center justify-center gap-1 rounded-pill bg-accent px-6 py-3 text-small font-medium text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
+            className="inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-accent px-6 text-[14px] font-medium leading-[18px] text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             {t.cta.consultation}
-            <ArrowUpRightIcon />
+            <ArrowUpRightIcon className="size-5" />
           </button>
           <Link
             href="/contact"
-            className="inline-flex min-h-11 items-center justify-center gap-1 rounded-pill bg-white px-6 py-3 text-small font-medium text-ink shadow-card transition-colors duration-standard ease-expo hover:bg-white/90"
+            className="inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-white px-6 text-[14px] font-medium leading-[18px] text-ink transition-colors duration-standard ease-expo hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >
             {t.cta.contact}
-            <ArrowUpRightIcon />
+            <ArrowUpRightIcon className="size-5" />
           </Link>
         </div>
       </div>

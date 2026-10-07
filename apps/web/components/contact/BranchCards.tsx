@@ -30,47 +30,51 @@ export async function BranchCards() {
   if (branches.length === 0) return null;
 
   return (
-    <div>
-      <h2 className="font-display text-home-h2 font-light text-ink">{t.heading}</h2>
-      <div className="mt-8 flex flex-col gap-9">
+    <div className="flex flex-col gap-8 lg:gap-16">
+      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+        {t.heading}
+      </h2>
+      <div className="flex flex-col gap-6 lg:gap-9">
         {branches.map((branch) => (
           <div
             key={branch.id}
-            className="flex flex-col gap-6 rounded-xl bg-white p-9 shadow-card sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-6 rounded-[32px] bg-white p-6 shadow-[0_1px_12px_rgba(19,15,38,0.04)] sm:p-9 lg:flex-row lg:items-center lg:justify-between"
           >
-            <div className="flex flex-col gap-3">
-              <p className="font-display text-branch-card-title font-normal text-ink">
-                {branch.name} — {branch.city}
+            <div className="flex flex-col justify-center gap-6 lg:w-[412px] lg:shrink-0 lg:gap-9">
+              <p className="stretch-90 text-[28px] font-normal leading-9 text-ink lg:text-[36px] lg:leading-[48px]">
+                {branch.name}
               </p>
-              <p className="inline-flex items-center gap-2 text-lead text-ink/70">
-                <PinIcon />
-                {branch.address}
-              </p>
-              <p className="inline-flex items-center gap-2 text-lead text-ink/70">
-                <ClockIcon />
-                {t.hoursPrefix}: {branch.hours}
-              </p>
+              <div className="flex flex-col gap-[18px] text-[20px] leading-7 text-neutral-800">
+                <p className="stretch-93 flex items-center gap-2">
+                  <PinIcon />
+                  {branch.city ? `${branch.address}, ${branch.city}` : branch.address}
+                </p>
+                <p className="stretch-93 flex items-center gap-2">
+                  <ClockIcon />
+                  {t.hoursPrefix}: {branch.hours}
+                </p>
+              </div>
               <a
                 href={branchMapsUrl(branch)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex min-h-11 w-fit items-center gap-1 rounded-pill bg-accent px-5 py-2.5 text-small font-medium text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
+                className="inline-flex h-[60px] w-fit items-center gap-1 rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
-                {t.cta} <ArrowUpRightIcon />
+                {t.cta} <ArrowUpRightIcon className="size-5" />
               </a>
             </div>
 
-            <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-surface-light via-neutral-100 to-neutral-50 text-ink/60 sm:aspect-auto sm:h-full sm:min-h-[220px] sm:w-2/5 sm:self-stretch">
+            <div className="relative aspect-[690/421] w-full overflow-hidden rounded-[30px] bg-gradient-to-br from-surface-light via-neutral-100 to-neutral-50 text-ink/60 lg:w-[690px] lg:shrink-0">
               {branch.photoUrl ? (
                 <Image
                   src={branch.photoUrl}
                   alt=""
                   fill
-                  sizes="(min-width: 640px) 40vw, 100vw"
+                  sizes="(min-width: 1024px) 690px, 100vw"
                   className="object-cover"
                 />
               ) : (
-                <span className="absolute inset-0 flex items-center justify-center font-display text-lead font-semibold">
+                <span className="absolute inset-0 flex items-center justify-center text-lead font-semibold">
                   {branch.city}
                 </span>
               )}
@@ -85,8 +89,8 @@ export async function BranchCards() {
 function PinIcon() {
   return (
     <svg
-      width="20"
-      height="20"
+      width="24"
+      height="24"
       viewBox="0 0 20 20"
       fill="none"
       aria-hidden="true"
@@ -106,8 +110,8 @@ function PinIcon() {
 function ClockIcon() {
   return (
     <svg
-      width="20"
-      height="20"
+      width="24"
+      height="24"
       viewBox="0 0 20 20"
       fill="none"
       aria-hidden="true"

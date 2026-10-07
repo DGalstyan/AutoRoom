@@ -28,12 +28,21 @@ describe('BrandLogo', () => {
     expect(img).toHaveAttribute('src', 'https://cdn.example.com/light.png');
   });
 
-  it('falls back to logoDarkUrl if only that variant was uploaded', () => {
+  it('does not put dark-ink artwork on a dark surface: with only logoDarkUrl uploaded it keeps the bundled white mark', () => {
     renderWithLocale(
       <BrandLogo logo={{ logoLightUrl: null, logoDarkUrl: 'https://cdn.example.com/dark.png' }} />,
     );
-    const img = screen.getByAltText(brand);
-    expect(img).toHaveAttribute('src', 'https://cdn.example.com/dark.png');
+    expect(screen.getByAltText(brand)).toHaveAttribute('src', '/brand/logo-mark.svg');
+  });
+
+  it('uses the uploaded dark-ink artwork on light surfaces (tone="light")', () => {
+    renderWithLocale(
+      <BrandLogo
+        tone="light"
+        logo={{ logoLightUrl: null, logoDarkUrl: 'https://cdn.example.com/dark.png' }}
+      />,
+    );
+    expect(screen.getByAltText(brand)).toHaveAttribute('src', 'https://cdn.example.com/dark.png');
   });
 
   it('still falls back to the bundled mark when both admin fields are null', () => {

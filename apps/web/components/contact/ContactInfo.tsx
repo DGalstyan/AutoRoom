@@ -62,7 +62,7 @@ export async function ContactInfo() {
   const messengerLinks = configuredMessengers(messengers);
 
   return (
-    <div className="rounded-xl bg-white p-9 shadow-card">
+    <div className="flex flex-col justify-center rounded-xl bg-white p-9 shadow-card">
       <h1 className="font-display text-home-card-title font-bold text-ink">{t.heading}</h1>
 
       <ul className="mt-4 space-y-4">

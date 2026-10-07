@@ -21,10 +21,10 @@ export async function TeamSection({ members }: { members: TeamMember[] }) {
 
   return (
     <div>
-      <h2 className="font-display text-home-h2 font-light text-ink">
+      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-neutral-800 sm:text-home-h2 sm:leading-[58px]">
         {messages.about.team.heading}
       </h2>
-      <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-3 lg:gap-y-6">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-x-3 lg:gap-y-6">
         {members.map((member) => (
           <TeamCard key={member.id} member={member} />
         ))}
@@ -55,10 +55,8 @@ function TeamCard({ member }: { member: TeamMember }) {
         className="absolute flex flex-col gap-[2px]"
         style={{ left: '4.893%', top: '85.714%', width: '50.765%', transform: 'translateY(-16px)' }}
       >
-        <p className="font-display text-[16px] font-bold leading-[20px] text-white">
-          {member.name}
-        </p>
-        <p className="pt-[5px] font-display text-[16px] font-normal leading-[24px] text-white">
+        <p className="stretch-97 text-[16px] font-bold leading-[20px] text-white">{member.name}</p>
+        <p className="stretch-97 pt-[5px] text-[16px] font-normal leading-[24px] text-white">
           {member.title}
         </p>
       </div>

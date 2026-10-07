@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
  * ends — drawn with two inset shadows, which follow the pill's curvature.
  */
 const CLASSES =
-  'group inline-flex h-16 min-w-[160px] shrink-0 items-center justify-center gap-1 rounded-pill ' +
+  'group inline-flex h-16 max-w-full min-w-[160px] shrink-0 items-center text-center sm:whitespace-nowrap justify-center gap-1 rounded-pill ' +
   'bg-gradient-to-b from-[#060606] to-[#141414] px-8 text-[20px] leading-7 text-white ' +
   'shadow-[inset_0_1px_0_rgba(255,255,255,0.38),inset_0_-1px_0_rgba(255,255,255,0.28)] ' +
   'transition-[background,box-shadow,transform] duration-standard ease-expo ' +

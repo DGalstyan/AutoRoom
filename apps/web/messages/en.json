@@ -694,7 +694,8 @@
         "submitFailed": "We couldn’t send your request. Please try again or call us.",
         "nameInvalid": "The name must contain letters"
       },
-      "requiredHint": "* required fields"
+      "requiredHint": "* required fields",
+      "addComment": "Add a comment"
     },
     "branches": {
       "heading": "Branches",

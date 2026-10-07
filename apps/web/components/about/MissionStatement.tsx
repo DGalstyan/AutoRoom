@@ -52,9 +52,9 @@ export function MissionStatement() {
   return (
     <section
       ref={sectionRef}
-      className="flex min-h-[500px] items-center bg-ink px-6 py-24 sm:px-12"
+      className="flex items-start justify-center bg-ink px-4 py-16 sm:px-6 lg:min-h-[500px] lg:px-12 lg:py-[110px]"
     >
-      <p className="mx-auto max-w-4xl text-center font-display text-[36px] font-semibold leading-[56px] text-neutral-700">
+      <p className="stretch-85 mx-auto max-w-[1344px] text-center text-[22px] font-semibold leading-[34px] text-neutral-700 sm:text-[28px] sm:leading-[42px] lg:text-[36px] lg:leading-[56px]">
         {words.map((word, index) => (
           <span
             key={`${word}-${index}`}

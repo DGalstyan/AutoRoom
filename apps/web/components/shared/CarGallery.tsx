@@ -136,7 +136,7 @@ export function CarGallery({
             <div
               ref={stripRef}
               onScroll={updateScrollAffordance}
-              className="flex h-[86px] items-center gap-3 overflow-x-auto"
+              className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:flex lg:h-[86px] lg:items-center lg:gap-3 lg:overflow-x-auto"
             >
               {albumImages.map((image, index) => (
                 <button
@@ -144,7 +144,7 @@ export function CarGallery({
                   type="button"
                   onClick={() => selectThumbnail(index)}
                   aria-label={interpolate(t.photoLabel, { n: String(index + 1) })}
-                  className={`relative h-[86px] w-[154px] shrink-0 overflow-hidden rounded-[16px] bg-neutral-800 ${
+                  className={`relative aspect-[154/86] w-full overflow-hidden rounded-[12px] bg-neutral-800 lg:h-[86px] lg:w-[154px] lg:shrink-0 lg:rounded-[16px] ${
                     !showColorOverride && index === activeIndex
                       ? 'border-[3px] border-neutral-900'
                       : ''
@@ -159,7 +159,7 @@ export function CarGallery({
                 type="button"
                 onClick={scrollStripRight}
                 aria-label={t.scrollThumbnails}
-                className="absolute right-0 top-0 flex h-[86px] w-[170px] items-center justify-center bg-gradient-to-r from-surface-light/0 to-surface-light to-[91%]"
+                className="absolute right-0 top-0 hidden h-[86px] w-[170px] items-center justify-center bg-gradient-to-r from-surface-light/0 to-surface-light to-[91%] lg:flex"
               >
                 <span className="flex size-6 items-center justify-center rounded-full bg-white text-neutral-800 shadow-card">
                   <ArrowRightGlyph />

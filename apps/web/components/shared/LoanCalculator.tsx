@@ -73,7 +73,7 @@ export function LoanCalculator({
               step={step}
               value={clamped}
               onChange={(event) => setDownPayment(Number(event.target.value))}
-              className="h-[9px] w-full appearance-none rounded-pill bg-neutral-25 accent-accent"
+              className="h-6 w-full appearance-none bg-transparent accent-accent [&::-moz-range-thumb]:size-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-accent [&::-moz-range-track]:h-[9px] [&::-moz-range-track]:rounded-pill [&::-moz-range-track]:bg-neutral-25 [&::-webkit-slider-runnable-track]:h-[9px] [&::-webkit-slider-runnable-track]:rounded-pill [&::-webkit-slider-runnable-track]:bg-neutral-25 [&::-webkit-slider-thumb]:-mt-[7.5px] [&::-webkit-slider-thumb]:size-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent"
               aria-label={t.downPayment}
             />
             <div className="flex justify-between text-[12px] text-neutral-700">
