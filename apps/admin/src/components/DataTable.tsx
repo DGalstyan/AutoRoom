@@ -311,7 +311,11 @@ export function DataTable<T>({
           onRowsPerPageChange={(event) =>
             pagination.onRowsPerPageChange(Number(event.target.value))
           }
-          rowsPerPageOptions={[10, 25, 50, 100]}
+          rowsPerPageOptions={stacked ? [] : [10, 25, 50, 100]}
+          sx={{
+            // The "Rows per page" control pushes the bar wider than a phone; hide it there.
+            '.MuiTablePagination-toolbar': { flexWrap: 'wrap', justifyContent: 'center' },
+          }}
         />
       )}
     </Paper>

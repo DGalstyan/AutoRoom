@@ -241,7 +241,7 @@ function NumberInput({
   prefix?: string;
 }) {
   return (
-    <div className="flex h-9 items-center gap-1 rounded-pill bg-neutral-25 px-3">
+    <div className="flex h-11 items-center gap-1 rounded-pill bg-neutral-25 px-3 sm:h-9">
       {prefix && <span className="text-[12px] text-neutral-600">{prefix}</span>}
       <input
         {...a11y}
@@ -249,7 +249,7 @@ function NumberInput({
         min={0}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full bg-transparent text-[12px] font-medium text-neutral-800 outline-none"
+        className="h-full w-full bg-transparent text-[12px] font-medium text-neutral-800 outline-none"
       />
     </div>
   );

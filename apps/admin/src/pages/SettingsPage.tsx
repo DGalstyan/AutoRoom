@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Alert, Box, CircularProgress, Tab, Tabs, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Tab,
+  Tabs,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useSettings } from '@/pages/settings/useSettingSection';
@@ -29,6 +39,8 @@ const TABS: { key: TabKey; label: string }[] = [
  * exist.
  */
 export function SettingsPage() {
+  const theme = useTheme();
+  const narrow = useMediaQuery(theme.breakpoints.down('sm'));
   const { identity } = useAuth();
   const [tab, setTab] = useState<TabKey>('branding');
 
@@ -50,17 +62,40 @@ export function SettingsPage() {
         </Alert>
       )}
 
-      <Tabs
-        value={tab}
-        onChange={(_event, value: TabKey) => setTab(value)}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
-      >
-        {TABS.map((entry) => (
-          <Tab key={entry.key} label={entry.label} value={entry.key} />
-        ))}
-      </Tabs>
+      {narrow ? (
+        // A scrolling tab strip is sideways scrolling; on phones the sections wrap as buttons instead.
+        <Box
+          role="tablist"
+          aria-label="Settings sections"
+          sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}
+        >
+          {TABS.map((entry) => (
+            <Button
+              key={entry.key}
+              role="tab"
+              aria-selected={tab === entry.key}
+              variant={tab === entry.key ? 'contained' : 'outlined'}
+              color={tab === entry.key ? 'primary' : 'inherit'}
+              onClick={() => setTab(entry.key)}
+              sx={{ minHeight: 44, flex: '1 1 auto' }}
+            >
+              {entry.label}
+            </Button>
+          ))}
+        </Box>
+      ) : (
+        <Tabs
+          value={tab}
+          onChange={(_event, value: TabKey) => setTab(value)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+        >
+          {TABS.map((entry) => (
+            <Tab key={entry.key} label={entry.label} value={entry.key} />
+          ))}
+        </Tabs>
+      )}
 
       {settingsQuery.isPending ? (
         <Box sx={{ display: 'grid', placeItems: 'center', py: 10 }}>
