@@ -1,6 +1,6 @@
 {
   "common": {
-    "brand": "AvtoRoom",
+    "brand": "AutoRoom",
     "loading": "Loading…",
     "errorHeading": "Something went wrong",
     "errorRetry": "Try again",
@@ -361,7 +361,7 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "AvtoRoom",
+      "eyebrow": "AutoRoom",
       "h1": "We import cars from the USA, China, Europe and other international markets",
       "stats": [
         {
@@ -600,6 +600,42 @@
       "heading": "Your next car is already in China — let's get started",
       "text": "Leave your details, get an offer",
       "cta": "Get started"
+    },
+    "services": {
+      "label": "Our services",
+      "import": {
+        "eyebrow": "Bringing vehicles from trusted international markets directly to you.",
+        "title": "Car import"
+      },
+      "auctions": {
+        "title": ["International", "Auctions"],
+        "text": "Access international vehicle auctions and discover cars that match your requirements."
+      },
+      "logistics": {
+        "title": "Logistics",
+        "text": ["From origin", "to destination."]
+      },
+      "customs": {
+        "title": "Customs clearance",
+        "text": ["Clear process.", "Smooth arrival."]
+      },
+      "chinese": {
+        "title": "Chinese cars",
+        "text": ["Modern technology.", "Intelligent design.", "Global availability."]
+      },
+      "financing": {
+        "title": "Financing",
+        "text": ["Flexible financing options for your next vehicle.", "Drive now."]
+      },
+      "b2b": {
+        "eyebrow": "Built for business.",
+        "title": "B2B Partnerships"
+      },
+      "shipping": {
+        "title": "International shipping",
+        "text": ["Vehicle secured.", "Route planned.", "Delivery coordinated."]
+      },
+      "availability": "24/7"
     }
   },
   "about": {

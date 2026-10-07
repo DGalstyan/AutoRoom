@@ -1,87 +1,59 @@
-import Image from 'next/image';
+import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
 
+/** Visible heights of the connectors between the five numbered steps (Figma 438:1344–1353). */
+const CONNECTOR_HEIGHTS = [48, 54, 46, 60];
+
 /**
- * China S4b — "Ինչո՞ւ Չինաստանից պատվիրել AutoRoom-ի միջոցով": a light
- * section (heading + photo/glass-panel checklist, same treatment as the
- * Homepage Ecosystem section — Figma node 101:437/101:440, verified via
- * get_metadata) followed by a full-bleed dark numbered 01–05 feature list
- * (node 101:450, `w-full` at the page's own width in Figma, not
- * container-constrained). Manages its own section wrappers rather than
- * being dropped inside `<Section>`, since the second half deliberately
- * breaks out of the page's usual 1280px column.
- * The photo (980px) is only 72.917% of Figma's 1344px content column, not
- * full-bleed — same fix as the Homepage ecosystem panel (110:517/110:520):
- * the glass panel's `right-0` is anchored to this whole wrapper, not the
- * photo itself, so shrinking the photo lets the panel sit mostly past its
- * right edge instead of being capped flush with it.
+ * China "why order through AutoRoom" — the black numbered 01–05 feature list
+ * (Figma `Text` 438:1339): 110px/48px padding, a 60px number rail and 760px
+ * glass cards 40px apart, centred on the page. The light photo/checklist panel
+ * that used to sit above it is not in the current design.
  */
 export async function ChinaWhyOrder() {
   const { messages } = await getServerMessages();
   const t = messages.china.whyOrder;
 
   return (
-    <>
-      <section className="bg-surface-light px-4 py-14 text-ink sm:px-6 sm:py-24">
-        <div className="mx-auto flex max-w-container flex-col gap-14">
-          <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+    <section
+      aria-label={t.heading}
+      className="flex justify-center bg-ink px-4 py-[70px] sm:px-12 sm:py-[110px]"
+    >
+      <div className="flex w-full max-w-[860px] gap-4 sm:gap-10">
+        <ol className="flex w-[50px] shrink-0 flex-col items-center gap-[7px] pt-[35px] sm:w-[60px]">
+          {t.features.map((feature, index) => (
+            <li key={feature.title} className="contents">
+              <span className="flex size-[50px] items-center justify-center rounded-full bg-white/10 text-[16px] font-medium text-white">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              {index < t.features.length - 1 && (
+                <span
+                  className="-my-px w-[2px] rounded-full bg-neutral-700"
+                  style={{ height: CONNECTOR_HEIGHTS[index] + 2 }}
+                  aria-hidden="true"
+                />
+              )}
+            </li>
+          ))}
+        </ol>
 
-          <div className="relative overflow-visible rounded-[32px]">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
-              <Image
-                src="/images/china/ecosystem-strip.jpg"
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 980px, 100vw"
-                className="object-cover"
-              />
-              <div
-                className="absolute inset-0 bg-gradient-to-b from-black/0 to-[95.372%] to-black/[0.89]"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4">
-              <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
-                {t.ecosystem.map((item) => (
-                  <li key={item} className="text-home-label font-normal leading-[28px] text-ink">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="flex justify-center bg-ink px-6 py-[70px] sm:px-12 sm:py-[110px]">
-        <div className="flex w-full max-w-[860px] gap-6 sm:gap-10">
-          <ol className="flex shrink-0 flex-col items-center gap-[7px] pt-[35px]">
-            {t.features.map((feature, index) => (
-              <li key={feature.title} className="contents">
-                <span className="flex size-[50px] items-center justify-center rounded-full bg-white/10 text-[16px] font-medium text-white">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                {index < t.features.length - 1 && (
-                  <span className="h-12 w-px bg-white/20" aria-hidden="true" />
-                )}
-              </li>
-            ))}
-          </ol>
-
-          <div className="flex flex-1 flex-col gap-3">
-            {t.features.map((feature) => (
-              <div key={feature.title} className="rounded-[20px] bg-white/10 p-4">
-                <p className="text-[16px] font-bold leading-[24px] text-white">{feature.title}</p>
+        <div className="flex min-w-0 flex-1 flex-col gap-3">
+          {t.features.map((feature, index) => (
+            <Reveal key={feature.title} delayMs={index * 60}>
+              <div className="rounded-[20px] bg-white/10 p-4">
+                <h3 className="stretch-90 text-[16px] font-bold leading-[24px] text-white">
+                  {feature.title}
+                </h3>
                 <div className="mt-3 text-[12px] leading-[16px] text-neutral-50">
                   {feature.text.map((paragraph) => (
                     <p key={paragraph}>{paragraph}</p>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
+            </Reveal>
+          ))}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

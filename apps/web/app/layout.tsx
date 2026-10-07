@@ -39,7 +39,7 @@ const notoSansArmenian = Noto_Sans_Armenian({
 });
 
 export const metadata: Metadata = {
-  title: 'AvtoRoom — Ավտոմեքենաների ներմուծում ԱՄՆ-ից և Չինաստանից',
+  title: 'AutoRoom — Ավտոմեքենաների ներմուծում ԱՄՆ-ից և Չինաստանից',
   description:
     'Ներմուծում ենք ավտոմեքենաներ ԱՄՆ-ից, Չինաստանից, Եվրոպայից և այլ միջազգային շուկաներից։',
 };

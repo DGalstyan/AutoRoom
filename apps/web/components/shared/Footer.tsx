@@ -73,7 +73,7 @@ export async function Footer({
 
   const legal = (
     <div className="text-[12px] leading-[1.4] text-[#8f9fa3]">
-      <p>{footer.rights.includes('©') ? footer.rights : `© ${year} Autoroom — ${footer.rights}`}</p>
+      <p>{footer.rights.includes('©') ? footer.rights : `© ${year} AutoRoom — ${footer.rights}`}</p>
       <p className="mt-1 flex flex-wrap gap-x-4">
         <Link href="/privacy" className="inline-flex min-h-6 items-center hover:text-white">
           {footer.privacyPolicy}

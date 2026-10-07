@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { Section } from '@/components/ui/Section';
 import { CarCard } from '@/components/shared/CarCard';
 import { ChinaFilters } from '@/components/china/ChinaFilters';
 import { ChinaFinancing } from '@/components/china/ChinaFinancing';
 import { ChinaWhyOrder } from '@/components/china/ChinaWhyOrder';
+import { ChinaServices } from '@/components/china/ChinaServices';
 import { ChinaFaq } from '@/components/china/ChinaFaq';
 import { ChinaFinalCta } from '@/components/china/ChinaFinalCta';
 import { listCars, listMakeModelFacets } from '@/lib/cars';
@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   description:
     'Ընտրիր և պատվիրիր մեքենա Չինաստանից AutoRoom-ի միջոցով՝ թափանցիկ գնագոյացմամբ, ֆինանսավորմամբ և ամբողջական ուղեկցումով մինչև հանձնում։',
 };
+
+/** The design's 1344px column inside 48px gutters (Figma 1440 canvas). */
+const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
 
 const CONDITIONS: readonly CarCondition[] = ['IN_STOCK', 'ON_ORDER', 'ON_ROAD', 'AUCTION'];
 
@@ -63,38 +66,39 @@ export default async function ChinaPage({
     <>
       {/* The design has no visible page title here; keep one h1 for the document outline. */}
       <h1 className="sr-only">{messages.common.nav.china}</h1>
-      {/* pt-32/pt-40 clears the fixed pill header (Header.tsx, `fixed` +
-          `top-9`/`top-2`) — the Homepage gets this for free from its hero's
-          own pt-36/pt-44, but this page's first section has no hero to
-          borrow that clearance from. */}
-      <Section tone="light" className="pb-0 pt-32 sm:pt-40">
+      {/* pt-32 (156px from `sm`, per Figma) clears the fixed pill header — the
+          Homepage gets this from its hero's own padding, this page has no hero. */}
+      <section className={`${COLUMN} bg-surface-light pt-32 text-ink sm:pt-[156px]`}>
         <ChinaFilters makeModels={makeModels} total={total} />
-      </Section>
+      </section>
 
-      {/* pt override: Figma has this grid sitting just 5px below the filter
-          bar above it, not the Section default's full 56/96px top rhythm —
-          bottom padding keeps that default since nothing here overrides it. */}
-      <Section tone="light" className="pt-[5px] sm:pt-[5px]">
+      <section className={`${COLUMN} bg-surface-light text-ink`}>
         {cars.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
             {cars.map((car, index) => (
-              <CarCard key={car.id} car={car} priority={index === 0} />
+              <CarCard key={car.id} car={car} priority={index === 0} badgesEnd />
             ))}
           </div>
         ) : (
           <p className="py-16 text-center text-lead text-muted">{messages.china.empty}</p>
         )}
-      </Section>
+      </section>
 
-      <Section tone="light">
+      <section className={`${COLUMN} bg-surface-light pt-16 text-ink lg:pt-[150px]`}>
         <ChinaFinancing banks={banks} />
-      </Section>
+      </section>
+
+      <div className="bg-surface-light pt-16 lg:pt-[150px]">
+        <ChinaServices />
+      </div>
 
       <ChinaWhyOrder />
 
-      <Section tone="light">
-        <ChinaFaq />
-      </Section>
+      <section className="bg-surface-light py-14 text-ink lg:pb-[134px] lg:pt-[83px]">
+        <div className="mx-auto max-w-container px-4 sm:px-6">
+          <ChinaFaq />
+        </div>
+      </section>
 
       <ChinaFinalCta />
     </>

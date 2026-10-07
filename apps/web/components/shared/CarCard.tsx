@@ -39,7 +39,16 @@ import { CarCompareToggle } from '@/components/shared/CarCompareToggle';
  * styled to match the existing condition/financing pills rather than a new
  * pixel spec.
  */
-export async function CarCard({ car, priority = false }: { car: CarSummary; priority?: boolean }) {
+export async function CarCard({
+  car,
+  priority = false,
+  badgesEnd = false,
+}: {
+  car: CarSummary;
+  priority?: boolean;
+  /** China listing (Figma 438:1181): badges sit at the card's top-right and the title is regular weight. */
+  badgesEnd?: boolean;
+}) {
   const { messages } = await getServerMessages();
   const t = messages.common.carCard;
   const compareT = messages.common.compare;
@@ -83,7 +92,7 @@ export async function CarCard({ car, priority = false }: { car: CarSummary; prio
       />
 
       <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6">
-        <div className="flex flex-wrap items-center gap-[5px]">
+        <div className={`flex flex-wrap items-center gap-[5px] ${badgesEnd ? 'justify-end' : ''}`}>
           {isPromo ? (
             <>
               <span
@@ -140,7 +149,9 @@ export async function CarCard({ car, priority = false }: { car: CarSummary; prio
         </div>
 
         <div className="flex flex-col items-start gap-[10px]">
-          <p className="font-display text-[24px] font-light leading-[36px] text-white">
+          <p
+            className={`font-display text-[24px] leading-[36px] text-white ${badgesEnd ? 'font-normal' : 'font-light'}`}
+          >
             {car.make} {car.model}
           </p>
           <div className="flex w-full items-center justify-between gap-3">
