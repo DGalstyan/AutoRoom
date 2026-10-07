@@ -22,7 +22,13 @@ import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DataTable } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
-import { MEETING_FORMAT_LABEL, STATUSES, statusTone } from '@/pages/leads/status';
+import {
+  MEETING_FORMAT_LABEL,
+  STATUSES,
+  meetingStatusTone,
+  statusTone,
+} from '@/pages/leads/status';
+import { MeetingDialog } from '@/pages/leads/MeetingDialog';
 import { formatDateTime } from '@/pages/availability/time';
 
 /** Matches `NotificationBell`'s own polling cadence. */
@@ -57,14 +63,21 @@ export function LeadsPage() {
   const [scope, setScope] = useState<'all' | 'meetings'>('all');
   const [menu, setMenu] = useState<{ anchor: HTMLElement; lead: Lead } | null>(null);
   const [deleting, setDeleting] = useState<Lead | null>(null);
+  const [managing, setManaging] = useState<Lead | null>(null);
 
   const canUpdate = identity?.permissions.includes('leads:UPDATE') ?? false;
   const canDelete = identity?.permissions.includes('leads:DELETE') ?? false;
   const canReadBranches = identity?.permissions.includes('branches:READ') ?? false;
 
   const leadsQuery = useQuery({
-    queryKey: ['leads', status],
-    queryFn: () => api.leads.list({ ...(status ? { status } : {}), take: 100 }),
+    queryKey: ['leads', status, scope],
+    queryFn: () =>
+      api.leads.list({
+        ...(status ? { status } : {}),
+        // The meetings scope reads the diary view: only meeting requests, soonest first.
+        ...(scope === 'meetings' ? { meeting: true } : {}),
+        take: 100,
+      }),
     refetchInterval: POLL_INTERVAL_MS,
   });
 
@@ -109,24 +122,9 @@ export function LeadsPage() {
   // re-run the new-lead-detection effect below needlessly.
   const leads = useMemo(() => leadsQuery.data?.items ?? [], [leadsQuery.data]);
 
-  // The "Dealer meetings" scope is a client-side view onto the same data,
-  // not a separate API query: a dealer-meeting submission is still just a
-  // Lead (see `apps/api/src/routes/leads.ts`'s own doc comment on why this
-  // is a Lead, not a Booking) with `meetingFormat` set, and re-querying
-  // would only duplicate the polling this page already does. Sorted by
-  // `meetingAt` ascending here — soonest meeting first — deliberately
-  // different from the table's default `createdAt` descending, since
-  // "what's coming up" is the question this scope exists to answer.
-  const displayedLeads = useMemo(() => {
-    if (scope === 'all') return leads;
-    return leads
-      .filter((lead) => lead.meetingFormat !== null)
-      .sort((a, b) => {
-        if (!a.meetingAt) return 1;
-        if (!b.meetingAt) return -1;
-        return new Date(a.meetingAt).getTime() - new Date(b.meetingAt).getTime();
-      });
-  }, [leads, scope]);
+  // The "Dealer meetings" scope is a server-side view (`GET /leads?meeting=true`,
+  // soonest meeting first) — see `apps/api/src/routes/leads.ts`.
+  const displayedLeads = leads;
 
   // Reset new-lead tracking whenever the status filter changes — a row
   // that's merely new-to-this-view (a filter switch) must never fire the
@@ -333,8 +331,19 @@ export function LeadsPage() {
             ),
           },
           {
+            key: 'meetingStatus',
+            header: 'Meeting status',
+            hidden: scope === 'all',
+            render: (lead) => {
+              if (!lead.meetingStatus) return null;
+              const entry = meetingStatusTone(lead.meetingStatus);
+              return <StatusBadge label={entry.label} tone={entry.tone} />;
+            },
+          },
+          {
             key: 'status',
             header: 'Status',
+            hidden: scope === 'meetings',
             render: (lead) => {
               const entry = statusTone(lead.status);
               return <StatusBadge label={entry.label} tone={entry.tone} />;
@@ -361,6 +370,16 @@ export function LeadsPage() {
       />
 
       <Menu anchorEl={menu?.anchor} open={Boolean(menu)} onClose={() => setMenu(null)}>
+        {canUpdate && menu?.lead.meetingStatus && menu.lead.meetingStatus !== 'COMPLETED' && (
+          <MenuItem
+            onClick={() => {
+              setManaging(menu.lead);
+              setMenu(null);
+            }}
+          >
+            Manage meeting…
+          </MenuItem>
+        )}
         {canUpdate &&
           menu &&
           STATUSES.filter((entry) => entry.value !== menu.lead.status).map((entry) => (
@@ -386,6 +405,12 @@ export function LeadsPage() {
           </MenuItem>
         )}
       </Menu>
+
+      <MeetingDialog
+        lead={managing}
+        onClose={() => setManaging(null)}
+        onDone={() => void refresh()}
+      />
 
       <ConfirmDialog
         open={Boolean(deleting)}

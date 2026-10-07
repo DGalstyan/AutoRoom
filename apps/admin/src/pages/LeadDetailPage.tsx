@@ -26,7 +26,13 @@ import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { StatusBadge } from '@/components/StatusBadge';
-import { MEETING_FORMAT_LABEL, STATUSES, statusTone } from '@/pages/leads/status';
+import {
+  MEETING_FORMAT_LABEL,
+  STATUSES,
+  meetingStatusTone,
+  statusTone,
+} from '@/pages/leads/status';
+import { MeetingDialog } from '@/pages/leads/MeetingDialog';
 import { formatDateTime } from '@/pages/availability/time';
 import { mono } from '@/theme';
 
@@ -47,6 +53,7 @@ export function LeadDetailPage() {
   const [notes, setNotes] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [managingMeeting, setManagingMeeting] = useState(false);
 
   const canUpdate = identity?.permissions.includes('leads:UPDATE') ?? false;
   const canDelete = identity?.permissions.includes('leads:DELETE') ?? false;
@@ -239,11 +246,37 @@ export function LeadDetailPage() {
 
         {lead.meetingFormat && (
           <Paper variant="outlined" sx={{ borderRadius: 3, p: 3 }}>
-            <Typography sx={{ fontWeight: 600, mb: 2 }}>Dealer meeting</Typography>
+            <Stack
+              direction="row"
+              sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 2, gap: 1 }}
+            >
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                <Typography sx={{ fontWeight: 600 }}>Dealer meeting</Typography>
+                {lead.meetingStatus && (
+                  <StatusBadge
+                    label={meetingStatusTone(lead.meetingStatus).label}
+                    tone={meetingStatusTone(lead.meetingStatus).tone}
+                  />
+                )}
+              </Stack>
+              {canUpdate && lead.meetingStatus && lead.meetingStatus !== 'COMPLETED' && (
+                <Button size="small" variant="outlined" onClick={() => setManagingMeeting(true)}>
+                  Manage meeting
+                </Button>
+              )}
+            </Stack>
             <Stack spacing={1.5}>
               <Field
                 label="When"
                 value={lead.meetingAt ? formatDateTime(lead.meetingAt) : 'No time set'}
+              />
+              {lead.meetingPreviousAt && (
+                <Field label="Moved from" value={formatDateTime(lead.meetingPreviousAt)} />
+              )}
+              {lead.meetingNote && <Field label="Note to dealer" value={lead.meetingNote} />}
+              <Field
+                label="Phone"
+                value={lead.phoneVerifiedAt ? `${lead.phone} · verified by SMS` : lead.phone}
               />
               <Field
                 label="Format"
@@ -337,6 +370,15 @@ export function LeadDetailPage() {
           </Box>
         )}
       </Stack>
+
+      <MeetingDialog
+        lead={managingMeeting ? lead : null}
+        onClose={() => setManagingMeeting(false)}
+        onDone={(updated) => {
+          queryClient.setQueryData(['lead', id], updated);
+          void queryClient.invalidateQueries({ queryKey: ['leads'] });
+        }}
+      />
 
       <ConfirmDialog
         open={deleting}

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { LeadStatus, MeetingFormat, Prisma, UserStatus } from '@prisma/client';
+import { LeadStatus, MeetingFormat, MeetingStatus, Prisma, UserStatus } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict, notFound } from '../lib/errors';
@@ -9,6 +9,12 @@ import { validateBody, validateQuery } from '../middleware/validate';
 import { countHolders, SLOT_TAKEN_MESSAGE } from '../services/availability';
 import { generateTemporaryPassword, hashPassword } from '../lib/password';
 import { serializePartner } from './partners';
+import { sendSms } from '../lib/sms';
+import {
+  isPhoneProofValid,
+  normalizePhone,
+  phoneVerificationRequired,
+} from '../services/phoneVerification';
 
 /**
  * Leads — every submission from the public site's lead-capture entry points
@@ -101,6 +107,9 @@ const createLeadBodySchema = z
     meetingSlotId: z.string().min(1).optional(),
     meetingBranchId: z.string().min(1).optional(),
     meetingAddress: optionalText(300),
+    /** Proof from `POST /phone-verifications/confirm` — required for a meeting
+     * request while `PHONE_VERIFICATION=required`. */
+    phoneVerificationToken: z.string().min(10).max(2000).optional(),
 
     sourcePage: z.string().trim().min(1).max(200),
     sourceCta: z.string().trim().min(1).max(200),
@@ -138,6 +147,13 @@ const createLeadBodySchema = z
 
 const listQuerySchema = z.object({
   status: z.nativeEnum(LeadStatus).optional(),
+  /** Only leads that asked for a meeting, optionally narrowed to one status —
+   * the admin's "Dealer meetings" screen. */
+  meeting: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .optional(),
+  meetingStatus: z.nativeEnum(MeetingStatus).optional(),
   take: z.coerce.number().int().min(1).max(200).default(50),
   skip: z.coerce.number().int().min(0).default(0),
 });
@@ -160,6 +176,16 @@ const convertToPartnerBodySchema = z.object({
 leadsRouter.post('/leads', validateBody(createLeadBodySchema), async (req, res) => {
   const body = req.body as z.infer<typeof createLeadBodySchema>;
   const meetingAt = await resolveMeeting(body);
+
+  // The SMS-code check guards the one form that books staff time. Other widgets
+  // stay frictionless: a wrong number there costs a missed callback, not a diary slot.
+  const phoneVerified = isPhoneProofValid(body.phoneVerificationToken, body.phone);
+  if (meetingAt && phoneVerificationRequired() && !phoneVerified) {
+    throw badRequest('Confirm your phone number with the SMS code first', {
+      code: 'PHONE_NOT_VERIFIED',
+    });
+  }
+
   const lead = await prisma.lead.create({
     data: {
       name: body.name,
@@ -187,6 +213,8 @@ leadsRouter.post('/leads', validateBody(createLeadBodySchema), async (req, res) 
       meetingSlotId: body.meetingSlotId ?? null,
       meetingBranchId: body.meetingBranchId ?? null,
       meetingAddress: body.meetingAddress ?? null,
+      meetingStatus: meetingAt ? MeetingStatus.PENDING : null,
+      phoneVerifiedAt: phoneVerified ? new Date() : null,
       sourcePage: body.sourcePage,
       sourceCta: body.sourceCta,
       locale: body.locale,
@@ -203,11 +231,22 @@ leadsRouter.get(
   requirePermission('leads', 'READ'),
   validateQuery(listQuerySchema),
   async (req, res) => {
-    const { status, take, skip } = req.query as unknown as z.infer<typeof listQuerySchema>;
-    const where = status ? { status } : {};
+    const { status, meeting, meetingStatus, take, skip } = req.query as unknown as z.infer<
+      typeof listQuerySchema
+    >;
+    const where: Prisma.LeadWhereInput = {
+      ...(status ? { status } : {}),
+      ...(meetingStatus ? { meetingStatus } : meeting ? { meetingStatus: { not: null } } : {}),
+    };
 
     const [items, total] = await Promise.all([
-      prisma.lead.findMany({ where, orderBy: { createdAt: 'desc' }, take, skip }),
+      prisma.lead.findMany({
+        where,
+        // The meetings screen reads as a diary: soonest first. Everything else is newest first.
+        orderBy: meeting || meetingStatus ? { meetingAt: 'asc' } : { createdAt: 'desc' },
+        take,
+        skip,
+      }),
       prisma.lead.count({ where }),
     ]);
 
@@ -241,6 +280,134 @@ leadsRouter.patch(
 
     await audit(req.auth?.userId, 'leads.update', id, { status: lead.status });
     res.json(serializeLead(lead));
+  },
+);
+
+const meetingActionBodySchema = z
+  .object({
+    action: z.enum(['confirm', 'reschedule', 'cancel', 'complete']),
+    /** Required for `reschedule`: the new time. */
+    meetingAt: z.string().datetime({ offset: true }).or(z.string().datetime()).optional(),
+    /** A line for the dealer, sent in the SMS and kept on the lead. */
+    note: optionalText(300),
+    /** Text the dealer about the change. On by default; staff can switch it off. */
+    notify: z.boolean().default(true),
+  })
+  .refine((body) => body.action !== 'reschedule' || Boolean(body.meetingAt), {
+    message: 'Pick the new meeting time',
+    path: ['meetingAt'],
+  });
+
+/** What a dealer is texted when staff act on their meeting request. */
+function meetingMessage(
+  lead: { locale: string },
+  action: 'confirm' | 'reschedule' | 'cancel',
+  at: Date,
+  note: string | null | undefined,
+): string {
+  // Yerevan wall-clock — every office and every dealer is there.
+  const when = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Yerevan',
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(at);
+  const copy = {
+    hy: {
+      confirm: `AutoRoom: ձեր հանդիպումը հաստատված է՝ ${when}։`,
+      reschedule: `AutoRoom: ձեր հանդիպումը տեղափոխվել է՝ ${when}։`,
+      cancel: 'AutoRoom: ձեր հանդիպումը չեղարկվել է։ Կապվեք մեզ հետ նոր ժամ ընտրելու համար։',
+    },
+    en: {
+      confirm: `AutoRoom: your meeting is confirmed for ${when}.`,
+      reschedule: `AutoRoom: your meeting has moved to ${when}.`,
+      cancel: 'AutoRoom: your meeting was cancelled. Contact us to pick a new time.',
+    },
+    ru: {
+      confirm: `AutoRoom: ваша встреча подтверждена на ${when}.`,
+      reschedule: `AutoRoom: ваша встреча перенесена на ${when}.`,
+      cancel: 'AutoRoom: ваша встреча отменена. Свяжитесь с нами, чтобы выбрать новое время.',
+    },
+  };
+  const base = (copy[lead.locale as keyof typeof copy] ?? copy.hy)[action];
+  return note ? `${base} ${note}` : base;
+}
+
+/**
+ * Staff action on a dealer meeting request: confirm it, move it, cancel it, or
+ * mark it done. One endpoint with an `action` rather than four, because they
+ * share the same preconditions (the lead must actually have a meeting) and the
+ * same side effects (audit entry, optional SMS to the dealer).
+ *
+ * Rescheduling keeps the old time in `meetingPreviousAt` and re-confirms at the
+ * new one. It does not claim diary capacity — only a `Booking` does — see the
+ * `Lead.meetingFormat` comment — so the new time is a plain future datetime.
+ * The text is best-effort: a gateway outage must not undo a decision staff
+ * already made, so a failed send is reported in the response instead.
+ */
+leadsRouter.patch(
+  '/leads/:id/meeting',
+  requireAuth,
+  requirePermission('leads', 'UPDATE'),
+  validateBody(meetingActionBodySchema),
+  async (req, res) => {
+    const id = String(req.params.id ?? '');
+    const body = req.body as z.infer<typeof meetingActionBodySchema>;
+
+    const existing = await prisma.lead.findUnique({ where: { id } });
+    if (!existing) throw notFound('Lead not found');
+    if (!existing.meetingAt || !existing.meetingStatus) {
+      throw badRequest('This lead did not ask for a meeting');
+    }
+    if (existing.meetingStatus === MeetingStatus.CANCELLED && body.action !== 'reschedule') {
+      throw badRequest('The meeting is cancelled. Reschedule it to bring it back.');
+    }
+    if (existing.meetingStatus === MeetingStatus.COMPLETED) {
+      throw badRequest('The meeting is already completed');
+    }
+
+    const data: Prisma.LeadUpdateInput = { meetingNote: body.note ?? null };
+    let at = existing.meetingAt;
+
+    if (body.action === 'confirm') {
+      data.meetingStatus = MeetingStatus.CONFIRMED;
+      data.meetingConfirmedAt = new Date();
+    } else if (body.action === 'reschedule') {
+      at = assertFuture(new Date(body.meetingAt as string));
+      data.meetingStatus = MeetingStatus.CONFIRMED;
+      data.meetingConfirmedAt = new Date();
+      data.meetingPreviousAt = existing.meetingAt;
+      data.meetingAt = at;
+      // The time no longer matches the published window the visitor picked.
+      data.meetingSlot = { disconnect: true };
+    } else if (body.action === 'cancel') {
+      data.meetingStatus = MeetingStatus.CANCELLED;
+    } else {
+      data.meetingStatus = MeetingStatus.COMPLETED;
+    }
+
+    const lead = await prisma.lead.update({ where: { id }, data });
+    await audit(req.auth?.userId, `leads.meeting.${body.action}`, id, {
+      meetingStatus: lead.meetingStatus,
+      meetingAt: lead.meetingAt?.toISOString(),
+    });
+
+    let notified: 'sent' | 'failed' | 'skipped' = 'skipped';
+    if (body.notify && body.action !== 'complete') {
+      try {
+        await sendSms({
+          to: normalizePhone(lead.phone),
+          text: meetingMessage(lead, body.action, at, body.note),
+        });
+        notified = 'sent';
+      } catch {
+        notified = 'failed';
+      }
+    }
+
+    res.json({ lead: serializeLead(lead), notified });
   },
 );
 
@@ -429,6 +596,11 @@ function serializeLead(lead: Prisma.LeadGetPayload<object>) {
     meetingSlotId: lead.meetingSlotId,
     meetingBranchId: lead.meetingBranchId,
     meetingAddress: lead.meetingAddress,
+    meetingStatus: lead.meetingStatus,
+    meetingNote: lead.meetingNote,
+    meetingConfirmedAt: lead.meetingConfirmedAt?.toISOString() ?? null,
+    meetingPreviousAt: lead.meetingPreviousAt?.toISOString() ?? null,
+    phoneVerifiedAt: lead.phoneVerifiedAt?.toISOString() ?? null,
     sourcePage: lead.sourcePage,
     sourceCta: lead.sourceCta,
     locale: lead.locale,

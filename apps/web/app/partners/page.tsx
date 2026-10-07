@@ -34,9 +34,11 @@ export default async function PartnersPage() {
       footer={<Footer logo={logo} contacts={contacts} />}
     >
       <PartnersHero />
-      <PartnersWhy />
-      <PartnersWhoCanJoin />
-      <PartnersPortalCta />
+      <div className="bg-surface-light">
+        <PartnersWhy />
+        <PartnersWhoCanJoin />
+        <PartnersPortalCta />
+      </div>
     </PartnersBookingProvider>
   );
 }

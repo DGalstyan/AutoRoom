@@ -44,32 +44,40 @@ export function PartnersWhy() {
     directLine,
   ] = t.items;
 
+  // No background of its own: the hero's blurred fade runs 233px into this section
+  // (Figma 441:5093), behind the tiles. The page wrapper supplies the light surface.
   return (
-    <section className="bg-surface-light px-4 py-14 sm:px-6 sm:py-24">
-      <div className="mx-auto flex max-w-container flex-col gap-14">
-        <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+    <section className="px-4 pt-14 sm:px-6 lg:px-12 lg:pt-0">
+      <div className="relative z-[1] mx-auto flex max-w-page flex-col gap-8 lg:gap-16">
+        <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+          {t.heading}
+        </h2>
 
-        <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1fr_1fr_1.39fr] lg:grid-rows-2">
-            <StatTile item={support247} size="lg" className="lg:col-start-1 lg:row-start-1" />
-            <StatTile item={specialPricing} size="lg" className="lg:col-start-2 lg:row-start-1" />
-            <HeadingTile
-              text={personalManager.title}
-              tone="gold"
-              className="lg:col-start-3 lg:row-start-1 lg:row-span-2"
-            />
-            <StatTile item={partnershipTerms} className="lg:col-start-4 lg:row-start-1" />
-            <HeadingTile
-              text={quickCalc.title}
-              tone="black"
-              className="lg:col-start-1 lg:col-span-2 lg:row-start-2"
-            />
-            <StatTile item={priorityService} className="lg:col-start-4 lg:row-start-2" />
+        {/* Figma `Group 39466`: three columns 598 | 287 | 399 with 30px gaps (the
+            `fr` units reproduce those exact widths at 1344px), then a 598 | 716 row. */}
+        <div className="flex flex-col gap-6 lg:gap-[30px]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[598fr_287fr_399fr] lg:gap-[30px]">
+            <div className="flex flex-col gap-6 lg:gap-[10px]">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <StatTile item={support247} />
+                <StatTile item={specialPricing} />
+              </div>
+              <HeadingTile
+                text={quickCalc.title}
+                tone="black"
+                className="lg:min-h-[280px] lg:flex-1"
+              />
+            </div>
+            <HeadingTile text={personalManager.title} tone="gold" />
+            <div className="flex flex-col gap-6 lg:gap-4">
+              <StatTile item={partnershipTerms} className="lg:flex-1" />
+              <StatTile item={priorityService} className="lg:flex-1" />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-6 sm:flex-row">
-            <StatTile item={technicalSupport} className="sm:w-[calc(50%-12px)] sm:shrink-0" />
-            <StatTile item={directLine} className="sm:flex-1" />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[598fr_716fr] lg:gap-[30px]">
+            <StatTile item={technicalSupport} />
+            <StatTile item={directLine} />
           </div>
         </div>
       </div>
@@ -82,37 +90,26 @@ interface WhyItem {
   text: string;
 }
 
-/** The white title+subtitle tiles — `size="lg"` for the two headline stats
- * (44px bold), regular 36px for the rest. */
-function StatTile({
-  item,
-  size = 'md',
-  className = '',
-}: {
-  item: WhyItem;
-  size?: 'lg' | 'md';
-  className?: string;
-}) {
+/** The white title+subtitle tiles (Figma `Frame 39503`, 274px tall, 34px inset). */
+function StatTile({ item, className = '' }: { item: WhyItem; className?: string }) {
   return (
     <div
-      className={`flex min-h-[274px] flex-col justify-center gap-3 rounded-[48px] bg-white p-8 lg:px-[34px] lg:py-16 ${className}`}
+      className={`flex min-h-[274px] flex-col justify-center gap-3 rounded-[48px] bg-white p-8 lg:px-[34px] ${className}`}
     >
-      <p
-        className={
-          size === 'lg'
-            ? 'font-display text-[44px] font-medium leading-[58px] text-ink'
-            : 'text-[36px] leading-[48px] text-ink'
-        }
-      >
+      <p className="stretch-90 text-[28px] leading-9 text-ink sm:text-[36px] sm:leading-[48px]">
         {item.title}
       </p>
-      {item.text && <p className="text-[24px] leading-9 text-ink">{item.text}</p>}
+      {item.text && (
+        <p className="stretch-90 text-[20px] leading-[30px] text-ink sm:text-[24px] sm:leading-9">
+          {item.text}
+        </p>
+      )}
     </div>
   );
 }
 
 /** The gold and black single-heading tiles (Personal manager / Quick
- * calculations) — no subtitle, text centered both ways. */
+ * calculations) — no subtitle, text left-aligned and centred vertically. */
 function HeadingTile({
   text,
   tone,
@@ -124,11 +121,11 @@ function HeadingTile({
 }) {
   return (
     <div
-      className={`flex min-h-[274px] items-center justify-center rounded-[48px] p-8 text-center text-[36px] leading-[48px] lg:py-16 ${
-        tone === 'gold' ? 'bg-accent text-ink lg:px-12' : 'bg-ink text-white lg:px-16'
+      className={`flex min-h-[274px] items-center justify-start rounded-[48px] p-8 text-left ${
+        tone === 'gold' ? 'bg-accent text-ink lg:pl-[55px]' : 'bg-ink text-white lg:pl-16'
       } ${className}`}
     >
-      <p>{text}</p>
+      <p className="stretch-90 text-[28px] leading-9 sm:text-[36px] sm:leading-[48px]">{text}</p>
     </div>
   );
 }

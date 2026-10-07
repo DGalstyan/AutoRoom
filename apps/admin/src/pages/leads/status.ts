@@ -1,4 +1,4 @@
-import type { LeadStatus } from '@autoroom/api/client';
+import type { LeadStatus, MeetingStatus } from '@autoroom/api/client';
 import type { StatusTone } from '@/components/StatusBadge';
 
 /**
@@ -21,3 +21,14 @@ export const MEETING_FORMAT_LABEL: Record<string, string> = {
   OFFICE: 'At our office',
   OTHER: 'Other address',
 };
+
+/** The dealer-meeting states staff move a request through. */
+export const MEETING_STATUSES: { value: MeetingStatus; label: string; tone: StatusTone }[] = [
+  { value: 'PENDING', label: 'Awaiting confirmation', tone: 'pending' },
+  { value: 'CONFIRMED', label: 'Confirmed', tone: 'live' },
+  { value: 'COMPLETED', label: 'Completed', tone: 'muted' },
+  { value: 'CANCELLED', label: 'Cancelled', tone: 'danger' },
+];
+
+export const meetingStatusTone = (status: MeetingStatus) =>
+  MEETING_STATUSES.find((entry) => entry.value === status)!;

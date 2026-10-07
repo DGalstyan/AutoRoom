@@ -1116,6 +1116,23 @@
           "November",
           "December"
         ]
+      },
+      "verify": {
+        "heading": "Confirm your phone number",
+        "text": "We sent a 6-digit code to {phone}.",
+        "codeLabel": "SMS code",
+        "confirm": "Confirm",
+        "confirming": "Checking…",
+        "resend": "Send again",
+        "resendIn": "New code in {seconds}s",
+        "change": "Change number",
+        "errors": {
+          "wrong": "That code is not right.",
+          "expired": "The code has expired. Request a new one.",
+          "sendFailed": "Could not send the code. Try again shortly.",
+          "tooMany": "Too many attempts. Try again in a few minutes.",
+          "invalidPhone": "Check the phone number."
+        }
       }
     },
     "portal": {

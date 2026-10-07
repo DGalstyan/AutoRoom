@@ -58,6 +58,28 @@ const schema = z.object({
   PUBLIC_API_URL: z.string().url().default('http://localhost:4000'),
   /** Leave unset for host-only cookies; set to share across subdomains. */
   COOKIE_DOMAIN: z.string().optional(),
+
+  /**
+   * SMS gateway. `console` (default) only logs the message and is refused in
+   * production; `http` POSTs `{ to, text, sender }` as JSON to `SMS_HTTP_URL`
+   * with `Authorization: Bearer SMS_HTTP_TOKEN` — the shape most Armenian and
+   * international gateways accept through a thin webhook. Provider-specific
+   * adapters slot into `lib/sms.ts` without touching callers.
+   */
+  SMS_PROVIDER: z.enum(['console', 'http']).default('console'),
+  SMS_HTTP_URL: z.string().url().optional(),
+  SMS_HTTP_TOKEN: z.string().optional(),
+  SMS_SENDER: z.string().max(11).default('AutoRoom'),
+  /**
+   * `required` makes a "Become a dealer" meeting request carry a verified phone
+   * (the SMS-code check). Off by default so the form keeps working until a
+   * gateway is configured.
+   */
+  PHONE_VERIFICATION: z.enum(['off', 'required']).default('off'),
+  PHONE_VERIFICATION_TTL_MINUTES: z.coerce.number().int().positive().default(10),
+  PHONE_VERIFICATION_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
+  /** Sends allowed to one phone per 15 minutes. */
+  PHONE_VERIFICATION_MAX_SENDS: z.coerce.number().int().positive().default(3),
 });
 
 const parsed = schema.safeParse(process.env);

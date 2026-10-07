@@ -37,7 +37,7 @@ export async function resetData() {
   // side effect of somebody else's cascade is a test isolation rule nobody can
   // see.
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE leads, bookings, availability_slots, payments, documents, order_stages, orders, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
+    'TRUNCATE TABLE phone_verifications, leads, bookings, availability_slots, payments, documents, order_stages, orders, car_images, cars, partners, refresh_tokens, password_reset_tokens, audit_log, users RESTART IDENTITY CASCADE',
   );
 }
 

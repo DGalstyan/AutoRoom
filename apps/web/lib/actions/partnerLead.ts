@@ -32,6 +32,8 @@ export interface PartnerLeadAnswers {
   meetingAt?: string;
   meetingBranchId?: string;
   meetingAddress?: string;
+  /** Proof from the SMS-code check (`lib/actions/phoneVerification.ts`). */
+  phoneVerificationToken?: string;
 }
 
 export interface PartnerLeadPayload {
@@ -39,7 +41,8 @@ export interface PartnerLeadPayload {
   hidden: LeadHiddenContext;
 }
 
-export type PartnerLeadResult = { ok: true } | { ok: false; reason: 'conflict' | 'error' };
+export type PartnerLeadResult =
+  { ok: true } | { ok: false; reason: 'conflict' | 'unverified' | 'error' };
 
 export async function submitPartnerLead(payload: PartnerLeadPayload): Promise<PartnerLeadResult> {
   const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
@@ -61,6 +64,7 @@ export async function submitPartnerLead(payload: PartnerLeadPayload): Promise<Pa
         meetingAt: answers.meetingAt,
         meetingBranchId: answers.meetingBranchId,
         meetingAddress: answers.meetingAddress,
+        phoneVerificationToken: answers.phoneVerificationToken,
         sourcePage: hidden.sourcePage,
         sourceCta: hidden.sourceCta,
         timestamp: hidden.timestamp,
@@ -71,6 +75,14 @@ export async function submitPartnerLead(payload: PartnerLeadPayload): Promise<Pa
 
     if (res.ok) return { ok: true };
     if (res.status === 409) return { ok: false, reason: 'conflict' };
+    if (res.status === 400) {
+      const body = (await res.json().catch(() => null)) as {
+        error?: { details?: { code?: string } };
+      } | null;
+      if (body?.error?.details?.code === 'PHONE_NOT_VERIFIED') {
+        return { ok: false, reason: 'unverified' };
+      }
+    }
     return { ok: false, reason: 'error' };
   } catch {
     return { ok: false, reason: 'error' };

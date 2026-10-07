@@ -42,3 +42,10 @@ export const passwordResetLimiter = limiter({
   limit: 5,
   message: 'Too many password reset requests. Try again later.',
 });
+
+/** Edge throttle on code sends/checks; the per-phone caps in the service are the sharper layer. */
+export const phoneVerificationLimiter = limiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  message: 'Too many verification attempts. Try again later.',
+});

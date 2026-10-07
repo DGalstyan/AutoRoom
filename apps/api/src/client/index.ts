@@ -30,6 +30,9 @@ import type {
   ImageAlbum,
   Lead,
   LeadConvertToPartnerRequest,
+  LeadMeetingActionInput,
+  LeadMeetingActionResponse,
+  MeetingStatus,
   LeadConvertToPartnerResponse,
   LeadInput,
   LeadStatus,
@@ -463,7 +466,14 @@ export function createApiClient(options: ApiClientOptions) {
      * popup, Quiz popup, and Contact page form. */
     leads: {
       list: (
-        query: { status?: LeadStatus; take?: number; skip?: number } = {},
+        query: {
+          status?: LeadStatus;
+          /** Only leads that asked for a dealer meeting, soonest first. */
+          meeting?: boolean;
+          meetingStatus?: MeetingStatus;
+          take?: number;
+          skip?: number;
+        } = {},
         init?: RequestOptions,
       ) =>
         request<{ items: Lead[]; total: number; take: number; skip: number }>(
@@ -475,6 +485,9 @@ export function createApiClient(options: ApiClientOptions) {
       updateStatus: (id: string, body: LeadUpdateInput, init?: RequestOptions) =>
         request<Lead>('PATCH', `/leads/${id}`, { ...init, body }),
       remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/leads/${id}`, init),
+      /** Confirm, reschedule, cancel or complete a dealer meeting request (`leads:UPDATE`). */
+      meeting: (id: string, body: LeadMeetingActionInput, init?: RequestOptions) =>
+        request<LeadMeetingActionResponse>('PATCH', `/leads/${id}/meeting`, { ...init, body }),
       /** Unauthenticated — this is how every site visitor's browser reaches
        * this API: not directly (see `leads.ts`'s doc comment for why), but
        * `apps/web`'s Server Action calls this exact method server-to-server. */

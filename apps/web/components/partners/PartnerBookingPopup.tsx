@@ -10,6 +10,11 @@ import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 import { getPublicAvailability, type PublicAvailabilitySlot } from '@/lib/actions/availability';
 import { submitPartnerLead, type MeetingFormat } from '@/lib/actions/partnerLead';
+import {
+  confirmPhoneCode,
+  isPhoneVerificationRequired,
+  sendPhoneCode,
+} from '@/lib/actions/phoneVerification';
 import type { Branch } from '@/lib/branches';
 
 export interface PartnerBookingPopupProps {
@@ -29,7 +34,7 @@ export interface PartnerBookingPopupProps {
   footer: ReactNode;
 }
 
-type Status = 'idle' | 'submitting' | 'success' | 'conflict' | 'error';
+type Status = 'idle' | 'submitting' | 'code' | 'success' | 'conflict' | 'error';
 
 /** Half-hour slots across a business day. Figma's own calendar (node
  * 291:846, "Ամրագրում" card) shows a scrollable list of ~16 times at this
@@ -197,6 +202,20 @@ export function PartnerBookingPopup({
   const [status, setStatus] = useState<Status>('idle');
   const [successName, setSuccessName] = useState('');
 
+  // SMS-code check: the API decides whether it is required. `proof` is the
+  // signed token for exactly `proof.phone`; editing the number invalidates it.
+  const [code, setCode] = useState('');
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [codeBusy, setCodeBusy] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+  const [proof, setProof] = useState<{ phone: string; token: string } | null>(null);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const id = setTimeout(() => setResendIn((value) => value - 1), 1000);
+    return () => clearTimeout(id);
+  }, [resendIn]);
+
   // Reset on every (re)open — same adjust-during-render pattern
   // `UsaAuctionContactPopup` uses.
   const [wasOpen, setWasOpen] = useState(open);
@@ -309,12 +328,61 @@ export function PartnerBookingPopup({
     });
   }, [selectedDate, selectedTime, meetingFormat, t]);
 
+  async function requestCode(): Promise<boolean> {
+    const result = await sendPhoneCode(phone, locale);
+    if (result.ok) {
+      setCode('');
+      setCodeError(null);
+      setResendIn(30);
+      return true;
+    }
+    setCodeError(
+      result.reason === 'rate'
+        ? t.verify.errors.tooMany
+        : result.reason === 'invalid'
+          ? t.verify.errors.invalidPhone
+          : t.verify.errors.sendFailed,
+    );
+    return false;
+  }
+
   async function handleSubmit() {
     if (!isValid || !selectedDate || !selectedTime) {
       setTouched(true);
       return;
     }
     setStatus('submitting');
+
+    // Ask for the SMS code first, unless the API does not need one or this very
+    // number was already proven.
+    if (proof?.phone !== phone && (await isPhoneVerificationRequired())) {
+      await requestCode();
+      setStatus('code');
+      return;
+    }
+    await submitLead(proof?.phone === phone ? proof.token : undefined);
+  }
+
+  async function handleConfirmCode() {
+    if (!/^\d{6}$/.test(code)) {
+      setCodeError(t.verify.errors.wrong);
+      return;
+    }
+    setCodeBusy(true);
+    setCodeError(null);
+    const result = await confirmPhoneCode(phone, code);
+    setCodeBusy(false);
+    if (!result.ok) {
+      setCodeError(result.reason === 'wrong' ? t.verify.errors.wrong : t.verify.errors.expired);
+      return;
+    }
+    setProof({ phone, token: result.token });
+    setStatus('submitting');
+    await submitLead(result.token);
+  }
+
+  async function submitLead(phoneVerificationToken: string | undefined) {
+    if (!selectedDate || !selectedTime) return;
 
     const matchedSlot = slotForTime(selectedTime);
     const meetingAt = matchedSlot
@@ -339,6 +407,7 @@ export function PartnerBookingPopup({
         meetingAt,
         meetingBranchId: meetingFormat === 'OFFICE' ? branchId : undefined,
         meetingAddress: meetingFormat === 'OTHER' ? address.trim() : undefined,
+        phoneVerificationToken,
       },
       hidden: {
         sourcePage: '/partners',
@@ -355,6 +424,11 @@ export function PartnerBookingPopup({
     } else if (result.reason === 'conflict') {
       setStatus('conflict');
       setSelectedTime(null);
+    } else if (result.reason === 'unverified') {
+      // The proof expired between the check and the submit: ask again.
+      setProof(null);
+      await requestCode();
+      setStatus('code');
     } else {
       setStatus('error');
     }
@@ -736,11 +810,86 @@ export function PartnerBookingPopup({
             </div>
           </div>
 
+          {status === 'code' && (
+            <div
+              role="group"
+              aria-labelledby="pbp-verify-title"
+              className="mt-8 flex flex-col gap-4 rounded-[24px] bg-white p-6 sm:max-w-[520px]"
+            >
+              <div>
+                <h3 id="pbp-verify-title" className="text-[20px] font-medium leading-7 text-ink">
+                  {t.verify.heading}
+                </h3>
+                <p className="mt-1 text-small text-neutral-700">
+                  {interpolate(t.verify.text, { phone })}
+                </p>
+              </div>
+              <div>
+                <label htmlFor="pbp-code" className="mb-2 block text-small font-medium text-ink">
+                  {t.verify.codeLabel}
+                </label>
+                <input
+                  id="pbp-code"
+                  name="code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={code}
+                  onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
+                  aria-invalid={Boolean(codeError)}
+                  aria-describedby={codeError ? 'pbp-code-error' : undefined}
+                  className="h-12 w-full rounded-pill border border-line-light px-4 text-center text-[20px] tracking-[0.4em] tabular-nums text-ink outline-none focus:border-accent"
+                />
+                {codeError && (
+                  <p id="pbp-code-error" role="alert" className="mt-1 text-small text-accent">
+                    {codeError}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={codeBusy || code.length !== 6}
+                  onClick={() => void handleConfirmCode()}
+                >
+                  {codeBusy ? t.verify.confirming : t.verify.confirm}
+                </Button>
+                <Button
+                  type="button"
+                  variant="tertiary"
+                  className="text-ink"
+                  disabled={resendIn > 0 || codeBusy}
+                  onClick={() => void requestCode()}
+                >
+                  {resendIn > 0
+                    ? interpolate(t.verify.resendIn, { seconds: String(resendIn) })
+                    : t.verify.resend}
+                </Button>
+                <Button
+                  type="button"
+                  variant="tertiary"
+                  className="text-ink"
+                  onClick={() => {
+                    setStatus('idle');
+                    setCodeError(null);
+                  }}
+                >
+                  {t.verify.change}
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="mt-8 flex items-center justify-end gap-3">
             <Button type="button" variant="tertiary" className="text-ink" onClick={onClose}>
               {t.close}
             </Button>
-            <Button type="submit" variant="primary" disabled={status === 'submitting' || !isValid}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={status === 'submitting' || status === 'code' || !isValid}
+            >
               {status === 'submitting' ? t.sending : t.submit}
             </Button>
           </div>

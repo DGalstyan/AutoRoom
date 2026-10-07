@@ -12,6 +12,7 @@ import { carsRouter } from './routes/cars';
 import { faqRouter } from './routes/faq';
 import { galleryRouter } from './routes/gallery';
 import { leadsRouter } from './routes/leads';
+import { phoneVerificationRouter } from './routes/phoneVerification';
 import { mediaRouter } from './routes/media';
 import { ordersRouter } from './routes/orders';
 import { partnersRouter } from './routes/partners';
@@ -77,6 +78,7 @@ export function createApp(): Express {
   app.use(mediaRouter);
   app.use(ordersRouter);
   app.use(partnersRouter);
+  app.use(phoneVerificationRouter);
   app.use(rolesRouter);
   app.use(settingsRouter);
   app.use(teamRouter);

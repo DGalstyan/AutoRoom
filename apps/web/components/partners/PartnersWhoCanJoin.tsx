@@ -44,9 +44,11 @@ export function PartnersWhoCanJoin() {
   const t = useMessages().partners.whoCanJoin;
 
   return (
-    <section className="bg-surface-light px-4 pb-14 sm:px-6 sm:pb-24">
-      <div className="mx-auto flex max-w-container flex-col gap-14">
-        <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+    <section className="bg-surface-light px-4 pt-16 sm:px-6 lg:px-12 lg:pt-[150px]">
+      <div className="mx-auto flex max-w-page flex-col gap-8 lg:gap-16">
+        <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+          {t.heading}
+        </h2>
 
         <div className="relative overflow-visible rounded-[32px]">
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">
@@ -62,7 +64,7 @@ export function PartnersWhoCanJoin() {
               aria-hidden="true"
             />
           </div>
-          <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[473px] sm:px-0 sm:pr-4">
+          <div className="mt-4 px-4 sm:absolute sm:right-0 sm:top-[16%] sm:mt-0 sm:w-[90%] sm:max-w-[596px] sm:px-0 sm:pr-4">
             <ul className="flex flex-col gap-3 rounded-[32px] bg-white/[0.32] p-8 shadow-card backdrop-blur-md">
               {t.items.map((item) => (
                 <li key={item} className="text-home-label font-normal leading-[28px] text-ink">

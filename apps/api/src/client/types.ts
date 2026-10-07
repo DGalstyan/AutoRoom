@@ -631,6 +631,9 @@ export type LeadStatus = 'NEW' | 'CONTACTED' | 'CLOSED';
  */
 export type MeetingFormat = 'ONLINE' | 'OFFICE' | 'OTHER';
 
+/** Where a dealer meeting request stands; staff move it from `PENDING`. */
+export type MeetingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+
 /**
  * A submission from any of the public site's lead-capture entry points
  * (Universal popup, Quiz popup, the Contact page's static form, or the
@@ -677,6 +680,15 @@ export interface Lead {
   meetingBranchId: string | null;
   /** Set for `OTHER` only. */
   meetingAddress: string | null;
+  /** Staff-managed state of the requested meeting; null when none was asked for. */
+  meetingStatus: MeetingStatus | null;
+  /** The line staff attached to the last change (also texted to the dealer). */
+  meetingNote: string | null;
+  meetingConfirmedAt: string | null;
+  /** Where the meeting was before it was last rescheduled. */
+  meetingPreviousAt: string | null;
+  /** The visitor proved they hold `phone` by entering the SMS code. */
+  phoneVerifiedAt: string | null;
   sourcePage: string;
   sourceCta: string;
   locale: string;
@@ -727,6 +739,8 @@ export interface LeadInput {
   meetingSlotId?: string;
   meetingBranchId?: string;
   meetingAddress?: string;
+  /** Proof from `POST /phone-verifications/confirm` — required for a meeting request while the API runs with `PHONE_VERIFICATION=required`. */
+  phoneVerificationToken?: string;
 
   sourcePage: string;
   sourceCta: string;
@@ -743,6 +757,23 @@ export interface LeadUpdateInput {
 
 /** `POST /leads/:id/convert-to-partner` — same shape as `PartnerAccountRequest`,
  * since it creates exactly that kind of account, just pre-filled from the lead. */
+/** `PATCH /leads/:id/meeting` — staff acting on a dealer meeting request. */
+export interface LeadMeetingActionInput {
+  action: 'confirm' | 'reschedule' | 'cancel' | 'complete';
+  /** Required for `reschedule`: the new time (ISO 8601). */
+  meetingAt?: string;
+  /** A line for the dealer, texted to them and kept on the lead. */
+  note?: string;
+  /** Text the dealer about the change (default true). */
+  notify?: boolean;
+}
+
+export interface LeadMeetingActionResponse {
+  lead: Lead;
+  /** Whether the dealer was texted: `failed` means the change was saved but the SMS was not. */
+  notified: 'sent' | 'failed' | 'skipped';
+}
+
 export interface LeadConvertToPartnerRequest {
   email: string;
   name?: string;

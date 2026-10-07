@@ -725,6 +725,18 @@ enum MeetingFormat {
   OTHER
 }
 
+/// Where a "Become a dealer" meeting request stands. Starts `PENDING` when the
+/// visitor submits the form; staff then move it through the rest from the
+/// admin. Rescheduling is not a status of its own — it is `CONFIRMED` at a new
+/// `meetingAt` (the old time is kept in `meetingPreviousAt`), since what a
+/// dealer cares about is "is it booked, and when".
+enum MeetingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
 /// A submission from any of the public site's lead-capture entry points
 /// (`references/components.md`'s Universal popup, Quiz popup, or the Contact
 /// page's static form — see `apps/web/lib/leads.ts`'s `LeadPayload`). Every
@@ -801,14 +813,27 @@ model Lead {
   meetingBranch   Branch? @relation(fields: [meetingBranchId], references: [id], onDelete: SetNull)
   meetingAddress  String?
 
+  /// Staff-managed state of the requested meeting — null when no meeting was
+  /// asked for. `meetingNote` is the message staff attached to the last change
+  /// (shown to the dealer in the SMS); `meetingPreviousAt` is the time it
+  /// moved away from when last rescheduled.
+  meetingStatus      MeetingStatus?
+  meetingNote        String?
+  meetingConfirmedAt DateTime?
+  meetingPreviousAt  DateTime?
+
+  /// Set when the visitor proved they hold this phone number by entering the
+  /// SMS code (`PhoneVerification`) before submitting.
+  phoneVerifiedAt DateTime?
+
   /// Set when the lead was opened from a specific car's page/popup.
-  carName String?
-  carVin  String?
+  carName        String?
+  carVin         String?
   /// The `Car.id` the lead was opened from, and that car's auction lot number —
   /// plain strings, not a relation: a lead must survive its car being unpublished
   /// or deleted, and the CRM only needs to say *which* vehicle, not join to it.
-  carId  String?
-  carLot String?
+  carId          String?
+  carLot         String?
   /// For a car that is still on the road (`ON_ROAD`) "Reserve before it arrives" lead:
   /// the day the visitor was told it should arrive (`today + deliveryEtaDays` when
   /// they pressed the button). A plain date — no time-of-day.
@@ -816,12 +841,12 @@ model Lead {
   /// When the visitor's browser sent the form (their clock) — distinct from
   /// `createdAt`, the server's receipt time; both are useful when a slow
   /// connection or a queued retry separates them.
-  submittedAt DateTime?
+  submittedAt    DateTime?
   /// Auction lot number or a pasted link to the specific Copart/IAAI/Manheim
   /// listing — the USA auction contact popup's own field (Figma node
   /// 242:1345's "Մեքենայի հղում կամ լոտի համար"), distinct from `carVin`
   /// since a visitor rarely knows the VIN of a car they haven't bought yet.
-  carLink String?
+  carLink        String?
 
   /// Hidden context every widget attaches automatically (never visitor input).
   sourcePage      String
@@ -857,7 +882,29 @@ model Lead {
   @@index([meetingSlotId])
   @@index([meetingBranchId])
   @@index([carId])
+  @@index([meetingStatus, meetingAt])
   @@map("leads")
+}
+
+/// One SMS-code check of a phone number. The code itself is never stored — only
+/// a salted hash — and a record is single use: it expires, is locked after too
+/// many wrong guesses, and is consumed by the first correct one. What the
+/// visitor takes away is a short-lived signed token (`lib/phoneVerification`),
+/// not a row id, so the lead endpoint can check it without a lookup.
+model PhoneVerification {
+  id         String    @id @default(cuid())
+  /// Normalised E.164 (`+374…`), so "094 077757" and "+37494077757" are one number.
+  phone      String
+  codeHash   String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  /// Set when the correct code was entered; a verified record cannot be reused.
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  // Rate-limiting reads "sends to this phone recently"; confirm reads "latest for this phone".
+  @@index([phone, createdAt])
+  @@map("phone_verifications")
 }
 
 /**
