@@ -43,11 +43,14 @@ export async function CarCard({
   car,
   priority = false,
   badgesEnd = false,
+  heavyTopScrim = false,
 }: {
   car: CarSummary;
   priority?: boolean;
   /** China listing (Figma 438:1181): badges sit at the card's top-right and the title is regular weight. */
   badgesEnd?: boolean;
+  /** USA listing (Figma 440:3162): the scrim also goes solid black at the top edge. */
+  heavyTopScrim?: boolean;
 }) {
   const { messages } = await getServerMessages();
   const t = messages.common.carCard;
@@ -87,7 +90,7 @@ export async function CarCard({
 
       {/* Bottom-heavy scrim, matches Figma's 3-stop gradient exactly. */}
       <div
-        className="absolute inset-0 bg-gradient-to-t from-black from-[8.565%] via-black/0 via-[41.654%] to-black/50 to-[89.231%]"
+        className={`absolute inset-0 bg-gradient-to-t from-black from-[8.565%] via-black/0 via-[41.654%] to-[89.231%] ${heavyTopScrim ? 'to-black' : 'to-black/50'}`}
         aria-hidden="true"
       />
 
@@ -108,9 +111,16 @@ export async function CarCard({
             </>
           ) : (
             <>
-              <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
-                {t.conditions[car.condition]}
-              </span>
+              {car.condition === 'AUCTION' && car.auctionPlatform ? (
+                <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] leading-[20px] text-white">
+                  <span className="font-bold">{t.auctionPrefix} </span>
+                  {t.platformDeal[car.auctionPlatform]}
+                </span>
+              ) : (
+                <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                  {t.conditions[car.condition]}
+                </span>
+              )}
               {car.financingAvailable && (
                 <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
                   {t.financingAvailable}

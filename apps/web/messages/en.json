@@ -190,7 +190,13 @@
         "POTI": "At Poti port",
         "CUSTOMS": "In customs"
       },
-      "etaDays": "Arrives in ~{days} days"
+      "etaDays": "Arrives in ~{days} days",
+      "auctionPrefix": "Auction:",
+      "platformDeal": {
+        "COPART": "Copart Deal",
+        "IAAI": "IAAI Deal",
+        "MANHEIM": "Manheim Deal"
+      }
     },
     "carDetail": {
       "ctaOffer": "Personal offer",
@@ -884,57 +890,62 @@
       "steps": [
         {
           "title": "Order processing",
-          "text": "You submit your requirements, we build a search profile.",
+          "text": "You tell us your requirements, we build the search profile.",
           "duration": "3-4 days"
         },
         {
-          "title": "Searching for a car",
-          "text": "We scan Copart/IAAI auctions against your criteria.",
-          "duration": "3-4 days"
+          "title": "Car search",
+          "text": "We scan Copart/IAAI auctions against your criteria and check the VIN, damage and history.",
+          "duration": "3-10 days"
         },
         {
-          "title": "Winning the auction",
+          "title": "Selection",
+          "text": "We verify the VIN, damage and history.",
+          "duration": "1-2 days"
+        },
+        {
+          "title": "Auction purchase",
           "text": "We take part in the auction and win the lot.",
-          "duration": "3-4 days"
+          "duration": "10-11 days"
         },
         {
           "title": "Payment",
-          "text": "The auction and paperwork payments are made.",
+          "text": "The auction and document payments are made.",
           "duration": "3-4 days"
         },
         {
           "title": "Pickup from the auction",
-          "text": "A tow truck picks up the car from the auction lot.",
-          "duration": "3-4 days"
+          "text": "A tow truck collects the car from the auction yard.",
+          "duration": "5-6 days"
         },
         {
-          "title": "Inspection on arrival",
-          "text": "Our specialist compares the car against the auction photos, photographs any damage and the configuration, and documents everything.",
-          "duration": "3-4 days"
+          "title": "Receiving and inspection",
+          "text": "Our specialist compares the car with the auction photos — lot number, damage, equipment — walking around it and recording everything.",
+          "duration": "4-6 days"
         },
         {
-          "title": "Published on AutoRoom",
-          "text": "The car arrives at our lot and is photographed from every angle.",
-          "duration": "3-4 days"
+          "title": "AutoRoom yard",
+          "text": "The car arrives at our warehouse yard and is photographed from every side.",
+          "duration": "7-8 days"
         },
         {
-          "title": "Loading the container",
-          "text": "The car is safely loaded into a container for ocean shipping.",
-          "duration": "3-4 days"
+          "title": "Receiving at the warehouse",
+          "text": "The car arrives at our warehouse yard and is photographed from every side.",
+          "duration": "11-12 days"
         },
         {
-          "title": "Container at sea",
-          "text": "Ocean transport begins.",
-          "duration": "3-4 days"
+          "title": "Container on the ship",
+          "text": "Sea freight begins.",
+          "duration": "14-18 days"
         },
         {
-          "title": "Unloading and customs",
-          "text": "The container is opened in Poti, and the car is loaded onto a car carrier.",
-          "duration": "3-4 days"
+          "title": "Unloading and truck",
+          "text": "At Poti the container is emptied and the car is loaded onto a truck.",
+          "duration": "19-20 days"
         },
         {
-          "title": "Arrival in Gyumri",
-          "text": "The car arrives in Gyumri, clears customs, and is ready for handover.",
+          "title": "Gyumri — arrival",
+          "text": "The car arrives in Gyumri, clears customs and is prepared for handover.",
           "duration": "3-4 days"
         }
       ]
@@ -948,8 +959,8 @@
     },
     "finalCta": {
       "heading": "Found an interesting car from the USA?",
-      "text": "Leave your details — get an offer",
-      "cta": "Get an offer"
+      "text": "Leave your details and our specialist will help check the car, calculate the final price and arrange the import to Armenia.",
+      "cta": "Fill in"
     }
   },
   "partners": {

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Section } from '@/components/ui/Section';
 import { CarCard } from '@/components/shared/CarCard';
 import { UsaHero } from '@/components/usa/UsaHero';
 import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
@@ -106,54 +105,81 @@ export default async function UsaPage({
     <>
       <UsaHero />
 
-      <Section tone="light" className="pb-0">
-        <UsaAuctionFilters makeModels={auctionMakeModels} />
-      </Section>
+      {/* 150px between blocks, 64px under each heading (Figma 440:3095). */}
+      <div className="bg-surface-light pb-16 text-ink lg:pb-[150px]">
+        <section className={COLUMN}>
+          <SectionHeading>{t.bestAuctions.heading}</SectionHeading>
+          <div className="mt-8 lg:mt-16">
+            <UsaAuctionFilters makeModels={auctionMakeModels} />
+          </div>
+          <CarGrid cars={auctionCars} className="mt-8 lg:mt-16" />
+        </section>
 
-      <CarGridSection heading={t.bestAuctions.heading} cars={auctionCars} />
+        <CarGridSection heading={t.availableCars.heading} cars={availableCars} />
+        <CarGridSection heading={t.onRoad.heading} cars={onRoadCars} />
 
-      <Section tone="light">
-        <CustomsCalculator />
-      </Section>
+        <div className={`${COLUMN} mt-16 lg:mt-[150px]`}>
+          <CustomsCalculator />
+        </div>
+      </div>
 
-      <CarGridSection heading={t.availableCars.heading} cars={availableCars} />
-      <CarGridSection heading={t.onRoad.heading} cars={onRoadCars} />
+      <div className="bg-surface-light pt-0">
+        <div className={`${COLUMN} pt-4`}>
+          <UsaStateClocks />
+        </div>
+      </div>
 
-      <Section tone="light">
-        <UsaStateClocks />
-      </Section>
-
-      <Section tone="light">
-        <UsaImportProcess />
-      </Section>
+      <div className="bg-surface-light">
+        <div className={`${COLUMN} pt-16 lg:pt-[194px]`}>
+          <UsaImportProcess />
+        </div>
+      </div>
 
       <UsaGuideReels reels={guideReels} />
 
-      <Section tone="light">
-        <UsaFaq />
-      </Section>
+      <div className="bg-surface-light py-14 text-ink lg:py-[150px]">
+        <div className="mx-auto max-w-container px-4 sm:px-6">
+          <UsaFaq />
+        </div>
+      </div>
 
       <UsaFinalCta />
     </>
   );
 }
 
+/** The design's 1344px column inside 48px gutters (Figma 1440 canvas). */
+const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+      {children}
+    </h2>
+  );
+}
+
+function CarGrid({ cars, className = '' }: { cars: Car[]; className?: string }) {
+  if (cars.length === 0) return null;
+  return (
+    <div className={`grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12 ${className}`}>
+      {cars.map((car, index) => (
+        <CarCard key={car.id} car={car} priority={index === 0} badgesEnd heavyTopScrim />
+      ))}
+    </div>
+  );
+}
+
 /** One listing block: heading + 2-column `CarCard` grid, or nothing at all
  * when admin hasn't published any car in that bucket yet — `lib/cars.ts`'s
- * documented contract ("render nothing... when empty"), the same rule
- * already applied to Price Journey and the Offers promo grid elsewhere on
- * the site. */
+ * documented contract ("render nothing... when empty"). */
 function CarGridSection({ heading, cars }: { heading: string; cars: Car[] }) {
   if (cars.length === 0) return null;
 
   return (
-    <Section tone="light">
-      <h2 className="font-display text-home-h2 font-light text-ink">{heading}</h2>
-      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {cars.map((car, index) => (
-          <CarCard key={car.id} car={car} priority={index === 0} />
-        ))}
-      </div>
-    </Section>
+    <section className={`${COLUMN} mt-16 lg:mt-[150px]`}>
+      <SectionHeading>{heading}</SectionHeading>
+      <CarGrid cars={cars} className="mt-8 lg:mt-16" />
+    </section>
   );
 }

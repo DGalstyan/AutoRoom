@@ -217,63 +217,112 @@ function handAngles(date: Date, timeZone: string) {
   };
 }
 
-/** One hand: a rounded gradient bar pivoting at the dial's centre, `length`
- * long and pointing at `angle`° clockwise from 12 — Figma's own hour/minute
- * hands are exactly this gradient+shadow treatment, just laid out through
- * Figma's rotated-bounding-box auto-layout, which has no clean equivalent
- * in plain CSS; a straight `rotate()` around a fixed pivot reads identically
- * on screen. */
+/** One hand: a bar pivoting at the dial's centre, pointing `angle`° clockwise
+ * from 12. Hour/minute use Figma's white→#acacac gradient with the 4px drop
+ * shadow (nodes 440:3586/3589); the bar is anchored at its bottom edge, which
+ * sits on the pivot, so `rotate` swings it about the centre. */
 function ClockHand({
   angle,
   length,
-  width,
-  color = 'gradient',
+  thickness,
+  tail = 0,
 }: {
   angle: number;
   length: number;
-  width: number;
-  color?: 'gradient' | 'accent';
+  thickness: number;
+  /** Extra length behind the pivot. */
+  tail?: number;
 }) {
   return (
     <div
-      className="absolute left-1/2 top-1/2 origin-top"
-      style={{ height: length, width, transform: `translateX(-50%) rotate(${angle}deg)` }}
-    >
-      <div
-        className={
-          color === 'gradient'
-            ? 'size-full rounded-full bg-gradient-to-b from-white to-[#acacac] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)]'
-            : 'size-full rounded-full bg-accent'
-        }
-      />
-    </div>
+      className="absolute left-1/2 top-1/2 rounded-[2px] bg-gradient-to-l from-white to-[#acacac] shadow-[4px_0px_4px_0px_rgba(0,0,0,0.25)]"
+      style={{
+        width: thickness,
+        height: length + tail,
+        marginLeft: -thickness / 2,
+        marginTop: -length,
+        transformOrigin: `50% ${length}px`,
+        transform: `rotate(${angle}deg)`,
+      }}
+    />
   );
 }
 
-/** The decorative dial above each card's digital time — see this file's own
- * doc comment for why it's an original illustration rather than Figma's own
- * clock-photo assets. Renders a neutral 12:00 pose (all hands pointing up)
- * until `now` is available, the same hydration-safe pattern the digital
- * time below it already uses. */
+const CLOCK = '/images/usa/clock';
+
+/** A face layer, positioned in the dial's 240px box exactly as Figma's
+ * 440:3575 group places it (offsets in px relative to the box). */
+function Layer({
+  src,
+  box,
+}: {
+  src: string;
+  box: { left: number; top: number; size?: number; width?: number; height?: number };
+}) {
+  const width = box.width ?? box.size!;
+  const height = box.height ?? box.size!;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`${CLOCK}/${src}`}
+      alt=""
+      width={width}
+      height={height}
+      className="pointer-events-none absolute max-w-none"
+      style={{ left: box.left, top: box.top, width, height }}
+    />
+  );
+}
+
+/** The 240px dial above each card's digital time, built from Figma's own face
+ * layers (shadow, brushed-dial texture, bezel rings, gold second hand, centre
+ * cap) with live hour/minute/second hands and the twelve ticks drawn in CSS.
+ * Renders a neutral 12:00 pose until `now` is available, the same
+ * hydration-safe pattern the digital time below it uses. */
 function AnalogClock({ now, timeZone }: { now: Date | null; timeZone: string }) {
   const angles = now ? handAngles(now, timeZone) : { hour: 0, minute: 0, second: 0 };
 
   return (
-    <div
-      aria-hidden="true"
-      className="relative size-[176px] shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_30%,#3a3a3a,#0d0d0d_70%)] shadow-[0_8px_24px_rgba(0,0,0,0.35),inset_0_2px_6px_rgba(255,255,255,0.15),inset_0_-6px_14px_rgba(0,0,0,0.6)]"
-    >
+    <div aria-hidden="true" className="relative size-[240px] shrink-0">
+      <Layer src="shadow.svg" box={{ left: -12.5, top: -8.5, width: 265, height: 265 }} />
+      <Layer src="glow.svg" box={{ left: -36, top: -26, width: 350, height: 350 }} />
+      <Layer src="dial.png" box={{ left: 31.16, top: 31.16, size: 177.683 }} />
+      <ClockHand angle={angles.hour} length={58} thickness={7.3} />
+      <ClockHand angle={angles.minute} length={84} thickness={3.7} />
+      <Layer src="rim-a.svg" box={{ left: 1.23, top: 1.23, size: 237.547 }} />
+      <Layer src="rim-b.svg" box={{ left: 28.68 - 2.0, top: 30.38 - 2.0, size: 179.236 + 4.0 }} />
+      <Layer src="rim-c.svg" box={{ left: 32.08 - 0.5, top: 32.08 - 0.5, size: 175.835 + 1.0 }} />
+      <Layer src="rim-d.svg" box={{ left: 1.23 - 5.5, top: 1.23 - 5.5, size: 237.547 + 11.0 }} />
+      <Layer src="rim-e.svg" box={{ left: -4.5, top: -2.5, width: 247, height: 247 }} />
+      <div
+        className="absolute"
+        style={{
+          left: 117.4,
+          top: 41.5,
+          width: 5.196,
+          height: 93.457,
+          transformOrigin: '50% 78.5px',
+          transform: `rotate(${angles.second}deg)`,
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`${CLOCK}/second.svg`} alt="" className="size-full max-w-none" />
+      </div>
+      <Layer src="cap.svg" box={{ left: 114.7 - 4.0, top: 114.7, width: 18.6, height: 18.6 }} />
       {Array.from({ length: 12 }).map((_, tick) => (
         <div
           key={tick}
-          className="absolute left-1/2 top-1/2 h-2 w-[2.5px] origin-top rounded-full bg-gradient-to-b from-white to-[#cdcdcd]"
-          style={{ transform: `translateX(-50%) rotate(${tick * 30}deg) translateY(78px)` }}
+          className="absolute rounded-[0.5px] bg-gradient-to-r from-white from-50% to-[#cdcdcd]"
+          style={{
+            left: 118.87,
+            top: 3.73,
+            width: 2.25,
+            height: 9.084,
+            transformOrigin: '50% 116.27px',
+            transform: `rotate(${tick * 30}deg)`,
+          }}
         />
       ))}
-      <ClockHand angle={angles.hour} length={44} width={5} />
-      <ClockHand angle={angles.minute} length={64} width={4} />
-      <ClockHand angle={angles.second} length={70} width={2} color="accent" />
-      <div className="absolute left-1/2 top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" />
     </div>
   );
 }
@@ -309,8 +358,10 @@ export function UsaStateClocks() {
 
   return (
     <div className="flex flex-col items-center gap-16">
-      <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
-      <div className="flex flex-wrap items-stretch justify-center gap-12">
+      <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+        {t.heading}
+      </h2>
+      <div className="flex max-w-[1200px] flex-wrap items-stretch justify-center gap-12">
         <ClockCard label={t.cities.yerevan} timeZone="Asia/Yerevan" now={now} locale={locale} />
 
         <ClockCard
@@ -426,7 +477,7 @@ function ClockCard({
   diffCaption?: string;
 }) {
   return (
-    <div className="flex w-full max-w-[368px] flex-col items-center gap-6 rounded-[48px] bg-white p-8 text-center shadow-card sm:p-12 lg:p-16">
+    <div className="flex w-full max-w-[368px] flex-col items-center gap-6 overflow-hidden rounded-[48px] bg-white px-6 py-8 text-center sm:py-12 lg:py-16">
       {selector ?? <p className="text-[16px] leading-6 text-ink">{label}</p>}
       <AnalogClock now={now} timeZone={timeZone} />
       <div className="flex flex-col gap-1">
