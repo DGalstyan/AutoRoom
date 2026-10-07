@@ -202,7 +202,13 @@
         "details": "Details",
         "video": "Video",
         "scrollThumbnails": "Scroll thumbnails",
-        "photoLabel": "Photo {n}"
+        "photoLabel": "Photo {n}",
+        "previous": "Previous photo",
+        "next": "Next photo",
+        "counter": "{n} / {total}",
+        "region": "Vehicle gallery",
+        "albums": "Gallery sections",
+        "videoLabel": "Video {n}"
       },
       "specs": {
         "heading": "General specifications",

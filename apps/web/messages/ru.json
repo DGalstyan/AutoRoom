@@ -202,7 +202,13 @@
         "details": "Детали",
         "video": "Видео",
         "scrollThumbnails": "Прокрутить миниатюры",
-        "photoLabel": "Фото {n}"
+        "photoLabel": "Фото {n}",
+        "previous": "Предыдущее фото",
+        "next": "Следующее фото",
+        "counter": "{n} / {total}",
+        "region": "Галерея автомобиля",
+        "albums": "Разделы галереи",
+        "videoLabel": "Видео {n}"
       },
       "specs": {
         "heading": "Общие характеристики",

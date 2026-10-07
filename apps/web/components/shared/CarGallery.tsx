@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import Image from 'next/image';
 import type { CarImage, ImageAlbum } from '@/lib/types/car';
 import { useMessages } from '@/components/shared/LocaleProvider';
@@ -75,15 +75,41 @@ export function CarGallery({
     setManualOverride(true);
   }
 
+  function step(delta: number) {
+    if (albumImages.length < 2) return;
+    setActiveIndex((current) => (current + delta + albumImages.length) % albumImages.length);
+    setManualOverride(true);
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      step(-1);
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      step(1);
+    }
+  }
+
   function scrollStripRight() {
     stripRef.current?.scrollBy({ left: 166, behavior: 'smooth' });
   }
 
   const showColorOverride = Boolean(colorImageUrl) && !manualOverride;
   const isVideo = selectedAlbum === 'VIDEO' && !showColorOverride;
+  const canStep = albumImages.length > 1 && !showColorOverride && !isVideo;
+  const albumName = selectedAlbum ? ALBUM_LABELS[selectedAlbum] : undefined;
+  const itemLabel = (index: number) =>
+    interpolate(selectedAlbum === 'VIDEO' ? t.videoLabel : t.photoLabel, { n: String(index + 1) });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div
+      role="group"
+      aria-roledescription="carousel"
+      aria-label={t.region}
+      onKeyDown={onKeyDown}
+      className="flex flex-col gap-6"
+    >
       <div className="relative aspect-[1920/1080] w-full overflow-hidden rounded-xl bg-neutral-800">
         {showColorOverride ? (
           <Image src={colorImageUrl!} alt={alt} fill sizes="850px" className="object-cover" />
@@ -97,7 +123,7 @@ export function CarGallery({
         ) : activeImage ? (
           <Image
             src={activeImage.url}
-            alt={alt}
+            alt={`${alt} — ${albumName ?? ''} ${activeIndex + 1}`.replace(/\s+/g, ' ').trim()}
             fill
             priority
             sizes="(min-width: 1024px) 850px, 100vw"
@@ -109,15 +135,39 @@ export function CarGallery({
             aria-hidden="true"
           />
         )}
+
+        {canStep && (
+          <>
+            <StepButton direction="prev" label={t.previous} onClick={() => step(-1)} />
+            <StepButton direction="next" label={t.next} onClick={() => step(1)} />
+          </>
+        )}
+        {activeImage && albumImages.length > 1 && !showColorOverride && (
+          <span
+            aria-live="polite"
+            className="absolute bottom-3 right-3 rounded-pill bg-black/60 px-3 py-1 text-[14px] font-medium leading-[20px] text-white tabular-nums"
+          >
+            {interpolate(t.counter, {
+              n: String(activeIndex + 1),
+              total: String(albumImages.length),
+            })}
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col gap-6">
         {albums.length > 0 && (
-          <div className="flex w-fit items-center gap-3 rounded-pill bg-white px-4 py-3">
+          <div
+            role="tablist"
+            aria-label={t.albums}
+            className="flex w-fit max-w-full flex-wrap items-center gap-3 rounded-pill bg-white px-4 py-3"
+          >
             {albums.map((album) => (
               <button
                 key={album}
                 type="button"
+                role="tab"
+                aria-selected={selectedAlbum === album && !showColorOverride}
                 onClick={() => selectAlbum(album)}
                 className={`rounded-[52px] px-4 py-2 text-[16px] leading-[24px] transition-colors duration-standard ${
                   selectedAlbum === album && !showColorOverride
@@ -126,6 +176,9 @@ export function CarGallery({
                 }`}
               >
                 {ALBUM_LABELS[album]}
+                <span className="ml-1.5 text-[12px] opacity-70 tabular-nums">
+                  {images.filter((image) => image.album === album).length}
+                </span>
               </button>
             ))}
           </div>
@@ -143,7 +196,8 @@ export function CarGallery({
                   key={image.id}
                   type="button"
                   onClick={() => selectThumbnail(index)}
-                  aria-label={interpolate(t.photoLabel, { n: String(index + 1) })}
+                  aria-label={`${albumName ?? ''} ${itemLabel(index)}`.trim()}
+                  aria-current={!showColorOverride && index === activeIndex ? 'true' : undefined}
                   className={`relative aspect-[154/86] w-full overflow-hidden rounded-[12px] bg-neutral-800 lg:h-[86px] lg:w-[154px] lg:shrink-0 lg:rounded-[16px] ${
                     !showColorOverride && index === activeIndex
                       ? 'border-[3px] border-neutral-900'
@@ -170,6 +224,31 @@ export function CarGallery({
         )}
       </div>
     </div>
+  );
+}
+
+function StepButton({
+  direction,
+  label,
+  onClick,
+}: {
+  direction: 'prev' | 'next';
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={`absolute top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-800 shadow-card transition-colors duration-standard hover:bg-white ${
+        direction === 'prev' ? 'left-3' : 'right-3'
+      }`}
+    >
+      <span className={direction === 'prev' ? 'rotate-180' : undefined}>
+        <ArrowRightGlyph />
+      </span>
+    </button>
   );
 }
 
