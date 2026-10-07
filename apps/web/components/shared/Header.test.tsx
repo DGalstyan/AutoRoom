@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Header } from '@/components/shared/Header';
 import { renderWithLocale } from '@/lib/test-utils';
@@ -55,7 +55,7 @@ describe('Header', () => {
   it('opens the Universal Popup from the header CTA with the right source', async () => {
     const user = userEvent.setup();
     renderWithLocale(<Header />);
-    await user.click(screen.getByRole('button', { name: nav.headerCta }));
+    await user.click(screen.getAllByRole('button', { name: nav.headerCta })[0]);
     expect(openUniversal).toHaveBeenCalledWith({ sourceCta: 'header-cta' });
   });
 
@@ -66,10 +66,10 @@ describe('Header', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
     await user.click(toggle);
-    expect(screen.getByRole('dialog', { name: nav.menuOpen })).toBeInTheDocument();
-    // Once open, the toggle *and* the backdrop scrim both carry the
-    // `menuClose` label — position 0 is the toggle (it renders first in the
-    // DOM), position 1 is the scrim (only mounted while the drawer is open).
+    expect(screen.getByRole('dialog', { name: nav.primaryNav })).toBeInTheDocument();
+    // Once open, the toggle, the backdrop scrim and the drawer's own close
+    // button all carry the `menuClose` label — position 0 is the toggle (it
+    // renders first in the DOM), then the scrim, then the in-drawer button.
     const [closeToggle] = screen.getAllByRole('button', { name: nav.menuClose });
     expect(closeToggle).toHaveAttribute('aria-expanded', 'true');
 
@@ -96,5 +96,28 @@ describe('Header', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(toggle).toHaveFocus();
+  });
+
+  it('has its own visible close button inside the drawer', async () => {
+    const user = userEvent.setup();
+    renderWithLocale(<Header />);
+    await user.click(screen.getByRole('button', { name: nav.menuOpen }));
+    const buttons = screen.getAllByRole('button', { name: nav.menuClose });
+    await user.click(buttons[buttons.length - 1]);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('puts Home and the quote button in the drawer, and locks page scroll while open', async () => {
+    const user = userEvent.setup();
+    renderWithLocale(<Header />);
+    await user.click(screen.getByRole('button', { name: nav.menuOpen }));
+    const dialog = screen.getByRole('dialog', { name: nav.primaryNav });
+    expect(within(dialog).getByRole('link', { name: nav.home })).toHaveAttribute('href', '/');
+    expect(document.body.style.overflow).toBe('hidden');
+
+    await user.click(within(dialog).getByRole('button', { name: nav.headerCta }));
+    expect(openUniversal).toHaveBeenCalledWith({ sourceCta: 'header-cta' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.body.style.overflow).toBe('');
   });
 });

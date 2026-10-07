@@ -59,6 +59,16 @@ export function Header({ logo = null }: HeaderProps = {}) {
     return () => mql.removeEventListener('change', onChange);
   }, []);
 
+  // The page behind a modal drawer must not scroll with it.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [drawerOpen]);
+
   return (
     <header
       // Unscrolled top offset (`top-9` = 36px) matches the Header frame's
@@ -77,7 +87,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
         // component's pre-existing judgment call for legibility over
         // arbitrary scrolled-past content, now anchored to the correct
         // unscrolled baseline.
-        className={`relative mx-auto flex max-w-header items-center justify-between gap-4 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:px-6 lg:py-4 ${
+        className={`relative mx-auto flex max-w-header items-center justify-between gap-2 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:gap-4 sm:px-6 lg:py-4 ${
           isLightHeader
             ? 'border border-line-light bg-white'
             : `border border-white/10 backdrop-blur-lg ${scrolled ? 'bg-bg/80' : 'bg-bg/30'}`
@@ -92,7 +102,9 @@ export function Header({ logo = null }: HeaderProps = {}) {
           */}
           <BrandLogo
             logo={logo}
-            className={isLightHeader ? 'h-[36.56px] w-[96px]' : 'h-[46px] w-[121px]'}
+            className={
+              isLightHeader ? 'h-[36.56px] w-[96px]' : 'h-[36px] w-[96px] sm:h-[46px] sm:w-[121px]'
+            }
             sizes="121px"
             tone={isLightHeader ? 'light' : 'dark'}
           />
@@ -156,6 +168,15 @@ export function Header({ logo = null }: HeaderProps = {}) {
           </button>
         </div>
 
+        {/* Quick request on phones/tablets; below 360px it lives in the menu only. */}
+        <button
+          type="button"
+          onClick={() => openUniversal({ sourceCta: 'header-cta' })}
+          className="ml-auto hidden h-11 shrink-0 items-center rounded-pill bg-accent px-4 text-[14px] font-normal leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent min-[360px]:inline-flex xl:hidden"
+        >
+          {nav.headerCta}
+        </button>
+
         <button
           type="button"
           className={`flex h-11 w-11 items-center justify-center rounded-pill xl:hidden ${isLightHeader ? 'text-ink' : 'text-white'}`}
@@ -183,20 +204,50 @@ export function Header({ logo = null }: HeaderProps = {}) {
             ref={drawerRef}
             role="dialog"
             aria-modal="true"
-            aria-label={nav.menuOpen}
+            aria-label={nav.primaryNav}
             tabIndex={-1}
-            className="absolute right-0 top-0 flex h-full w-full max-w-xs flex-col gap-1 bg-surface p-6 pt-20 outline-none"
+            // Leaves a strip of backdrop on any phone so a tap outside still closes it.
+            className="absolute right-0 top-0 flex h-full w-[min(320px,calc(100%-56px))] flex-col gap-1 overflow-y-auto overscroll-contain bg-surface p-6 pt-20 outline-none"
           >
-            {NAV_LINKS.map((item) => (
+            <button
+              type="button"
+              aria-label={nav.menuClose}
+              onClick={() => setDrawerOpen(false)}
+              className="absolute right-3 top-3 flex size-11 items-center justify-center rounded-pill text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path
+                  d="M2 2l14 14M16 2L2 16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+            {[{ key: 'home' as const, href: '/' }, ...NAV_LINKS].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setDrawerOpen(false)}
-                className="min-h-11 rounded-md px-2 py-3 text-lead font-medium text-white/90 hover:bg-white/5"
+                aria-current={pathname === item.href ? 'page' : undefined}
+                className={`min-h-11 rounded-md px-2 py-3 text-lead hover:bg-white/5 ${
+                  pathname === item.href ? 'font-bold text-white' : 'font-medium text-white/90'
+                }`}
               >
                 {nav[item.key]}
               </Link>
             ))}
+            <button
+              type="button"
+              onClick={() => {
+                setDrawerOpen(false);
+                openUniversal({ sourceCta: 'header-cta' });
+              }}
+              className="mt-4 inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
+            >
+              {nav.headerCta}
+              <ArrowGlyph />
+            </button>
             <LanguageSwitcher className="mt-4 w-fit" />
           </div>
         </div>
