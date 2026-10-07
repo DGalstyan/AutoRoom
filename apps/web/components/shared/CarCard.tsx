@@ -177,7 +177,7 @@ export async function CarCard({
             </div>
             <span
               aria-hidden="true"
-              className="flex size-11 shrink-0 rotate-45 items-center justify-center rounded-pill bg-white/10 text-white transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
+              className="flex size-11 shrink-0 items-center justify-center rounded-pill bg-white/10 text-white transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
             >
               <ArrowGlyph />
             </span>

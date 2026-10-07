@@ -23,8 +23,10 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
 
   return (
     <div>
-      <h2 className="font-display text-home-h2 font-light text-ink">{t.heading}</h2>
-      <div className="mt-10">
+      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+        {t.heading}
+      </h2>
+      <div className="mt-8 lg:mt-16">
         <PromoTabs
           currentLabel={t.tabCurrent}
           pastLabel={t.tabPast}
@@ -32,9 +34,9 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
           pastCount={past.length}
           currentContent={
             current.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-12">
                 {current.map((car, index) => (
-                  <CarCard key={car.id} car={car} priority={index === 0} />
+                  <CarCard key={car.id} car={car} priority={index === 0} badgesEnd />
                 ))}
               </div>
             ) : (
@@ -43,9 +45,9 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
           }
           pastContent={
             past.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-12">
                 {past.map((car) => (
-                  <CarCard key={car.id} car={car} />
+                  <CarCard key={car.id} car={car} badgesEnd />
                 ))}
               </div>
             ) : (

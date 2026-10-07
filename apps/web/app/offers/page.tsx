@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
-import { Section } from '@/components/ui/Section';
 import { MiniCarCard } from '@/components/shared/MiniCarCard';
 import { PromotionsSection } from '@/components/shared/PromotionsSection';
 import { OffersFinalCta } from '@/components/shared/OffersFinalCta';
 import { getFeaturedCars, listPromoCars } from '@/lib/cars';
 import { getServerMessages } from '@/lib/i18n';
+
+/** The design's 1344px column inside 48px gutters (Figma 1440 canvas). */
+const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
@@ -52,27 +54,33 @@ export default async function OffersPage() {
       <h1 className="sr-only">{t.meta.title}</h1>
       {/* pt-32/pt-40 clears the fixed pill header — this page has no hero to
           borrow that clearance from, same as the China listing/About pages. */}
-      <Section tone="light" className="pt-32 sm:pt-40">
-        <h2 className="font-display text-home-h2 font-light text-ink">{t.featured.heading}</h2>
+      {/* The first heading sits 221px down in the design (below the fixed header). */}
+      <section className={`${COLUMN} bg-surface-light pt-32 text-ink sm:pt-[221px]`}>
+        <h2 className="stretch-88 text-[28px] font-light leading-[38px] sm:text-home-h2 sm:leading-[58px]">
+          {t.featured.heading}
+        </h2>
         {featured.length > 0 && (
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 sm:gap-x-12">
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:gap-x-12 lg:gap-y-8">
             {featured.map((car, index) => (
               <MiniCarCard
                 key={car.id}
                 car={car}
                 imageSrc={car.images[0]?.url}
                 priority={index === 0}
+                figma
               />
             ))}
           </div>
         )}
-      </Section>
+      </section>
 
-      {promoCars.length > 0 && (
-        <Section tone="light">
-          <PromotionsSection cars={promoCars} />
-        </Section>
-      )}
+      <div className="bg-surface-light pb-16 lg:pb-[150px]">
+        {promoCars.length > 0 && (
+          <section className={`${COLUMN} pt-16 text-ink lg:pt-[150px]`}>
+            <PromotionsSection cars={promoCars} />
+          </section>
+        )}
+      </div>
 
       <OffersFinalCta />
     </>

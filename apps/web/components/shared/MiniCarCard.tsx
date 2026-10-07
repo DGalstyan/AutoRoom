@@ -28,12 +28,55 @@ export function MiniCarCard({
   car,
   imageSrc,
   priority = false,
+  figma = false,
 }: {
   car: Car;
   imageSrc?: string;
   priority?: boolean;
+  /** `/offers` "Featured cars" treatment (Figma 439:2635): 32px corners, price pill over the name, full-height scrim. */
+  figma?: boolean;
 }) {
   const t = useMessages().common.carCard;
+
+  if (figma) {
+    return (
+      <Link
+        href={carHref(car)}
+        className="group relative flex aspect-[3/2] w-full flex-col justify-end overflow-hidden rounded-[32px] bg-neutral-800 px-4 pb-3 transition-transform duration-standard ease-expo hover:-translate-y-1"
+      >
+        {imageSrc && (
+          <Image
+            src={imageSrc}
+            alt={`${car.make} ${car.model}`}
+            fill
+            priority={priority}
+            sizes="(min-width: 1024px) 648px, 100vw"
+            className="object-cover transition-transform duration-[600ms] ease-expo group-hover:scale-[1.03]"
+          />
+        )}
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-black from-[8.565%] to-transparent to-[101.39%]"
+          aria-hidden="true"
+        />
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-col items-start">
+            <span className="p-[10px] text-[16px] font-medium leading-[20px] tabular-nums text-white">
+              {car.price.toLocaleString('en-US')}$
+            </span>
+            <p className="font-display text-[24px] font-normal leading-9 text-white">
+              {car.make} {car.model}
+            </p>
+          </div>
+          <span
+            aria-hidden="true"
+            className="flex size-[54px] shrink-0 items-center justify-center rounded-pill text-white transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
+          >
+            <ArrowGlyph />
+          </span>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <Link

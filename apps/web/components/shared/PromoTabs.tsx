@@ -30,35 +30,56 @@ export function PromoTabs({
 
   return (
     <div>
-      <div className="inline-flex items-center gap-2 rounded-pill bg-neutral-25 p-3">
-        <TabButton active={tab === 'current'} onClick={() => setTab('current')}>
-          {currentLabel} ({currentCount})
+      <div
+        role="tablist"
+        className="inline-flex items-center gap-3 rounded-pill bg-neutral-25 px-4 py-3"
+      >
+        <TabButton
+          active={tab === 'current'}
+          label={`${currentLabel} (${currentCount})`}
+          onClick={() => setTab('current')}
+        >
+          {currentLabel}
         </TabButton>
-        <TabButton active={tab === 'past'} onClick={() => setTab('past')}>
-          {pastLabel} ({pastCount})
+        <TabButton
+          active={tab === 'past'}
+          label={`${pastLabel} (${pastCount})`}
+          onClick={() => setTab('past')}
+        >
+          {pastLabel}
         </TabButton>
       </div>
 
-      <div className="mt-8">{tab === 'current' ? currentContent : pastContent}</div>
+      <div className="mt-6" role="tabpanel">
+        {tab === 'current' ? currentContent : pastContent}
+      </div>
     </div>
   );
 }
 
 function TabButton({
   active,
+  label,
   onClick,
   children,
 }: {
   active: boolean;
+  /** Accessible name — carries the count the design leaves out of the visible label. */
+  label: string;
   onClick: () => void;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
+      role="tab"
+      aria-selected={active}
+      aria-label={label}
       onClick={onClick}
-      className={`rounded-pill px-4 py-2 text-[16px] font-medium leading-[24px] transition-colors duration-standard ${
-        active ? 'bg-neutral-700 text-white' : 'text-neutral-800 hover:bg-neutral-50'
+      className={`rounded-[52px] px-4 py-2 text-[16px] leading-[24px] transition-colors duration-standard ${
+        active
+          ? 'bg-neutral-700 font-medium text-white'
+          : 'font-normal text-neutral-800 hover:bg-neutral-50'
       }`}
     >
       {children}
