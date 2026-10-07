@@ -73,17 +73,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         ) : (
           <LocaleProvider locale={locale} messages={messages} enabledLocales={enabledLocales}>
             <MessengersProvider links={contacts.messengers}>
-            <LeadWidgetProvider>
-              <CompareProvider>
-                <Header logo={logo} />
-                <main className="flex-1">{children}</main>
-                <Footer logo={logo} contacts={contacts} />
-                {/* StickyCta removed for now, per request — component untouched,
+              <LeadWidgetProvider>
+                <CompareProvider>
+                  <Header logo={logo} />
+                  <main className="flex-1">{children}</main>
+                  <Footer logo={logo} contacts={contacts} />
+                  {/* StickyCta removed for now, per request — component untouched,
                     just not mounted here. Re-add <StickyCta /> to bring it back. */}
-                <CompareModal />
-                <CompareBar />
-              </CompareProvider>
-            </LeadWidgetProvider>
+                  <CompareModal />
+                  <CompareBar />
+                </CompareProvider>
+              </LeadWidgetProvider>
             </MessengersProvider>
           </LocaleProvider>
         )}

@@ -10,7 +10,13 @@ interface SectionProps {
 }
 
 /** Consistent section rhythm: 96px desktop / 56px mobile vertical padding, 1280px container. */
-export function Section({ id, tone = 'dark', wide = false, className = '', children }: SectionProps) {
+export function Section({
+  id,
+  tone = 'dark',
+  wide = false,
+  className = '',
+  children,
+}: SectionProps) {
   return (
     <section
       id={id}
