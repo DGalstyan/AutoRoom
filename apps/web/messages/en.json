@@ -1347,6 +1347,37 @@
         "insurance": {
           "notProtectedTitle": "Your order is not protected.",
           "notProtectedBody": "If you're interested in obtaining insurance, please contact your branch for assistance."
+        },
+        "tabs": {
+          "aria": "Order sections",
+          "commodity": "Commodity information",
+          "invoices": "Invoices",
+          "documents": "Documents",
+          "photos": "Photos"
+        },
+        "invoicesTab": {
+          "empty": "No invoice has been uploaded yet.",
+          "kind": "Invoice"
+        },
+        "documentsTab": {
+          "empty": "No documents yet.",
+          "today": "Today",
+          "daysAgo": "{n} days ago",
+          "weekAgo": "1 week ago",
+          "weeksAgo": "{n} weeks ago",
+          "monthsAgo": "{n} months ago",
+          "kinds": {
+            "INVOICE": "Invoice",
+            "CUSTOMS": "Customs",
+            "TITLE": "Title",
+            "BILL_OF_SALE": "Bill of sale",
+            "OTHER": "Other"
+          },
+          "open": "Open"
+        },
+        "photosTab": {
+          "empty": "No photos yet.",
+          "photo": "Photo {n}"
         }
       }
     },

@@ -1350,6 +1350,37 @@
         "insurance": {
           "notProtectedTitle": "Ваш заказ не застрахован.",
           "notProtectedBody": "Если вас интересует страхование, пожалуйста, свяжитесь с вашим филиалом."
+        },
+        "tabs": {
+          "aria": "Разделы заказа",
+          "commodity": "Сведения о товаре",
+          "invoices": "Счета",
+          "documents": "Документы",
+          "photos": "Фото"
+        },
+        "invoicesTab": {
+          "empty": "Счёт пока не загружен.",
+          "kind": "Счёт"
+        },
+        "documentsTab": {
+          "empty": "Документов пока нет.",
+          "today": "Сегодня",
+          "daysAgo": "{n} дн. назад",
+          "weekAgo": "1 неделю назад",
+          "weeksAgo": "{n} нед. назад",
+          "monthsAgo": "{n} мес. назад",
+          "kinds": {
+            "INVOICE": "Счёт",
+            "CUSTOMS": "Таможня",
+            "TITLE": "Титул",
+            "BILL_OF_SALE": "Договор купли-продажи",
+            "OTHER": "Другое"
+          },
+          "open": "Открыть"
+        },
+        "photosTab": {
+          "empty": "Фото пока нет.",
+          "photo": "Фото {n}"
         }
       }
     },
