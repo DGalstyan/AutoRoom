@@ -130,7 +130,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
       </div>
 
       <div className="flex flex-col gap-6 bg-surface-light py-12 lg:flex-row lg:items-start">
-        <div className="lg:flex-[850]">
+        <div className="min-w-0 lg:flex-[850]">
           <CarGallery
             images={car.images}
             colorImageUrl={selectedColorImage}
@@ -138,7 +138,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
           />
         </div>
 
-        <div className="flex flex-col gap-9 lg:flex-[471]">
+        <div className="flex min-w-0 flex-col gap-9 lg:flex-[471]">
           <CarSpecs car={car} />
 
           {colors.length > 0 && (

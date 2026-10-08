@@ -124,7 +124,7 @@ export function CompareModal() {
             <label htmlFor="compare-search" className="text-[16px] font-medium text-neutral-700">
               {t.searchLabel}
             </label>
-            <div className="relative">
+            <div>
               <input
                 id="compare-search"
                 type="text"
@@ -135,7 +135,14 @@ export function CompareModal() {
                 className="h-[72px] w-full rounded-pill bg-neutral-25 px-6 text-[16px] text-neutral-800 outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
               />
               {query.trim() && (
-                <div className="absolute left-0 right-0 top-full z-10 mt-2 max-h-64 overflow-y-auto rounded-2xl bg-white p-2 shadow-card">
+                /* In the flow, not floating: the dialog scrolls, so an absolutely positioned
+                  list hung below the field was clipped by the panel and, on its white
+                  background with a faint shadow, read as missing. */
+                <div
+                  role="listbox"
+                  aria-label={t.searchLabel}
+                  className="mt-2 max-h-64 overflow-y-auto rounded-2xl border border-line-light bg-white p-2"
+                >
                   {results.length === 0 ? (
                     <p className="p-3 text-[14px] text-neutral-700">{t.noResults}</p>
                   ) : (
@@ -143,6 +150,8 @@ export function CompareModal() {
                       <button
                         key={result.id}
                         type="button"
+                        role="option"
+                        aria-selected="false"
                         onClick={() => pick(result)}
                         className="flex w-full items-center gap-3 rounded-xl p-3 text-left hover:bg-neutral-25"
                       >
@@ -158,7 +167,7 @@ export function CompareModal() {
                           <div className="h-8 w-12 rounded bg-neutral-100" aria-hidden />
                         )}
                         <span className="text-[14px] text-ink">
-                          {result.make} {result.model}
+                          {result.make} {result.model} {result.year}
                         </span>
                       </button>
                     ))

@@ -55,7 +55,6 @@ export interface UniversalPopupProps {
   quizAnswers?: Record<string, string>;
 }
 
-type Step = 1 | 2 | 3;
 type Status = 'idle' | 'submitting' | 'success';
 
 const INTEREST_KEYS: LeadInterest[] = ['usa', 'china', 'in-stock', 'undecided'];
@@ -76,7 +75,6 @@ export function UniversalPopup({
   const titleId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
 
-  const [step, setStep] = useState<Step>(1);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+374 ');
   const [touched, setTouched] = useState(false);
@@ -99,7 +97,6 @@ export function UniversalPopup({
   if (open !== wasOpen) {
     setWasOpen(open);
     if (open) {
-      setStep(1);
       setName('');
       setPhone('+374 ');
       setTouched(false);
@@ -116,16 +113,15 @@ export function UniversalPopup({
 
   useEffect(() => {
     headingRef.current?.focus();
-  }, [step, status]);
+  }, [status]);
 
-  const isStep1Valid = name.trim().length > 0 && isValidArmenianPhone(phone);
+  const isValid = name.trim().length > 0 && isValidArmenianPhone(phone);
   const phoneError = touched && !isValidArmenianPhone(phone);
   const nameError = touched && name.trim().length === 0;
 
   async function handleSubmit() {
-    if (!isStep1Valid) {
+    if (!isValid) {
       setTouched(true);
-      setStep(1);
       return;
     }
     setStatus('submitting');
@@ -192,27 +188,16 @@ export function UniversalPopup({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (step < 3) {
-            if (step === 1 && !isStep1Valid) {
-              setTouched(true);
-              return;
-            }
-            setStep((step + 1) as Step);
-            return;
-          }
           void handleSubmit();
         }}
       >
-        <p className="text-caption font-medium uppercase tracking-wide text-muted">
-          {interpolate(t.step, { current: String(step), total: '3' })}
-        </p>
         <h2
           id={titleId}
           ref={headingRef}
           tabIndex={-1}
-          className="mt-1 font-display text-h3 font-bold text-ink outline-none"
+          className="font-display text-h3 font-bold text-ink outline-none"
         >
-          {step === 1 ? dialogTitle : step === 2 ? t.step2Title : t.step3Title}
+          {dialogTitle}
         </h2>
 
         {car && (
@@ -243,145 +228,94 @@ export function UniversalPopup({
           </div>
         )}
 
-        {step === 1 && (
-          <div className="mt-6 space-y-4">
-            <div>
-              <label htmlFor="up-name" className="mb-1 block text-small font-medium text-ink">
-                {t.nameLabel}
-              </label>
-              <input
-                id="up-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                onBlur={() => setTouched(true)}
-                aria-invalid={nameError}
-                aria-describedby={nameError ? 'up-name-error' : undefined}
-                placeholder={t.namePlaceholder}
-                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-              />
-              {nameError && (
-                <p id="up-name-error" className="mt-1 text-small text-accent">
-                  {t.errors.nameRequired}
-                </p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="up-phone" className="mb-1 block text-small font-medium text-ink">
-                {t.phoneLabel}
-              </label>
-              <input
-                id="up-phone"
-                name="phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                value={phone}
-                onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
-                onBlur={() => setTouched(true)}
-                aria-invalid={phoneError}
-                aria-describedby={phoneError ? 'up-phone-error' : undefined}
-                className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-              />
-              {phoneError && (
-                <p id="up-phone-error" className="mt-1 text-small text-accent">
-                  {t.errors.phoneInvalid}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="mt-4 space-y-5">
-            <p className="text-small text-muted">{t.encouraging}</p>
-
-            {car ? (
-              car.colors &&
-              car.colors.length > 0 && (
-                <QuickChoice
-                  label={t.colorLabel}
-                  options={car.colors.map((c) => ({ key: c, label: c }))}
-                  value={color}
-                  onChange={setColor}
-                />
-              )
-            ) : (
-              <QuickChoice
-                label={t.interestLabel}
-                options={INTEREST_KEYS.map((key) => ({ key, label: t.interestOptions[key] }))}
-                value={interest}
-                onChange={(value) => setInterest(value as LeadInterest | undefined)}
-              />
-            )}
-
-            <LeadQualification
-              values={{ budget, financing, timing, channel }}
-              onChange={(patch) => {
-                if ('budget' in patch) setBudget(patch.budget);
-                if ('financing' in patch) setFinancing(patch.financing);
-                if ('timing' in patch) setTiming(patch.timing);
-                if ('channel' in patch) setChannel(patch.channel);
-              }}
-              fields={car ? ['budget', 'financing', 'channel'] : undefined}
-            />
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="mt-4">
-            <label htmlFor="up-comment" className="mb-1 block text-small font-medium text-ink">
-              {t.commentLabel}
+        {/* One screen: the two things we need, then quick optional taps. */}
+        <div className="mt-6 space-y-4">
+          <div>
+            <label htmlFor="up-name" className="mb-1 block text-small font-medium text-ink">
+              {t.nameLabel}
             </label>
-            <textarea
-              id="up-comment"
-              name="comment"
-              rows={4}
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-              placeholder={t.commentPlaceholder}
-              className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
+            <input
+              id="up-name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              onBlur={() => setTouched(true)}
+              aria-invalid={nameError}
+              aria-describedby={nameError ? 'up-name-error' : undefined}
+              placeholder={t.namePlaceholder}
+              className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
             />
+            {nameError && (
+              <p id="up-name-error" className="mt-1 text-small text-accent">
+                {t.errors.nameRequired}
+              </p>
+            )}
           </div>
-        )}
+          <div>
+            <label htmlFor="up-phone" className="mb-1 block text-small font-medium text-ink">
+              {t.phoneLabel}
+            </label>
+            <input
+              id="up-phone"
+              name="phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              value={phone}
+              onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+              onBlur={() => setTouched(true)}
+              aria-invalid={phoneError}
+              aria-describedby={phoneError ? 'up-phone-error' : undefined}
+              className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+            />
+            {phoneError && (
+              <p id="up-phone-error" className="mt-1 text-small text-accent">
+                {t.errors.phoneInvalid}
+              </p>
+            )}
+          </div>
+        </div>
 
-        <div className="mt-6 flex items-center justify-between gap-3">
-          {step > 1 ? (
-            <Button
-              type="button"
-              variant="tertiary"
-              className="text-ink"
-              onClick={() => setStep((step - 1) as Step)}
-            >
-              {t.back}
-            </Button>
+        <div className="mt-6 space-y-5 border-t border-line-light pt-5">
+          <p className="text-small text-muted">{t.optionalHint}</p>
+
+          {car ? (
+            car.colors &&
+            car.colors.length > 0 && (
+              <QuickChoice
+                label={t.colorLabel}
+                options={car.colors.map((c) => ({ key: c, label: c }))}
+                value={color}
+                onChange={setColor}
+              />
+            )
           ) : (
-            <span />
+            <QuickChoice
+              label={t.interestLabel}
+              options={INTEREST_KEYS.map((key) => ({ key, label: t.interestOptions[key] }))}
+              value={interest}
+              onChange={(value) => setInterest(value as LeadInterest | undefined)}
+            />
           )}
-          <div className="flex items-center gap-3">
-            {step < 3 && (
-              <Button
-                type="submit"
-                variant="outline"
-                className="border-line-light text-ink"
-                disabled={step === 1 && !isStep1Valid}
-              >
-                {t.next}
-              </Button>
-            )}
-            {(step > 1 || isStep1Valid) && (
-              <Button
-                type="button"
-                variant="primary"
-                disabled={!isStep1Valid || status === 'submitting'}
-                onClick={() => void handleSubmit()}
-              >
-                {status === 'submitting' ? t.sending : car ? t.submitPerCar : t.submit}
-              </Button>
-            )}
-          </div>
+
+          <LeadQualification
+            values={{ budget, financing, timing, channel }}
+            onChange={(patch) => {
+              if ('budget' in patch) setBudget(patch.budget);
+              if ('financing' in patch) setFinancing(patch.financing);
+              if ('timing' in patch) setTiming(patch.timing);
+              if ('channel' in patch) setChannel(patch.channel);
+            }}
+            fields={car ? ['budget', 'financing', 'channel'] : undefined}
+          />
+        </div>
+
+        <div className="mt-6 flex items-center justify-end gap-3">
+          <Button type="submit" variant="primary" disabled={!isValid || status === 'submitting'}>
+            {status === 'submitting' ? t.sending : car ? t.submitPerCar : t.submit}
+          </Button>
         </div>
       </form>
     </Dialog>

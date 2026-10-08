@@ -30,6 +30,7 @@ export const RESOURCES = {
   team: CRUD,
   gallery: CRUD,
   media: CRUD,
+  blog: CRUD_PUBLISH,
 
   cars: CRUD_PUBLISH,
   auctions: CRUD_PUBLISH,
@@ -63,6 +64,7 @@ const CONTENT_RESOURCES = [
   'team',
   'gallery',
   'media',
+  'blog',
 ] as const;
 
 export const ROLES: RoleDefinition[] = [
@@ -90,6 +92,7 @@ export const ROLES: RoleDefinition[] = [
       team: CRUD,
       gallery: CRUD,
       media: CRUD,
+      blog: CRUD_PUBLISH,
       cars: CRUD_PUBLISH,
       auctions: CRUD_PUBLISH,
       offers: CRUD_PUBLISH,

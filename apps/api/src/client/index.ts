@@ -22,6 +22,8 @@ import type {
   DocumentInput,
   ErrorCode,
   Faq,
+  BlogPost,
+  BlogPostInput,
   FaqInput,
   FaqTopic,
   GalleryImage,
@@ -528,6 +530,37 @@ export function createApiClient(options: ApiClientOptions) {
       /** Unauthenticated. No topic means the homepage's aggregated set. */
       public: (query: { topic?: FaqTopic } = {}, init?: RequestOptions) =>
         request<{ items: Faq[]; total: number }>('GET', `/public/faq${toSearch(query)}`, init),
+    },
+
+    /** `/blog` on the public site — drafts and articles in every language. */
+    blog: {
+      list: (
+        query: { published?: boolean; take?: number; skip?: number } = {},
+        init?: RequestOptions,
+      ) =>
+        request<{ items: BlogPost[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/blog${toSearch(query)}`,
+          init,
+        ),
+      get: (id: string, init?: RequestOptions) => request<BlogPost>('GET', `/blog/${id}`, init),
+      create: (body: BlogPostInput, init?: RequestOptions) =>
+        request<BlogPost>('POST', '/blog', { ...init, body }),
+      update: (id: string, body: BlogPostInput, init?: RequestOptions) =>
+        request<BlogPost>('PUT', `/blog/${id}`, { ...init, body }),
+      remove: (id: string, init?: RequestOptions) => request<void>('DELETE', `/blog/${id}`, init),
+      /** Separate from `update` because `blog:PUBLISH` is its own permission. */
+      setPublished: (id: string, published: boolean, init?: RequestOptions) =>
+        request<BlogPost>('POST', `/blog/${id}/publish`, { ...init, body: { published } }),
+      /** Unauthenticated: published articles, newest first. */
+      public: (query: { take?: number; skip?: number } = {}, init?: RequestOptions) =>
+        request<{ items: BlogPost[]; total: number; take: number; skip: number }>(
+          'GET',
+          `/public/blog${toSearch(query)}`,
+          init,
+        ),
+      publicBySlug: (slug: string, init?: RequestOptions) =>
+        request<BlogPost>('GET', `/public/blog/${slug}`, init),
     },
 
     /**

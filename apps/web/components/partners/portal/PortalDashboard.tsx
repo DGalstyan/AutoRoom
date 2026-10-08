@@ -1,6 +1,5 @@
 'use client';
 
-import { Field } from '@/components/ui/Field';
 import { Price } from '@/components/ui/Price';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -14,6 +13,7 @@ import type {
   PortalCar,
   PortalIdentity,
 } from '@autoroom/api/client';
+import { ListDropdown } from '@/components/china/FilterDropdowns';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { errorMessage } from '@/lib/portal/api';
 import { usePortalAuth } from '@/components/partners/portal/PortalAuthProvider';
@@ -45,10 +45,12 @@ export function PortalDashboard() {
   const [bookings, setBookings] = useState<Booking[] | null>(null);
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<'cars' | 'orders' | 'bookings'>('cars');
+  const [tab, setTab] = useState<'cars' | 'orders' | 'bookings'>('orders');
+  const [stageFilter, setStageFilter] = useState<OrderStageName | null>(null);
+  // The date dropdown's own labels double as its values; '' means the default (newest first).
+  const [dateChoice, setDateChoice] = useState('');
   const [originFilter, setOriginFilter] = useState<CarOrigin | 'ALL'>('ALL');
   const [branchFilter, setBranchFilter] = useState<string | 'ALL'>('ALL');
-  const [dateSort, setDateSort] = useState<'desc' | 'asc'>('desc');
   const [orderSearch, setOrderSearch] = useState('');
 
   useEffect(() => {
@@ -88,11 +90,14 @@ export function PortalDashboard() {
     return Array.from(seen).sort();
   }, [orders]);
 
+  const dateSort: 'desc' | 'asc' = dateChoice === t.dashboard.filters.sortOldest ? 'asc' : 'desc';
+
   const filteredOrders = useMemo(() => {
     const list = orders ?? [];
     const term = orderSearch.trim().toLowerCase();
     const filtered = list.filter((order) => {
       if (originFilter !== 'ALL' && order.car.origin !== originFilter) return false;
+      if (stageFilter && order.stage !== stageFilter) return false;
       if (branchFilter !== 'ALL' && order.car.location !== branchFilter) return false;
       if (!term) return true;
       return (
@@ -106,7 +111,7 @@ export function PortalDashboard() {
       const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       return dateSort === 'asc' ? diff : -diff;
     });
-  }, [orders, originFilter, branchFilter, orderSearch, dateSort]);
+  }, [orders, originFilter, branchFilter, orderSearch, dateSort, stageFilter]);
 
   if (error) {
     return (
@@ -137,166 +142,213 @@ export function PortalDashboard() {
     );
   }
 
+  const stageCards: { label: string; value: number; stage: OrderStageName | null }[] = [
+    { label: t.dashboard.stageStats.active, value: me.orderStats.stageCounts.active, stage: null },
+    {
+      label: t.dashboard.stageStats.loading,
+      value: me.orderStats.stageCounts.loading,
+      stage: 'LOADING',
+    },
+    {
+      label: t.dashboard.stageStats.inTransit,
+      value: me.orderStats.stageCounts.inTransit,
+      stage: 'IN_TRANSIT',
+    },
+    {
+      label: t.dashboard.stageStats.arrived,
+      value: me.orderStats.stageCounts.arrived,
+      stage: 'ARRIVED',
+    },
+    {
+      label: t.dashboard.stageStats.delivered,
+      value: me.orderStats.stageCounts.delivered,
+      stage: 'DELIVERED',
+    },
+  ];
+
+  function showStage(stage: OrderStageName | null) {
+    setTab('orders');
+    setStageFilter(stage);
+    document
+      .getElementById('portal-orders')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   return (
-    <div className="mx-auto max-w-[1344px] px-4 py-16 sm:px-6 lg:py-24">
+    <div className="mx-auto max-w-page px-4 pb-16 pt-32 sm:px-6 sm:pt-[185px] lg:px-12 lg:pb-24">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="mt-[40px] font-display text-home-h2 font-light text-ink">
-            {greeting(t.dashboard)}, {identity?.name.split(' ')[0]} 👋
-          </h1>
-          <p className="mt-2 text-body text-neutral-700">
-            {me.company ?? me.name} — {t.dashboard.subheading}
-          </p>
+        <h1 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+          {greeting(t.dashboard)}, {identity?.name.split(' ')[0]} 👋
+        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="hidden text-small text-neutral-700 sm:inline">
+            {me.company ?? me.name}
+          </span>
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="h-11 shrink-0 rounded-pill bg-white px-5 text-[14px] font-medium text-ink transition-colors hover:bg-neutral-50"
+          >
+            {t.dashboard.logout}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => void signOut()}
-          className="h-11 shrink-0 rounded-pill border border-line-light px-5 text-[14px] font-medium text-ink transition-colors hover:bg-neutral-25"
+      </div>
+
+      {/* Figma 441:5557: 64px under the greeting, 56px between a heading and its cards, 64px between groups. */}
+      <section className="mt-8 lg:mt-16" aria-labelledby="portal-stage-heading">
+        <h2
+          id="portal-stage-heading"
+          className="stretch-90 text-[24px] font-bold leading-9 text-ink"
         >
-          {t.dashboard.logout}
-        </button>
-      </div>
+          {t.dashboard.stageStats.heading}
+        </h2>
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-5 lg:gap-6">
+          {stageCards.map((card) => (
+            <StatCard
+              key={card.label}
+              label={card.label}
+              value={card.value}
+              onOpen={() => showStage(card.stage)}
+              active={tab === 'orders' && stageFilter === card.stage && card.stage !== null}
+            />
+          ))}
+        </div>
+      </section>
 
-      <div className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label={t.dashboard.stats.cars} value={me.counts.cars} />
-        <StatCard label={t.dashboard.stats.publishedCars} value={me.counts.publishedCars} />
-        <StatCard label={t.dashboard.stats.upcomingBookings} value={me.counts.upcomingBookings} />
-        <StatCard label={t.dashboard.stats.bookings} value={me.counts.bookings} />
-      </div>
+      <section className="mt-8 lg:mt-16" aria-labelledby="portal-pay-heading">
+        <h2 id="portal-pay-heading" className="stretch-90 text-[24px] font-bold leading-9 text-ink">
+          {t.dashboard.paymentStats.heading}
+        </h2>
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-[repeat(3,267px)] lg:gap-6">
+          <StatCard
+            label={t.dashboard.paymentStats.pending}
+            value={me.orderStats.paymentSummary.pending}
+          />
+          <StatCard
+            label={t.dashboard.paymentStats.partial}
+            value={me.orderStats.paymentSummary.partial}
+          />
+          <StatCard
+            label={t.dashboard.paymentStats.paid}
+            value={me.orderStats.paymentSummary.paid}
+          />
+        </div>
+      </section>
 
-      <h2 className="mt-12 text-h3 font-display font-light text-ink">
-        {t.dashboard.stageStats.heading}
-      </h2>
-      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatCard label={t.dashboard.stageStats.active} value={me.orderStats.stageCounts.active} />
-        <StatCard
-          label={t.dashboard.stageStats.loading}
-          value={me.orderStats.stageCounts.loading}
-        />
-        <StatCard
-          label={t.dashboard.stageStats.inTransit}
-          value={me.orderStats.stageCounts.inTransit}
-        />
-        <StatCard
-          label={t.dashboard.stageStats.arrived}
-          value={me.orderStats.stageCounts.arrived}
-        />
-        <StatCard
-          label={t.dashboard.stageStats.delivered}
-          value={me.orderStats.stageCounts.delivered}
-        />
-      </div>
-
-      <h2 className="mt-12 text-h3 font-display font-light text-ink">
-        {t.dashboard.paymentStats.heading}
-      </h2>
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
-          label={t.dashboard.paymentStats.pending}
-          value={me.orderStats.paymentSummary.pending}
-        />
-        <StatCard
-          label={t.dashboard.paymentStats.partial}
-          value={me.orderStats.paymentSummary.partial}
-        />
-        <StatCard label={t.dashboard.paymentStats.paid} value={me.orderStats.paymentSummary.paid} />
-      </div>
-
-      <div className="mt-12 flex gap-2 border-b border-line-light">
-        <TabButton active={tab === 'cars'} onClick={() => setTab('cars')}>
-          {t.dashboard.carsHeading} ({cars.length})
-        </TabButton>
-        <TabButton active={tab === 'orders'} onClick={() => setTab('orders')}>
-          {t.dashboard.ordersHeading} ({orders.length})
-        </TabButton>
-        <TabButton active={tab === 'bookings'} onClick={() => setTab('bookings')}>
-          {t.dashboard.bookingsHeading} ({bookings.length})
-        </TabButton>
-      </div>
-
-      {tab === 'cars' &&
-        (cars.length === 0 ? (
-          <Empty message={t.dashboard.noCars} />
-        ) : (
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {cars.map((car) => (
-              <CarCard key={car.id} car={car} t={t.dashboard} />
-            ))}
+      <div id="portal-orders" className="mt-8 flex scroll-mt-28 flex-col gap-9 lg:mt-16">
+        <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6 xl:rounded-[70px]">
+          <div
+            role="group"
+            className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[24px] bg-neutral-25 px-4 py-3 sm:w-fit sm:rounded-pill"
+          >
+            <ViewPill
+              active={tab === 'orders' && originFilter === 'ALL'}
+              onClick={() => {
+                setTab('orders');
+                setOriginFilter('ALL');
+              }}
+            >
+              {t.dashboard.filters.all}
+            </ViewPill>
+            <ViewPill
+              active={tab === 'orders' && originFilter === 'CHINA'}
+              onClick={() => {
+                setTab('orders');
+                setOriginFilter('CHINA');
+              }}
+            >
+              {nav.china}({orderCounts.CHINA})
+            </ViewPill>
+            <ViewPill
+              active={tab === 'orders' && originFilter === 'USA'}
+              onClick={() => {
+                setTab('orders');
+                setOriginFilter('USA');
+              }}
+            >
+              {nav.usa}({orderCounts.USA})
+            </ViewPill>
+            <span className="mx-1 hidden h-6 w-px bg-neutral-100 sm:block" aria-hidden="true" />
+            <ViewPill active={tab === 'cars'} onClick={() => setTab('cars')}>
+              {t.dashboard.carsHeading} ({cars.length})
+            </ViewPill>
+            <ViewPill active={tab === 'bookings'} onClick={() => setTab('bookings')}>
+              {t.dashboard.bookingsHeading} ({bookings.length})
+            </ViewPill>
           </div>
-        ))}
 
-      {tab === 'orders' &&
-        (orders.length === 0 ? (
-          <Empty message={t.dashboard.noOrders} />
-        ) : (
-          <div className="mt-8">
-            <div className="flex flex-wrap items-center gap-2">
-              <FilterPill
-                active={originFilter === 'ALL'}
-                onClick={() => setOriginFilter('ALL')}
-                label={`${t.dashboard.filters.all} (${orderCounts.ALL})`}
-              />
-              <FilterPill
-                active={originFilter === 'CHINA'}
-                onClick={() => setOriginFilter('CHINA')}
-                label={`${nav.china} (${orderCounts.CHINA})`}
-              />
-              <FilterPill
-                active={originFilter === 'USA'}
-                onClick={() => setOriginFilter('USA')}
-                label={`${nav.usa} (${orderCounts.USA})`}
-              />
-
-              <select
-                value={dateSort}
-                onChange={(event) => setDateSort(event.target.value as 'desc' | 'asc')}
-                aria-label={t.dashboard.ordersTable.date}
-                className="h-9 rounded-pill border border-line-light bg-white px-3 text-[13px] text-ink outline-none focus:ring-2 focus:ring-accent"
-              >
-                <option value="desc">{t.dashboard.filters.sortNewest}</option>
-                <option value="asc">{t.dashboard.filters.sortOldest}</option>
-              </select>
-
-              {branchOptions.length > 0 && (
-                <select
-                  value={branchFilter}
-                  onChange={(event) => setBranchFilter(event.target.value)}
-                  aria-label={t.dashboard.ordersTable.branch}
-                  className="h-9 rounded-pill border border-line-light bg-white px-3 text-[13px] text-ink outline-none focus:ring-2 focus:ring-accent"
+          {tab === 'orders' && (
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap xl:gap-8">
+              <label className="flex h-9 w-full items-center justify-between rounded-pill bg-neutral-25 px-3 text-[12px] leading-4 text-neutral-700 sm:w-[228px]">
+                <span className="sr-only">{t.dashboard.filters.searchLabel}</span>
+                <input
+                  type="search"
+                  value={orderSearch}
+                  onChange={(event) => setOrderSearch(event.target.value)}
+                  placeholder={t.dashboard.filters.searchPlaceholder}
+                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-700 [&::-webkit-search-cancel-button]:hidden"
+                />
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden="true"
+                  className="shrink-0"
                 >
-                  <option value="ALL">{t.dashboard.filters.allBranches}</option>
-                  {branchOptions.map((branch) => (
-                    <option key={branch} value={branch}>
-                      {branch}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <Field
-                label={t.dashboard.filters.searchLabel}
-                className="ml-auto"
-                labelClassName="text-[12px] font-medium text-neutral-700"
-              >
-                {(a11y) => (
-                  <input
-                    {...a11y}
-                    type="search"
-                    value={orderSearch}
-                    onChange={(event) => setOrderSearch(event.target.value)}
-                    placeholder={t.dashboard.filters.searchPlaceholder}
-                    className="h-11 min-w-[200px] rounded-pill border border-line-light bg-white px-4 text-[13px] text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+                  <circle cx="9" cy="9" r="5.5" stroke="#3D3D3D" strokeWidth="1.3" />
+                  <path
+                    d="m13.5 13.5 3 3"
+                    stroke="#3D3D3D"
+                    strokeWidth="1.3"
+                    strokeLinecap="round"
                   />
-                )}
-              </Field>
+                </svg>
+              </label>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <ListDropdown
+                  label={t.dashboard.ordersTable.date}
+                  allLabel={t.dashboard.ordersTable.date}
+                  allRowLabel={t.dashboard.filters.sortNewest}
+                  options={[t.dashboard.filters.sortOldest]}
+                  value={dateChoice}
+                  onChange={setDateChoice}
+                />
+                <ListDropdown
+                  label={t.dashboard.ordersTable.branch}
+                  allLabel={t.dashboard.ordersTable.branch}
+                  allRowLabel={t.dashboard.filters.allBranches}
+                  options={branchOptions}
+                  value={branchFilter === 'ALL' ? '' : branchFilter}
+                  onChange={(next) => setBranchFilter(next || 'ALL')}
+                />
+              </div>
             </div>
+          )}
+        </div>
 
-            <div className="mt-4 overflow-hidden rounded-2xl border border-line-light">
+        {tab === 'cars' &&
+          (cars.length === 0 ? (
+            <Empty message={t.dashboard.noCars} />
+          ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {cars.map((car) => (
+                <CarCard key={car.id} car={car} t={t.dashboard} />
+              ))}
+            </div>
+          ))}
+
+        {tab === 'orders' &&
+          (orders.length === 0 ? (
+            <Empty message={t.dashboard.noOrders} />
+          ) : (
+            /* Figma 441:5751: a black 88px header over 72px rows that alternate white / #f7f7f7. */
+            <div className="overflow-hidden rounded-[24px] bg-white">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[900px] text-left">
+                <table className="w-full min-w-[960px] table-fixed text-left">
                   <thead>
-                    <tr className="border-b border-line-light bg-neutral-25">
-                      <Th>{t.dashboard.ordersTable.date}</Th>
+                    <tr className="bg-ink">
+                      <Th first>{t.dashboard.ordersTable.date}</Th>
                       <Th>{t.dashboard.ordersTable.orderNumber}</Th>
                       <Th>{t.dashboard.ordersTable.vin}</Th>
                       <Th>{t.dashboard.ordersTable.make}</Th>
@@ -317,16 +369,14 @@ export function PortalDashboard() {
                         }}
                         role="button"
                         tabIndex={0}
-                        className="cursor-pointer border-b border-line-light last:border-0 hover:bg-neutral-25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+                        className="cursor-pointer odd:bg-white even:bg-[#f7f7f7] hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
                       >
-                        <Td>{formatDate(order.createdAt)}</Td>
+                        <Td first>{formatDate(order.createdAt)}</Td>
                         <Td>{order.orderNumber}</Td>
                         <Td>{order.car.vin ?? '—'}</Td>
                         <Td>{order.car.make}</Td>
                         <Td>{order.car.model}</Td>
-                        <Td>
-                          <OrderStageChip stage={order.stage} t={t.dashboard.orderStage} />
-                        </Td>
+                        <Td>{t.dashboard.orderStage[order.stage]}</Td>
                         <Td>{order.car.origin === 'CHINA' ? nav.china : nav.usa}</Td>
                         <Td>{order.car.location ?? '—'}</Td>
                       </tr>
@@ -334,66 +384,121 @@ export function PortalDashboard() {
                   </tbody>
                 </table>
               </div>
+              {filteredOrders.length === 0 && (
+                <p className="px-6 py-10 text-center text-body text-neutral-700">
+                  {t.dashboard.noOrders}
+                </p>
+              )}
             </div>
-          </div>
-        ))}
+          ))}
 
-      {tab === 'bookings' &&
-        (bookings.length === 0 ? (
-          <Empty message={t.dashboard.noBookings} />
-        ) : (
-          <div className="mt-8 overflow-hidden rounded-2xl border border-line-light">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left">
-                <thead>
-                  <tr className="border-b border-line-light bg-neutral-25">
-                    <Th>{t.dashboard.table.when}</Th>
-                    <Th>{t.dashboard.table.customer}</Th>
-                    <Th>{t.dashboard.table.car}</Th>
-                    <Th>{t.dashboard.table.status}</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings.map((booking) => (
-                    <tr key={booking.id} className="border-b border-line-light last:border-0">
-                      <Td>{formatWhen(booking.scheduledAt)}</Td>
-                      <Td>
-                        {booking.customerName ?? '—'}
-                        {booking.customerPhone && (
-                          <span className="block text-small text-neutral-700">
-                            {booking.customerPhone}
-                          </span>
-                        )}
-                      </Td>
-                      <Td>
-                        {booking.car
-                          ? `${booking.car.make} ${booking.car.model} ${booking.car.year}`
-                          : '—'}
-                      </Td>
-                      <Td>
-                        <BookingStatusChip status={booking.status} t={t.dashboard.bookingStatus} />
-                      </Td>
+        {tab === 'bookings' &&
+          (bookings.length === 0 ? (
+            <Empty message={t.dashboard.noBookings} />
+          ) : (
+            <div className="overflow-hidden rounded-[24px] bg-white">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left">
+                  <thead>
+                    <tr className="border-b border-line-light bg-neutral-25">
+                      <Th>{t.dashboard.table.when}</Th>
+                      <Th>{t.dashboard.table.customer}</Th>
+                      <Th>{t.dashboard.table.car}</Th>
+                      <Th>{t.dashboard.table.status}</Th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {bookings.map((booking) => (
+                      <tr key={booking.id} className="border-b border-line-light last:border-0">
+                        <Td>{formatWhen(booking.scheduledAt)}</Td>
+                        <Td>
+                          {booking.customerName ?? '—'}
+                          {booking.customerPhone && (
+                            <span className="block text-small text-neutral-700">
+                              {booking.customerPhone}
+                            </span>
+                          )}
+                        </Td>
+                        <Td>
+                          {booking.car
+                            ? `${booking.car.make} ${booking.car.model} ${booking.car.year}`
+                            : '—'}
+                        </Td>
+                        <Td>
+                          <BookingStatusChip
+                            status={booking.status}
+                            t={t.dashboard.bookingStatus}
+                          />
+                        </Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+      </div>
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-line-light px-5 py-4">
-      <p className="text-small text-neutral-700">{label}</p>
-      <p className="mt-1 font-display text-h3 font-light text-ink">{value}</p>
-    </div>
+/** A stat tile — Figma 441:5563: 126px, 32px inset, a 24px bold number with a 22px arrow
+ * chip beside it (when the tile opens the matching orders), the label under it. */
+function StatCard({
+  label,
+  value,
+  onOpen,
+  active = false,
+}: {
+  label: string;
+  value: number;
+  onOpen?: () => void;
+  active?: boolean;
+}) {
+  const body = (
+    <>
+      <span className="flex items-center gap-4">
+        <span className="text-[24px] font-bold leading-9 tabular-nums text-ink">{value}</span>
+        {onOpen && (
+          <span
+            aria-hidden="true"
+            className="flex size-[22px] items-center justify-center rounded-full bg-[#eceef0] text-neutral-800"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M5 11 11 5M11 5H6M11 5v5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        )}
+      </span>
+      <span className="text-[16px] leading-6 text-neutral-800">{label}</span>
+    </>
+  );
+  const base =
+    'flex min-h-[126px] flex-col items-start justify-center gap-0.5 rounded-[32px] bg-white p-8 text-left';
+  return onOpen ? (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-pressed={active}
+      className={`${base} transition-shadow duration-standard hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
+        active ? 'ring-2 ring-accent' : ''
+      }`}
+    >
+      {body}
+    </button>
+  ) : (
+    <div className={base}>{body}</div>
   );
 }
 
-function TabButton({
+/** A pill in the panel's view switcher (Figma "Filter item": 52px corners, active #666E73). */
+function ViewPill({
   active,
   onClick,
   children,
@@ -406,8 +511,11 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`-mb-px border-b-2 px-1 py-3 text-[14px] font-medium transition-colors ${
-        active ? 'border-ink text-ink' : 'border-transparent text-neutral-700 hover:text-ink'
+      aria-pressed={active}
+      className={`rounded-[52px] px-4 py-2 text-[16px] leading-6 transition-colors duration-standard ${
+        active
+          ? 'bg-neutral-700 font-medium text-white'
+          : 'font-normal text-neutral-800 hover:bg-neutral-50'
       }`}
     >
       {children}
@@ -475,49 +583,6 @@ function CarCard({
   );
 }
 
-function FilterPill({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`h-9 shrink-0 rounded-pill px-4 text-[13px] font-medium transition-colors ${
-        active ? 'bg-ink text-white' : 'bg-neutral-25 text-neutral-700 hover:bg-neutral-100'
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function OrderStageChip({
-  stage,
-  t,
-}: {
-  stage: OrderStageName;
-  t: Record<OrderStageName, string>;
-}) {
-  const tone: Record<OrderStageName, string> = {
-    CREATED: 'bg-neutral-100 text-neutral-700',
-    LOADING: 'bg-warn/15 text-warn',
-    IN_TRANSIT: 'bg-info/15 text-info',
-    ARRIVED: 'bg-info/15 text-info',
-    DELIVERED: 'bg-success/15 text-success',
-  };
-  return (
-    <span className={`rounded-pill px-2.5 py-0.5 text-[11px] font-semibold ${tone[stage]}`}>
-      {t[stage]}
-    </span>
-  );
-}
-
 function BookingStatusChip({
   status,
   t,
@@ -540,18 +605,30 @@ function BookingStatusChip({
 
 function Empty({ message }: { message: string }) {
   return (
-    <div className="mt-8 rounded-2xl border border-line-light py-16 text-center">
+    <div className="rounded-[24px] bg-white py-16 text-center">
       <p className="text-body text-neutral-700">{message}</p>
     </div>
   );
 }
 
-function Th({ children }: { children: React.ReactNode }) {
-  return <th className="px-4 py-3 text-small font-medium text-neutral-700">{children}</th>;
+function Th({ children, first = false }: { children: React.ReactNode; first?: boolean }) {
+  return (
+    <th
+      className={`py-6 pr-3 text-[16px] font-medium leading-5 text-neutral-25 ${first ? 'pl-6' : 'pl-3'}`}
+    >
+      {children}
+    </th>
+  );
 }
 
-function Td({ children }: { children: React.ReactNode }) {
-  return <td className="px-4 py-3 text-[14px] text-ink">{children}</td>;
+function Td({ children, first = false }: { children: React.ReactNode; first?: boolean }) {
+  return (
+    <td
+      className={`h-[72px] truncate py-4 pr-3 text-[14px] leading-[18px] text-ink ${first ? 'pl-6' : 'pl-3'}`}
+    >
+      {children}
+    </td>
+  );
 }
 
 function formatWhen(iso: string) {

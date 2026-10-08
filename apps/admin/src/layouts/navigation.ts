@@ -47,6 +47,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'FAQ', to: '/faq', permission: 'faq:READ' },
       { label: 'Team', to: '/team', permission: 'team:READ' },
       { label: 'Gallery', to: '/gallery', permission: 'gallery:READ' },
+      { label: 'Blog', to: '/blog', permission: 'blog:READ' },
     ],
   },
   {

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
+import { Price } from '@/components/ui/Price';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -107,13 +108,13 @@ export function LoanCalculator({
           <div className="flex flex-col gap-[10px] lg:w-[265px]">
             <div>
               <p className="text-[16px] leading-6 text-neutral-800">{t.downPayment}</p>
-              <p className="text-[14px] font-bold leading-5 text-neutral-800 tabular-nums">
+              <p className="text-[16px] font-medium leading-6 text-neutral-800 tabular-nums">
                 {formatUsd(clamped)}
               </p>
             </div>
             <div>
               <p className="text-[16px] leading-6 text-neutral-800">{t.term}</p>
-              <p className="text-[14px] font-bold leading-5 text-neutral-800 tabular-nums">
+              <p className="text-[16px] font-medium leading-6 text-neutral-800 tabular-nums">
                 {finance.termMonths}
               </p>
             </div>
@@ -123,15 +124,10 @@ export function LoanCalculator({
             <p className="stretch-90 text-[24px] font-bold leading-8 text-neutral-900">
               {t.monthly}
             </p>
-            <p
-              className={`font-normal tabular-nums text-neutral-900 ${
-                formatAmd(monthly).length > 11
-                  ? 'text-[28px] leading-[40px] sm:text-[36px] sm:leading-[48px]'
-                  : 'text-[32px] leading-[44px] sm:text-[44px] sm:leading-[56px]'
-              }`}
-            >
+            {/* The one big number: 28px on phones, 36px from sm, always 700 (the Price "total" size). */}
+            <Price as="p" size="total" className="text-neutral-900">
               {formatAmd(monthly)}
-            </p>
+            </Price>
           </div>
           {carImage && (
             <div className="pointer-events-none absolute bottom-4 right-4 hidden h-[164px] w-[246px] overflow-hidden rounded-[24px] sm:block">

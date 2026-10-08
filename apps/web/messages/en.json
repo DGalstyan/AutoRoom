@@ -17,7 +17,9 @@
       "menuOpen": "Open menu",
       "menuClose": "Close menu",
       "primaryNav": "Primary navigation",
-      "headerCta": "Get an offer"
+      "headerCta": "Get an offer",
+      "blog": "Blog",
+      "partnerPortal": "Partner portal"
     },
     "stickyCta": {
       "label": "Haven't found your car? Let's find it together",
@@ -103,7 +105,8 @@
       "openInMessenger": "Continue in {channel}",
       "messengerGreeting": "Hello, I'm {name}. I just sent a request on the AutoRoom website.",
       "messengerGreetingCar": "Hello, I'm {name}. I just sent a request about {car} on the AutoRoom website.",
-      "arrivalLabel": "Arrival date"
+      "arrivalLabel": "Arrival date",
+      "optionalHint": "Optional — a couple of taps make the offer more accurate."
     },
     "quiz": {
       "title": "Find your car in 60 seconds",
@@ -1743,5 +1746,15 @@
         ]
       }
     ]
+  },
+  "blog": {
+    "meta": {
+      "title": "Blog — AutoRoom",
+      "description": "Articles about importing, buying and maintaining cars."
+    },
+    "heading": "Blog",
+    "empty": "No articles yet.",
+    "read": "Read",
+    "back": "All articles"
   }
 }

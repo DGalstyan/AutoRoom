@@ -818,6 +818,32 @@ export interface FaqInput {
   published: boolean;
 }
 
+/* ----------------------------------- blog ----------------------------------- */
+
+export interface BlogPost {
+  id: string;
+  /** The URL segment: `/blog/<slug>`. */
+  slug: string;
+  title: LocalizedText;
+  excerpt: LocalizedText | null;
+  /** Plain text — paragraphs separated by a blank line. */
+  body: LocalizedText;
+  coverUrl: string | null;
+  /** Null means draft — the public endpoints do not return it. */
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BlogPostInput {
+  slug: string;
+  title: LocalizedText;
+  excerpt?: LocalizedText | null;
+  body: LocalizedText;
+  coverUrl?: string | null;
+  published: boolean;
+}
+
 /* ----------------------------------- media ---------------------------------- */
 
 export type MediaKind = 'FOUNDER' | 'CUSTOMER_STORY' | 'GUIDE_REEL';

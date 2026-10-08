@@ -17,7 +17,15 @@ vi.mock('@/components/shared/LeadWidgetProvider', () => ({
   useLeadWidgets: () => ({ openUniversal, openQuiz: vi.fn(), isAnyOpen: false }),
 }));
 
-const EXPECTED_NAV_HREFS = ['/china', '/usa', '/partners', '/about', '/offers', '/contact'];
+const EXPECTED_NAV_HREFS = [
+  '/china',
+  '/usa',
+  '/partners',
+  '/about',
+  '/offers',
+  '/blog',
+  '/contact',
+];
 
 describe('Header', () => {
   it('renders the home logo link', () => {
@@ -119,5 +127,26 @@ describe('Header', () => {
     expect(openUniversal).toHaveBeenCalledWith({ sourceCta: 'header-cta' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(document.body.style.overflow).toBe('');
+  });
+
+  it('gives dealers their own Partner portal entry, on desktop and in the mobile menu', async () => {
+    const user = userEvent.setup();
+    renderWithLocale(<Header />);
+    // Desktop: a separate link beside the CTA, not one of the page links.
+    const desktop = screen.getByRole('link', { name: nav.partnerPortal });
+    expect(desktop).toHaveAttribute('href', '/partners/portal');
+    expect(
+      within(screen.getByRole('navigation', { name: nav.primaryNav })).queryByRole('link', {
+        name: nav.partnerPortal,
+      }),
+    ).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: nav.menuOpen }));
+    const dialog = screen.getByRole('dialog', { name: nav.primaryNav });
+    expect(within(dialog).getByRole('link', { name: nav.partnerPortal })).toHaveAttribute(
+      'href',
+      '/partners/portal',
+    );
+    expect(within(dialog).getByRole('link', { name: nav.blog })).toHaveAttribute('href', '/blog');
   });
 });

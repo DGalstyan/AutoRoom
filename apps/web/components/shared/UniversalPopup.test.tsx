@@ -70,6 +70,35 @@ describe('UniversalPopup lead context', () => {
   });
 });
 
+describe('UniversalPopup single screen', () => {
+  beforeEach(() => submitLead.mockClear());
+
+  it('shows the two required fields and the optional chips together, with no steps', () => {
+    renderWithLocale(
+      <UniversalPopup open onClose={() => {}} sourcePage="/" sourceCta="hero" />,
+      'en',
+    );
+    expect(screen.getByLabelText(m.nameLabel)).toBeInTheDocument();
+    expect(screen.getByLabelText(m.phoneLabel)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: m.interestOptions.usa })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: m.next })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(m.commentLabel)).not.toBeInTheDocument();
+  });
+
+  it('cannot be sent without a name and a phone, and can be sent with only those two', async () => {
+    renderWithLocale(
+      <UniversalPopup open onClose={() => {}} sourcePage="/" sourceCta="hero" />,
+      'en',
+    );
+    expect(screen.getByRole('button', { name: m.submit })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(m.nameLabel), { target: { value: 'Anna' } });
+    fireEvent.change(screen.getByLabelText(m.phoneLabel), { target: { value: '77123456' } });
+    fireEvent.click(screen.getByRole('button', { name: m.submit }));
+    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1));
+    expect(submitLead.mock.calls[0]![0].answers).toMatchObject({ name: 'Anna' });
+  });
+});
+
 describe('UniversalPopup — continue in messenger', () => {
   beforeEach(() => submitLead.mockClear());
 
@@ -82,7 +111,6 @@ describe('UniversalPopup — continue in messenger', () => {
     );
     fireEvent.change(screen.getByLabelText(m.nameLabel), { target: { value: 'Anna' } });
     fireEvent.change(screen.getByLabelText(m.phoneLabel), { target: { value: '77123456' } });
-    fireEvent.click(screen.getByRole('button', { name: m.next }));
     fireEvent.click(screen.getByRole('button', { name: m.channelOptions[channel] }));
     fireEvent.click(screen.getByRole('button', { name: m.submit }));
     await waitFor(() => expect(submitLead).toHaveBeenCalled());

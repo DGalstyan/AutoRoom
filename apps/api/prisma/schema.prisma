@@ -737,6 +737,32 @@ enum MeetingStatus {
   COMPLETED
 }
 
+/// A blog article. Text fields are per-language JSON, keyed like the FAQ's —
+/// Armenian is required to publish, `ru`/`en` fill in as they are translated.
+/// `body` is plain text: paragraphs separated by a blank line, rendered by the
+/// site as paragraphs (no HTML is ever stored, so nothing needs sanitising).
+model BlogPost {
+  id String @id @default(cuid())
+
+  /// URL segment — `/blog/<slug>`. Unique, lower-case, hyphenated.
+  slug String @unique
+
+  title   Json
+  excerpt Json?
+  body    Json
+
+  coverUrl String?
+
+  /// Null while a draft. Kept at the original publish moment across edits.
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([publishedAt])
+  @@map("blog_posts")
+}
+
 /// A submission from any of the public site's lead-capture entry points
 /// (`references/components.md`'s Universal popup, Quiz popup, or the Contact
 /// page's static form — see `apps/web/lib/leads.ts`'s `LeadPayload`). Every

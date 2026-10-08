@@ -19,6 +19,7 @@ const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string; chevron?:
   { key: 'partners', href: '/partners' },
   { key: 'about', href: '/about' },
   { key: 'offers', href: '/offers' },
+  { key: 'blog', href: '/blog' },
   { key: 'contact', href: '/contact' },
 ];
 
@@ -132,14 +133,14 @@ export function Header({ logo = null }: HeaderProps = {}) {
         */}
         <nav
           aria-label={nav.primaryNav}
-          className="hidden items-center gap-3 xl:flex min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-6"
+          className="hidden items-center gap-0.5 xl:flex min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-1.5"
         >
           {NAV_LINKS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-current={pathname === item.href ? 'page' : undefined}
-              className={`inline-flex items-center gap-1 whitespace-nowrap px-2 py-1 text-[16px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              className={`inline-flex items-center gap-1 whitespace-nowrap px-2 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
               {item.chevron && (
@@ -158,6 +159,20 @@ export function Header({ logo = null }: HeaderProps = {}) {
         </nav>
 
         <div className="hidden items-center gap-3 xl:flex">
+          {/* Dealers have their own door: the portal, kept apart from the page links. */}
+          <Link
+            href="/partners/portal"
+            aria-label={nav.partnerPortal}
+            title={nav.partnerPortal}
+            aria-current={pathname?.startsWith('/partners/portal') ? 'page' : undefined}
+            className={`inline-flex size-12 shrink-0 items-center justify-center rounded-pill border transition-colors duration-standard ease-expo focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+              isLightHeader
+                ? 'border-ink/20 text-ink hover:bg-neutral-50'
+                : 'border-white/40 text-white hover:bg-white/10'
+            }`}
+          >
+            <PortalGlyph />
+          </Link>
           <button
             type="button"
             onClick={() => openUniversal({ sourceCta: 'header-cta' })}
@@ -237,13 +252,21 @@ export function Header({ logo = null }: HeaderProps = {}) {
                 {nav[item.key]}
               </Link>
             ))}
+            <Link
+              href="/partners/portal"
+              onClick={() => setDrawerOpen(false)}
+              className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-pill border border-white/40 px-6 text-small text-white hover:bg-white/10"
+            >
+              <PortalGlyph />
+              {nav.partnerPortal}
+            </Link>
             <button
               type="button"
               onClick={() => {
                 setDrawerOpen(false);
                 openUniversal({ sourceCta: 'header-cta' });
               }}
-              className="mt-4 inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
+              className="mt-3 inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
             >
               {nav.headerCta}
               <ArrowGlyph />
@@ -294,6 +317,28 @@ function ArrowGlyph() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** A small "account" glyph for the portal entry. */
+function PortalGlyph() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      aria-hidden="true"
+      className="shrink-0"
+    >
+      <circle cx="9" cy="6" r="3" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M3 15.5c.8-2.6 3-4 6-4s5.2 1.4 6 4"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
       />
     </svg>
   );
