@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Section } from '@/components/ui/Section';
 import { CarDetailHero } from '@/components/shared/CarDetailHero';
 import { PriceJourney } from '@/components/shared/PriceJourney';
 import { LoanCalculator } from '@/components/shared/LoanCalculator';
@@ -57,24 +56,27 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
 
   return (
     <>
-      {/* pt-32/pt-40 clears the fixed pill header — see the listing page's
-          identical comment for why this page needs it and the Homepage doesn't. */}
-      <Section tone="light" className="pt-32 sm:pt-40">
-        <CarDetailHero car={car} banks={banks} />
-      </Section>
-
-      {/* One Section for the three lower blocks — Figma's own 150px gap
-          between them (node 102:220's `gap-[150px]`) is a single frame, not
-          three independently-padded sections. */}
-      <Section tone="light">
-        <div className="flex flex-col gap-24 sm:gap-[150px]">
-          {car.priceJourney.length > 0 && (
-            <PriceJourney chips={car.priceJourney} car={carContext} />
-          )}
-          <LoanCalculator car={car} finance={finance} />
-          <SimilarOffers cars={similarCars} />
+      {/* The design's 1344px column inside 48px gutters; the title bar sits 185px
+          down (Figma 442:9407), clearing the fixed pill header. */}
+      <div className="bg-surface-light">
+        <div className="mx-auto max-w-page px-4 pt-32 sm:px-6 sm:pt-[185px] lg:px-12">
+          <CarDetailHero car={car} banks={banks} />
         </div>
-      </Section>
+      </div>
+
+      {/* One block for the three lower sections — the design's 150px gap between
+          them is a single frame, not three independently-padded sections. */}
+      <div className="bg-surface-light">
+        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-24 lg:pt-[102px]">
+          <div className="flex flex-col gap-24 sm:gap-[150px]">
+            {car.priceJourney.length > 0 && (
+              <PriceJourney chips={car.priceJourney} car={carContext} />
+            )}
+            <LoanCalculator car={car} finance={finance} />
+            <SimilarOffers cars={similarCars} />
+          </div>
+        </div>
+      </div>
     </>
   );
 }

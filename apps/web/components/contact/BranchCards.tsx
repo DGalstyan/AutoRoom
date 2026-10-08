@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { getBranches, branchMapsUrl } from '@/lib/branches';
+import { getBranches, branchMapsUrl, branchTelHref } from '@/lib/branches';
+import { interpolate } from '@/lib/messages';
 import { getServerMessages } from '@/lib/i18n';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 
@@ -17,7 +18,7 @@ import { ArrowUpRightIcon } from '@/components/ui/icons';
  * content — replaced with the real admin-managed `getBranches()` data (same
  * source `BranchMap` and `Footer` use).
  *
- * "Ուղղություն" prefers the admin's own `mapUrl` when set (`branchMapsUrl`),
+ * "Map" prefers the admin's own `mapUrl` when set (`branchMapsUrl`),
  * falling back to a generated Google Maps search only when a branch has
  * none.
  *
@@ -38,6 +39,7 @@ export async function BranchCards() {
         {branches.map((branch) => (
           <div
             key={branch.id}
+            id={`branch-${branch.id}`}
             className="flex flex-col gap-6 rounded-[32px] bg-white p-6 shadow-[0_1px_12px_rgba(19,15,38,0.04)] sm:p-9 lg:flex-row lg:items-center lg:justify-between"
           >
             <div className="flex flex-col justify-center gap-6 lg:w-[412px] lg:shrink-0 lg:gap-9">
@@ -54,14 +56,29 @@ export async function BranchCards() {
                   {t.hoursPrefix}: {branch.hours}
                 </p>
               </div>
-              <a
-                href={branchMapsUrl(branch)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-[60px] w-fit items-center gap-1 rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              >
-                {t.cta} <ArrowUpRightIcon className="size-5" />
-              </a>
+              {/* Each button says what it does: Call dials the branch, Map opens it
+                  in Maps. (The homepage's "View our branches" link is the third:
+                  it scrolls here.) */}
+              <div className="flex flex-wrap items-center gap-3">
+                {branch.phone && (
+                  <a
+                    href={branchTelHref(branch.phone)}
+                    aria-label={interpolate(t.callAria, { name: branch.name })}
+                    className="inline-flex h-[60px] items-center gap-2 rounded-pill bg-accent px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  >
+                    {t.call} <PhoneGlyph />
+                  </a>
+                )}
+                <a
+                  href={branchMapsUrl(branch)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={interpolate(t.mapAria, { name: branch.name })}
+                  className="inline-flex h-[60px] items-center gap-1 rounded-pill border border-neutral-700 px-6 text-[14px] font-medium leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  {t.map} <ArrowUpRightIcon className="size-5" />
+                </a>
+              </div>
             </div>
 
             <div className="relative aspect-[690/421] w-full overflow-hidden rounded-[30px] bg-gradient-to-br from-surface-light via-neutral-100 to-neutral-50 text-ink/60 lg:w-[690px] lg:shrink-0">
@@ -83,6 +100,19 @@ export async function BranchCards() {
         ))}
       </div>
     </div>
+  );
+}
+
+function PhoneGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M3.5 2.5h2l1 3-1.5 1a8 8 0 0 0 4 4l1-1.5 3 1v2a1.5 1.5 0 0 1-1.6 1.5A10.5 10.5 0 0 1 2 4.1 1.5 1.5 0 0 1 3.5 2.5Z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

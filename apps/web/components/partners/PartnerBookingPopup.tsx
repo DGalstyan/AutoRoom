@@ -10,6 +10,7 @@ import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 import { getPublicAvailability, type PublicAvailabilitySlot } from '@/lib/actions/availability';
 import { submitPartnerLead, type MeetingFormat } from '@/lib/actions/partnerLead';
+import { FieldSelect } from '@/components/ui/FieldSelect';
 import {
   confirmPhoneCode,
   isPhoneVerificationRequired,
@@ -295,6 +296,7 @@ export function PartnerBookingPopup({
 
   const nameError = touched && name.trim().length === 0;
   const phoneError = touched && !isValidArmenianPhone(phone);
+  const companyError = touched && company.trim().length === 0;
   const slotError = touched && (!selectedDate || !selectedTime);
   const branchRequired = meetingFormat === 'OFFICE' && !branchId;
   const addressRequired = meetingFormat === 'OTHER' && address.trim().length === 0;
@@ -302,6 +304,8 @@ export function PartnerBookingPopup({
   const isValid =
     name.trim().length > 0 &&
     isValidArmenianPhone(phone) &&
+    company.trim().length > 0 &&
+    activityType.length > 0 &&
     !!selectedDate &&
     !!selectedTime &&
     !branchRequired &&
@@ -473,11 +477,11 @@ export function PartnerBookingPopup({
             aria-label={t.close}
             className="flex size-11 shrink-0 items-center justify-center rounded-pill text-ink transition-colors hover:bg-white sm:size-12"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path
                 d="M12.5 15L7.5 10L12.5 5"
                 stroke="currentColor"
-                strokeWidth="1.75"
+                strokeWidth="0.9"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -498,15 +502,14 @@ export function PartnerBookingPopup({
           }}
         >
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Contact info */}
-            <div className="rounded-[32px] bg-white p-6 sm:p-8">
-              <h3 className="mb-6 font-display text-h4 font-bold text-ink">{t.contactHeading}</h3>
+            {/* Contact info — Figma 441:5251: 660px card, 602px form, 32px rhythm. */}
+            <div className="rounded-[32px] bg-white px-4 py-6 sm:px-[10px] lg:flex lg:justify-center">
+              <div className="flex w-full flex-col gap-8 sm:px-5 lg:max-w-[602px] lg:px-0">
+                <h3 className="stretch-90 text-[24px] font-bold leading-9 text-ink">
+                  {t.contactHeading}
+                </h3>
 
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="pbp-name" className="mb-2 block text-small font-medium text-ink">
-                    {t.nameLabel}
-                  </label>
+                <Field id="pbp-name" label={`${t.nameLabel}*`}>
                   <input
                     id="pbp-name"
                     name="name"
@@ -518,23 +521,15 @@ export function PartnerBookingPopup({
                     aria-invalid={nameError}
                     aria-describedby={nameError ? 'pbp-name-error' : undefined}
                     placeholder={t.namePlaceholder}
-                    className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                    className={INPUT}
                   />
                   {nameError && (
-                    <p id="pbp-name-error" className="mt-1 text-small text-accent">
-                      {t.errors.nameRequired}
-                    </p>
+                    <FieldError id="pbp-name-error">{t.errors.nameRequired}</FieldError>
                   )}
-                </div>
+                </Field>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label
-                      htmlFor="pbp-phone"
-                      className="mb-2 block text-small font-medium text-ink"
-                    >
-                      {t.phoneLabel}
-                    </label>
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6">
+                  <Field id="pbp-phone" label={`${t.phoneLabel}*`}>
                     <input
                       id="pbp-phone"
                       name="phone"
@@ -546,22 +541,13 @@ export function PartnerBookingPopup({
                       onBlur={() => setTouched(true)}
                       aria-invalid={phoneError}
                       aria-describedby={phoneError ? 'pbp-phone-error' : undefined}
-                      className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                      className={INPUT}
                     />
                     {phoneError && (
-                      <p id="pbp-phone-error" className="mt-1 text-small text-accent">
-                        {t.errors.phoneInvalid}
-                      </p>
+                      <FieldError id="pbp-phone-error">{t.errors.phoneInvalid}</FieldError>
                     )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="pbp-email"
-                      className="mb-2 block text-small font-medium text-ink"
-                    >
-                      {t.emailLabel}
-                    </label>
+                  </Field>
+                  <Field id="pbp-email" label={t.emailLabel}>
                     <input
                       id="pbp-email"
                       name="email"
@@ -570,243 +556,220 @@ export function PartnerBookingPopup({
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
                       placeholder={t.emailPlaceholder}
-                      className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                      className={INPUT}
                     />
-                  </div>
+                  </Field>
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="pbp-company"
-                    className="mb-2 block text-small font-medium text-ink"
-                  >
-                    {t.companyLabel}
-                  </label>
+                <Field id="pbp-company" label={`${t.companyLabel}*`}>
                   <input
                     id="pbp-company"
                     name="company"
                     type="text"
                     value={company}
                     onChange={(event) => setCompany(event.target.value)}
-                    className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                    onBlur={() => setTouched(true)}
+                    aria-invalid={companyError}
+                    aria-describedby={companyError ? 'pbp-company-error' : undefined}
+                    placeholder={t.namePlaceholder}
+                    className={INPUT}
                   />
-                </div>
+                  {companyError && (
+                    <FieldError id="pbp-company-error">{t.errors.companyRequired}</FieldError>
+                  )}
+                </Field>
 
-                <div>
-                  <label
-                    htmlFor="pbp-activity"
-                    className="mb-2 block text-small font-medium text-ink"
-                  >
-                    {t.activityLabel}
-                  </label>
-                  <select
+                <Field id="pbp-activity" label={`${t.activityLabel}*`}>
+                  <FieldSelect
                     id="pbp-activity"
-                    name="activityType"
+                    label={t.activityLabel}
                     value={activityType}
-                    onChange={(event) => setActivityType(event.target.value)}
-                    className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
-                  >
-                    <option value="" />
-                    {Object.entries(t.activityOptions).map(([key, label]) => (
-                      <option key={key} value={label}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    onChange={setActivityType}
+                    placeholder={Object.values(t.activityOptions)[0]}
+                    options={Object.values(t.activityOptions).map((label) => ({
+                      value: label,
+                      label,
+                    }))}
+                  />
+                </Field>
 
-                <div>
-                  <label
-                    htmlFor="pbp-comment"
-                    className="mb-2 block text-small font-medium text-ink"
-                  >
-                    {t.commentLabel}
-                  </label>
-                  <textarea
+                <Field id="pbp-comment" label={t.commentLabel}>
+                  <input
                     id="pbp-comment"
                     name="comment"
-                    rows={3}
+                    type="text"
                     value={comment}
                     onChange={(event) => setComment(event.target.value)}
                     placeholder={t.commentPlaceholder}
-                    className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
+                    className={INPUT}
                   />
-                </div>
+                </Field>
               </div>
             </div>
 
-            {/* Booking */}
-            <div className="rounded-[32px] bg-white p-6 sm:p-8">
-              <h3 className="mb-6 font-display text-h4 font-bold text-ink">{t.bookingHeading}</h3>
+            {/* Booking — Figma 441:5418: calendar sidebar (468px) + slot column. */}
+            <div className="rounded-[32px] bg-white px-4 py-6 sm:px-7">
+              <div className="flex flex-col gap-6">
+                <h3 className="stretch-90 text-[24px] font-bold leading-9 text-ink">
+                  {t.bookingHeading}
+                </h3>
 
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <div className="mb-2 flex items-center justify-between">
-                    <button
-                      type="button"
-                      aria-label={t.nav.prevMonth}
-                      disabled={isFirstNavigableMonth}
-                      onClick={() =>
-                        setVisibleMonth(
-                          (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
-                        )
-                      }
-                      className="flex size-11 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
-                    >
-                      ‹
-                    </button>
-                    <span className="text-small font-medium text-ink">
-                      {t.calendar.monthsNominative[visibleMonth.getMonth()]}{' '}
-                      {visibleMonth.getFullYear()}
-                    </span>
-                    <button
-                      type="button"
-                      aria-label={t.nav.nextMonth}
-                      disabled={isLastNavigableMonth}
-                      onClick={() =>
-                        setVisibleMonth(
-                          (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
-                        )
-                      }
-                      className="flex size-11 items-center justify-center rounded-pill text-ink/60 hover:bg-surface-light disabled:pointer-events-none disabled:opacity-30"
-                    >
-                      ›
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-7 gap-1 text-center">
-                    {t.calendar.weekdaysShort.map((label, index) => (
-                      <span key={`${label}-${index}`} className="text-xs text-ink/50">
-                        {label}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="w-full rounded-[20px] bg-neutral-25 sm:w-[468px]">
+                    <div className="flex items-center justify-between gap-2 px-6 py-4">
+                      <span className="stretch-90 text-[24px] font-bold leading-[32px] text-neutral-800 sm:text-[32px] sm:leading-[40px]">
+                        {t.calendar.monthsNominative[visibleMonth.getMonth()]}
                       </span>
-                    ))}
-                    {monthGrid.map(({ date: cellDate, inMonth }) => {
-                      const disabled = !inMonth || cellDate < today || cellDate > maxDate;
-                      const isSelected =
-                        selectedDate && dateKey(cellDate) === dateKey(selectedDate);
-                      return (
+                      <span className="flex items-center gap-1">
                         <button
-                          key={dateKey(cellDate)}
                           type="button"
-                          disabled={disabled}
-                          onClick={() => {
-                            setSelectedDate(cellDate);
-                            setSelectedTime(null);
-                          }}
-                          className={`aspect-square rounded-pill text-small transition-colors ${
-                            isSelected
-                              ? 'bg-ink text-white'
-                              : !inMonth
-                                ? 'text-ink/20'
-                                : disabled
-                                  ? 'text-ink/25'
-                                  : 'text-ink hover:bg-surface-light'
-                          }`}
+                          aria-label={t.nav.prevMonth}
+                          disabled={isFirstNavigableMonth}
+                          onClick={() =>
+                            setVisibleMonth(
+                              (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                            )
+                          }
+                          className="flex size-11 items-center justify-center rounded-pill text-[24px] text-neutral-800 hover:bg-white disabled:pointer-events-none disabled:opacity-30"
                         >
-                          {cellDate.getDate()}
+                          ‹
                         </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="flex w-20 shrink-0 flex-col">
-                  <span className="mb-2 text-small font-medium text-ink">{t.timeSlotsLabel}</span>
-                  {selectedDate ? (
-                    <div className="flex max-h-64 flex-col gap-2 overflow-y-auto pr-1">
-                      {FIXED_TIMES.map((time) => {
-                        const matched = slotForTime(time);
-                        const taken = matched ? !matched.open : false;
-                        const isSelected = selectedTime === time;
+                        <button
+                          type="button"
+                          aria-label={t.nav.nextMonth}
+                          disabled={isLastNavigableMonth}
+                          onClick={() =>
+                            setVisibleMonth(
+                              (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                            )
+                          }
+                          className="flex size-11 items-center justify-center rounded-pill text-[24px] text-neutral-800 hover:bg-white disabled:pointer-events-none disabled:opacity-30"
+                        >
+                          ›
+                        </button>
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-7 px-2 pb-3 text-center sm:px-4">
+                      {t.calendar.weekdaysShort.map((label, index) => (
+                        <span
+                          key={`${label}-${index}`}
+                          className="py-2 text-[14px] leading-6 text-neutral-800/70 lowercase sm:text-[16px] sm:leading-[38px]"
+                        >
+                          {label}
+                        </span>
+                      ))}
+                      {monthGrid.map(({ date: cellDate, inMonth }) => {
+                        const disabled = !inMonth || cellDate < today || cellDate > maxDate;
+                        const isSelected =
+                          selectedDate && dateKey(cellDate) === dateKey(selectedDate);
                         return (
-                          <button
-                            key={time}
-                            type="button"
-                            disabled={taken}
-                            onClick={() => setSelectedTime(time)}
-                            className={`shrink-0 rounded-pill border px-2 py-1.5 text-xs transition-colors ${
-                              isSelected
-                                ? 'border-accent bg-accent text-neutral-900'
-                                : taken
-                                  ? 'border-line-light text-ink/30 line-through'
-                                  : 'border-line-light text-ink hover:border-ink'
-                            }`}
-                          >
-                            {time}
-                          </button>
+                          <span key={dateKey(cellDate)} className="flex justify-center py-[3px]">
+                            <button
+                              type="button"
+                              disabled={disabled}
+                              aria-pressed={Boolean(isSelected)}
+                              onClick={() => {
+                                setSelectedDate(cellDate);
+                                setSelectedTime(null);
+                              }}
+                              className={`flex size-11 items-center justify-center rounded-pill text-[16px] tabular-nums transition-colors sm:size-[46px] sm:text-[24px] ${
+                                isSelected
+                                  ? 'bg-accent text-white'
+                                  : !inMonth
+                                    ? 'text-neutral-800/30'
+                                    : disabled
+                                      ? 'text-neutral-800/30'
+                                      : 'text-neutral-800 hover:bg-white'
+                              }`}
+                            >
+                              {String(cellDate.getDate()).padStart(2, '0')}
+                            </button>
+                          </span>
                         );
                       })}
                     </div>
-                  ) : (
-                    <p className="text-xs text-ink/50">{t.noTimes}</p>
-                  )}
+                  </div>
+
+                  <div className="rounded-[20px] bg-neutral-25 p-3 sm:h-[410px] sm:w-[110px] sm:shrink-0">
+                    <span className="sr-only">{t.timeSlotsLabel}</span>
+                    {selectedDate ? (
+                      <div className="flex max-h-[386px] flex-row flex-wrap gap-2 overflow-y-auto sm:h-[386px] sm:max-h-none sm:flex-col sm:flex-nowrap sm:gap-4 sm:pr-1 [scrollbar-color:#cccfd0_#f5f5f6] [scrollbar-width:thin]">
+                        {FIXED_TIMES.map((time) => {
+                          const matched = slotForTime(time);
+                          const taken = matched ? !matched.open : false;
+                          const isSelected = selectedTime === time;
+                          return (
+                            <button
+                              key={time}
+                              type="button"
+                              disabled={taken}
+                              aria-pressed={isSelected}
+                              onClick={() => setSelectedTime(time)}
+                              className={`flex h-11 shrink-0 items-center justify-center rounded-[8px] px-6 text-[14px] leading-[18px] tabular-nums transition-colors sm:h-[34px] sm:w-[86px] sm:px-0 ${
+                                isSelected
+                                  ? 'bg-accent font-medium text-neutral-800'
+                                  : taken
+                                    ? 'bg-white text-neutral-500'
+                                    : 'bg-white text-neutral-800 hover:bg-white/60'
+                              }`}
+                            >
+                              {time}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="px-1 py-2 text-[12px] leading-4 text-neutral-700">
+                        {t.noTimes}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {slotError && <p className="mt-2 text-small text-accent">{t.errors.slotRequired}</p>}
+                {slotError && <p className="text-small text-accent">{t.errors.slotRequired}</p>}
 
-              <div className="mt-6">
-                <label htmlFor="pbp-format" className="mb-2 block text-small font-medium text-ink">
-                  {t.formatLabel}
-                </label>
-                <select
-                  id="pbp-format"
-                  value={meetingFormat}
-                  onChange={(event) => setMeetingFormat(event.target.value as MeetingFormat)}
-                  className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
-                >
-                  {(['ONLINE', 'OFFICE', 'OTHER'] as const).map((format) => (
-                    <option key={format} value={format}>
-                      {formatEmoji[format]}{' '}
-                      {t.formatOptions[format.toLowerCase() as 'online' | 'office' | 'other']}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {meetingFormat === 'OFFICE' && (
-                <div className="mt-4">
-                  <label
-                    htmlFor="pbp-branch"
-                    className="mb-2 block text-small font-medium text-ink"
-                  >
-                    {t.branchLabel}
-                  </label>
-                  <select
-                    id="pbp-branch"
-                    value={branchId}
-                    onChange={(event) => setBranchId(event.target.value)}
-                    className="h-12 w-full rounded-md border border-line-light bg-white px-4 text-body text-ink outline-none focus:border-accent"
-                  >
-                    {branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {meetingFormat === 'OTHER' && (
-                <div className="mt-4">
-                  <label
-                    htmlFor="pbp-address"
-                    className="mb-2 block text-small font-medium text-ink"
-                  >
-                    {t.addressLabel}
-                  </label>
-                  <input
-                    id="pbp-address"
-                    type="text"
-                    value={address}
-                    onChange={(event) => setAddress(event.target.value)}
-                    className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                <Field id="pbp-format" label={t.formatLabel}>
+                  <FieldSelect
+                    id="pbp-format"
+                    label={t.formatLabel}
+                    value={meetingFormat}
+                    onChange={(next) => setMeetingFormat(next as MeetingFormat)}
+                    options={(['ONLINE', 'OFFICE', 'OTHER'] as const).map((format) => ({
+                      value: format,
+                      label: `${formatEmoji[format]} ${t.formatOptions[format.toLowerCase() as 'online' | 'office' | 'other']}`,
+                    }))}
                   />
-                </div>
-              )}
+                </Field>
 
-              {summaryLine && <p className="mt-6 text-small font-medium text-ink">{summaryLine}</p>}
-              {status === 'conflict' && (
-                <p className="mt-2 text-small text-accent">{t.errors.slotTaken}</p>
-              )}
+                {meetingFormat === 'OFFICE' && (
+                  <Field id="pbp-branch" label={t.branchLabel}>
+                    <FieldSelect
+                      id="pbp-branch"
+                      label={t.branchLabel}
+                      value={branchId}
+                      onChange={setBranchId}
+                      options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                    />
+                  </Field>
+                )}
+
+                {meetingFormat === 'OTHER' && (
+                  <Field id="pbp-address" label={t.addressLabel} hideLabel>
+                    <input
+                      id="pbp-address"
+                      type="text"
+                      value={address}
+                      onChange={(event) => setAddress(event.target.value)}
+                      placeholder={t.addressLabel}
+                      className={INPUT}
+                    />
+                  </Field>
+                )}
+
+                {summaryLine && <p className="text-small font-medium text-ink">{summaryLine}</p>}
+                {status === 'conflict' && (
+                  <p className="text-small text-accent">{t.errors.slotTaken}</p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -898,5 +861,42 @@ export function PartnerBookingPopup({
 
       <div className="w-full">{footer}</div>
     </div>
+  );
+}
+
+/** The 72px pill every text field uses (Figma "Input Text": #FAFAFA, 50px corners, 24px inset). */
+const INPUT =
+  'h-[72px] w-full rounded-[50px] bg-neutral-25 px-6 text-[16px] leading-6 text-neutral-800 outline-none placeholder:text-neutral-600 focus-visible:ring-2 focus-visible:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-accent';
+
+/** Label (16/20 medium) over a field, 8px apart — Figma's "12px" form row. */
+function Field({
+  id,
+  label,
+  hideLabel = false,
+  children,
+}: {
+  id: string;
+  label: string;
+  hideLabel?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-2">
+      <label
+        htmlFor={id}
+        className={hideLabel ? 'sr-only' : 'text-[16px] font-medium leading-5 text-neutral-800'}
+      >
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function FieldError({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <p id={id} role="alert" className="text-small text-accent">
+      {children}
+    </p>
   );
 }

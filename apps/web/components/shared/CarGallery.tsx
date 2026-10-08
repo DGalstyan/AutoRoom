@@ -168,6 +168,7 @@ export function CarGallery({
                 type="button"
                 role="tab"
                 aria-selected={selectedAlbum === album && !showColorOverride}
+                aria-label={`${ALBUM_LABELS[album]} (${images.filter((image) => image.album === album).length})`}
                 onClick={() => selectAlbum(album)}
                 className={`rounded-[52px] px-4 py-2 text-[16px] leading-[24px] transition-colors duration-standard ${
                   selectedAlbum === album && !showColorOverride
@@ -176,9 +177,6 @@ export function CarGallery({
                 }`}
               >
                 {ALBUM_LABELS[album]}
-                <span className="ml-1.5 text-[12px] opacity-70 tabular-nums">
-                  {images.filter((image) => image.album === album).length}
-                </span>
               </button>
             ))}
           </div>

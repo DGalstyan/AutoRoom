@@ -24,7 +24,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
+      <h2 className="font-display text-[24px] font-bold leading-[32px] text-neutral-800">
         {t.heading}
       </h2>
 

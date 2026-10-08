@@ -16,21 +16,48 @@ export function TotalBar({
   label,
   value,
   children,
+  tone = 'dark',
   className = '',
 }: {
   label: string;
   value: string;
+  /** `light` is the white card the China price-journey frame draws (Figma 442:9181). */
+  tone?: 'dark' | 'light';
   /** Optional supporting line under the total (e.g. the addends of the sum). */
   children?: ReactNode;
   className?: string;
 }) {
   return (
-    <div className={`rounded-lg bg-ink p-6 text-white ${className}`}>
-      <p className="text-small font-medium text-white/70">{label}</p>
-      <Price as="p" size="total" className="mt-1 text-white">
+    <div
+      className={
+        tone === 'light'
+          ? `rounded-[20px] bg-white px-4 py-6 text-ink ${className}`
+          : `rounded-lg bg-ink p-6 text-white ${className}`
+      }
+    >
+      <p
+        className={
+          tone === 'light'
+            ? 'text-[16px] leading-6 text-ink'
+            : 'text-small font-medium text-white/70'
+        }
+      >
+        {label}
+      </p>
+      <Price
+        as="p"
+        size="total"
+        className={`mt-1 ${tone === 'light' ? 'text-neutral-800' : 'text-white'}`}
+      >
         {value}
       </Price>
-      {children && <div className="mt-3 text-small tabular-nums text-white/70">{children}</div>}
+      {children && (
+        <div
+          className={`mt-3 text-small tabular-nums ${tone === 'light' ? 'text-neutral-700' : 'text-white/70'}`}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }

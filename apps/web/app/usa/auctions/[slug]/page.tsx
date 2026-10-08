@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Section } from '@/components/ui/Section';
 import { CarDetailHero } from '@/components/shared/CarDetailHero';
 import { AuctionFollowAlong } from '@/components/shared/AuctionFollowAlong';
 import { LoanCalculator } from '@/components/shared/LoanCalculator';
@@ -60,17 +59,21 @@ export default async function UsaAuctionCarDetailPage({
 
   return (
     <>
-      <Section tone="light" className="pt-32 sm:pt-40">
-        <CarDetailHero car={car} banks={banks} />
-      </Section>
-
-      <Section tone="light">
-        <div className="flex flex-col gap-24 sm:gap-[150px]">
-          <AuctionFollowAlong car={car} />
-          <LoanCalculator car={car} finance={finance} />
-          <SimilarOffers cars={similarCars} />
+      <div className="bg-surface-light">
+        <div className="mx-auto max-w-page px-4 pt-32 sm:px-6 sm:pt-[185px] lg:px-12">
+          <CarDetailHero car={car} banks={banks} />
         </div>
-      </Section>
+      </div>
+
+      <div className="bg-surface-light">
+        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-24 lg:pt-[102px]">
+          <div className="flex flex-col gap-24 sm:gap-[150px]">
+            <AuctionFollowAlong car={car} />
+            <LoanCalculator car={car} finance={finance} />
+            <SimilarOffers cars={similarCars} />
+          </div>
+        </div>
+      </div>
     </>
   );
 }

@@ -63,19 +63,16 @@ export function CarSpecs({ car }: { car: Car }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
+      <h2 className="font-display text-[24px] font-bold leading-[32px] text-neutral-800">
         {t.heading}
       </h2>
       <div className="flex flex-col gap-2">
         {rows.map((row) => (
-          <div
-            key={row.label}
-            className="flex items-center justify-between gap-4 rounded-md bg-white p-3"
-          >
-            <span className="w-[221px] shrink-0 text-[16px] leading-[24px] text-neutral-700">
+          <div key={row.label} className="flex min-h-12 items-center rounded-md bg-white p-3">
+            <span className="w-[140px] shrink-0 text-[16px] leading-[24px] text-neutral-700 sm:w-[221px]">
               {row.label}
             </span>
-            <span className="flex-1 text-right text-[16px] font-medium leading-[20px] text-neutral-800">
+            <span className="min-w-0 flex-1 text-left text-[16px] font-medium leading-[20px] text-neutral-800">
               {row.value}
             </span>
           </div>

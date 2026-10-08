@@ -250,7 +250,7 @@
         "heading": "Choose a color"
       },
       "buyWithLoan": {
-        "heading": "Buy on credit"
+        "heading": "Buy with financing"
       },
       "priceJourney": {
         "heading": "The price journey",
@@ -511,7 +511,7 @@
     "branches": {
       "eyebrow": "Our branches",
       "heading": "Always by your side",
-      "cta": "Visit your nearest branch"
+      "cta": "View our branches"
     },
     "faqSection": {
       "eyebrow": "Got questions?"
@@ -758,7 +758,10 @@
     "branches": {
       "heading": "Branches",
       "hoursPrefix": "Hours",
-      "cta": "Directions"
+      "call": "Call",
+      "map": "Map",
+      "callAria": "Call {name}",
+      "mapAria": "Open {name} on the map"
     },
     "finalCta": {
       "heading": "Couldn't find a deal that fits?",
@@ -1063,7 +1066,8 @@
         "nameRequired": "Please enter your name",
         "phoneInvalid": "The phone number must have 8 digits after +374",
         "slotRequired": "Please pick a day and time",
-        "slotTaken": "That time was just taken. Please pick another."
+        "slotTaken": "That time was just taken. Please pick another.",
+        "companyRequired": "Enter the company name"
       },
       "steps": {
         "data": "Details",

@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
-import { BreakdownRow, TotalBar } from '@/components/ui/TotalBar';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -46,26 +45,42 @@ export function LoanCalculator({
   const monthly = computeMonthlyPaymentAmd(car.price, clamped, finance);
   const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
 
-  return (
-    <div id="loan-calculator" className="flex flex-col gap-16">
-      <h2 className="font-display text-home-h2 font-light text-neutral-900">{t.heading}</h2>
+  const THUMB =
+    '[&::-webkit-slider-thumb]:-mt-[10px] [&::-webkit-slider-thumb]:size-[30px] [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-[url(/images/china/filters/knob.svg)] [&::-webkit-slider-thumb]:bg-contain [&::-moz-range-thumb]:size-[30px] [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[url(/images/china/filters/knob.svg)] [&::-moz-range-thumb]:bg-contain [&::-moz-range-track]:h-[9px] [&::-moz-range-track]:rounded-pill [&::-moz-range-track]:bg-neutral-25 [&::-webkit-slider-runnable-track]:h-[9px] [&::-webkit-slider-runnable-track]:rounded-pill [&::-webkit-slider-runnable-track]:bg-neutral-25';
 
-      <div className="flex flex-col items-start gap-6 lg:flex-row">
-        <div className="flex flex-col gap-6 lg:flex-[676]">
-          <div className="flex flex-col gap-3 rounded-md bg-white p-6">
-            <label htmlFor="loan-down-payment" className="text-[16px] font-bold text-neutral-800">
+  return (
+    <div id="loan-calculator" className="flex flex-col gap-8 lg:gap-16">
+      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-neutral-900 sm:text-home-h2 sm:leading-[58px]">
+        {t.heading}
+      </h2>
+
+      {/* Figma 442:9210: a 676px column (input card + three rows) and a 589px result card. */}
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-6 lg:w-[676px]">
+          <div className="flex flex-col gap-[10px] rounded-[12px] bg-white p-6">
+            <label
+              htmlFor="loan-down-payment"
+              className="text-[16px] font-bold leading-5 text-neutral-800"
+            >
               {t.downPayment}
             </label>
-            <input
-              id="loan-down-payment"
-              type="number"
-              min={min}
-              max={max}
-              step={step}
-              value={clamped}
-              onChange={(event) => setDownPayment(Number(event.target.value) || min)}
-              className="w-32 rounded-pill bg-neutral-25 px-3 py-1 text-[12px] font-medium text-neutral-800"
-            />
+            <div className="mt-2 flex h-9 items-center rounded-pill bg-neutral-25 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
+              <input
+                id="loan-down-payment"
+                type="number"
+                min={min}
+                max={max}
+                step={step}
+                value={clamped}
+                onChange={(event) => setDownPayment(Number(event.target.value) || min)}
+                className="min-w-0 flex-1 bg-transparent tabular-nums outline-none"
+              />
+              <span aria-hidden="true">$</span>
+            </div>
+            <div className="flex justify-between text-[12px] leading-[18px] text-neutral-800">
+              <span className="tabular-nums">{formatUsd(min)}</span>
+              <span className="tabular-nums">{formatUsd(max)}</span>
+            </div>
             <input
               type="range"
               min={min}
@@ -73,40 +88,73 @@ export function LoanCalculator({
               step={step}
               value={clamped}
               onChange={(event) => setDownPayment(Number(event.target.value))}
-              className="h-6 w-full appearance-none bg-transparent accent-accent [&::-moz-range-thumb]:size-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-accent [&::-moz-range-track]:h-[9px] [&::-moz-range-track]:rounded-pill [&::-moz-range-track]:bg-neutral-25 [&::-webkit-slider-runnable-track]:h-[9px] [&::-webkit-slider-runnable-track]:rounded-pill [&::-webkit-slider-runnable-track]:bg-neutral-25 [&::-webkit-slider-thumb]:-mt-[7.5px] [&::-webkit-slider-thumb]:size-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent"
+              className={`h-[30px] w-full appearance-none bg-transparent ${THUMB}`}
               aria-label={t.downPayment}
             />
-            <div className="flex justify-between text-[12px] text-neutral-700">
-              <span className="tabular-nums">{formatUsd(min)}</span>
-              <span className="tabular-nums">{formatUsd(max)}</span>
-            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <SpecRow label={t.term} value={String(finance.termMonths)} />
+            <SpecRow label={t.nominalRate} value={`${finance.nominalRate} %`} />
+            <SpecRow
+              label={t.effectiveRate}
+              value={`${finance.effectiveRateMin} - ${finance.effectiveRateMax} %`}
+            />
           </div>
         </div>
 
-        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white p-8 sm:p-12 lg:flex-[589]">
-          <div>
-            <BreakdownRow label={t.downPayment} value={formatUsd(clamped)} />
-            <BreakdownRow label={t.term} value={String(finance.termMonths)} />
-            <BreakdownRow label={t.nominalRate} value={`${finance.nominalRate}%`} />
-            <BreakdownRow
-              label={t.effectiveRate}
-              value={`${finance.effectiveRateMin} - ${finance.effectiveRateMax}%`}
-            />
+        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:h-[338px] lg:w-[589px] lg:px-0 lg:py-0 lg:pl-[100px] lg:pt-[60px]">
+          <div className="flex flex-col gap-[10px] lg:w-[265px]">
+            <div>
+              <p className="text-[16px] leading-6 text-neutral-800">{t.downPayment}</p>
+              <p className="text-[14px] font-bold leading-5 text-neutral-800 tabular-nums">
+                {formatUsd(clamped)}
+              </p>
+            </div>
+            <div>
+              <p className="text-[16px] leading-6 text-neutral-800">{t.term}</p>
+              <p className="text-[14px] font-bold leading-5 text-neutral-800 tabular-nums">
+                {finance.termMonths}
+              </p>
+            </div>
           </div>
-          <TotalBar label={t.monthly} value={formatAmd(monthly)} />
-          {finance.disclaimer && (
-            <p className="max-w-xs text-[12px] leading-[16px] text-neutral-700">
-              {finance.disclaimer}
+          <hr className="my-1 border-0 border-t border-neutral-100 lg:w-[226px]" />
+          <div>
+            <p className="stretch-90 text-[24px] font-bold leading-8 text-neutral-900">
+              {t.monthly}
             </p>
-          )}
-
+            <p
+              className={`font-normal tabular-nums text-neutral-900 ${
+                formatAmd(monthly).length > 11
+                  ? 'text-[28px] leading-[40px] sm:text-[36px] sm:leading-[48px]'
+                  : 'text-[32px] leading-[44px] sm:text-[44px] sm:leading-[56px]'
+              }`}
+            >
+              {formatAmd(monthly)}
+            </p>
+          </div>
           {carImage && (
-            <div className="pointer-events-none absolute bottom-6 right-6 hidden h-[110px] w-[164px] overflow-hidden rounded-xl sm:block">
-              <Image src={carImage} alt="" fill sizes="164px" className="object-cover" />
+            <div className="pointer-events-none absolute bottom-4 right-4 hidden h-[164px] w-[246px] overflow-hidden rounded-[24px] sm:block">
+              <Image src={carImage} alt="" fill sizes="246px" className="object-cover" />
             </div>
           )}
         </div>
       </div>
+      {finance.disclaimer && (
+        <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{finance.disclaimer}</p>
+      )}
+    </div>
+  );
+}
+
+/** One term/rate row — a white 12px-corner strip, label left, bold value from x=353 (Figma 442:9239). */
+function SpecRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex min-h-12 items-center gap-3 rounded-[12px] bg-white p-3">
+      <span className="stretch-90 w-1/2 text-[16px] leading-6 text-neutral-800">{label}</span>
+      <span className="flex-1 text-[14px] font-bold leading-5 tabular-nums text-neutral-800">
+        {value}
+      </span>
     </div>
   );
 }

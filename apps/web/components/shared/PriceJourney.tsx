@@ -98,11 +98,13 @@ export function PriceJourney({
   const addends = buildAddends(chips);
 
   return (
-    <div ref={ref} className="flex flex-col gap-16">
-      <h2 className="font-display text-home-h2 font-light text-neutral-900">{t.heading}</h2>
+    <div ref={ref} className="flex flex-col gap-8 lg:gap-16">
+      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-neutral-900 sm:text-home-h2 sm:leading-[58px]">
+        {t.heading}
+      </h2>
 
-      <div className="flex flex-col gap-12 lg:flex-row lg:items-stretch">
-        <div className="flex flex-col justify-between gap-3 lg:flex-[715]">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-12">
+        <div className="flex flex-col justify-between gap-3 lg:flex-[715] lg:gap-[45px]">
           <div className="flex flex-col gap-3">
             {chips.map((chip, index) => {
               const note = localizeText(chip.note, locale);
@@ -110,48 +112,51 @@ export function PriceJourney({
                 <div
                   key={index}
                   className={`flex items-center gap-3 rounded-[20px] bg-white px-4 py-6 transition-all duration-500 ease-out ${
-                    index === 0 ? 'shadow-card' : ''
+                    index === 0 ? 'shadow-[0_4px_22px_rgba(0,0,0,0.1)]' : ''
                   } ${inView ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}
                   style={{ transitionDelay: `${index * 120}ms` }}
                 >
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[16px] font-bold text-neutral-900">
+                  <span
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[16px] leading-6 ${
+                      index === 0 ? 'font-bold text-neutral-900' : 'font-medium text-neutral-800'
+                    }`}
+                  >
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <div className="flex flex-1 flex-col gap-1">
-                    <p className="text-[16px] font-medium text-neutral-900">
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    <p
+                      className={`stretch-90 font-medium text-neutral-900 ${
+                        index === 0 ? 'text-[16px] leading-6' : 'text-[14px] leading-5'
+                      }`}
+                    >
                       {localizeText(chip.label, locale)}
                     </p>
-                    <Price as="p" className="text-neutral-800">
-                      {formatUsd(chip.amount)}
-                    </Price>
-                    {note && <p className="text-[12px] text-neutral-700">{note}</p>}
+                    {note && <p className="text-[12px] leading-4 text-neutral-700">{note}</p>}
                   </div>
+                  <Price as="p" className="shrink-0 text-neutral-800">
+                    {formatUsd(chip.amount)}
+                  </Price>
                 </div>
               );
             })}
           </div>
 
-          <TotalBar label={t.finalLabel} value={formatUsd(displayedTotal)}>
+          <TotalBar tone="light" label={t.finalLabel} value={formatUsd(displayedTotal)}>
             {addends}
           </TotalBar>
         </div>
 
-        <div
-          className="relative min-h-[300px] flex-1 overflow-hidden rounded-xl border-[5px] border-white bg-neutral-25 lg:flex-[589]"
-          aria-hidden="true"
-        >
-          <RouteMap />
-        </div>
+        <PriceMap />
       </div>
 
       <div className="flex justify-center">
         <button
           type="button"
           onClick={() => openUniversal({ sourceCta: 'china-detail-price-journey', car })}
-          className="inline-flex items-center gap-2 rounded-pill bg-accent px-6 py-4 text-[20px] text-neutral-800 transition-colors duration-standard hover:bg-accent-600"
+          className="inline-flex min-h-[82px] items-center gap-2 rounded-pill bg-accent px-6 text-[20px] leading-7 text-neutral-800 transition-colors duration-standard hover:bg-accent-600"
         >
           {t.cta}
-          <span className="flex size-6 rotate-45 items-center justify-center" aria-hidden="true">
+          <span className="flex size-6 items-center justify-center" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
               <path
                 d="M4 12 12 4M12 4H5M12 4v7"
@@ -168,87 +173,60 @@ export function PriceJourney({
   );
 }
 
+const MAP = '/images/china/map';
+/** The map's padding box (581×565 less the 5.038px border), the box Figma positions its layers in. */
+const MAP_W = 570.924;
+const MAP_H = 554.924;
+const at = (x: number, y: number, w: number, h: number) => ({
+  left: `${(x / MAP_W) * 100}%`,
+  top: `${(y / MAP_H) * 100}%`,
+  width: `${(w / MAP_W) * 100}%`,
+  height: `${(h / MAP_H) * 100}%`,
+});
+
 /**
- * A hand-built stand-in for Figma's stock map screenshot: a light city-block
- * grid + a water shape in one corner (`components/shared/ArmeniaMap.tsx`
- * sets the precedent for this "convincing but hand-drawn, not a real map
- * image/API" treatment elsewhere on the site), with a solid route line
- * running from a car-glyph origin pin to two plain stop dots.
+ * The route panel — Figma `Map-area` 442:9185, 581×565, 5px white border, 32px
+ * corners. The design's own layers at the design's coordinates (as percentages,
+ * so it scales on phones): the soft city map with a 50% white wash baked in, the
+ * pink route in segments, the origin pin with the car, and the stop markers.
+ * Decorative only, so hidden from assistive tech.
  */
-function RouteMap() {
-  const blocks = [
-    [24, 30, 46, 28],
-    [92, 24, 34, 40],
-    [18, 96, 38, 34],
-    [78, 150, 50, 30],
-    [150, 60, 40, 46],
-    [210, 30, 44, 34],
-    [270, 70, 38, 50],
-    [40, 200, 44, 30],
-    [130, 210, 50, 26],
-    [230, 160, 40, 40],
-    [290, 150, 34, 44],
-    [260, 220, 46, 28],
+function PriceMap() {
+  const layer = 'absolute max-w-none';
+  const layers: [string, ReturnType<typeof at>][] = [
+    ['route-1.svg', at(73.2, 82.5, 192, 183)],
+    ['route-0.svg', at(73.09, 87.69, 190.197, 0.63)],
+    ['route-2.svg', at(219.9, 253.2, 112.9, 177.4)],
+    ['route-3.svg', at(305, 427.6, 74.7, 96.1)],
+    ['pin.svg', at(39.96, 31.96, 77, 89)],
+    ['stop-1.svg', at(249.43, 245.77, 25.821, 25.821)],
+    ['stop-2a.svg', at(290.96, 341.96, 25.821, 25.821)],
+    ['stop-2b.svg', at(296, 347, 16.375, 16.375)],
+    ['stop-3.svg', at(358.39, 501.47, 25.821, 25.821)],
+    ['stop-0.svg', at(61.13, 78.88, 25.821, 25.821)],
   ];
-  const roadsV = [70, 140, 200, 260, 320];
-  const roadsH = [20, 80, 140, 200, 260];
-
   return (
-    <svg
-      viewBox="0 0 400 300"
-      className="absolute inset-0 h-full w-full"
-      preserveAspectRatio="none"
+    <div
+      aria-hidden="true"
+      className="relative aspect-[581/565] w-full overflow-hidden rounded-[32px] border-[5px] border-white bg-neutral-25 lg:flex-[581] lg:self-start"
     >
-      <rect width="400" height="300" fill="#FAFAFA" />
-      {blocks.map(([x, y, w, h]) => (
-        <rect key={`${x}-${y}`} x={x} y={y} width={w} height={h} rx="3" fill="#E5E7E8" />
-      ))}
-      {roadsV.map((x) => (
-        <line key={`v-${x}`} x1={x} y1="0" x2={x} y2="300" stroke="#FFFFFF" strokeWidth="6" />
-      ))}
-      {roadsH.map((y) => (
-        <line key={`h-${y}`} x1="0" y1={y} x2="400" y2={y} stroke="#FFFFFF" strokeWidth="6" />
-      ))}
-      {/* River, tucked into the bottom-right corner like Figma's own map. */}
-      <path d="M400 210 C 330 220, 300 250, 320 300 L 400 300 Z" fill="#BFE9FF" fillOpacity="0.6" />
-
-      <path
-        d="M60 60 C 140 70, 150 150, 220 160 S 320 230, 340 250"
-        fill="none"
-        stroke="#B23A48"
-        strokeWidth="4"
-        strokeLinecap="round"
+      {/* eslint-disable @next/next/no-img-element */}
+      <img
+        src={`${MAP}/base.webp`}
+        alt=""
+        className={layer}
+        style={at(-5.04, -271.04, 592.634, 1053.572)}
       />
-      {[
-        [220, 160],
-        [340, 250],
-      ].map(([cx, cy]) => (
-        <circle
-          key={`${cx}-${cy}`}
-          cx={cx}
-          cy={cy}
-          r="7"
-          fill="white"
-          stroke="#B23A48"
-          strokeWidth="3"
-        />
+      {layers.map(([file, style]) => (
+        <img key={file} src={`${MAP}/${file}`} alt="" className={layer} style={style} />
       ))}
-
-      {/* Origin pin — a car glyph in a gold teardrop, matching the site's accent color. */}
-      <g transform="translate(60 60)">
-        <path
-          d="M0 -22c11 0 20 9 20 20 0 14-20 34-20 34S-20 12-20-2c0-11 9-20 20-20Z"
-          fill="#C8A24A"
-        />
-        <g transform="translate(-9 -11)" stroke="white" strokeWidth="1.6" fill="none">
-          <path
-            d="M1 12l1.5-4.5A2 2 0 0 1 4.4 6h11.2a2 2 0 0 1 1.9 1.5L19 12v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H5v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-4Z"
-            strokeLinejoin="round"
-          />
-          <circle cx="5" cy="15.5" r="1.2" fill="white" stroke="none" />
-          <circle cx="15" cy="15.5" r="1.2" fill="white" stroke="none" />
-        </g>
-      </g>
-    </svg>
+      <img
+        src={`${MAP}/car.webp`}
+        alt=""
+        className={`${layer} object-cover`}
+        style={at(35.96, 66.96, 75, 50)}
+      />
+      {/* eslint-enable @next/next/no-img-element */}
+    </div>
   );
 }

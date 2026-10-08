@@ -39,10 +39,11 @@ describe('CarGallery', () => {
   it('lists Exterior, Interior and Details as tabs with their photo counts', () => {
     renderWithLocale(<CarGallery images={IMAGES} alt="Li Auto L9" />);
     const tabs = screen.getAllByRole('tab');
-    expect(tabs.map((tab) => tab.textContent)).toEqual([
-      `${t.exterior}3`,
-      `${t.interior}2`,
-      `${t.details}1`,
+    expect(tabs.map((tab) => tab.textContent)).toEqual([t.exterior, t.interior, t.details]);
+    expect(tabs.map((tab) => tab.getAttribute('aria-label'))).toEqual([
+      `${t.exterior} (3)`,
+      `${t.interior} (2)`,
+      `${t.details} (1)`,
     ]);
     fireEvent.click(screen.getByRole('tab', { name: new RegExp(t.interior) }));
     expect(screen.getByText('1 / 2')).toBeInTheDocument();

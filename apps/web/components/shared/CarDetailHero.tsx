@@ -63,7 +63,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
     <div className="flex flex-col gap-9">
       <div className="flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:whitespace-nowrap">
-          <h1 className="font-display text-[28px] font-bold leading-[40px] text-neutral-900 sm:text-[36px] sm:leading-[56px]">
+          <h1 className="font-display text-[28px] font-medium leading-[40px] text-neutral-900 sm:text-[44px] sm:leading-[56px]">
             {car.make} {car.model}
           </h1>
           <Price size="lg" className="text-neutral-900">
@@ -143,7 +143,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
 
           {colors.length > 0 && (
             <div className="flex flex-col gap-4">
-              <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
+              <h2 className="font-display text-[24px] font-bold leading-[32px] text-neutral-800">
                 {t.colorPicker.heading}
               </h2>
               <div className="flex flex-wrap items-center gap-3">
@@ -193,7 +193,7 @@ function isPaleColor(hex: string): boolean {
 
 function ArrowGlyph() {
   return (
-    <span className="flex size-5 rotate-45 items-center justify-center" aria-hidden="true">
+    <span className="flex size-5 items-center justify-center" aria-hidden="true">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
         <path
           d="M4 12 12 4M12 4H5M12 4v7"
