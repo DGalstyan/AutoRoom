@@ -3,6 +3,11 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 
+export const DIALOG_HEADER = 'shrink-0 px-6 pb-4 pr-16 pt-6 sm:px-8 sm:pr-20 sm:pt-8';
+export const DIALOG_BODY = 'min-h-0 flex-1 overflow-y-auto px-6 pb-6 sm:px-8';
+export const DIALOG_FOOTER =
+  'flex shrink-0 items-center justify-end gap-3 border-t border-line-light bg-white px-6 py-4 sm:px-8';
+
 interface DialogProps {
   open: boolean;
   onClose: () => void;
@@ -10,6 +15,13 @@ interface DialogProps {
   children: ReactNode;
   closeLabel: string;
   className?: string;
+  /** false: clicking the dark overlay does nothing (Esc and the X still close) — for forms a stray click would wipe. */
+  closeOnOverlay?: boolean;
+  /**
+   * Fixed header/footer layout: no panel padding, no panel scroll — the caller renders
+   * a `DIALOG_HEADER`, a scrolling `DIALOG_BODY` and a `DIALOG_FOOTER`.
+   */
+  fixedLayout?: boolean;
 }
 
 /**
@@ -24,6 +36,8 @@ export function Dialog({
   children,
   closeLabel,
   className = '',
+  closeOnOverlay = true,
+  fixedLayout = false,
 }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef, open, onClose);
@@ -41,26 +55,32 @@ export function Dialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button
-        type="button"
-        aria-label={closeLabel}
-        onClick={onClose}
-        className="absolute inset-0 bg-bg/70 backdrop-blur-sm"
-        tabIndex={-1}
-      />
+      {closeOnOverlay ? (
+        <button
+          type="button"
+          aria-label={closeLabel}
+          onClick={onClose}
+          className="absolute inset-0 bg-bg/70 backdrop-blur-sm"
+          tabIndex={-1}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-bg/70 backdrop-blur-sm" aria-hidden="true" />
+      )}
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-card outline-none sm:p-8 ${className}`}
+        className={`relative z-10 max-h-[90vh] w-full max-w-lg rounded-lg bg-white shadow-card outline-none ${
+          fixedLayout ? 'flex flex-col overflow-hidden' : 'overflow-y-auto p-6 sm:p-8'
+        } ${className}`}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label={closeLabel}
-          className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-pill text-ink/60 transition-colors hover:bg-surface-light hover:text-ink"
+          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-pill text-ink/60 transition-colors hover:bg-surface-light hover:text-ink"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path

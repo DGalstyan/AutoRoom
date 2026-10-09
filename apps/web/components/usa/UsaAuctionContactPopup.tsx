@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
-import { Dialog } from '@/components/ui/Dialog';
+import { Dialog, DIALOG_BODY, DIALOG_FOOTER, DIALOG_HEADER } from '@/components/ui/Dialog';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { Button } from '@/components/ui/Button';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
@@ -144,110 +144,122 @@ export function UsaAuctionContactPopup({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} titleId={titleId} closeLabel={t.close}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      titleId={titleId}
+      closeLabel={t.close}
+      fixedLayout
+      closeOnOverlay={false}
+    >
       <form
+        className="flex min-h-0 flex-1 flex-col"
         onSubmit={(event) => {
           event.preventDefault();
           void handleSubmit();
         }}
       >
-        <h2
-          id={titleId}
-          ref={headingRef}
-          tabIndex={-1}
-          className="font-display text-h3 font-bold text-ink outline-none"
-        >
-          {t.title}
-        </h2>
-        <p className="mt-2 text-small text-ink/70">{t.subtitle}</p>
+        <div className={DIALOG_HEADER}>
+          <h2
+            id={titleId}
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-display text-h3 font-bold text-ink outline-none"
+          >
+            {t.title}
+          </h2>
+          <p className="mt-2 text-small text-ink/70">{t.subtitle}</p>
+        </div>
 
-        <div className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="uap-name" className="mb-1 block text-small font-medium text-ink">
-              {t.nameLabel}
-            </label>
-            <input
-              id="uap-name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              onBlur={() => setTouched(true)}
-              aria-invalid={nameError}
-              aria-describedby={nameError ? 'uap-name-error' : undefined}
-              placeholder={t.namePlaceholder}
-              className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+        <div className={DIALOG_BODY}>
+          <div className="mt-2 space-y-4">
+            <div>
+              <label htmlFor="uap-name" className="mb-1 block text-small font-medium text-ink">
+                {t.nameLabel}
+              </label>
+              <input
+                id="uap-name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                onBlur={() => setTouched(true)}
+                aria-invalid={nameError}
+                aria-describedby={nameError ? 'uap-name-error' : undefined}
+                placeholder={t.namePlaceholder}
+                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+              />
+              {nameError && (
+                <p id="uap-name-error" className="mt-1 text-small text-accent">
+                  {t.errors.nameRequired}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="uap-phone" className="mb-1 block text-small font-medium text-ink">
+                {t.phoneLabel}
+              </label>
+              <input
+                id="uap-phone"
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                value={phone}
+                onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+                onBlur={() => setTouched(true)}
+                aria-invalid={phoneError}
+                aria-describedby={phoneError ? 'uap-phone-error' : undefined}
+                className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+              />
+              {phoneError && (
+                <p id="uap-phone-error" className="mt-1 text-small text-accent">
+                  {t.errors.phoneInvalid}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="uap-car-link" className="mb-1 block text-small font-medium text-ink">
+                {t.carLinkLabel}
+              </label>
+              <input
+                id="uap-car-link"
+                name="carLink"
+                type="text"
+                value={carLink}
+                onChange={(event) => setCarLink(event.target.value)}
+                placeholder={t.carLinkPlaceholder}
+                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+              />
+            </div>
+
+            <LeadQualification
+              values={qualification}
+              onChange={(patch) => setQualification((prev) => ({ ...prev, ...patch }))}
+              labels={{ budget: t.budgetLabel, financing: t.financingLabel }}
             />
-            {nameError && (
-              <p id="uap-name-error" className="mt-1 text-small text-accent">
-                {t.errors.nameRequired}
-              </p>
-            )}
-          </div>
 
-          <div>
-            <label htmlFor="uap-phone" className="mb-1 block text-small font-medium text-ink">
-              {t.phoneLabel}
-            </label>
-            <input
-              id="uap-phone"
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel"
-              value={phone}
-              onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
-              onBlur={() => setTouched(true)}
-              aria-invalid={phoneError}
-              aria-describedby={phoneError ? 'uap-phone-error' : undefined}
-              className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-            />
-            {phoneError && (
-              <p id="uap-phone-error" className="mt-1 text-small text-accent">
-                {t.errors.phoneInvalid}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="uap-car-link" className="mb-1 block text-small font-medium text-ink">
-              {t.carLinkLabel}
-            </label>
-            <input
-              id="uap-car-link"
-              name="carLink"
-              type="text"
-              value={carLink}
-              onChange={(event) => setCarLink(event.target.value)}
-              placeholder={t.carLinkPlaceholder}
-              className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-            />
-          </div>
-
-          <LeadQualification
-            values={qualification}
-            onChange={(patch) => setQualification((prev) => ({ ...prev, ...patch }))}
-            labels={{ budget: t.budgetLabel, financing: t.financingLabel }}
-          />
-
-          <div>
-            <label htmlFor="uap-comment" className="mb-1 block text-small font-medium text-ink">
-              {t.commentLabel}
-            </label>
-            <textarea
-              id="uap-comment"
-              name="comment"
-              rows={4}
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-              placeholder={t.commentPlaceholder}
-              className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
-            />
+            <div>
+              <label htmlFor="uap-comment" className="mb-1 block text-small font-medium text-ink">
+                {t.commentLabel}
+              </label>
+              <textarea
+                id="uap-comment"
+                name="comment"
+                rows={4}
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                placeholder={t.commentPlaceholder}
+                className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-end gap-3">
+        <div className={DIALOG_FOOTER}>
           <Button type="button" variant="tertiary" className="text-ink" onClick={onClose}>
             {t.cancel}
           </Button>

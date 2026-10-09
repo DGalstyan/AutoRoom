@@ -6,6 +6,7 @@ import { UsaAuctionFilters } from '@/components/usa/UsaAuctionFilters';
 import { UsaStateClocks } from '@/components/usa/UsaStateClocks';
 import { UsaImportProcess } from '@/components/usa/UsaImportProcess';
 import { UsaGuideReels } from '@/components/usa/UsaGuideReels';
+import { UsaShowcase } from '@/components/usa/UsaShowcase';
 import { UsaFaq } from '@/components/usa/UsaFaq';
 import { UsaFinalCta } from '@/components/usa/UsaFinalCta';
 import { listCars, listMakeModelFacets } from '@/lib/cars';
@@ -136,6 +137,8 @@ export default async function UsaPage({
       </div>
 
       <UsaGuideReels reels={guideReels} />
+
+      <UsaShowcase />
 
       <div className="bg-surface-light py-14 text-ink lg:py-[150px]">
         <div className="mx-auto max-w-container px-4 sm:px-6">

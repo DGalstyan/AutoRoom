@@ -361,7 +361,7 @@ export function UsaStateClocks() {
       <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
         {t.heading}
       </h2>
-      <div className="flex max-w-[1200px] flex-wrap items-stretch justify-center gap-12">
+      <div className="grid w-full max-w-[1200px] grid-cols-1 justify-items-center gap-6 lg:grid-cols-3 lg:gap-12">
         <ClockCard label={t.cities.yerevan} timeZone="Asia/Yerevan" now={now} locale={locale} />
 
         <ClockCard

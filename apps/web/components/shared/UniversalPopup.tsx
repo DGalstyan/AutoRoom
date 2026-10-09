@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
-import { Dialog } from '@/components/ui/Dialog';
+import { Dialog, DIALOG_BODY, DIALOG_FOOTER, DIALOG_HEADER } from '@/components/ui/Dialog';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { QuickChoice } from '@/components/ui/QuickChoice';
 import { LeadQualification } from '@/components/shared/LeadQualification';
@@ -184,135 +184,147 @@ export function UniversalPopup({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} titleId={titleId} closeLabel={t.close}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      titleId={titleId}
+      closeLabel={t.close}
+      fixedLayout
+      closeOnOverlay={false}
+    >
       <form
+        className="flex min-h-0 flex-1 flex-col"
         onSubmit={(event) => {
           event.preventDefault();
           void handleSubmit();
         }}
       >
-        <h2
-          id={titleId}
-          ref={headingRef}
-          tabIndex={-1}
-          className="font-display text-h3 font-bold text-ink outline-none"
-        >
-          {dialogTitle}
-        </h2>
+        <div className={DIALOG_HEADER}>
+          <h2
+            id={titleId}
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-display text-h3 font-bold text-ink outline-none"
+          >
+            {dialogTitle}
+          </h2>
+        </div>
 
-        {car && (
-          <div className="mt-4 flex items-center gap-3 rounded-md border border-line-light bg-surface-light p-3">
-            {car.image ? (
-              <Image
-                src={car.image}
-                alt=""
-                width={64}
-                height={48}
-                className="h-12 w-16 rounded-sm object-cover"
-              />
-            ) : (
-              <div
-                className="h-12 w-16 shrink-0 rounded-sm bg-gradient-to-br from-ink to-muted"
-                aria-hidden="true"
-              />
-            )}
+        <div className={DIALOG_BODY}>
+          {car && (
+            <div className="flex items-center gap-3 rounded-md border border-line-light bg-surface-light p-3">
+              {car.image ? (
+                <Image
+                  src={car.image}
+                  alt=""
+                  width={64}
+                  height={48}
+                  className="h-12 w-16 rounded-sm object-cover"
+                />
+              ) : (
+                <div
+                  className="h-12 w-16 shrink-0 rounded-sm bg-gradient-to-br from-ink to-muted"
+                  aria-hidden="true"
+                />
+              )}
+              <div>
+                <p className="font-display font-semibold text-ink">{car.name}</p>
+                {car.price && <p className="text-small text-muted">{car.price}</p>}
+                {car.arrivalDate && (
+                  <p className="text-small text-muted">
+                    {t.arrivalLabel}: {formatArrivalDate(car.arrivalDate)}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* One screen: the two things we need, then quick optional taps. */}
+          <div className="mt-2 space-y-4">
             <div>
-              <p className="font-display font-semibold text-ink">{car.name}</p>
-              {car.price && <p className="text-small text-muted">{car.price}</p>}
-              {car.arrivalDate && (
-                <p className="text-small text-muted">
-                  {t.arrivalLabel}: {formatArrivalDate(car.arrivalDate)}
+              <label htmlFor="up-name" className="mb-1 block text-small font-medium text-ink">
+                {t.nameLabel}
+              </label>
+              <input
+                id="up-name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                onBlur={() => setTouched(true)}
+                aria-invalid={nameError}
+                aria-describedby={nameError ? 'up-name-error' : undefined}
+                placeholder={t.namePlaceholder}
+                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+              />
+              {nameError && (
+                <p id="up-name-error" className="mt-1 text-small text-accent">
+                  {t.errors.nameRequired}
+                </p>
+              )}
+            </div>
+            <div>
+              <label htmlFor="up-phone" className="mb-1 block text-small font-medium text-ink">
+                {t.phoneLabel}
+              </label>
+              <input
+                id="up-phone"
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                value={phone}
+                onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+                onBlur={() => setTouched(true)}
+                aria-invalid={phoneError}
+                aria-describedby={phoneError ? 'up-phone-error' : undefined}
+                className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+              />
+              {phoneError && (
+                <p id="up-phone-error" className="mt-1 text-small text-accent">
+                  {t.errors.phoneInvalid}
                 </p>
               )}
             </div>
           </div>
-        )}
 
-        {/* One screen: the two things we need, then quick optional taps. */}
-        <div className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="up-name" className="mb-1 block text-small font-medium text-ink">
-              {t.nameLabel}
-            </label>
-            <input
-              id="up-name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              onBlur={() => setTouched(true)}
-              aria-invalid={nameError}
-              aria-describedby={nameError ? 'up-name-error' : undefined}
-              placeholder={t.namePlaceholder}
-              className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-            />
-            {nameError && (
-              <p id="up-name-error" className="mt-1 text-small text-accent">
-                {t.errors.nameRequired}
-              </p>
-            )}
-          </div>
-          <div>
-            <label htmlFor="up-phone" className="mb-1 block text-small font-medium text-ink">
-              {t.phoneLabel}
-            </label>
-            <input
-              id="up-phone"
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel"
-              value={phone}
-              onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
-              onBlur={() => setTouched(true)}
-              aria-invalid={phoneError}
-              aria-describedby={phoneError ? 'up-phone-error' : undefined}
-              className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
-            />
-            {phoneError && (
-              <p id="up-phone-error" className="mt-1 text-small text-accent">
-                {t.errors.phoneInvalid}
-              </p>
-            )}
-          </div>
-        </div>
+          <div className="mt-6 space-y-5 border-t border-line-light pt-5">
+            <p className="text-small text-muted">{t.optionalHint}</p>
 
-        <div className="mt-6 space-y-5 border-t border-line-light pt-5">
-          <p className="text-small text-muted">{t.optionalHint}</p>
-
-          {car ? (
-            car.colors &&
-            car.colors.length > 0 && (
+            {car ? (
+              car.colors &&
+              car.colors.length > 0 && (
+                <QuickChoice
+                  label={t.colorLabel}
+                  options={car.colors.map((c) => ({ key: c, label: c }))}
+                  value={color}
+                  onChange={setColor}
+                />
+              )
+            ) : (
               <QuickChoice
-                label={t.colorLabel}
-                options={car.colors.map((c) => ({ key: c, label: c }))}
-                value={color}
-                onChange={setColor}
+                label={t.interestLabel}
+                options={INTEREST_KEYS.map((key) => ({ key, label: t.interestOptions[key] }))}
+                value={interest}
+                onChange={(value) => setInterest(value as LeadInterest | undefined)}
               />
-            )
-          ) : (
-            <QuickChoice
-              label={t.interestLabel}
-              options={INTEREST_KEYS.map((key) => ({ key, label: t.interestOptions[key] }))}
-              value={interest}
-              onChange={(value) => setInterest(value as LeadInterest | undefined)}
-            />
-          )}
+            )}
 
-          <LeadQualification
-            values={{ budget, financing, timing, channel }}
-            onChange={(patch) => {
-              if ('budget' in patch) setBudget(patch.budget);
-              if ('financing' in patch) setFinancing(patch.financing);
-              if ('timing' in patch) setTiming(patch.timing);
-              if ('channel' in patch) setChannel(patch.channel);
-            }}
-            fields={car ? ['budget', 'financing', 'channel'] : undefined}
-          />
+            <LeadQualification
+              values={{ budget, financing, timing, channel }}
+              onChange={(patch) => {
+                if ('budget' in patch) setBudget(patch.budget);
+                if ('financing' in patch) setFinancing(patch.financing);
+                if ('timing' in patch) setTiming(patch.timing);
+                if ('channel' in patch) setChannel(patch.channel);
+              }}
+              fields={car ? ['budget', 'financing', 'channel'] : undefined}
+            />
+          </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-end gap-3">
+        <div className={DIALOG_FOOTER}>
           <Button type="submit" variant="primary" disabled={!isValid || status === 'submitting'}>
             {status === 'submitting' ? t.sending : car ? t.submitPerCar : t.submit}
           </Button>

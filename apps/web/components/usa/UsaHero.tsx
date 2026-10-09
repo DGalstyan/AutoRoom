@@ -4,7 +4,7 @@ import { getServerMessages } from '@/lib/i18n';
 /**
  * USA `/usa` hero — Figma 440:3066, 0–831px:
  *  - the highway clip (originally a 5.8 MB GIF, here an animated WebP over an
- *    instant poster), 1448×814 at (-8,-198);
+ *    instant poster), 1448×814 at (-8,-198), i.e. full-bleed — it spans 100% of the viewport width at any size (height keeps the 1448:814 ratio, never below 814px);
  *  - a 21px backdrop-blur scrim at 50% black over the top 761px;
  *  - a 25px-blurred #151310 → #F7F7F7 fade, 1665×309 at y=575, so the headline
  *    sits on dark and the page's light surface takes over beneath it;
@@ -21,7 +21,7 @@ export async function UsaHero() {
         src="/images/usa/hero.webp"
         poster="/images/usa/hero-poster.webp"
         priority
-        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-80px)] lg:inset-x-auto lg:-top-[198px] lg:left-[calc(50%-728px)] lg:h-[814px] lg:w-[1448px]"
+        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-80px)] lg:-top-[198px] lg:h-[max(814px,56.22vw)]"
         imgClassName="object-cover"
       />
       <div
@@ -29,7 +29,7 @@ export async function UsaHero() {
         aria-hidden="true"
       />
       <div
-        className="absolute inset-x-0 bottom-0 -z-10 h-[40%] bg-[linear-gradient(180.48deg,#151310_7.7%,#f7f7f7_52.66%)] blur-[25px] lg:inset-x-auto lg:bottom-auto lg:left-[calc(50%-832px)] lg:top-[575px] lg:h-[309px] lg:w-[1665px]"
+        className="absolute inset-x-0 bottom-0 -z-10 h-[40%] bg-[linear-gradient(180.48deg,#151310_7.7%,#f7f7f7_52.66%)] blur-[25px] lg:inset-x-auto lg:bottom-auto lg:left-1/2 lg:top-[575px] lg:h-[309px] lg:w-[max(1665px,110vw)] lg:-translate-x-1/2"
         aria-hidden="true"
       />
 
