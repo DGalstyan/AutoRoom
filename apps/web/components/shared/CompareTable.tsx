@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
+import { Reveal } from '@/components/ui/Reveal';
 import { Price } from '@/components/ui/Price';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useCompare, type CompareCarRef } from '@/components/shared/CompareProvider';
@@ -43,40 +44,49 @@ export function CompareTable({
   const specRows = buildSpecRows(carA, carB, specsT);
 
   return (
-    <div className="flex flex-col gap-12 w-full">
-      <div className="flex items-center gap-8 sm:gap-16">
-        <CarHeaderCard car={carA} onChange={() => changeOther(toRef(carB))} />
-        <BoltGlyph className="hidden size-12 shrink-0 text-accent sm:block" />
-        <CarHeaderCard car={carB} onChange={() => changeOther(toRef(carA))} />
-      </div>
+    <div className="flex w-full flex-col gap-16">
+      <Reveal delayMs={80}>
+        <div className="flex items-center gap-8 sm:gap-16">
+          <CarHeaderCard car={carA} onChange={() => changeOther(toRef(carB))} />
+          <BoltGlyph className="hidden size-[60px] shrink-0 text-accent sm:block" />
+          <CarHeaderCard car={carB} onChange={() => changeOther(toRef(carA))} />
+        </div>
+      </Reveal>
 
-      <CompareSection heading={t.priceHeading}>
-        <CompareRow
-          label={t.priceFinal}
-          valueA={formatUsd(carA.estFinalPriceAM ?? carA.price)}
-          valueB={formatUsd(carB.estFinalPriceAM ?? carB.price)}
-          price
-        />
-        <CompareRow
-          label={t.priceMonthly}
-          valueA={formatAmd(monthlyA)}
-          valueB={formatAmd(monthlyB)}
-          price
-        />
-      </CompareSection>
-
-      <CompareSection heading={t.generalHeading}>
-        <CompareRow label={specsT.model} valueA={carA.model} valueB={carB.model} />
-        <CompareRow label={specsT.year} valueA={String(carA.year)} valueB={String(carB.year)} />
-      </CompareSection>
-
-      {specRows.length > 0 && (
-        <CompareSection heading={t.specsHeading}>
-          {specRows.map((row) => (
-            <CompareRow key={row.label} label={row.label} valueA={row.valueA} valueB={row.valueB} />
-          ))}
+      <div className="flex w-full flex-col gap-2">
+        <CompareSection heading={t.priceHeading}>
+          <CompareRow
+            label={t.priceFinal}
+            valueA={formatUsd(carA.estFinalPriceAM ?? carA.price)}
+            valueB={formatUsd(carB.estFinalPriceAM ?? carB.price)}
+            price
+          />
+          <CompareRow
+            label={t.priceMonthly}
+            valueA={formatAmd(monthlyA)}
+            valueB={formatAmd(monthlyB)}
+            price
+          />
         </CompareSection>
-      )}
+
+        <CompareSection heading={t.generalHeading}>
+          <CompareRow label={specsT.model} valueA={carA.model} valueB={carB.model} />
+          <CompareRow label={specsT.year} valueA={String(carA.year)} valueB={String(carB.year)} />
+        </CompareSection>
+
+        {specRows.length > 0 && (
+          <CompareSection heading={t.specsHeading}>
+            {specRows.map((row) => (
+              <CompareRow
+                key={row.label}
+                label={row.label}
+                valueA={row.valueA}
+                valueB={row.valueB}
+              />
+            ))}
+          </CompareSection>
+        )}
+      </div>
     </div>
   );
 }
@@ -123,10 +133,10 @@ function buildSpecRows(
 
 function CompareSection({ heading, children }: { heading: string; children: React.ReactNode }) {
   return (
-    <div className="flex w-full flex-col gap-2">
-      <h2 className="font-display text-h3 font-bold text-neutral-800">{heading}</h2>
+    <Reveal className="flex w-full flex-col gap-2">
+      <h2 className="font-display text-[24px] font-bold leading-9 text-neutral-800">{heading}</h2>
       {children}
-    </div>
+    </Reveal>
   );
 }
 
@@ -144,11 +154,11 @@ function CompareRow({
 }) {
   const differs = valueA !== valueB;
   return (
-    <div className="flex w-full items-center justify-center gap-6 rounded-xl bg-white p-3 sm:gap-12">
+    <div className="flex w-full items-center justify-center gap-6 rounded-md bg-white p-3 transition-shadow duration-standard ease-expo hover:shadow-[0_4px_16px_rgba(13,13,13,0.06)] sm:gap-12">
       {price ? (
-        <Price className="w-[190px] shrink-0 text-neutral-700">{valueA}</Price>
+        <Price className="w-[190px] shrink-0 text-neutral-800">{valueA}</Price>
       ) : (
-        <span className="w-[150px] shrink-0 text-[16px] font-medium tabular-nums text-neutral-700">
+        <span className="w-[150px] shrink-0 text-[16px] font-medium leading-5 tabular-nums text-neutral-800">
           {valueA}
         </span>
       )}
@@ -160,9 +170,9 @@ function CompareRow({
         {label}
       </span>
       {price ? (
-        <Price className="w-[190px] shrink-0 text-neutral-700">{valueB}</Price>
+        <Price className="w-[190px] shrink-0 text-neutral-800">{valueB}</Price>
       ) : (
-        <span className="w-[150px] shrink-0 text-[16px] font-medium tabular-nums text-neutral-700">
+        <span className="w-[150px] shrink-0 text-[16px] font-medium leading-5 tabular-nums text-neutral-800">
           {valueB}
         </span>
       )}
@@ -187,17 +197,17 @@ function CarHeaderCard({ car, onChange }: { car: Car; onChange: () => void }) {
   const changeLabel = useMessages().common.compare.page.changeCar;
   const image = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
   return (
-    <div className="flex flex-1 items-center gap-6 rounded-2xl bg-white p-3">
+    <div className="flex min-w-0 flex-1 items-center gap-6 rounded-[24px] bg-white p-3">
       {image ? (
         <Image
           src={image}
           alt=""
           width={305}
           height={172}
-          className="h-[86px] w-[152px] shrink-0 rounded-2xl object-cover sm:h-[172px] sm:w-[305px]"
+          className="h-[86px] w-[152px] shrink-0 rounded-[19.449px] object-cover sm:h-[171.594px] sm:w-[305.057px]"
         />
       ) : (
-        <div className="h-[86px] w-[152px] shrink-0 rounded-2xl bg-neutral-100 sm:h-[172px] sm:w-[305px]" />
+        <div className="h-[86px] w-[152px] shrink-0 rounded-[19.449px] bg-neutral-100 sm:h-[171.594px] sm:w-[305.057px]" />
       )}
       <div className="flex flex-1 items-center justify-between">
         <div className="text-neutral-800">
@@ -208,7 +218,7 @@ function CarHeaderCard({ car, onChange }: { car: Car; onChange: () => void }) {
           type="button"
           onClick={onChange}
           aria-label={interpolate(changeLabel, { name: `${car.make} ${car.model}` })}
-          className="flex size-11 shrink-0 items-center justify-center text-neutral-800 hover:text-ink"
+          className="flex size-11 shrink-0 items-center justify-center text-neutral-800 transition-transform duration-standard ease-expo hover:translate-y-0.5 hover:text-ink"
         >
           <ChevronGlyph />
         </button>

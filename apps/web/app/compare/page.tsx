@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Section } from '@/components/ui/Section';
+import { Reveal } from '@/components/ui/Reveal';
 import { CompareTable } from '@/components/shared/CompareTable';
 import { CompareCarFinder } from '@/components/shared/CompareCarFinder';
 import { getCarBySlug } from '@/lib/cars';
@@ -38,17 +39,10 @@ export default async function ComparePage({
   const t = messages.common.compare.page;
 
   return (
-    <Section tone="light" className="pt-32 sm:pt-40">
-      <div className="mb-16 flex items-center gap-3">
-        <Link
-          href="/"
-          aria-label={t.back}
-          className="flex size-12 items-center justify-center rounded-pill hover:bg-neutral-100"
-        >
-          <BackGlyph />
-        </Link>
-        <h1 className="font-display text-home-h2 font-light text-ink">{t.heading}</h1>
-      </div>
+    <Section tone="light" wide className="pt-32 sm:pb-[150px] sm:pt-[185px]">
+      <Reveal>
+        <h1 className="mb-16 font-display text-home-h2 font-light text-ink">{t.heading}</h1>
+      </Reveal>
 
       {carA && carB ? (
         <CompareTable carA={carA} carB={carB} finance={finance} />
@@ -67,23 +61,9 @@ export default async function ComparePage({
       {/* "Neither of these is it" escape hatch, right on the results page —
           Figma node 393:530 shows this same 5-question finder below the
           compare content in both its mock states. */}
-      <div className="mt-16">
+      <div className="mt-16 sm:mt-[150px]">
         <CompareCarFinder />
       </div>
     </Section>
-  );
-}
-
-function BackGlyph() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path
-        d="M12.5 16 6.5 10l6-6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

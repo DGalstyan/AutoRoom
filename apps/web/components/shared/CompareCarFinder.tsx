@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
+import { Reveal } from '@/components/ui/Reveal';
 import { Field } from '@/components/ui/Field';
 import { recommendCars, serializeQuizAnswers, type QuizAnswers } from '@/lib/quiz';
 import type { LeadBudget } from '@/lib/leads';
 
 const FIELD_CLASSES =
-  'h-[72px] w-full appearance-none truncate rounded-pill bg-neutral-25 pl-6 pr-12 text-[16px] leading-6 text-ink outline-none';
+  'h-[72px] w-full appearance-none truncate rounded-[50px] bg-neutral-25 pl-6 pr-12 text-[16px] leading-6 text-ink outline-none transition-shadow duration-standard focus:ring-2 focus:ring-accent';
 
 /**
  * "Գտիր քո մեքենան 60 վայրկյանում" as an inline finder on `/compare`
@@ -50,7 +51,7 @@ export function CompareCarFinder() {
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <Reveal className="flex flex-col gap-10">
       <h2 className="font-display text-home-h2 font-light text-ink">{quizT.title}</h2>
 
       <form
@@ -94,19 +95,19 @@ export function CompareCarFinder() {
           <button
             type="button"
             onClick={() => setAnswers({})}
-            className="h-12 rounded-pill bg-neutral-100 px-6 text-[14px] font-bold text-ink"
+            className="h-12 rounded-pill bg-neutral-50 px-6 text-[14px] font-bold leading-5 text-ink transition-colors duration-standard hover:bg-neutral-100"
           >
             {t.cancel}
           </button>
           <button
             type="submit"
-            className="h-12 rounded-pill bg-accent px-6 text-[14px] font-bold text-ink transition-colors duration-standard hover:bg-accent-600"
+            className="h-12 rounded-pill bg-accent px-6 text-[14px] font-bold leading-5 text-ink transition-colors duration-standard hover:bg-accent-600"
           >
             {t.submit}
           </button>
         </div>
       </form>
-    </div>
+    </Reveal>
   );
 }
 
@@ -125,7 +126,7 @@ function FinderSelect({
     <Field
       label={label}
       className="gap-2"
-      labelClassName="text-[16px] font-medium text-neutral-700"
+      labelClassName="text-[16px] font-medium leading-5 text-neutral-800"
     >
       {(a11y) => (
         <div className="relative">
@@ -145,7 +146,7 @@ function FinderSelect({
           <svg
             aria-hidden="true"
             viewBox="0 0 20 20"
-            className="pointer-events-none absolute right-6 top-1/2 size-4 -translate-y-1/2 text-ink"
+            className="pointer-events-none absolute right-6 top-1/2 size-3 -translate-y-1/2 text-ink"
           >
             <path
               d="M5 7.5 10 12.5 15 7.5"
