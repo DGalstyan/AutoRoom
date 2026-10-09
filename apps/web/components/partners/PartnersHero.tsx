@@ -8,7 +8,7 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 /**
  * `/partners` hero — Figma "Dealers" 441:5090, 0–773px:
  *  - the animated salt-flat clip (originally a GIF, here a ~2 MB animated WebP
- *    over an instant poster), 1448×814 at (-7,-2);
+ *    over an instant poster), 1448×814 at (-7,-2) — full-bleed, so it spans 100% of the viewport width at any size (height keeps the 1448:814 ratio, never below 814px);
  *  - a 21px backdrop-blur scrim at 50% black over the top 838px;
  *  - a 5px-blurred tan → #F7F7F7 fade (rgb(107,93,78) at the top), 1463×373 at
  *    y=633, so the page's light surface takes over beneath the buttons;
@@ -27,7 +27,7 @@ export function PartnersHero() {
         src="/images/partners/hero.webp"
         poster="/images/partners/hero-poster.webp"
         priority
-        className="absolute inset-x-0 -top-[2px] -z-10 h-[calc(100%-80px)] lg:inset-x-auto lg:left-[calc(50%-727px)] lg:h-[814px] lg:w-[1448px]"
+        className="absolute inset-x-0 -top-[2px] -z-10 h-[calc(100%-80px)] lg:h-[max(814px,56.22vw)]"
         imgClassName="object-cover"
       />
       <div
@@ -35,7 +35,7 @@ export function PartnersHero() {
         aria-hidden="true"
       />
       <div
-        className="absolute inset-x-0 bottom-0 -z-10 h-[40%] bg-[linear-gradient(180.65deg,#6b5d4e_1.93%,#f7f7f7_97.66%)] blur-[5px] lg:inset-x-auto lg:bottom-auto lg:left-[calc(50%-732px)] lg:top-[633px] lg:h-[373px] lg:w-[1463px]"
+        className="absolute inset-x-0 bottom-0 -z-10 h-[40%] bg-[linear-gradient(180.65deg,#6b5d4e_1.93%,#f7f7f7_97.66%)] blur-[5px] lg:inset-x-auto lg:bottom-auto lg:left-1/2 lg:top-[633px] lg:h-[373px] lg:w-[max(1463px,110vw)] lg:-translate-x-1/2"
         aria-hidden="true"
       />
 
