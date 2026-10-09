@@ -69,6 +69,18 @@ const contactsGeneral = z.object({
   workingHours: optionalText,
 });
 
+const homeMapLocations = z.object({
+  locations: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1, 'Name is required').max(60),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+      }),
+    )
+    .max(20),
+});
+
 const contactsSocial = z.object({
   facebook: optionalUrl,
   instagram: optionalUrl,
@@ -208,6 +220,21 @@ export const SETTINGS = {
     isPublic: true,
     label: 'Messengers',
     defaults: { whatsapp: null, viber: null, telegram: null },
+  }),
+  'home.mapLocations': define({
+    // Stored under FEATURES: the enum is a DB type and this needs no migration.
+    group: SettingGroup.FEATURES,
+    schema: homeMapLocations,
+    isPublic: true,
+    label: 'Homepage map: where cars come from',
+    defaults: {
+      locations: [
+        { name: 'USA', lat: 39.8, lng: -98.6 },
+        { name: 'Dubai', lat: 25.2, lng: 55.27 },
+        { name: 'Russia', lat: 55.75, lng: 37.62 },
+        { name: 'China', lat: 39.9, lng: 116.4 },
+      ],
+    },
   }),
   'finance.calculator': define({
     group: SettingGroup.FINANCE,

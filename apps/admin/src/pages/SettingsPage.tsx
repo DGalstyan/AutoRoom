@@ -17,14 +17,16 @@ import { BrandingSettings } from '@/pages/settings/BrandingSettings';
 import { ContactsSettings } from '@/pages/settings/ContactsSettings';
 import { FeatureSettings } from '@/pages/settings/FeatureSettings';
 import { FinanceSettings } from '@/pages/settings/FinanceSettings';
+import { MapSettings } from '@/pages/settings/MapSettings';
 import { LocalizationSettings } from '@/pages/settings/LocalizationSettings';
 
-type TabKey = 'branding' | 'contacts' | 'finance' | 'features' | 'localization';
+type TabKey = 'branding' | 'contacts' | 'finance' | 'map' | 'features' | 'localization';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'branding', label: 'Branding' },
   { key: 'contacts', label: 'Contacts' },
   { key: 'finance', label: 'Finance' },
+  { key: 'map', label: 'Map' },
   { key: 'features', label: 'Features' },
   { key: 'localization', label: 'Localization' },
 ];
@@ -116,6 +118,7 @@ export function SettingsPage() {
           {tab === 'finance' && (
             <FinanceSettings records={settingsQuery.data} readOnly={readOnly} />
           )}
+          {tab === 'map' && <MapSettings records={settingsQuery.data} readOnly={readOnly} />}
           {tab === 'features' && (
             <FeatureSettings records={settingsQuery.data} readOnly={readOnly} />
           )}

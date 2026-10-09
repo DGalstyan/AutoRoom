@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Noto_Sans_Armenian, Sora } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
@@ -24,6 +25,22 @@ const sora = Sora({
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+  display: 'swap',
+});
+
+// The design's own Armenian face (SF Armenian, variable weight). It has no Latin glyphs,
+// so Sora/Inter still draw Latin and digits; the fuller file leads and the smaller one
+// covers whatever it lacks, with Noto Sans Armenian as the last resort.
+const sfArmenian = localFont({
+  src: './fonts/SF-Armenian.ttf',
+  variable: '--font-sf-am',
+  weight: '1 1000',
+  display: 'swap',
+});
+const sfArmenianAlt = localFont({
+  src: './fonts/SFArmenian.ttf',
+  variable: '--font-sf-am-alt',
+  weight: '1 1000',
   display: 'swap',
 });
 
@@ -59,7 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${sora.variable} ${inter.variable} ${notoSansArmenian.variable} h-full antialiased`}
+      className={`${sora.variable} ${inter.variable} ${notoSansArmenian.variable} ${sfArmenian.variable} ${sfArmenianAlt.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-surface-light font-body text-body text-ink">
         {maintenance ? (

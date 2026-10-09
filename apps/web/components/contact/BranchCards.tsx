@@ -91,9 +91,15 @@ export async function BranchCards() {
                   className="object-cover"
                 />
               ) : (
-                <span className="absolute inset-0 flex items-center justify-center text-lead font-semibold">
-                  {branch.city}
-                </span>
+                <iframe
+                  title={branch.name}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                    `${branch.address}, ${branch.city}, Armenia`,
+                  )}&z=16&output=embed`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="absolute inset-0 h-full w-full border-0"
+                />
               )}
             </div>
           </div>

@@ -1075,6 +1075,10 @@ export interface ContactsGeneral {
   workingHours: string | null;
 }
 
+export interface HomeMapLocations {
+  locations: { name: string; lat: number; lng: number }[];
+}
+
 export interface ContactsSocial {
   facebook: string | null;
   instagram: string | null;
@@ -1129,6 +1133,7 @@ export interface SettingValues {
   'contacts.general': ContactsGeneral;
   'contacts.social': ContactsSocial;
   'contacts.messengers': ContactsMessengers;
+  'home.mapLocations': HomeMapLocations;
   'finance.calculator': FinanceCalculator;
   'features.toggles': FeatureToggles;
   'localization.locales': LocalizationLocales;

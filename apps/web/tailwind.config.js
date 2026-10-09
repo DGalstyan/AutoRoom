@@ -76,8 +76,8 @@ module.exports = {
         'price-total': ['28px', { lineHeight: '36px', fontWeight: '700' }],
       },
       fontFamily: {
-        display: ['var(--font-sora)', 'var(--font-noto-am)', 'sans-serif'],
-        body: ['var(--font-inter)', 'var(--font-noto-am)', 'sans-serif'],
+        display: ['var(--font-sora)', 'var(--font-sf-am)', 'var(--font-sf-am-alt)', 'var(--font-noto-am)', 'sans-serif'],
+        body: ['var(--font-inter)', 'var(--font-sf-am)', 'var(--font-sf-am-alt)', 'var(--font-noto-am)', 'sans-serif'],
       },
       transitionTimingFunction: { expo: 'cubic-bezier(0.16,1,0.3,1)' },
       // Pure-CSS entrance used by the Hero (`app/page.tsx`) — no scroll
