@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { TeamMember } from '@/lib/team';
+import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
 
 /**
@@ -25,8 +26,10 @@ export async function TeamSection({ members }: { members: TeamMember[] }) {
         {messages.about.team.heading}
       </h2>
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-x-3 lg:gap-y-6">
-        {members.map((member) => (
-          <TeamCard key={member.id} member={member} />
+        {members.map((member, index) => (
+          <Reveal key={member.id} delayMs={(index % 4) * 100}>
+            <TeamCard member={member} />
+          </Reveal>
         ))}
       </div>
     </div>
@@ -35,14 +38,14 @@ export async function TeamSection({ members }: { members: TeamMember[] }) {
 
 function TeamCard({ member }: { member: TeamMember }) {
   return (
-    <div className="relative aspect-[327/490] w-full overflow-hidden rounded-[32px] bg-neutral-800">
+    <div className="group relative aspect-[327/490] w-full overflow-hidden rounded-[32px] bg-neutral-800">
       {member.photoUrl && (
         <Image
           src={member.photoUrl}
           alt=""
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover"
+          className="object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
         />
       )}
       {/* Figma's gradient: rgba(0,0,0,0) at 44.191% to rgb(0,0,0) at 99.939% —

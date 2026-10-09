@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Reveal } from '@/components/ui/Reveal';
+import { CountUp } from '@/components/ui/CountUp';
 
 interface Hotspot {
   text: string;
@@ -126,7 +127,7 @@ export function WhyAutoRoom({
             <li key={stat.label}>
               <Reveal delayMs={i * 100}>
                 <p className="text-[32px] font-semibold leading-[48px] text-ink lg:mb-[-10px] lg:text-[36px] lg:leading-[56px]">
-                  {stat.value}
+                  <CountUp value={stat.value} />
                 </p>
                 <p className="stretch-93 text-[16px] font-bold leading-6 text-ink lg:text-[20px] lg:leading-8">
                   {stat.label}

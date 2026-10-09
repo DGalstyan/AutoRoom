@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { Reveal } from '@/components/ui/Reveal';
 import type { GalleryImage } from '@/lib/gallery';
 
 /**
@@ -15,15 +16,16 @@ import type { GalleryImage } from '@/lib/gallery';
  *
  * The original Figma design assumed exactly 7 photos in 3 fixed rows; an
  * admin-managed gallery can hold any count, so `ROW_CYCLE` repeats that same
- * three-row rhythm (wide-first pair, wide-second pair, plain triple) for as
+ * three-row rhythm (wide-first pair, plain triple, wide-second pair) for as
  * many images as exist, rather than hardcoding 7 slots. A trailing partial
  * row (e.g. a wide-first row with only one photo left) still renders — it
  * just leaves the row's other cell empty instead of forcing a fourth shape.
  */
 const ROW_CYCLE = [
+  // Figma 123:416: [wide, narrow] → [narrow ×3] → [narrow, wide].
   { wideIndex: 0, size: 2 },
-  { wideIndex: 1, size: 2 },
   { wideIndex: null, size: 3 },
+  { wideIndex: 1, size: 2 },
 ] as const;
 
 export function PhotoGallery({ images }: { images: GalleryImage[] }) {
@@ -39,11 +41,13 @@ export function PhotoGallery({ images }: { images: GalleryImage[] }) {
           className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-x-[26px] lg:gap-y-6"
         >
           {row.images.map((image, tileIndex) => (
-            <Tile
+            <Reveal
               key={image.id}
-              src={image.imageUrl}
+              delayMs={tileIndex * 100}
               className={tileIndex === row.wideIndex ? 'sm:col-span-2' : undefined}
-            />
+            >
+              <Tile src={image.imageUrl} />
+            </Reveal>
           ))}
         </div>
       ))}
@@ -64,14 +68,14 @@ function chunkIntoRows(images: GalleryImage[]) {
 function Tile({ src, className = '' }: { src: string; className?: string }) {
   return (
     <div
-      className={`relative h-[240px] w-full overflow-hidden rounded-[32px] sm:h-[300px] lg:h-[480px] ${className}`}
+      className={`group relative h-[240px] w-full overflow-hidden rounded-[32px] sm:h-[300px] lg:h-[480px] ${className}`}
     >
       <Image
         src={src}
         alt=""
         fill
         sizes="(min-width: 640px) 50vw, 100vw"
-        className="object-cover"
+        className="object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
       />
     </div>
   );
