@@ -95,10 +95,21 @@ const clamp = (n: number) => Math.min(1, Math.max(0, n));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-function Card({ photo, pose, className = '' }: { photo: number; pose?: Pose; className?: string }) {
+function Card({
+  photo,
+  pose,
+  className = '',
+  cardRef,
+}: {
+  photo: number;
+  pose?: Pose;
+  className?: string;
+  cardRef?: (node: HTMLDivElement | null) => void;
+}) {
   return (
     <div
-      className={`absolute overflow-hidden rounded-[48px] bg-white ${className}`}
+      ref={cardRef}
+      className={`absolute overflow-hidden rounded-[48px] bg-white will-change-[left,top,width,height] ${className}`}
       style={
         pose
           ? { left: pose.x, top: pose.y, width: pose.w, height: pose.h, borderRadius: 48 }
@@ -125,7 +136,7 @@ function Card({ photo, pose, className = '' }: { photo: number; pose?: Pose; cla
 
 export function UsaShowcase() {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [scale, setScale] = useState(1);
   const [animated, setAnimated] = useState(false);
 
@@ -133,6 +144,19 @@ export function UsaShowcase() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     const desktop = window.matchMedia('(min-width: 1024px)');
     let frame = 0;
+
+    /** Writes each card's pose straight to the DOM — no React render per scroll frame. */
+    const paint = (progress: number) => {
+      CARDS.forEach((card, index) => {
+        const node = cardRefs.current[index];
+        if (!node) return;
+        const t = easeOut(clamp((progress - card.start) / (card.end - card.start)));
+        node.style.left = `${lerp(card.from.x, card.to.x, t)}px`;
+        node.style.top = `${lerp(card.from.y, card.to.y, t)}px`;
+        node.style.width = `${lerp(card.from.w, card.to.w, t)}px`;
+        node.style.height = `${lerp(card.from.h, card.to.h, t)}px`;
+      });
+    };
 
     const update = () => {
       frame = 0;
@@ -142,12 +166,13 @@ export function UsaShowcase() {
       setAnimated(on);
       setScale(Math.min(1, window.innerWidth / W));
       if (!on) {
-        setProgress(1);
+        paint(1);
         return;
       }
       const rect = node.getBoundingClientRect();
       const travel = rect.height - window.innerHeight;
-      setProgress(clamp(travel > 0 ? -rect.top / travel : 1));
+      // The cards finish at ~65% of the pinned travel, so the band is released quickly.
+      paint(clamp(travel > 0 ? (-rect.top / travel) * 1.5 : 1));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -181,7 +206,7 @@ export function UsaShowcase() {
       <div
         ref={wrapRef}
         className="hidden lg:block"
-        style={{ height: animated ? `calc(${stageHeight}px + 140vh)` : stageHeight }}
+        style={{ height: animated ? `calc(${stageHeight}px + 70vh)` : stageHeight }}
       >
         <div
           className="sticky top-0 flex items-center justify-center overflow-hidden"
@@ -192,16 +217,16 @@ export function UsaShowcase() {
               className="absolute left-0 top-0 origin-top-left"
               style={{ width: W, height: H, transform: `scale(${scale})` }}
             >
-              {CARDS.map((card, index) => {
-                const t = easeOut(clamp((progress - card.start) / (card.end - card.start)));
-                const pose: Pose = {
-                  x: lerp(card.from.x, card.to.x, t),
-                  y: lerp(card.from.y, card.to.y, t),
-                  w: lerp(card.from.w, card.to.w, t),
-                  h: lerp(card.from.h, card.to.h, t),
-                };
-                return <Card key={index} photo={card.photo} pose={pose} />;
-              })}
+              {CARDS.map((card, index) => (
+                <Card
+                  key={index}
+                  photo={card.photo}
+                  pose={{ ...card.from }}
+                  cardRef={(node) => {
+                    cardRefs.current[index] = node;
+                  }}
+                />
+              ))}
             </div>
           </div>
         </div>

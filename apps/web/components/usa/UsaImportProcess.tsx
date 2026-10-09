@@ -82,7 +82,7 @@ export function UsaImportProcess() {
         ))}
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-8 lg:pt-16">
         <button
           type="button"
           onClick={() => openUsaAuctionPopup({ sourceCta: 'usa-import-process' })}
