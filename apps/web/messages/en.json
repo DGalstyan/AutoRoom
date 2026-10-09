@@ -286,11 +286,11 @@
         "disclaimer": "The viewing account is for following only. You cannot place a bid, make a payment, or take any action during the auction.",
         "howItWorksHeading": "How does it work?",
         "steps": [
-          "The car's full photos",
-          "Damage photos",
-          "VIN and lot details",
-          "The live auction broadcast",
-          "Bid progress and the final sale price"
+          "Choose the car you are interested in.",
+          "Click “View the car online”.",
+          "Sign in with the viewing account AutoRoom provides.",
+          "Follow the auction in real time.",
+          "See the price the car sells for at auction."
         ],
         "viewOnlineCta": "View the car online",
         "contactCta": "Contact us"
@@ -347,7 +347,8 @@
         "searchPlaceholder": "Search by make or model",
         "noResults": "Nothing found",
         "cancel": "Cancel",
-        "confirm": "Compare"
+        "confirm": "Compare",
+        "changeCar": "Change {name}"
       },
       "page": {
         "heading": "Compare your selected cars",
@@ -359,7 +360,8 @@
         "specsHeading": "Technical specs",
         "empty": "Pick 2 cars to compare",
         "browseCta": "Browse cars",
-        "removeCar": "Remove {name} from comparison"
+        "removeCar": "Remove {name} from comparison",
+        "changeCar": "Change {name}"
       },
       "finder": {
         "cancel": "Cancel",

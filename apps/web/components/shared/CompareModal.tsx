@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { interpolate } from '@/lib/messages';
 import { Dialog } from '@/components/ui/Dialog';
 import { useCompare } from '@/components/shared/CompareProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
@@ -92,17 +93,23 @@ export function CompareModal() {
 
       <div className="mt-6 flex flex-col gap-3">
         {cars.map((car) => (
-          <div key={car.id} className="flex items-center gap-4 rounded-2xl bg-neutral-25 p-3">
+          <div
+            key={car.id}
+            className="flex items-center gap-4 rounded-[24px] bg-neutral-25 p-3 sm:gap-6"
+          >
             {car.imageUrl ? (
               <Image
                 src={car.imageUrl}
                 alt=""
-                width={94}
-                height={53}
-                className="h-[53px] w-[94px] shrink-0 rounded-md object-cover"
+                width={188}
+                height={106}
+                className="h-[64px] w-[114px] shrink-0 rounded-[12px] object-cover sm:h-[106px] sm:w-[188px]"
               />
             ) : (
-              <div className="h-[53px] w-[94px] shrink-0 rounded-md bg-neutral-100" aria-hidden />
+              <div
+                className="h-[64px] w-[114px] shrink-0 rounded-[12px] bg-neutral-100 sm:h-[106px] sm:w-[188px]"
+                aria-hidden
+              />
             )}
             <div className="flex-1 text-ink">
               <p className="text-[16px] font-bold leading-5">{car.make}</p>
@@ -111,10 +118,10 @@ export function CompareModal() {
             <button
               type="button"
               onClick={() => remove(car.id)}
-              aria-label={closeLabel}
+              aria-label={interpolate(t.changeCar, { name: `${car.make} ${car.model}` })}
               className="flex size-11 shrink-0 items-center justify-center text-neutral-700 hover:text-ink"
             >
-              <XGlyph />
+              <ChevronGlyph />
             </button>
           </div>
         ))}
@@ -132,7 +139,7 @@ export function CompareModal() {
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t.searchPlaceholder}
                 autoComplete="off"
-                className="h-[72px] w-full rounded-pill bg-neutral-25 px-6 text-[16px] text-neutral-800 outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+                className="h-[72px] w-full rounded-[50px] bg-neutral-25 px-6 text-[16px] text-neutral-800 outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
               />
               {query.trim() && (
                 /* In the flow, not floating: the dialog scrolls, so an absolutely positioned
@@ -200,15 +207,10 @@ export function CompareModal() {
   );
 }
 
-function XGlyph() {
+function ChevronGlyph() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path
-        d="M4 4L16 16M16 4L4 16"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }

@@ -5,7 +5,7 @@ import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
-import { useCompare } from '@/components/shared/CompareProvider';
+import { useCompare, type CompareCarRef } from '@/components/shared/CompareProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { interpolate } from '@/lib/messages';
 
@@ -33,7 +33,7 @@ export function CompareTable({
   carB: Car;
   finance: FinanceCalculator;
 }) {
-  const { remove } = useCompare();
+  const { changeOther } = useCompare();
   const t = useMessages().common.compare.page;
   const specsT = useMessages().common.carDetail.specs;
 
@@ -45,9 +45,9 @@ export function CompareTable({
   return (
     <div className="flex flex-col gap-12 w-full">
       <div className="flex items-center gap-8 sm:gap-16">
-        <CarHeaderCard car={carA} onRemove={() => remove(carA.id)} />
+        <CarHeaderCard car={carA} onChange={() => changeOther(toRef(carB))} />
         <BoltGlyph className="hidden size-12 shrink-0 text-accent sm:block" />
-        <CarHeaderCard car={carB} onRemove={() => remove(carB.id)} />
+        <CarHeaderCard car={carB} onChange={() => changeOther(toRef(carA))} />
       </div>
 
       <CompareSection heading={t.priceHeading}>
@@ -170,8 +170,21 @@ function CompareRow({
   );
 }
 
-function CarHeaderCard({ car, onRemove }: { car: Car; onRemove: () => void }) {
-  const removeLabel = useMessages().common.compare.page.removeCar;
+function toRef(car: Car): CompareCarRef {
+  return {
+    id: car.id,
+    slug: car.slug,
+    make: car.make,
+    model: car.model,
+    year: car.year,
+    imageUrl: car.images[0]?.thumbnailUrl ?? car.images[0]?.url,
+    origin: car.origin,
+    condition: car.condition,
+  };
+}
+
+function CarHeaderCard({ car, onChange }: { car: Car; onChange: () => void }) {
+  const changeLabel = useMessages().common.compare.page.changeCar;
   const image = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
   return (
     <div className="flex flex-1 items-center gap-6 rounded-2xl bg-white p-3">
@@ -193,26 +206,21 @@ function CarHeaderCard({ car, onRemove }: { car: Car; onRemove: () => void }) {
         </div>
         <button
           type="button"
-          onClick={onRemove}
-          aria-label={interpolate(removeLabel, { name: `${car.make} ${car.model}` })}
-          className="flex size-11 shrink-0 items-center justify-center text-neutral-500 hover:text-ink"
+          onClick={onChange}
+          aria-label={interpolate(changeLabel, { name: `${car.make} ${car.model}` })}
+          className="flex size-11 shrink-0 items-center justify-center text-neutral-800 hover:text-ink"
         >
-          <XGlyph />
+          <ChevronGlyph />
         </button>
       </div>
     </div>
   );
 }
 
-function XGlyph() {
+function ChevronGlyph() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path
-        d="M4 4L16 16M16 4L4 16"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+    <svg width="28" height="28" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="m5 7.5 5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }

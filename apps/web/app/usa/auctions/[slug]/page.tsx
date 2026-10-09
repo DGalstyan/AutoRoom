@@ -2,11 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CarDetailHero } from '@/components/shared/CarDetailHero';
 import { AuctionFollowAlong } from '@/components/shared/AuctionFollowAlong';
-import { LoanCalculator } from '@/components/shared/LoanCalculator';
-import { SimilarOffers } from '@/components/shared/SimilarOffers';
-import { getCarBySlug, listSimilarCars } from '@/lib/cars';
+import { AuctionHowItWorks } from '@/components/shared/AuctionHowItWorks';
+import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
+import { getCarBySlug } from '@/lib/cars';
 import { getBanks } from '@/lib/banks';
-import { getFinanceCalculatorSettings } from '@/lib/settings';
 import { formatUsd } from '@/lib/types/car';
 
 export async function generateMetadata({
@@ -31,9 +30,9 @@ export async function generateMetadata({
  * (`carHref` already pointed every `AUCTION`-condition USA car here — this
  * page just didn't exist yet, so it 404'd on click).
  *
- * `AuctionFollowAlong` (S2.3, Figma's "USA Inner" page, node 282:1508) adds
- * the View-Only guest-login explanation + how-it-works + the two CTAs
- * between the hero and financing. Still not built: the platform badge
+ * After the hero (Figma "USA Inner" 448:13816): `AuctionFollowAlong` (the View-Only
+ * guest-login text), the black `AuctionHowItWorks` band with the two CTAs, then the
+ * customs calculator — the design has no loan calculator or similar-offers block here. Still not built: the platform badge
  * (Copart/IAAI/Manheim) and the platform-conditional CTA logic (Manheim
  * gets no direct view-online link) — needs an `auctionPlatform` field the
  * `Car` model doesn't carry yet, a separate, larger effort; see
@@ -51,11 +50,7 @@ export default async function UsaAuctionCarDetailPage({
   const car = await getCarBySlug(slug);
   if (!car || car.condition !== 'AUCTION') notFound();
 
-  const [similarCars, banks, finance] = await Promise.all([
-    listSimilarCars(car),
-    getBanks(),
-    getFinanceCalculatorSettings(),
-  ]);
+  const banks = await getBanks();
 
   return (
     <>
@@ -66,12 +61,16 @@ export default async function UsaAuctionCarDetailPage({
       </div>
 
       <div className="bg-surface-light">
-        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-24 lg:pt-[102px]">
-          <div className="flex flex-col gap-24 sm:gap-[150px]">
-            <AuctionFollowAlong car={car} />
-            <LoanCalculator car={car} finance={finance} />
-            <SimilarOffers cars={similarCars} />
-          </div>
+        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-[102px] lg:pt-[102px]">
+          <AuctionFollowAlong />
+        </div>
+      </div>
+
+      <AuctionHowItWorks car={car} />
+
+      <div className="bg-surface-light">
+        <div className="mx-auto max-w-page px-4 py-14 sm:px-6 lg:px-12 lg:pb-[150px] lg:pt-[102px]">
+          <CustomsCalculator />
         </div>
       </div>
     </>

@@ -53,6 +53,8 @@ interface CompareContextValue {
   remove: (id: string) => void;
   isPickerOpen: boolean;
   openPicker: (seed?: CompareCarRef) => void;
+  /** Keep only `keep` in the selection and open the picker for the other slot. */
+  changeOther: (keep: CompareCarRef) => void;
   closePicker: () => void;
 }
 
@@ -122,11 +124,25 @@ export function CompareProvider({ children }: { children: ReactNode }) {
     setPickerOpen(true);
   }, []);
 
+  const changeOther = useCallback((keep: CompareCarRef) => {
+    setCars([keep]);
+    setPickerOpen(true);
+  }, []);
+
   const closePicker = useCallback(() => setPickerOpen(false), []);
 
   const value = useMemo<CompareContextValue>(
-    () => ({ cars, isSelected, toggle, remove, isPickerOpen, openPicker, closePicker }),
-    [cars, isSelected, toggle, remove, isPickerOpen, openPicker, closePicker],
+    () => ({
+      cars,
+      isSelected,
+      toggle,
+      remove,
+      isPickerOpen,
+      openPicker,
+      changeOther,
+      closePicker,
+    }),
+    [cars, isSelected, toggle, remove, isPickerOpen, openPicker, changeOther, closePicker],
   );
 
   return <CompareContext.Provider value={value}>{children}</CompareContext.Provider>;
