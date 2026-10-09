@@ -140,11 +140,11 @@ export function PortalOrderDetail({ id }: { id: string }) {
         <div className="mt-8 grid grid-cols-1 gap-6 lg:mt-9 lg:grid-cols-[913fr_411fr] lg:items-start lg:gap-5">
           <div className="flex flex-col gap-6">
             {!order.insured && (
-              <div className="rounded-[24px] bg-[#fde3e3] px-6 py-5 sm:px-[59px] sm:py-5">
+              <div className="rounded-[32px] bg-[rgba(255,209,209,0.4)] px-6 py-5 sm:px-9">
                 <p className="text-[16px] font-bold leading-6 text-neutral-800">
                   {t.insurance.notProtectedTitle}
                 </p>
-                <p className="mt-1 text-[16px] leading-6 text-neutral-800">
+                <p className="mt-1 text-[16px] leading-6 text-neutral-700">
                   {t.insurance.notProtectedBody}
                 </p>
               </div>
@@ -196,7 +196,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
                           href={order.trackingUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-w-0 flex-1 text-right text-[16px] font-medium leading-5 text-info underline [overflow-wrap:anywhere]"
+                          className="min-w-0 flex-1 text-right text-[16px] font-medium leading-5 text-[#4b7bec] underline [overflow-wrap:anywhere]"
                         >
                           {order.trackingUrl}
                         </a>
@@ -207,9 +207,12 @@ export function PortalOrderDetail({ id }: { id: string }) {
                     <Field label={t.exporterReceiver.exporter} value={order.exporter} />
                     <Field label={t.exporterReceiver.consignee} value={order.consignee} />
                     <Field label={t.exporterReceiver.receivingAgent} value={order.receivingAgent} />
-                    <p className="rounded-[12px] bg-[#fff6c9] p-3 text-[14px] leading-[18px] text-neutral-800">
-                      {t.exporterReceiver.warning}
-                    </p>
+                    <div className="flex items-center gap-1 rounded-[12px] bg-[rgba(255,240,179,0.3)] py-2.5 pl-2 pr-1.5">
+                      <WarnGlyph />
+                      <p className="min-w-0 flex-1 text-[14px] leading-[18px] text-neutral-800">
+                        {t.exporterReceiver.warning}
+                      </p>
+                    </div>
                   </Card>
                 </div>
               </div>
@@ -708,70 +711,82 @@ function ActionsCard({
   const noActions = order.blockers.length === 0 && order.warnings.length === 0;
   const reason = (code: string) => t.reasons[code] ?? code;
 
-  return (
-    <div className="rounded-[32px] bg-white p-8">
-      <h2 className="stretch-90 text-[24px] font-bold leading-8 text-ink">{t.heading}</h2>
-      <p className="mt-4 text-[12px] leading-4 text-neutral-700">{t.subtitle}</p>
-      <p className="mb-2 mt-8 text-[12px] font-medium leading-4 text-neutral-700">
-        {t.actionsLabel}
-      </p>
-      {noActions ? (
-        <div className="flex items-center gap-2 rounded-[12px] bg-[#e6f7ee] px-2 py-2.5">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <circle cx="10" cy="10" r="8" fill="#3a9d75" />
-            <path
-              d="m6.5 10.2 2.4 2.4 4.6-5"
-              stroke="white"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <p className="text-[14px] leading-[18px] text-[#3a9d75]">{t.noActionsNeeded}</p>
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-1.5">
-          {order.blockers.map((code) => (
-            <li
-              key={code}
-              className="rounded-xl bg-error-light/40 px-3 py-2 text-small text-neutral-800"
-            >
-              {reason(code)}
-            </li>
-          ))}
-          {order.warnings.map((code) => (
-            <li
-              key={code}
-              className="rounded-xl bg-warn-light/40 px-3 py-2 text-small text-neutral-800"
-            >
-              {reason(code)}
-            </li>
-          ))}
-        </ul>
-      )}
+  const chip =
+    'flex min-w-fit flex-1 items-center gap-1 rounded-[52px] px-4 py-1.5 text-[14px] leading-[18px]';
 
-      <div className="mt-9 flex flex-wrap gap-4">
-        <span className="inline-flex h-[30px] items-center rounded-full bg-error px-4 text-[12px] font-medium leading-[18px] text-white">
-          {t.blockers} {order.blockers.length}
-        </span>
-        <span className="inline-flex h-[30px] items-center rounded-full bg-warn-light px-4 text-[12px] font-medium leading-[18px] text-warn">
-          {t.warnings} {order.warnings.length}
-        </span>
-        <span className="inline-flex h-[30px] items-center rounded-full bg-info-light px-4 text-[12px] font-medium leading-[18px] text-info">
-          {t.updates} 0
-        </span>
+  return (
+    <div className="flex flex-col gap-9 rounded-[32px] bg-white p-8">
+      <div className="flex flex-col gap-4">
+        <h2 className="stretch-90 text-[20px] font-bold leading-8 text-ink">{t.heading}</h2>
+        <p className="text-[12px] leading-4 text-neutral-700">{t.subtitle}</p>
+        <div className="flex flex-col gap-2">
+          <p className="text-[12px] font-bold leading-4 text-neutral-700">{t.actionsLabel}</p>
+          {noActions ? (
+            <div className="flex items-center gap-1 rounded-[12px] bg-[rgba(207,255,224,0.4)] py-2.5 pl-2 pr-1.5">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <circle cx="10" cy="10" r="8.3" fill="#3a9d75" />
+                <path
+                  d="m6.5 10.2 2.4 2.4 4.6-5"
+                  stroke="white"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <p className="text-[14px] leading-[18px] text-[#3a9d75]">{t.noActionsNeeded}</p>
+            </div>
+          ) : (
+            <ul className="flex flex-col gap-1.5">
+              {order.blockers.map((code) => (
+                <li
+                  key={code}
+                  className="rounded-[12px] bg-error-light/40 px-3 py-2 text-[14px] leading-[18px] text-neutral-800"
+                >
+                  {reason(code)}
+                </li>
+              ))}
+              {order.warnings.map((code) => (
+                <li
+                  key={code}
+                  className="rounded-[12px] bg-warn-light/40 px-3 py-2 text-[14px] leading-[18px] text-neutral-800"
+                >
+                  {reason(code)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
-      <div className="mt-6" />
-
-      <p className="text-[16px] font-bold leading-5 text-neutral-800">
-        {order.blockers.length === 0
-          ? t.noBlockersHeading
-          : `${t.blockers} (${order.blockers.length})`}
-      </p>
-      <p className="mt-3 text-[12px] leading-4 text-neutral-700">
-        {order.blockers.length === 0 ? t.noBlockersBody : order.blockers.map(reason).join(' · ')}
-      </p>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-4">
+          <span className={`${chip} bg-[#b23a48] text-[#ffd1d1]`}>
+            <span className="font-medium">{t.blockers}</span>
+            <span className="font-bold">{order.blockers.length}</span>
+          </span>
+          <span className={`${chip} bg-[#fff0b3] text-[#ff9e6d]`}>
+            <span className="font-medium">{t.warnings}</span>
+            <span className="font-bold">{order.warnings.length}</span>
+          </span>
+          <span className={`${chip} bg-[#bfe9ff] text-[#4b7bec]`}>
+            <span className="font-medium">{t.updates}</span>
+            <span className="font-bold">0</span>
+          </span>
+        </div>
+        <hr className="border-0 border-t border-neutral-50" />
+        <div className="flex flex-col gap-3 text-neutral-700">
+          <p className="text-[16px] font-bold leading-5">
+            {order.blockers.length === 0
+              ? t.noBlockersHeading
+              : `${t.blockers} (${order.blockers.length})`}
+          </p>
+          <p className="text-[12px] leading-4">
+            {order.blockers.length === 0
+              ? t.noBlockersBody
+              : order.blockers.map(reason).join(' · ')}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
