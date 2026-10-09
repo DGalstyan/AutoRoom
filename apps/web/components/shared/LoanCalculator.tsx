@@ -65,21 +65,26 @@ export function LoanCalculator({
             >
               {t.downPayment}
             </label>
-            <div className="mt-2 flex h-9 items-center rounded-pill bg-neutral-25 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
-              <input
-                id="loan-down-payment"
-                type="number"
-                min={min}
-                max={max}
-                step={step}
-                value={clamped}
-                onChange={(event) => setDownPayment(Number(event.target.value) || min)}
-                className="min-w-0 flex-1 bg-transparent tabular-nums outline-none"
-              />
-              <span aria-hidden="true">$</span>
+            {/* Figma 442:9222 — the car's price, in a 36px pill. */}
+            <div className="flex h-9 items-center justify-between rounded-pill bg-neutral-25 py-1 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
+              <span>{t.price}</span>
+              <span className="tabular-nums">{formatUsd(car.price)}</span>
             </div>
-            <div className="flex justify-between text-[12px] leading-[18px] text-neutral-800">
-              <span className="tabular-nums">{formatUsd(min)}</span>
+            <div className="flex items-center justify-between text-[12px] font-medium leading-[18px] text-neutral-800">
+              <span className="flex items-center">
+                <input
+                  id="loan-down-payment"
+                  type="number"
+                  min={min}
+                  max={max}
+                  step={step}
+                  value={clamped}
+                  onChange={(event) => setDownPayment(Number(event.target.value) || min)}
+                  style={{ width: `${String(clamped).length + 1}ch` }}
+                  className="bg-transparent tabular-nums outline-none"
+                />
+                <span aria-hidden="true">$</span>
+              </span>
               <span className="tabular-nums">{formatUsd(max)}</span>
             </div>
             <input
@@ -104,24 +109,21 @@ export function LoanCalculator({
           </div>
         </div>
 
-        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:h-[338px] lg:w-[589px] lg:px-0 lg:py-0 lg:pl-[100px] lg:pt-[60px]">
-          <div className="flex flex-col gap-[10px] lg:w-[265px]">
+        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:min-h-[338px] lg:w-[589px] lg:px-0 lg:py-0 lg:pb-[60px] lg:pl-12 lg:pt-[60px]">
+          {/* Figma 442:9250 — labels 16/24 regular, values 16/20 bold, both #666E73. */}
+          <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
             <div>
-              <p className="text-[16px] leading-6 text-neutral-800">{t.downPayment}</p>
-              <p className="text-[16px] font-medium leading-6 text-neutral-800 tabular-nums">
-                {formatUsd(clamped)}
-              </p>
+              <p className="text-[16px] leading-6">{t.downPayment}</p>
+              <p className="text-[16px] font-bold leading-5 tabular-nums">{formatUsd(clamped)}</p>
             </div>
             <div>
-              <p className="text-[16px] leading-6 text-neutral-800">{t.term}</p>
-              <p className="text-[16px] font-medium leading-6 text-neutral-800 tabular-nums">
-                {finance.termMonths}
-              </p>
+              <p className="text-[16px] leading-6">{t.term}</p>
+              <p className="text-[16px] font-bold leading-5 tabular-nums">{finance.termMonths}</p>
             </div>
           </div>
-          <hr className="my-1 border-0 border-t border-neutral-100 lg:w-[226px]" />
-          <div>
-            <p className="stretch-90 text-[24px] font-bold leading-8 text-neutral-900">
+          <hr className="relative z-10 my-1 border-0 border-t border-neutral-100 lg:w-[226px]" />
+          <div className="relative z-10">
+            <p className="stretch-90 text-[20px] font-bold leading-8 text-neutral-900">
               {t.monthly}
             </p>
             {/* The one big number: 28px on phones, 36px from sm, always 700 (the Price "total" size). */}
@@ -130,7 +132,7 @@ export function LoanCalculator({
             </Price>
           </div>
           {carImage && (
-            <div className="pointer-events-none absolute bottom-4 right-4 hidden h-[164px] w-[246px] overflow-hidden rounded-[24px] sm:block">
+            <div className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[164px] w-[246px] overflow-hidden rounded-[24px] sm:block">
               <Image src={carImage} alt="" fill sizes="246px" className="object-cover" />
             </div>
           )}
@@ -147,8 +149,10 @@ export function LoanCalculator({
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-h-12 items-center gap-3 rounded-[12px] bg-white p-3">
-      <span className="stretch-90 w-1/2 text-[16px] leading-6 text-neutral-800">{label}</span>
-      <span className="flex-1 text-[14px] font-bold leading-5 tabular-nums text-neutral-800">
+      <span className="stretch-90 w-1/2 text-[16px] leading-6 text-neutral-700 lg:w-[341px] lg:flex-none">
+        {label}
+      </span>
+      <span className="min-w-0 flex-1 text-[16px] font-bold leading-5 tabular-nums text-neutral-800">
         {value}
       </span>
     </div>

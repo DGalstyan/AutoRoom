@@ -266,7 +266,8 @@
         "term": "Term (months)",
         "nominalRate": "Nominal rate (subject to confirmation)",
         "effectiveRate": "Effective rate (subject to confirmation)",
-        "monthly": "Monthly payment"
+        "monthly": "Monthly payment",
+        "price": "Price"
       },
       "similarOffers": {
         "heading": "Similar offers"
@@ -1250,6 +1251,11 @@
           "sortNewest": "Newest first",
           "sortOldest": "Oldest first",
           "searchLabel": "Search orders"
+        },
+        "carsTable": {
+          "year": "Year",
+          "price": "Price",
+          "visibility": "On site"
         }
       },
       "errors": {

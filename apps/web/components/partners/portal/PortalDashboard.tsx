@@ -1,7 +1,5 @@
 'use client';
 
-import { Price } from '@/components/ui/Price';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import type {
@@ -331,10 +329,52 @@ export function PortalDashboard() {
           (cars.length === 0 ? (
             <Empty message={t.dashboard.noCars} />
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {cars.map((car) => (
-                <CarCard key={car.id} car={car} t={t.dashboard} />
-              ))}
+            /* Same table language as the orders table (Figma 444:10964): 1px #e5e7e8 frame, black header, alternating rows. */
+            <div className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[1080px] table-fixed text-left">
+                  <thead>
+                    <tr className="bg-ink">
+                      <Th first>{t.dashboard.ordersTable.make}</Th>
+                      <Th>{t.dashboard.ordersTable.model}</Th>
+                      <Th>{t.dashboard.carsTable.year}</Th>
+                      <Th>{t.dashboard.ordersTable.vin}</Th>
+                      <Th>{t.dashboard.carsTable.price}</Th>
+                      <Th>{t.dashboard.ordersTable.status}</Th>
+                      <Th>{t.dashboard.carsTable.visibility}</Th>
+                      <Th>{t.dashboard.ordersTable.country}</Th>
+                      <Th>{t.dashboard.ordersTable.branch}</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cars.map((car) => (
+                      <tr key={car.id} className="odd:bg-white even:bg-[#f7f7f7]">
+                        <Td first>{car.make}</Td>
+                        <Td>{car.model}</Td>
+                        <Td>{car.year}</Td>
+                        <Td>{car.vin ?? '—'}</Td>
+                        <Td>
+                          <span className="tabular-nums">{formatMoney(car.price)}</span>
+                        </Td>
+                        <Td>{t.dashboard.condition[car.condition]}</Td>
+                        <Td>
+                          <span
+                            className={`rounded-pill px-2.5 py-0.5 text-[12px] font-medium ${
+                              car.publishedAt
+                                ? 'bg-success-light text-success'
+                                : 'bg-neutral-100 text-neutral-700'
+                            }`}
+                          >
+                            {car.publishedAt ? t.dashboard.live : t.dashboard.draft}
+                          </span>
+                        </Td>
+                        <Td>{car.origin === 'CHINA' ? nav.china : nav.usa}</Td>
+                        <Td>{car.location ?? '—'}</Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ))}
 
@@ -343,7 +383,7 @@ export function PortalDashboard() {
             <Empty message={t.dashboard.noOrders} />
           ) : (
             /* Figma 441:5751: a black 88px header over 72px rows that alternate white / #f7f7f7. */
-            <div className="overflow-hidden rounded-[24px] bg-white">
+            <div className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[960px] table-fixed text-left">
                   <thead>
@@ -520,66 +560,6 @@ function ViewPill({
     >
       {children}
     </button>
-  );
-}
-
-function CarCard({
-  car,
-  t,
-}: {
-  car: PortalCar;
-  t: ReturnType<typeof useMessages>['partners']['portal']['dashboard'];
-}) {
-  const cover = car.images.find((image) => image.album === 'EXTERIOR') ?? car.images[0];
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-line-light">
-      <div className="relative aspect-[16/10] bg-neutral-25">
-        {cover ? (
-          <Image
-            src={cover.thumbnailUrl ?? cover.url}
-            alt=""
-            fill
-            sizes="360px"
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-small text-neutral-700">
-            {t.noCars}
-          </div>
-        )}
-      </div>
-
-      <div className="p-5">
-        <div className="flex items-center gap-2">
-          <p className="flex-1 truncate text-[16px] font-semibold text-ink">
-            {car.make} {car.model}
-          </p>
-          <span
-            className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[11px] font-semibold ${
-              car.publishedAt ? 'bg-success/15 text-success' : 'bg-neutral-100 text-neutral-700'
-            }`}
-          >
-            {car.publishedAt ? t.live : t.draft}
-          </span>
-        </div>
-
-        <p className="mt-1 text-small text-neutral-700">
-          {car.year} · {t.condition[car.condition]}
-          {car.location ? ` · ${car.location}` : ''}
-        </p>
-
-        <Price as="p" className="mt-2 text-ink">
-          {formatMoney(car.price)}
-        </Price>
-
-        {car.vin && (
-          <p className="mt-2 font-mono text-[11px] text-neutral-700">
-            {t.vin} {car.vin}
-          </p>
-        )}
-      </div>
-    </div>
   );
 }
 
