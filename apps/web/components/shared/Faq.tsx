@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react';
 import type { FaqItem } from '@/lib/data/faq';
+import Link from 'next/link';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 export interface FaqProps {
@@ -19,10 +20,12 @@ export interface FaqProps {
    * already sitting right here. Omit to always show every item (Homepage's
    * own FAQ). */
   initialCount?: number;
+  /** Adds a «Տես բոլոր հարցերը» link under the accordion (the `/faq` page, on this topic's anchor). */
+  viewAllHref?: string;
 }
 
 /** Accordion — each row is its own rounded card; a real button with `aria-expanded`. */
-export function Faq({ items, heading, hideHeading = false, initialCount }: FaqProps) {
+export function Faq({ items, heading, hideHeading = false, initialCount, viewAllHref }: FaqProps) {
   const t = useMessages().common.faq;
   // The design (Figma 436:2012) shows the first question open.
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -96,6 +99,16 @@ export function Faq({ items, heading, hideHeading = false, initialCount }: FaqPr
           );
         })}
       </div>
+      {viewAllHref && (
+        <p className="mt-6 text-center">
+          <Link
+            href={viewAllHref}
+            className="inline-flex min-h-11 items-center text-body font-medium text-accent hover:text-accent-600"
+          >
+            {t.viewAll}
+          </Link>
+        </p>
+      )}
       {hasMore && (
         <p className="mt-6 text-center">
           <button

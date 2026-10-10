@@ -77,6 +77,23 @@ const priceNoteSchema = z
   .default(null)
   .transform((value) => (value && (value.hy || value.ru || value.en) ? value : null));
 
+/** A promotion's terms / eligibility: one point per line, Armenian required, nothing written = no text. */
+const promoTextSchema = z
+  .object({
+    hy: z.string().trim().max(1500).optional(),
+    ru: z.string().trim().max(1500).optional(),
+    en: z.string().trim().max(1500).optional(),
+  })
+  .nullish()
+  .transform((value) => {
+    if (!value) return null;
+    const cleaned = Object.fromEntries(Object.entries(value).filter(([, text]) => text));
+    return Object.keys(cleaned).length > 0 ? cleaned : null;
+  })
+  .refine((value) => value === null || Boolean(value.hy), {
+    message: 'Write the Armenian text (other languages are optional)',
+  });
+
 const priceChipSchema = z.object({
   label: priceLabelSchema,
   amount: z.number().int(),
@@ -130,6 +147,8 @@ const carBodySchema = z.object({
   oldPrice: z.number().int().min(0).nullish(),
   estFinalPriceAM: z.number().int().min(0).nullish(),
   promoDeadline: z.string().datetime({ offset: true }).or(z.string().datetime()).nullish(),
+  promoTerms: promoTextSchema,
+  promoEligibility: promoTextSchema,
 
   condition: z.nativeEnum(CarCondition),
   statusBadge: z.nativeEnum(CarStatusBadge).nullish(),
@@ -683,9 +702,18 @@ carsRouter.get('/public/auction-access/:token', async (req, res) => {
 /* --------------------------------- helpers --------------------------------- */
 
 function toWriteData(body: z.infer<typeof carBodySchema>) {
-  const { colors, priceJourney, similarCarIds: _similarCarIds, ...rest } = body;
+  const {
+    colors,
+    priceJourney,
+    promoTerms,
+    promoEligibility,
+    similarCarIds: _similarCarIds,
+    ...rest
+  } = body;
   return {
     ...rest,
+    promoTerms: promoTerms ?? Prisma.DbNull,
+    promoEligibility: promoEligibility ?? Prisma.DbNull,
     colors: colors as unknown as Prisma.InputJsonValue,
     priceJourney: priceJourney as unknown as Prisma.InputJsonValue,
   };
@@ -786,6 +814,9 @@ function serializeCarBase(car: Omit<CarRow, 'similarAsSource'>) {
     ...car,
     colors: car.colors ?? [],
     priceJourney: normalizePriceJourney(car.priceJourney),
+    promoTerms: (car.promoTerms as { hy?: string; ru?: string; en?: string } | null) ?? null,
+    promoEligibility:
+      (car.promoEligibility as { hy?: string; ru?: string; en?: string } | null) ?? null,
     publishedAt: car.publishedAt?.toISOString() ?? null,
     createdAt: car.createdAt.toISOString(),
     updatedAt: car.updatedAt.toISOString(),

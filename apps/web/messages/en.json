@@ -166,7 +166,8 @@
       "heading": "Frequently asked questions",
       "expand": "Show answer",
       "collapse": "Hide answer",
-      "loadMore": "Show more"
+      "loadMore": "Show more",
+      "viewAll": "See all questions"
     },
     "branchMap": {
       "cta": "Visit the nearest branch",
@@ -204,6 +205,12 @@
         "COPART": "Copart Deal",
         "IAAI": "IAAI Deal",
         "MANHEIM": "Manheim Deal"
+      },
+      "countdown": {
+        "days": "d",
+        "hours": "h",
+        "minutes": "min",
+        "lessThanMinute": "less than 1 min"
       }
     },
     "carDetail": {
@@ -755,6 +762,36 @@
       "heading": "Couldn't find a deal that fits?",
       "text": "Leave your details",
       "cta": "Submit"
+    },
+    "detail": {
+      "back": "All offers",
+      "statusActive": "Offer is live",
+      "statusEndingSoon": "Offer ends soon",
+      "statusExpired": "Offer has ended",
+      "validUntil": "Valid until {date}",
+      "endedOn": "Ended on {date}",
+      "oldPrice": "Previous price",
+      "newPrice": "Offer price",
+      "saving": "You save {amount} ({percent}%)",
+      "timeLeft": "Time left",
+      "termsTitle": "Offer terms",
+      "eligibilityTitle": "Who can take part",
+      "termsDefault": [
+        "The offer is valid until the stated deadline.",
+        "The offer price applies to this exact car while it is still available.",
+        "Final terms are confirmed by our specialist after your request."
+      ],
+      "eligibilityDefault": [
+        "Individuals and companies.",
+        "To take part, leave a request with your name and phone number."
+      ],
+      "cta": "Get this offer",
+      "viewCar": "See the car details",
+      "expiredTitle": "This offer has ended",
+      "expiredText": "The offer price no longer applies. Leave a request and our specialist will suggest a similar option.",
+      "expiredCta": "Get a similar offer",
+      "currentOffers": "See current offers",
+      "details": "Details"
     }
   },
   "contact": {
@@ -1906,5 +1943,20 @@
     "empty": "No articles yet.",
     "read": "Read",
     "back": "All articles"
+  },
+  "faqPage": {
+    "meta": {
+      "title": "Frequently asked questions — AutoRoom",
+      "description": "Answers to the most common questions about importing cars from the USA and China, customs, financing and delivery."
+    },
+    "heading": "Frequently asked questions",
+    "intro": "Pick a topic or browse every question. Didn't find your answer? Get in touch.",
+    "topics": {
+      "general": "General",
+      "china": "China",
+      "usa": "USA"
+    },
+    "empty": "Questions are coming soon.",
+    "contactCta": "Contact us"
   }
 }

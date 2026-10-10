@@ -262,6 +262,9 @@ export interface Car {
   colors: CarColour[];
   /** Exactly four chips, or none. */
   priceJourney: PriceChip[];
+  /** Promotion conditions / who can take part, one point per line per language; null = default wording. */
+  promoTerms: { hy?: string; ru?: string; en?: string } | null;
+  promoEligibility: { hy?: string; ru?: string; en?: string } | null;
 
   /**
    * Admin-curated "Նմանատիպ առաջարկներ" pick list, in display order. Always

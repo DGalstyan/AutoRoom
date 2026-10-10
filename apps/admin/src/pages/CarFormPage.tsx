@@ -73,6 +73,8 @@ const BLANK: CarInput = {
   oldPrice: null,
   estFinalPriceAM: null,
   promoDeadline: null,
+  promoTerms: null,
+  promoEligibility: null,
   condition: 'ON_ORDER',
   statusBadge: null,
   deliveryEtaDays: null,
@@ -692,6 +694,34 @@ export function CarFormPage() {
               }
             />
           </Grid>
+
+          {/* Promotion wording shown on the offer's detail page: one point per line, per language.
+              Blank = the site's neutral default text. Armenian is required once anything is written. */}
+          {(['promoTerms', 'promoEligibility'] as const).map((field) => (
+            <Grid key={field}>
+              {(['hy', 'ru', 'en'] as const).map((lang) => (
+                <TextField
+                  key={lang}
+                  id={`field-${field}-${lang}`}
+                  label={`${field === 'promoTerms' ? 'Offer terms' : 'Who can take part'} (${lang})`}
+                  value={draft[field]?.[lang] ?? ''}
+                  onChange={(event) =>
+                    set(field, { ...(draft[field] ?? {}), [lang]: event.target.value })
+                  }
+                  disabled={readOnly}
+                  multiline
+                  minRows={3}
+                  fullWidth
+                  error={Boolean(fieldErrors[field])}
+                  helperText={
+                    lang === 'hy'
+                      ? (fieldErrors[field] ?? 'One point per line.')
+                      : 'Optional, one point per line.'
+                  }
+                />
+              ))}
+            </Grid>
+          ))}
 
           <FormControlLabel
             control={

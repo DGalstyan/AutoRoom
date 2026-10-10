@@ -1,52 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
-function formatCountdown(deadline: string): string {
-  const diffMs = new Date(deadline).getTime() - Date.now();
-  if (diffMs <= 0) return '0d, 0h, 0m';
-
-  const totalMinutes = Math.floor(diffMs / 60_000);
-  const days = Math.floor(totalMinutes / (60 * 24));
-  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
-  const minutes = totalMinutes % 60;
-  return `${days}d, ${hours}h, ${minutes}m`;
-}
+import { useMessages } from '@/components/shared/LocaleProvider';
+import { usePromoClock } from '@/components/shared/usePromoClock';
+import { formatCountdown } from '@/lib/promo';
 
 /**
- * Live "Xd, Yh, Zm" countdown to a promo's deadline — matches the exact
- * format of Figma's countdown pill (node `124:728`, file
- * `9Lq4XpWusTJj1VnM6laAZr`) on the /offers page's active promo cards.
- *
- * A small client-only leaf so the otherwise-server `CarCard` doesn't have to
- * become a client component just for one ticking value — Server Components
- * may render Client Components as children freely. Ticks once a minute,
- * which is all the display's own minute-granularity needs.
- *
- * Starts `null` rather than computing `formatCountdown` in the `useState`
- * initializer: that initializer also runs during hydration, and since it
- * reads `Date.now()`, the server's render instant and the client's
- * hydration instant can land in different minutes — a real, reproducible
- * hydration mismatch (caught live: server said "113d, 17h, 22m", client
- * hydrated one minute later as "113d, 17h, 21m"). Computing the real value
- * only in `useEffect` guarantees the initial client render matches the
- * server's `null` exactly; the swap to the real countdown happens a tick
- * later, imperceptibly.
- *
- * The first `setLabel` is deferred with `queueMicrotask` (same pattern as
- * `MissionStatement`'s reduced-motion path) rather than called synchronously
- * at the top of the effect — `react-hooks/set-state-in-effect` flags a bare
- * synchronous `setState` there, and CI's `eslint` runs with `--max-warnings
- * 0`, so this isn't just style.
+ * Live countdown to a promotion's deadline, in the visitor's language (Armenian: «12 օր 3 ժ 5 ր»).
+ * At the deadline it turns into «Ավարտված» by itself and refreshes the page data — nothing about an
+ * expired promotion stays open. A small client leaf, so the server-rendered `CarCard` stays a
+ * Server Component. Renders nothing until mounted, so it can't cause a hydration mismatch.
  */
 export function PromoCountdown({ deadline }: { deadline: string }) {
-  const [label, setLabel] = useState<string | null>(null);
+  const t = useMessages().common.carCard;
+  const { now, status } = usePromoClock(deadline);
 
-  useEffect(() => {
-    queueMicrotask(() => setLabel(formatCountdown(deadline)));
-    const id = setInterval(() => setLabel(formatCountdown(deadline)), 60_000);
-    return () => clearInterval(id);
-  }, [deadline]);
-
-  return <>{label}</>;
+  if (now === null) return null;
+  if (status === 'expired') return <>{t.promoEnded}</>;
+  return <>{formatCountdown(deadline, t.countdown, now)}</>;
 }

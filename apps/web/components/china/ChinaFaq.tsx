@@ -13,5 +13,5 @@ export async function ChinaFaq() {
   const items = await getFaq('CHINA', await getLocale());
   if (items.length === 0) return null;
 
-  return <Faq items={items} hideHeading />;
+  return <Faq items={items} hideHeading viewAllHref="/faq#china" />;
 }

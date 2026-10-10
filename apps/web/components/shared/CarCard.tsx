@@ -44,6 +44,7 @@ export async function CarCard({
   priority = false,
   badgesEnd = false,
   heavyTopScrim = false,
+  href,
 }: {
   car: CarSummary;
   priority?: boolean;
@@ -51,6 +52,8 @@ export async function CarCard({
   badgesEnd?: boolean;
   /** USA listing (Figma 440:3162): the scrim also goes solid black at the top edge. */
   heavyTopScrim?: boolean;
+  /** Overrides where the card links (the Offers list sends promotions to `/offers/[slug]`). */
+  href?: string;
 }) {
   const { messages } = await getServerMessages();
   const t = messages.common.carCard;
@@ -69,7 +72,7 @@ export async function CarCard({
 
   return (
     <Link
-      href={carHref(car)}
+      href={href ?? carHref(car)}
       className={`group relative block aspect-[3/2] w-full overflow-hidden rounded-xl bg-neutral-800 transition-transform duration-standard ease-expo hover:-translate-y-1 ${isPromoEnded ? 'grayscale' : ''}`}
     >
       {imageSrc ? (

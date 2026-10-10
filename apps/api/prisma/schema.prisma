@@ -493,6 +493,10 @@ model Car {
   /// regardless of `oldPrice` (a struck-through price with no deadline is
   /// just a permanent discount, not a promo).
   promoDeadline   DateTime?
+  /// Per-language conditions and who may take part in the promotion, one point per line
+  /// (`{hy, ru?, en?}`). Null = the site shows its neutral default wording.
+  promoTerms       Json?
+  promoEligibility Json?
 
   condition          CarCondition
   statusBadge        CarStatusBadge?

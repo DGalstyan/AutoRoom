@@ -12,5 +12,5 @@ export async function UsaFaq() {
   const items = await getFaq('USA', await getLocale());
   if (items.length === 0) return null;
 
-  return <Faq items={items} hideHeading />;
+  return <Faq items={items} hideHeading viewAllHref="/faq#usa" />;
 }

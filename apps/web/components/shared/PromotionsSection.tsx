@@ -1,6 +1,7 @@
 import { CarCard } from '@/components/shared/CarCard';
 import { PromoTabs } from '@/components/shared/PromoTabs';
 import { getServerMessages } from '@/lib/i18n';
+import { isArchived } from '@/lib/promo';
 import type { Car } from '@/lib/types/car';
 
 /**
@@ -19,7 +20,10 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
 
   const now = new Date().getTime();
   const current = cars.filter((car) => new Date(car.promoDeadline!).getTime() > now);
-  const past = cars.filter((car) => new Date(car.promoDeadline!).getTime() <= now);
+  // Ended promotions stay in "Past" for a while, then drop off the list (their page stays reachable).
+  const past = cars.filter(
+    (car) => new Date(car.promoDeadline!).getTime() <= now && !isArchived(car.promoDeadline!, now),
+  );
 
   return (
     <div>
@@ -36,7 +40,13 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
             current.length > 0 ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-12">
                 {current.map((car, index) => (
-                  <CarCard key={car.id} car={car} priority={index === 0} badgesEnd />
+                  <CarCard
+                    key={car.id}
+                    car={car}
+                    priority={index === 0}
+                    badgesEnd
+                    href={`/offers/${car.slug}`}
+                  />
                 ))}
               </div>
             ) : (
@@ -47,7 +57,7 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
             past.length > 0 ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-12">
                 {past.map((car) => (
-                  <CarCard key={car.id} car={car} badgesEnd />
+                  <CarCard key={car.id} car={car} badgesEnd href={`/offers/${car.slug}`} />
                 ))}
               </div>
             ) : (

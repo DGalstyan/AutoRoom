@@ -70,6 +70,9 @@ export const LEAD_CTAS = {
   'car-detail-per-car-offer': 'universal',
   'car-detail-reserve-before-arrival': 'universal',
   'car-detail-buy-with-loan-in-house': 'universal',
+  // Offers
+  'offer-detail-get-offer': 'universal',
+  'offer-detail-similar': 'universal',
   // USA
   'usa-s9-final-cta': 'usaAuction',
   'usa-import-process': 'usaAuction',

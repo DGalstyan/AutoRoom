@@ -92,6 +92,9 @@ export interface Car {
   estFinalPriceAM?: number | null;
   /** Set alongside `oldPrice` to run this car as a time-limited "Ակցիա" on /offers. */
   promoDeadline?: string | null;
+  /** Admin-written promotion terms / eligibility, one point per line per language. */
+  promoTerms?: LocalizedText | null;
+  promoEligibility?: LocalizedText | null;
 
   condition: CarCondition;
   statusBadge?: CarStatusBadge | null;

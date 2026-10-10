@@ -12,5 +12,5 @@ export async function ContactFaq() {
   const items = await getFaq('GENERAL', await getLocale());
   if (items.length === 0) return null;
 
-  return <Faq items={items} hideHeading />;
+  return <Faq items={items} hideHeading viewAllHref="/faq#general" />;
 }
