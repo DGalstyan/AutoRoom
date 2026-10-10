@@ -28,9 +28,7 @@ export function UsaImportProcess() {
 
   return (
     <div className="flex flex-col gap-8 lg:gap-[97px]">
-      <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
 
       <div className="flex flex-col gap-6 lg:gap-14">
         {t.steps.map((step, index) => (
@@ -63,7 +61,7 @@ export function UsaImportProcess() {
                         {step.text}
                       </p>
                     </div>
-                    <p className="text-[16px] leading-6 text-neutral-800">
+                    <p className="type-body text-neutral-800">
                       {t.durationLabel} {step.duration}
                     </p>
                   </div>

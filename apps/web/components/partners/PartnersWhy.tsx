@@ -49,9 +49,7 @@ export function PartnersWhy() {
   return (
     <section className="px-4 pt-14 sm:px-6 lg:px-12 lg:pt-0">
       <div className="relative z-[1] mx-auto flex max-w-page flex-col gap-8 lg:gap-16">
-        <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-          {t.heading}
-        </h2>
+        <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
 
         {/* Figma `Group 39466`: three columns 598 | 287 | 399 with 30px gaps (the
             `fr` units reproduce those exact widths at 1344px), then a 598 | 716 row. */}

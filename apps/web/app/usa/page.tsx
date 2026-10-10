@@ -157,11 +157,7 @@ export default async function UsaPage({
 const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-      {children}
-    </h2>
-  );
+  return <h2 className="type-h2 text-center text-ink">{children}</h2>;
 }
 
 function CarGrid({ cars, className = '' }: { cars: Car[]; className?: string }) {

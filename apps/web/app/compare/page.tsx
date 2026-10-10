@@ -41,7 +41,7 @@ export default async function ComparePage({
   return (
     <Section tone="light" wide className="pt-32 sm:pb-[150px] sm:pt-[185px]">
       <Reveal>
-        <h1 className="mb-16 font-display text-home-h2 font-light text-ink">{t.heading}</h1>
+        <h1 className="type-h2 mb-16 text-ink">{t.heading}</h1>
       </Reveal>
 
       {carA && carB ? (

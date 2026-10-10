@@ -18,10 +18,7 @@ export function PartnersOnboarding() {
       aria-labelledby="partners-onboarding-heading"
       className="mx-auto flex max-w-page flex-col gap-10 px-4 py-12 sm:px-6 lg:gap-16 lg:px-12 lg:py-[75px]"
     >
-      <h2
-        id="partners-onboarding-heading"
-        className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]"
-      >
+      <h2 id="partners-onboarding-heading" className="type-h2 text-center text-ink">
         {t.heading}
       </h2>
 
@@ -33,7 +30,7 @@ export function PartnersOnboarding() {
                 {String(index + 1).padStart(2, '0')}
               </span>
               <p className="text-[20px] font-bold leading-7 text-neutral-900">{step.title}</p>
-              <p className="text-[16px] leading-6 text-neutral-700">{step.text}</p>
+              <p className="type-body text-neutral-700">{step.text}</p>
             </li>
           </Reveal>
         ))}
@@ -67,7 +64,7 @@ function ChecklistCard({ title, items }: { title: string; items: string[] }) {
       <h3 className="text-[20px] font-bold leading-7 text-neutral-900">{title}</h3>
       <ul className="flex flex-col gap-3">
         {items.map((item) => (
-          <li key={item} className="flex items-start gap-3 text-[16px] leading-6 text-neutral-800">
+          <li key={item} className="type-body flex items-start gap-3 text-neutral-800">
             <svg
               width="20"
               height="20"

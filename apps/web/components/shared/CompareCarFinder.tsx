@@ -52,7 +52,7 @@ export function CompareCarFinder() {
 
   return (
     <Reveal className="flex flex-col gap-10">
-      <h2 className="font-display text-home-h2 font-light text-ink">{quizT.title}</h2>
+      <h2 className="type-h2 text-ink">{quizT.title}</h2>
 
       <form
         onSubmit={handleSubmit}

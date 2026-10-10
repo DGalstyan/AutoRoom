@@ -325,9 +325,7 @@ export function UsaStateClocks() {
 
   return (
     <div className="flex flex-col items-center gap-10 lg:gap-16">
-      <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
       {/* One tool: Yerevan, and the US state the visitor picks. Offsets and the DST badge come
           from the time-zone database, so the gap shifts by itself when the US changes its clocks. */}
       <div className="grid w-full max-w-[784px] grid-cols-1 justify-items-center gap-6 md:grid-cols-2 lg:gap-12">
@@ -386,7 +384,7 @@ function StatePicker({
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-11 w-full appearance-none truncate border-none bg-transparent p-0 py-0 pl-6 pr-6 text-center text-[16px] leading-6 text-ink outline-none"
+        className="type-body min-h-11 w-full appearance-none truncate border-none bg-transparent p-0 py-0 pl-6 pr-6 text-center text-ink outline-none"
       >
         {STATE_OPTIONS.map((option) => (
           <option key={option.key} value={option.key}>
@@ -440,12 +438,12 @@ function ClockCard({
 }) {
   return (
     <div className="flex w-full max-w-[368px] flex-col items-center gap-6 overflow-hidden rounded-[48px] bg-white px-6 py-8 text-center sm:py-12 lg:py-16">
-      {selector ?? <p className="text-[16px] leading-6 text-ink">{label}</p>}
+      {selector ?? <p className="type-body text-ink">{label}</p>}
       <AnalogClock now={now} timeZone={timeZone} />
       <div className="flex flex-col gap-1">
         {now ? (
           <>
-            <p className="font-display text-home-h2 font-light text-ink">
+            <p className="type-h2 text-ink">
               {new Intl.DateTimeFormat(LOCALE_TAG[locale], {
                 timeZone,
                 hour: 'numeric',

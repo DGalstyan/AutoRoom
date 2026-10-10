@@ -35,9 +35,7 @@ export default async function HomePage() {
       <HomeHero h1={hero.h1} stats={hero.stats} />
 
       <section className={`${COLUMN} mt-12 lg:mt-16`}>
-        <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-          {hero.pickerHeading}
-        </h2>
+        <h2 className="type-h2 text-center text-ink">{hero.pickerHeading}</h2>
         <div className="mt-8 flex flex-col items-center gap-6 lg:mt-16 lg:flex-row lg:justify-center lg:gap-10 min-[1400px]:gap-[126px]">
           <Reveal className="w-full lg:flex-1 lg:max-w-[597px] min-[1400px]:flex-none">
             <CountryCard

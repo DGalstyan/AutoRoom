@@ -27,9 +27,7 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
 
   return (
     <div>
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-ink">{t.heading}</h2>
       <div className="mt-8 lg:mt-16">
         <PromoTabs
           currentLabel={t.tabCurrent}

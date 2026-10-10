@@ -281,7 +281,7 @@ export function ContactForm() {
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
                 placeholder={t.commentPlaceholder}
-                className="w-full rounded-xl bg-neutral-25 px-6 py-4 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+                className="type-body w-full rounded-xl bg-neutral-25 px-6 py-4 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
               />
             </div>
           ) : null}

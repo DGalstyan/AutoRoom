@@ -47,7 +47,7 @@ export function PortalChangePasswordForm() {
         className="w-full rounded-[48px] bg-white p-8 shadow-card sm:p-12"
         noValidate
       >
-        <h1 className="font-display text-home-h2 font-light text-ink">{t.heading}</h1>
+        <h1 className="type-h2 text-ink">{t.heading}</h1>
         <p className="mt-2 text-body text-neutral-700">{t.text}</p>
 
         <div className="mt-8 flex flex-col gap-6">

@@ -90,7 +90,7 @@ export function Faq({ items, heading, hideHeading = false, initialCount, viewAll
                 }`}
               >
                 <div className="overflow-hidden">
-                  <p className="mt-4 whitespace-pre-line px-6 pb-6 text-[16px] leading-6 text-neutral-800">
+                  <p className="type-body mt-4 whitespace-pre-line px-6 pb-6 text-neutral-800">
                     {item.a}
                   </p>
                 </div>

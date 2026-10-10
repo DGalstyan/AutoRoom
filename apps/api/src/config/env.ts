@@ -60,6 +60,13 @@ const schema = z.object({
   COOKIE_DOMAIN: z.string().optional(),
 
   /**
+   * Optional external CRM: every new lead is POSTed here as JSON (see `lib/leadWebhook.ts`), signed
+   * with `LEAD_WEBHOOK_SECRET` when set. Unset = leads stay in this system's own CRM only.
+   */
+  LEAD_WEBHOOK_URL: z.string().url().optional(),
+  LEAD_WEBHOOK_SECRET: z.string().min(16).optional(),
+
+  /**
    * SMS gateway. `console` (default) only logs the message and is refused in
    * production; `http` POSTs `{ to, text, sender }` as JSON to `SMS_HTTP_URL`
    * with `Authorization: Bearer SMS_HTTP_TOKEN` — the shape most Armenian and

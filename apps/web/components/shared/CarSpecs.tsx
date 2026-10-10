@@ -68,8 +68,8 @@ export function CarSpecs({ car }: { car: Car }) {
       </h2>
       <div className="flex flex-col gap-2">
         {rows.map((row) => (
-          <div key={row.label} className="flex min-h-12 items-center rounded-md bg-white p-3">
-            <span className="w-[140px] shrink-0 text-[16px] leading-[24px] text-neutral-700 [overflow-wrap:anywhere] sm:w-[221px]">
+          <div key={row.label} className="flex min-h-12 items-center gap-3 rounded-md bg-white p-3">
+            <span className="type-body w-[140px] shrink-0 text-neutral-700 [overflow-wrap:anywhere] sm:w-[221px]">
               {row.label}
             </span>
             <span className="min-w-0 flex-1 text-left text-[16px] font-medium leading-[20px] text-neutral-800 [overflow-wrap:anywhere]">

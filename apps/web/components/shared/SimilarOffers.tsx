@@ -18,9 +18,7 @@ export async function SimilarOffers({ cars }: { cars: CarSummary[] }) {
 
   return (
     <div className="flex flex-col gap-8 lg:gap-16">
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-neutral-900 sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-neutral-900">{t.heading}</h2>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-12">
         {cars.map((car) => (
           <CarCard key={car.id} car={car} badgesEnd />

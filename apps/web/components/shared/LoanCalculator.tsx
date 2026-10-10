@@ -62,9 +62,7 @@ export function LoanCalculator({
 
   return (
     <div id="loan-calculator" className="flex flex-col gap-8 lg:gap-16">
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-neutral-900 sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-neutral-900">{t.heading}</h2>
 
       {/* Figma 442:9210: a 676px column (input card + three rows) and a 589px result card. */}
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -175,11 +173,11 @@ export function LoanCalculator({
           {/* Figma 442:9250 — labels 16/24 regular, values 16/20 bold, both #666E73. */}
           <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
             <div>
-              <p className="text-[16px] leading-6">{t.downPayment}</p>
+              <p className="type-body">{t.downPayment}</p>
               <p className="text-[16px] font-bold leading-5 tabular-nums">{formatUsd(clamped)}</p>
             </div>
             <div>
-              <p className="text-[16px] leading-6">{t.term}</p>
+              <p className="type-body">{t.term}</p>
               <p className="text-[16px] font-bold leading-5 tabular-nums">{finance.termMonths}</p>
             </div>
           </div>
@@ -268,7 +266,7 @@ export function LoanCalculator({
 function SpecRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-h-12 items-center gap-3 rounded-[12px] bg-white p-3">
-      <span className="stretch-90 w-1/2 text-[16px] leading-6 text-neutral-700 lg:w-[341px] lg:flex-none">
+      <span className="type-body stretch-90 w-1/2 text-neutral-700 lg:w-[341px] lg:flex-none">
         {label}
       </span>
       <span className="min-w-0 flex-1 text-[16px] font-bold leading-5 tabular-nums text-neutral-800">

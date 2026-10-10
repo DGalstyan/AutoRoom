@@ -22,7 +22,7 @@ export async function FeaturedCars() {
 
   return (
     <div>
-      <h2 className="font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+      <h2 className="type-h2 text-ink">{t.heading}</h2>
 
       <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 sm:gap-x-12 lg:grid-cols-3">
         {cars.map((car, index) => (

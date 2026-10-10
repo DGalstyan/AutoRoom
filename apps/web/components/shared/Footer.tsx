@@ -77,7 +77,7 @@ export async function Footer({
   const year = new Date().getFullYear();
 
   const legal = (
-    <div className="text-[12px] leading-[1.4] text-[#8f9fa3]">
+    <div className="text-[12px] leading-[1.4] text-footer-link">
       <p>{footer.rights.includes('©') ? footer.rights : `© ${year} AutoRoom — ${footer.rights}`}</p>
       <p className="mt-1 flex flex-wrap gap-x-4">
         <Link
@@ -108,21 +108,27 @@ export async function Footer({
 
           <div className="flex items-end justify-between gap-6">
             {socialLinks.length > 0 && (
-              <ul className="flex max-w-[110px] flex-wrap-reverse content-end items-end gap-[10px] sm:max-w-[120px]">
-                {socialLinks.map(({ key, icon, label, href }) => (
-                  <li key={key} className="flex h-11 w-11 items-center justify-center">
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={label}
-                      className="block rounded-full transition-transform duration-standard ease-expo hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    >
-                      <SocialDisc name={icon} />
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div className="flex flex-col gap-3">
+                {/* Mixed case on purpose: forcing capitals turns Armenian «և» into the wrong «ԵՒ». */}
+                <p className="text-[16px] font-medium leading-6 text-white">
+                  {footer.socialHeading}
+                </p>
+                <ul className="flex max-w-[110px] flex-wrap-reverse content-end items-end gap-[10px] sm:max-w-[120px]">
+                  {socialLinks.map(({ key, icon, label, href }) => (
+                    <li key={key} className="flex h-11 w-11 items-center justify-center">
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        className="block rounded-full transition-transform duration-standard ease-expo hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                      >
+                        <SocialDisc name={icon} />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
 
             {/* Desktop: beside the socials, as in the design. */}
@@ -133,7 +139,7 @@ export async function Footer({
         {/* Right block */}
         <div className="flex flex-col justify-between gap-12 lg:w-[calc(50%-24px)] lg:max-w-[600px] lg:gap-0">
           <nav aria-label={nav.primaryNav}>
-            <ul className="flex flex-wrap gap-x-6 gap-y-1 text-[16px] leading-6 text-[#8f9fa3] lg:gap-x-8 min-[1400px]:flex-nowrap min-[1400px]:gap-x-[41px]">
+            <ul className="type-body flex flex-wrap gap-x-6 gap-y-1 text-footer-link lg:gap-x-8 min-[1400px]:flex-nowrap min-[1400px]:gap-x-[41px]">
               {NAV.map(({ key, href }) => (
                 <li key={href}>
                   <Link
@@ -154,7 +160,7 @@ export async function Footer({
                   <p className="text-[20px] font-medium leading-[1.1] tracking-[-0.2px] text-white">
                     {footer.contactHeading}
                   </p>
-                  <ul className="flex flex-col text-[14px] font-medium leading-[18px] text-[#8f9fa3]">
+                  <ul className="flex flex-col text-[14px] font-medium leading-[18px] text-footer-link">
                     {phones.map((phone) => (
                       <li key={phone}>
                         <a
@@ -184,7 +190,7 @@ export async function Footer({
                   <p className="text-[20px] font-medium leading-[1.1] tracking-[-0.2px] text-white">
                     {footer.branchesHeading}
                   </p>
-                  <ul className="flex flex-col gap-[3px] text-[14px] font-medium leading-[18px] text-[#8f9fa3]">
+                  <ul className="flex flex-col gap-[3px] text-[14px] font-medium leading-[18px] text-footer-link">
                     {branches.map((branch) => (
                       <li key={branch.id}>
                         {branch.city ? `${branch.city}, ` : ''}

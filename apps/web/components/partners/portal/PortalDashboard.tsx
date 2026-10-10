@@ -175,7 +175,7 @@ export function PortalDashboard() {
   return (
     <div className="mx-auto max-w-page px-4 pb-16 pt-32 sm:px-6 sm:pt-[185px] lg:px-12 lg:pb-24">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
+        <h1 className="type-h2 text-ink">
           {greeting(t.dashboard)}, {identity?.name.split(' ')[0]} 👋
         </h1>
         <div className="flex flex-wrap items-center gap-2">
@@ -348,7 +348,7 @@ export function PortalDashboard() {
                   </thead>
                   <tbody>
                     {cars.map((car) => (
-                      <tr key={car.id} className="odd:bg-white even:bg-[#f7f7f7]">
+                      <tr key={car.id} className="odd:bg-white even:bg-page">
                         <Td first>{car.make}</Td>
                         <Td>{car.model}</Td>
                         <Td>{car.year}</Td>
@@ -409,7 +409,7 @@ export function PortalDashboard() {
                         }}
                         role="button"
                         tabIndex={0}
-                        className="cursor-pointer odd:bg-white even:bg-[#f7f7f7] hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+                        className="cursor-pointer odd:bg-white even:bg-page hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
                       >
                         <Td first>{formatDate(order.createdAt)}</Td>
                         <Td>{order.orderNumber}</Td>
@@ -516,7 +516,7 @@ function StatCard({
           </span>
         )}
       </span>
-      <span className="text-[16px] leading-6 text-neutral-800">{label}</span>
+      <span className="type-body text-neutral-800">{label}</span>
     </>
   );
   const base =

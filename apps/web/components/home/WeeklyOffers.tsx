@@ -21,9 +21,7 @@ export async function WeeklyOffers() {
 
   return (
     <div className="flex flex-col gap-8 lg:gap-16">
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-ink">{t.heading}</h2>
 
       <ul className="grid grid-cols-1 gap-x-12 gap-y-6 md:grid-cols-2 lg:gap-y-8">
         {cars.slice(0, 4).map((car, index) => {

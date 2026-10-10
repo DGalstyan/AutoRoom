@@ -33,9 +33,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         >
           ← {t.back}
         </Link>
-        <h1 className="stretch-88 mt-4 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-          {post.title}
-        </h1>
+        <h1 className="type-h2 mt-4 text-ink">{post.title}</h1>
         {post.publishedAt && (
           <time dateTime={post.publishedAt} className="mt-3 block text-[14px] text-neutral-700">
             {new Date(post.publishedAt).toLocaleDateString(

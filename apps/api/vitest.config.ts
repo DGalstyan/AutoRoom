@@ -36,6 +36,8 @@ export default defineConfig({
       CORS_ORIGINS: 'http://localhost:3000',
       APP_URL: 'http://localhost:3000/admin',
       PUBLIC_API_URL: 'http://localhost:4000',
+      LEAD_WEBHOOK_URL: 'http://127.0.0.1:4599/hook',
+      LEAD_WEBHOOK_SECRET: 'test-webhook-secret-0123456789',
     },
   },
 });

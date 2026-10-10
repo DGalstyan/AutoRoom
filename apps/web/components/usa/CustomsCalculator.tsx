@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
+import { TotalBar } from '@/components/ui/TotalBar';
 import { Field as UiField, type FieldControlProps } from '@/components/ui/Field';
 import { interpolate } from '@/lib/messages';
 import { formatAmd } from '@/lib/loan';
@@ -138,7 +139,7 @@ export function CustomsCalculator({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-10">
-      <h2 className="font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+      <h2 className="type-h2 text-ink">{t.heading}</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Field label={t.carValueLabel} error={err('carValue')}>
@@ -435,14 +436,11 @@ function CustomsResultPanel({
               formula={interpolate(t.vatFormula, { percent: String(result.breakdown.vatPercent) })}
               value={formatAmd(result.breakdown.vatAmd)}
             />
-            <div className="mt-2 flex items-baseline justify-between gap-4 border-t border-neutral-100 pt-4">
-              <dt className="text-[16px] font-bold text-neutral-900">{t.total}</dt>
-              <dd className="text-[24px] font-bold tabular-nums text-neutral-900">
-                {formatAmd(result.breakdown.totalAmd)}
-              </dd>
-            </div>
           </dl>
-          <p className="text-[12px] leading-4">{t.formula}</p>
+          {/* Tier 3 of the calculator hierarchy: the one dark block, total at 28–36px / 700. */}
+          <TotalBar label={t.total} value={formatAmd(result.breakdown.totalAmd)}>
+            <span className="text-[12px] leading-4 text-white/70">{t.formula}</span>
+          </TotalBar>
         </>
       ) : (
         <>
@@ -471,10 +469,10 @@ function Row({ label, formula, value }: { label: string; formula: string; value:
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-4">
       <div className="min-w-0">
-        <dt className="font-bold text-neutral-800">{label}</dt>
+        <dt className="font-medium text-neutral-800">{label}</dt>
         <dd className="text-[12px] leading-4 tabular-nums">{formula}</dd>
       </div>
-      <dd className="font-bold tabular-nums text-neutral-900">{value}</dd>
+      <dd className="font-medium tabular-nums text-neutral-900">{value}</dd>
     </div>
   );
 }

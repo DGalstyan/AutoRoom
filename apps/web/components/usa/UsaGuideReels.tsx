@@ -41,7 +41,7 @@ export function UsaGuideReels({ reels }: { reels: GuideReel[] }) {
 
   return (
     <Section tone="light">
-      <h2 className="text-center font-display text-home-h2 font-light text-ink">{t.heading}</h2>
+      <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
 
       <div className="mt-10 grid grid-cols-2 gap-0 md:grid-cols-4">
         {reels.map((reel) => (

@@ -81,8 +81,9 @@ describe('UniversalPopup single screen', () => {
     expect(screen.getByLabelText(m.nameLabel)).toBeInTheDocument();
     expect(screen.getByLabelText(m.phoneLabel)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: m.interestOptions.usa })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: m.next })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(m.commentLabel)).not.toBeInTheDocument();
+    // One screen: just name and phone as text fields (no comment box), and no "step 1 / 3" counter.
+    expect(screen.getAllByRole('textbox')).toHaveLength(2);
+    expect(screen.queryByText(/\d\s*\/\s*\d/)).not.toBeInTheDocument();
   });
 
   it('cannot be sent without a name and a phone, and can be sent with only those two', async () => {

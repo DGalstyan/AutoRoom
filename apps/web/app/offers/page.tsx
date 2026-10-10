@@ -56,9 +56,7 @@ export default async function OffersPage() {
           borrow that clearance from, same as the China listing/About pages. */}
       {/* The first heading sits 221px down in the design (below the fixed header). */}
       <section className={`${COLUMN} bg-surface-light pt-32 text-ink sm:pt-[221px]`}>
-        <h2 className="stretch-88 text-[28px] font-light leading-[38px] sm:text-home-h2 sm:leading-[58px]">
-          {t.featured.heading}
-        </h2>
+        <h2 className="type-h2">{t.featured.heading}</h2>
         {featured.length > 0 && (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:gap-x-12 lg:gap-y-8">
             {featured.map((car, index) => (

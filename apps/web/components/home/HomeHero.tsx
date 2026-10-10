@@ -34,7 +34,7 @@ export function HomeHero({ h1, stats }: { h1: string; stats: { value: string; la
         />
       </div>
       <div
-        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-120px)] bg-black opacity-50 backdrop-blur-[21px] lg:h-[838px]"
+        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-120px)] bg-black/30 backdrop-blur-[8px] lg:h-[838px]"
         aria-hidden="true"
       />
       <div

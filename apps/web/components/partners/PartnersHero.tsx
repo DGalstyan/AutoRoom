@@ -31,7 +31,7 @@ export function PartnersHero({ phone }: { phone: string | null }) {
         imgClassName="object-cover"
       />
       <div
-        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-80px)] bg-black opacity-50 backdrop-blur-[21px] lg:h-[838px]"
+        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-80px)] bg-black/30 backdrop-blur-[8px] lg:h-[838px]"
         aria-hidden="true"
       />
       <div

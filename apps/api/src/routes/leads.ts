@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { LeadStatus, MeetingFormat, MeetingStatus, Prisma, UserStatus } from '@prisma/client';
 import { z } from 'zod';
+import { forwardLeadToCrm } from '../lib/leadWebhook';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict, notFound } from '../lib/errors';
 import { requireAuth } from '../middleware/auth';
@@ -222,6 +223,8 @@ leadsRouter.post('/leads', validateBody(createLeadBodySchema), async (req, res) 
       quizAnswersJson: body.quizAnswers ?? Prisma.JsonNull,
     },
   });
+  // After the lead is safely stored: pass it on to the external CRM without making the visitor wait.
+  void forwardLeadToCrm(lead);
   res.status(201).json(serializeLead(lead));
 });
 

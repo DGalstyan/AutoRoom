@@ -27,9 +27,7 @@ export function ChinaFinancing({ banks }: { banks: Bank[] }) {
   return (
     <div className="flex flex-col items-center gap-14 lg:gap-[100px]">
       <div className="flex w-full flex-col items-center gap-5 text-center">
-        <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-          {t.heading}
-        </h2>
+        <h2 className="type-h2 text-ink">{t.heading}</h2>
         <p className="stretch-85 max-w-[1344px] text-[18px] font-normal leading-[28px] text-ink sm:text-[24px] sm:leading-[36px]">
           {t.text}
         </p>

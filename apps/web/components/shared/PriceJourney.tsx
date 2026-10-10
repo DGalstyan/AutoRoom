@@ -105,9 +105,7 @@ export function PriceJourney({
 
   return (
     <div ref={ref} className="flex flex-col gap-8 lg:gap-16">
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-neutral-900 sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-neutral-900">{t.heading}</h2>
 
       <div className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-12">
         <div className="flex flex-col justify-between gap-3 lg:flex-[715] lg:gap-[45px]">

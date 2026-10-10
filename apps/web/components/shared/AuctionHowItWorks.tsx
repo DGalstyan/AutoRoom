@@ -26,10 +26,7 @@ export function AuctionHowItWorks({ car }: { car: Car }) {
       className="bg-ink px-4 py-16 sm:px-6 lg:px-12 lg:py-[110px]"
     >
       <div className="mx-auto flex max-w-page flex-col items-center gap-10">
-        <h2
-          id="auction-how-heading"
-          className="stretch-88 text-center text-[32px] font-light leading-10 text-white sm:text-home-h2 sm:leading-[58px]"
-        >
+        <h2 id="auction-how-heading" className="type-h2 text-center text-white">
           {t.howItWorksHeading}
         </h2>
 

@@ -153,7 +153,7 @@ function PointsCard({ title, points }: { title: string; points: string[] }) {
       <h2 className="text-[20px] font-bold leading-7 text-neutral-900">{title}</h2>
       <ul className="flex flex-col gap-3">
         {points.map((point) => (
-          <li key={point} className="flex items-start gap-3 text-[16px] leading-6 text-neutral-800">
+          <li key={point} className="type-body flex items-start gap-3 text-neutral-800">
             <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
             {point}
           </li>

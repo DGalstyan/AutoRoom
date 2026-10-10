@@ -49,7 +49,7 @@ export interface UniversalPopupProps {
   car?: UniversalPopupCarContext;
   sourcePage: string;
   sourceCta: string;
-  /** Extra text appended into the Step-3 comment (e.g. quiz answers summary). */
+  /** Extra text sent along as the lead's comment (e.g. a quiz answers summary); not shown as a field. */
   prefilledComment?: string;
   /** If this popup followed the Quiz, its answers ride along in the hidden payload. */
   quizAnswers?: Record<string, string>;
@@ -168,7 +168,7 @@ export function UniversalPopup({
         }
       : undefined;
 
-  const dialogTitle = car ? interpolate(t.perCarTitle, { model: car.name }) : t.step1Title;
+  const dialogTitle = car ? interpolate(t.perCarTitle, { model: car.name }) : t.title;
 
   if (status === 'success') {
     return (

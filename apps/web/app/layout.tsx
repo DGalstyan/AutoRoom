@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Noto_Sans_Armenian, Sora } from 'next/font/google';
+import { Inter, Noto_Sans_Armenian } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
 import { Header } from '@/components/shared/Header';
@@ -15,12 +15,6 @@ import { getBrandingLogos } from '@/lib/branding';
 import { getContacts } from '@/lib/contacts';
 import { getServerMessages } from '@/lib/i18n';
 import { hasMaintenancePreview, isMaintenanceMode } from '@/lib/settings';
-
-const sora = Sora({
-  variable: '--font-sora',
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 const inter = Inter({
   variable: '--font-inter',
@@ -76,7 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${sora.variable} ${inter.variable} ${notoSansArmenian.variable} ${sfArmenian.variable} ${sfArmenianAlt.variable} h-full antialiased`}
+      className={`${inter.variable} ${notoSansArmenian.variable} ${sfArmenian.variable} ${sfArmenianAlt.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-surface-light font-body text-body text-ink">
         {maintenance ? (

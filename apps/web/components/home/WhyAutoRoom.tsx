@@ -41,9 +41,7 @@ export function WhyAutoRoom({
 }) {
   return (
     <div className="flex flex-col gap-8 lg:gap-16">
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-neutral-800 sm:text-home-h2 sm:leading-[58px]">
-        {heading}
-      </h2>
+      <h2 className="type-h2 text-neutral-800">{heading}</h2>
 
       <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-[60px]">
         <Reveal className="relative aspect-[971/555.437] w-full lg:flex-1">

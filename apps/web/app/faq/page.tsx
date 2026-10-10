@@ -49,9 +49,7 @@ export default async function FaqPage() {
     <div className="bg-surface-light pb-16 text-ink lg:pb-[150px]">
       <div className="mx-auto flex max-w-page flex-col gap-10 px-4 pt-32 sm:px-6 sm:pt-[185px] lg:gap-16 lg:px-12">
         <header className="flex flex-col gap-4">
-          <h1 className="stretch-88 text-[32px] font-light leading-10 sm:text-home-h2 sm:leading-[58px]">
-            {t.heading}
-          </h1>
+          <h1 className="type-h2">{t.heading}</h1>
           <p className="max-w-2xl text-lead text-neutral-700">{t.intro}</p>
           {groups.length > 1 && (
             <nav aria-label={t.heading} className="flex flex-wrap gap-2">

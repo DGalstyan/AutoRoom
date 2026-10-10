@@ -55,7 +55,7 @@ export function ComingSoonHero({
 
       <section className="bg-bg px-4 py-20 text-white sm:px-6 sm:py-28">
         <div className="mx-auto max-w-container text-center">
-          <h2 className="font-display text-home-h2 font-light text-white">{comingSoonHeading}</h2>
+          <h2 className="type-h2 text-white">{comingSoonHeading}</h2>
           <p className="mx-auto mt-4 max-w-2xl text-lead text-white/70">{comingSoonText}</p>
         </div>
       </section>

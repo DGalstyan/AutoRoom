@@ -12,6 +12,9 @@ module.exports = {
         paper: '#FFFFFF',
         ink: '#0D0D0D',
         muted: '#8A8F98',
+        // Page background of the light surfaces, and the quiet blue-grey of footer links.
+        page: '#F7F7F7',
+        'footer-link': '#8F9FA3',
         line: '#26262E',
         'line-light': '#E6E8EC',
         // Accent + semantics reconciled with Figma "Foundation" canvas
@@ -76,8 +79,23 @@ module.exports = {
         'price-total': ['28px', { lineHeight: '36px', fontWeight: '700' }],
       },
       fontFamily: {
-        display: ['var(--font-sora)', 'var(--font-sf-am)', 'var(--font-sf-am-alt)', 'var(--font-noto-am)', 'sans-serif'],
-        body: ['var(--font-inter)', 'var(--font-sf-am)', 'var(--font-sf-am-alt)', 'var(--font-noto-am)', 'sans-serif'],
+        // One typeface for the whole site: Inter for Latin and digits, SF Armenian for Armenian
+        // (Noto only as a last resort). `display` is kept as an alias so the many `font-display`
+        // classes keep working, but it no longer picks a different face from `body`.
+        display: [
+          'var(--font-inter)',
+          'var(--font-sf-am)',
+          'var(--font-sf-am-alt)',
+          'var(--font-noto-am)',
+          'sans-serif',
+        ],
+        body: [
+          'var(--font-inter)',
+          'var(--font-sf-am)',
+          'var(--font-sf-am-alt)',
+          'var(--font-noto-am)',
+          'sans-serif',
+        ],
       },
       transitionTimingFunction: { expo: 'cubic-bezier(0.16,1,0.3,1)' },
       // Pure-CSS entrance used by the Hero (`app/page.tsx`) — no scroll
@@ -121,6 +139,16 @@ module.exports = {
     // match: bigger type gets a lower value (measured against the Figma text widths).
     ({ addUtilities }) =>
       addUtilities({
+        // Global type tokens — use these instead of hand-writing size/weight/leading.
+        // H2: 28/38 on phones, 44/58 from `sm`, weight 300 (the section-heading style).
+        '.type-h2': {
+          fontSize: '28px',
+          lineHeight: '38px',
+          fontWeight: '300',
+          '@media (min-width: 640px)': { fontSize: '44px', lineHeight: '58px' },
+        },
+        // Body: 16/24, weight 400.
+        '.type-body': { fontSize: '16px', lineHeight: '24px', fontWeight: '400' },
         '.stretch-85': { 'font-stretch': '85%' },
         '.stretch-88': { 'font-stretch': '88%' },
         '.stretch-90': { 'font-stretch': '90%' },

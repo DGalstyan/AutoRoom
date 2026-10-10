@@ -26,9 +26,7 @@ export default async function BlogPage() {
   return (
     <div className="bg-surface-light">
       <div className="mx-auto max-w-page px-4 pb-16 pt-32 sm:px-6 sm:pt-[185px] lg:px-12 lg:pb-[150px]">
-        <h1 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-          {t.heading}
-        </h1>
+        <h1 className="type-h2 text-ink">{t.heading}</h1>
 
         {posts.length === 0 ? (
           <p className="mt-10 text-lead text-muted">{t.empty}</p>
@@ -63,9 +61,7 @@ export default async function BlogPage() {
                     <h2 className="stretch-90 text-[24px] font-normal leading-9 text-ink">
                       {post.title}
                     </h2>
-                    {post.excerpt && (
-                      <p className="text-[16px] leading-6 text-neutral-800">{post.excerpt}</p>
-                    )}
+                    {post.excerpt && <p className="type-body text-neutral-800">{post.excerpt}</p>}
                     <span className="mt-auto pt-2 text-[14px] font-medium text-ink underline underline-offset-4 group-hover:text-accent-600">
                       {t.read}
                     </span>

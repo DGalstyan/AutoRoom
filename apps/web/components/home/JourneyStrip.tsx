@@ -25,9 +25,7 @@ export function JourneyStrip({
 
   return (
     <div className="flex flex-col gap-8 min-[1400px]:gap-[64px]">
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-        {heading}
-      </h2>
+      <h2 className="type-h2 text-ink">{heading}</h2>
 
       <ol className="grid grid-cols-1 gap-3 md:grid-cols-2 min-[1400px]:flex min-[1400px]:h-[564px] min-[1400px]:flex-row min-[1400px]:gap-[7px]">
         {steps.map((step, index) => {

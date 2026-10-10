@@ -46,9 +46,7 @@ export function PartnersWhoCanJoin() {
   return (
     <section className="bg-surface-light px-4 pt-16 sm:px-6 lg:px-12 lg:pt-[150px]">
       <div className="mx-auto flex max-w-page flex-col gap-8 lg:gap-16">
-        <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-          {t.heading}
-        </h2>
+        <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
 
         <div className="relative overflow-visible rounded-[32px]">
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[32px] sm:aspect-[980/551] sm:w-[72.917%]">

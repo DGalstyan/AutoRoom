@@ -32,7 +32,7 @@ export function FooterLanguages({ heading }: { heading: string }) {
               disabled={isPending}
               onClick={() => setLocale(code)}
               className={`inline-flex min-h-11 min-w-8 items-center justify-center text-[14px] leading-5 transition-colors duration-micro hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-60 ${
-                locale === code ? 'text-white' : 'text-[#8f9fa3]'
+                locale === code ? 'text-white' : 'text-footer-link'
               }`}
             >
               {LABELS[code]}

@@ -78,7 +78,7 @@ export function FieldSelect({
         aria-label={label}
         aria-describedby={describedBy}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-[72px] w-full items-center justify-between gap-3 rounded-[50px] bg-neutral-25 px-6 text-left text-[16px] leading-6 outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="type-body flex h-[72px] w-full items-center justify-between gap-3 rounded-[50px] bg-neutral-25 px-6 text-left outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <span className={`truncate ${selected ? 'text-neutral-800' : 'text-neutral-600'}`}>
           {selected?.label ?? placeholder ?? ''}

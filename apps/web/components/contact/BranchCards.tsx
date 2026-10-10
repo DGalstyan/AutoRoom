@@ -32,9 +32,7 @@ export async function BranchCards() {
 
   return (
     <div className="flex flex-col gap-8 lg:gap-16">
-      <h2 className="stretch-88 text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
-        {t.heading}
-      </h2>
+      <h2 className="type-h2 text-ink">{t.heading}</h2>
       <div className="flex flex-col gap-6 lg:gap-9">
         {branches.map((branch) => (
           <div

@@ -112,7 +112,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
                 />
               </svg>
             </button>
-            <h1 className="stretch-88 text-[26px] font-light leading-[34px] text-ink sm:text-home-h2 sm:leading-[58px]">
+            <h1 className="type-h2 text-ink">
               {t.orderNumberPrefix}
               {order.orderNumber}
             </h1>
@@ -144,9 +144,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
                 <p className="text-[16px] font-bold leading-6 text-neutral-800">
                   {t.insurance.notProtectedTitle}
                 </p>
-                <p className="mt-1 text-[16px] leading-6 text-neutral-700">
-                  {t.insurance.notProtectedBody}
-                </p>
+                <p className="type-body mt-1 text-neutral-700">{t.insurance.notProtectedBody}</p>
               </div>
             )}
 
@@ -189,14 +187,14 @@ export function PortalOrderDetail({ id }: { id: string }) {
                     <Field label={t.shipping.containerNumber} value={order.containerNumber} />
                     {order.trackingUrl && (
                       <div className="flex items-center justify-between gap-3 rounded-[12px] bg-white p-3">
-                        <p className="shrink-0 text-[16px] leading-6 text-neutral-700">
+                        <p className="type-body shrink-0 text-neutral-700">
                           {t.shipping.trackingUrl}
                         </p>
                         <a
                           href={order.trackingUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="min-w-0 flex-1 text-right text-[16px] font-medium leading-5 text-[#4b7bec] underline [overflow-wrap:anywhere]"
+                          className="min-w-0 flex-1 text-right text-[16px] font-medium leading-5 text-info underline [overflow-wrap:anywhere]"
                         >
                           {order.trackingUrl}
                         </a>
@@ -275,17 +273,13 @@ export function PortalOrderDetail({ id }: { id: string }) {
                   <div className="lg:w-[calc(50%-12px)]">
                     <Card heading={t.documents.heading}>
                       <div className="flex items-center justify-between gap-3 rounded-[12px] bg-white p-3">
-                        <p className="text-[16px] leading-6 text-neutral-700">
-                          {t.documents.title}
-                        </p>
+                        <p className="type-body text-neutral-700">{t.documents.title}</p>
                         <Badge tone={order.hasTitleDocument ? 'success' : 'neutral'}>
                           {order.hasTitleDocument ? t.documents.yes : t.documents.no}
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between gap-3 rounded-[12px] bg-white p-3">
-                        <p className="text-[16px] leading-6 text-neutral-700">
-                          {t.documents.billOfSale}
-                        </p>
+                        <p className="type-body text-neutral-700">{t.documents.billOfSale}</p>
                         <Badge tone={order.hasBillOfSaleDocument ? 'success' : 'neutral'}>
                           {order.hasBillOfSaleDocument ? t.documents.yes : t.documents.no}
                         </Badge>
@@ -296,7 +290,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
 
                 <Card heading={t.inspection.heading}>
                   <div className="flex items-center justify-between gap-3 rounded-[12px] bg-white p-3">
-                    <p className="text-[16px] leading-6 text-neutral-700">{t.inspection.status}</p>
+                    <p className="type-body text-neutral-700">{t.inspection.status}</p>
                     <Badge tone={order.inspectionStatus === 'CONFIRMED' ? 'success' : 'neutral'}>
                       {order.inspectionStatus === 'CONFIRMED'
                         ? t.inspection.confirmed
@@ -411,9 +405,9 @@ function Stepper({
             <span
               className={`flex size-10 shrink-0 items-center justify-center rounded-[20px] text-[16px] font-medium ${
                 done
-                  ? 'bg-[#3a9d75] text-white'
+                  ? 'bg-success text-white'
                   : current
-                    ? 'border-2 border-[#cfffe0] text-[#3a9d75]'
+                    ? 'border-2 border-[#cfffe0] text-success'
                     : 'border-2 border-[#cfd6dc] text-[#abb7c2]'
               }`}
             >
@@ -493,7 +487,7 @@ function Card({
 function Field({ label, value }: { label: string; value: string | number | null | undefined }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-[12px] bg-white p-3">
-      <p className="stretch-90 shrink-0 text-[16px] leading-6 text-neutral-700">{label}</p>
+      <p className="type-body stretch-90 shrink-0 text-neutral-700">{label}</p>
       <p className="min-w-0 flex-1 text-right text-[16px] font-medium leading-5 text-neutral-800 [overflow-wrap:anywhere]">
         {value || '—'}
       </p>
@@ -503,7 +497,7 @@ function Field({ label, value }: { label: string; value: string | number | null 
 
 const BADGE_TONE_CLASSES: Record<'neutral' | 'success', string> = {
   neutral: 'bg-neutral-100 text-neutral-800',
-  success: 'bg-[#e6f7ee] text-[#3a9d75]',
+  success: 'bg-[#e6f7ee] text-success',
 };
 
 function Badge({ tone, children }: { tone: 'neutral' | 'success'; children: React.ReactNode }) {
@@ -733,7 +727,7 @@ function ActionsCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <p className="text-[14px] leading-[18px] text-[#3a9d75]">{t.noActionsNeeded}</p>
+              <p className="text-[14px] leading-[18px] text-success">{t.noActionsNeeded}</p>
             </div>
           ) : (
             <ul className="flex flex-col gap-1.5">
@@ -760,15 +754,15 @@ function ActionsCard({
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap gap-4">
-          <span className={`${chip} bg-[#b23a48] text-[#ffd1d1]`}>
+          <span className={`${chip} bg-[#b23a48] text-error-light`}>
             <span className="font-medium">{t.blockers}</span>
             <span className="font-bold">{order.blockers.length}</span>
           </span>
-          <span className={`${chip} bg-[#fff0b3] text-[#ff9e6d]`}>
+          <span className={`${chip} bg-warn-light text-warn`}>
             <span className="font-medium">{t.warnings}</span>
             <span className="font-bold">{order.warnings.length}</span>
           </span>
-          <span className={`${chip} bg-[#bfe9ff] text-[#4b7bec]`}>
+          <span className={`${chip} bg-[#bfe9ff] text-info`}>
             <span className="font-medium">{t.updates}</span>
             <span className="font-bold">0</span>
           </span>
