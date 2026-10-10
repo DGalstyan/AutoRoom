@@ -3,6 +3,7 @@
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
+import { auctionViewLink } from '@/lib/auctionLink';
 import type { Car } from '@/lib/types/car';
 
 /**
@@ -10,14 +11,14 @@ import type { Car } from '@/lib/types/car';
  * band, a 44px light centred title, five 760px translucent cards beside a numbered
  * 50px-circle timeline (48px between cards), then the two CTAs.
  *
- * `Տեսնել մեքենան օնլայն` only renders once `car.auctionViewUrl` is set, since the button
- * would otherwise have nowhere real to go; `Կապ հաստատիր մեզ հետ` opens the auction
- * contact popup. (Copart/IAAI-vs-Manheim CTA logic still needs an `auctionPlatform`
- * field the `Car` model doesn't carry.)
+ * `Տեսնել մեքենան օնլայն` links to the staff-entered View-Only URL, else to the Copart/IAAI
+ * lot page built from the lot number (`auctionViewLink`); Manheim has none, so no button; `Կապ հաստատիր մեզ հետ` opens the auction
+ * contact popup.
  */
 export function AuctionHowItWorks({ car }: { car: Car }) {
   const t = useMessages().common.carDetail.auctionFollowAlong;
   const { openUsaAuctionPopup } = useLeadWidgets();
+  const viewLink = auctionViewLink(car);
 
   return (
     <section
@@ -60,9 +61,9 @@ export function AuctionHowItWorks({ car }: { car: Car }) {
             {t.contactCta}
             <ArrowUpRightIcon className="size-5" />
           </button>
-          {car.auctionViewUrl && (
+          {viewLink && (
             <a
-              href={car.auctionViewUrl}
+              href={viewLink}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] leading-[18px] text-ink transition-colors duration-standard hover:bg-accent-600"

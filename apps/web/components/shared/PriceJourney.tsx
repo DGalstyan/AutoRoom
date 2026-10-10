@@ -7,7 +7,7 @@ import type { PriceChip } from '@/lib/types/car';
 import { formatUsd, localizeText } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
 import { TotalBar } from '@/components/ui/TotalBar';
-import { buildAddends, countUpValue, sumChips } from '@/lib/priceJourney';
+import { buildAddends, countUpValue, resolveJourney } from '@/lib/priceJourney';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -56,7 +56,7 @@ export function PriceJourney({
   // sum (so SSR, no-JS, reduced-motion and a never-firing observer all show
   // the right number, not "0 $") and only dips to 0 to count up once the
   // section actually scrolls into view.
-  const total = sumChips(chips);
+  const { total } = resolveJourney(chips);
   // `null` = not animating → show the real sum.
   const [animatedTotal, setAnimatedTotal] = useState<number | null>(null);
   const displayedTotal = animatedTotal ?? total;
@@ -90,7 +90,13 @@ export function PriceJourney({
       if (progress < 1) frame = requestAnimationFrame(tick);
     }
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    // requestAnimationFrame is paused in a background tab, which would strand the
+    // total partway (or at 0 $) — this timer always lands on the real figure.
+    const settle = window.setTimeout(() => setAnimatedTotal(null), durationMs + 150);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
+    };
   }, [inView, total]);
 
   if (chips.length === 0) return null;
