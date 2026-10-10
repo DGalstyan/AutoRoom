@@ -183,15 +183,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
           </button>
         </div>
 
-        {/* Quick request on phones/tablets; below 360px it lives in the menu only. */}
-        <button
-          type="button"
-          onClick={() => openUniversal({ sourceCta: 'header-cta' })}
-          className="ml-auto hidden h-11 shrink-0 items-center rounded-pill bg-accent px-4 text-[14px] font-normal leading-5 text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent min-[360px]:inline-flex xl:hidden"
-        >
-          {nav.headerCta}
-        </button>
-
+        {/* On phones/tablets the request button lives in the menu (below), not in the bar. */}
         <button
           type="button"
           className={`flex h-11 w-11 items-center justify-center rounded-pill xl:hidden ${isLightHeader ? 'text-ink' : 'text-white'}`}
@@ -252,25 +244,25 @@ export function Header({ logo = null }: HeaderProps = {}) {
                 {nav[item.key]}
               </Link>
             ))}
-            <Link
-              href="/partners/portal"
-              onClick={() => setDrawerOpen(false)}
-              className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-pill border border-white/40 px-6 text-small text-white hover:bg-white/10"
-            >
-              <PortalGlyph />
-              {nav.partnerPortal}
-            </Link>
             <button
               type="button"
               onClick={() => {
                 setDrawerOpen(false);
                 openUniversal({ sourceCta: 'header-cta' });
               }}
-              className="mt-3 inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
+              className="mt-4 inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600"
             >
               {nav.headerCta}
               <ArrowGlyph />
             </button>
+            <Link
+              href="/partners/portal"
+              onClick={() => setDrawerOpen(false)}
+              className="mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-pill border border-white/40 px-6 text-small text-white hover:bg-white/10"
+            >
+              <PortalGlyph />
+              {nav.partnerPortal}
+            </Link>
             <LanguageSwitcher className="mt-4 w-fit" />
           </div>
         </div>

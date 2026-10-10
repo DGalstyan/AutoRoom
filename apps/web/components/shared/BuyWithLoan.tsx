@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { Bank } from '@/lib/banks';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
+import { withBankLogos } from '@/lib/bankLogo';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -21,6 +22,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
   const { openUniversal } = useLeadWidgets();
 
   if (banks.length === 0) return null;
+  const items = withBankLogos(banks);
 
   return (
     <div className="flex flex-col gap-4">
@@ -29,7 +31,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
       </h2>
 
       <div className="flex flex-col gap-3">
-        {banks.map((bank) =>
+        {items.map((bank) =>
           bank.inHouse ? (
             <button
               key={bank.id}

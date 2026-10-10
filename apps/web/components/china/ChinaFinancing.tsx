@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { Bank } from '@/lib/banks';
+import { withBankLogos } from '@/lib/bankLogo';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -21,7 +22,7 @@ export function ChinaFinancing({ banks }: { banks: Bank[] }) {
   // Figma's logo grid (node 101:412) holds exactly the 3 real partner
   // banks — AutoRoom's own offer is never a logo card there, it's the
   // separate in-house text block + CTA underneath.
-  const partnerBanks = banks.filter((bank) => !bank.inHouse);
+  const partnerBanks = withBankLogos(banks.filter((bank) => !bank.inHouse));
   const hasInHouseOffer = banks.some((bank) => bank.inHouse);
 
   return (
