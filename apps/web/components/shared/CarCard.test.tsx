@@ -40,7 +40,7 @@ function car(overrides: Partial<CarSummary> = {}): CarSummary {
 describe('CarCard', () => {
   it('shows an auction car as "Աճուրդ: <platform> Deal" instead of the generic condition', async () => {
     renderWithLocale(await CarCard({ car: car({ auctionPlatform: 'COPART' }) }));
-    expect(screen.getByText('Copart Deal')).toBeInTheDocument();
+    expect(screen.getByText(t.platformDeal.COPART)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(t.auctionPrefix))).toBeInTheDocument();
     expect(screen.queryByText(t.conditions.AUCTION)).not.toBeInTheDocument();
   });

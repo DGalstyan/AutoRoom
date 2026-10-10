@@ -170,7 +170,7 @@ export function ChinaFilters({
               onChange={(event) => setDraft(event.target.value)}
               placeholder={t.searchPlaceholder}
               maxLength={120}
-              className="h-9 w-full rounded-pill bg-neutral-25 pl-3 pr-11 text-[12px] font-medium leading-[18px] text-neutral-800 placeholder:text-neutral-600 [&::-webkit-search-cancel-button]:hidden"
+              className="h-11 w-full rounded-pill bg-neutral-25 pl-3 pr-11 text-[12px] font-medium leading-[18px] text-neutral-800 placeholder:text-neutral-600 [&::-webkit-search-cancel-button]:hidden"
             />
           </label>
           <button
@@ -275,7 +275,7 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-pill px-4 py-2 text-[16px] font-medium leading-[24px] transition-colors duration-standard ${
+      className={`rounded-pill min-h-11 px-4 py-2 text-[16px] font-medium leading-[24px] transition-colors duration-standard ${
         active ? 'bg-neutral-700 text-white' : 'text-neutral-800 hover:bg-neutral-50'
       }`}
     >

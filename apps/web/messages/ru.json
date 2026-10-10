@@ -174,7 +174,12 @@
       "phoneLabel": "Телефон",
       "addressLabel": "Адрес",
       "selectPrompt": "Выберите филиал",
-      "photoAlt": "Фотография филиала «{name}»"
+      "photoAlt": "Фотография филиала «{name}»",
+      "view": "Посмотреть филиалы",
+      "call": "Позвонить",
+      "map": "Карта",
+      "callAria": "Позвонить: {name}",
+      "mapAria": "Открыть на карте: {name}"
     },
     "carCard": {
       "cta": "Подробнее",
@@ -267,7 +272,18 @@
         "nominalRate": "Номинальная процентная ставка (уточняется)",
         "effectiveRate": "Эффективная процентная ставка (уточняется)",
         "monthly": "Ежемесячный платёж",
-        "price": "Цена"
+        "price": "Цена",
+        "explainHeading": "Как это считается",
+        "explainDownTitle": "Первоначальный взнос (мин. / выбранный / макс.)",
+        "explainDownText": "Минимум: {min} ({minPct}%), ваш выбор: {current} ({currentPct}%), максимум: {max} ({maxPct}%). Границы — доля от цены авто, ползунок двигается между ними.",
+        "explainPrincipalTitle": "Сумма кредита",
+        "explainPrincipalText": "(Цена − взнос) × курс = ({price} − {down}) × {rate} = {amount}",
+        "explainTermTitle": "Срок и процент",
+        "explainTermText": "Срок: {n} мес. Месячная ставка: {annual}% ÷ 12 = {monthly}%.",
+        "explainFormulaTitle": "Формула ежемесячного платежа",
+        "explainFormula": "M = P · i · (1 + i)ⁿ ÷ ((1 + i)ⁿ − 1)",
+        "explainLegend": "M — платёж в месяц, P — сумма кредита (AMD), i — месячная ставка (проценты ÷ 100), n — срок в месяцах. При ставке 0: M = P ÷ n.",
+        "explainResult": "M = {monthly}"
       },
       "similarOffers": {
         "heading": "Похожие предложения"
@@ -369,7 +385,12 @@
         "submit": "Найти мой автомобиль"
       }
     },
-    "languageLabel": "Язык"
+    "languageLabel": "Язык",
+    "notFound": {
+      "heading": "Страница не найдена",
+      "body": "Адрес неверный или страница удалена.",
+      "home": "На главную"
+    }
   },
   "home": {
     "hero": {

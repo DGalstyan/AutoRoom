@@ -429,7 +429,7 @@ function StatePicker({
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full appearance-none truncate border-none bg-transparent p-0 py-0 pl-6 pr-6 text-center text-[16px] leading-6 text-ink outline-none"
+        className="min-h-11 w-full appearance-none truncate border-none bg-transparent p-0 py-0 pl-6 pr-6 text-center text-[16px] leading-6 text-ink outline-none"
       >
         {STATE_OPTIONS.map((option) => (
           <option key={option.key} value={option.key}>

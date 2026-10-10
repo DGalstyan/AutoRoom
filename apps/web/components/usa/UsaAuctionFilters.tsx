@@ -142,7 +142,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-[52px] px-4 py-2 text-[16px] leading-[24px] transition-colors duration-standard ${
+      className={`rounded-[52px] min-h-11 px-4 py-2 text-[16px] leading-[24px] transition-colors duration-standard ${
         active
           ? 'bg-neutral-700 font-medium text-white'
           : 'font-normal text-neutral-800 hover:bg-neutral-50'

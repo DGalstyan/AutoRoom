@@ -5,7 +5,8 @@ import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
-import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
+import { computeMonthlyPaymentAmd, explainLoan, formatAmd } from '@/lib/loan';
+import { interpolate } from '@/lib/messages';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -44,6 +45,7 @@ export function LoanCalculator({
   const [downPayment, setDownPayment] = useState(defaultDownPayment);
   const clamped = Math.min(max, Math.max(min, downPayment));
   const monthly = computeMonthlyPaymentAmd(car.price, clamped, finance);
+  const why = explainLoan(car.price, clamped, finance);
   const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
 
   const THUMB =
@@ -81,7 +83,7 @@ export function LoanCalculator({
                   value={clamped}
                   onChange={(event) => setDownPayment(Number(event.target.value) || min)}
                   style={{ width: `${String(clamped).length + 1}ch` }}
-                  className="bg-transparent tabular-nums outline-none"
+                  className="-my-[13px] min-h-11 bg-transparent tabular-nums outline-none"
                 />
                 <span aria-hidden="true">$</span>
               </span>
@@ -94,7 +96,7 @@ export function LoanCalculator({
               step={step}
               value={clamped}
               onChange={(event) => setDownPayment(Number(event.target.value))}
-              className={`h-[30px] w-full appearance-none bg-transparent ${THUMB}`}
+              className={`-my-[7px] h-11 w-full appearance-none bg-transparent ${THUMB}`}
               aria-label={t.downPayment}
             />
           </div>
@@ -138,6 +140,63 @@ export function LoanCalculator({
           )}
         </div>
       </div>
+      <section
+        aria-labelledby="loan-explain-heading"
+        className="flex flex-col gap-4 rounded-[20px] bg-white p-6 text-neutral-700 lg:p-9"
+      >
+        <h3
+          id="loan-explain-heading"
+          className="stretch-90 text-[20px] font-bold leading-8 text-neutral-900"
+        >
+          {t.explainHeading}
+        </h3>
+        <dl className="grid gap-5 text-[14px] leading-6 lg:grid-cols-2 lg:gap-x-12">
+          <div>
+            <dt className="font-bold text-neutral-800">{t.explainDownTitle}</dt>
+            <dd>
+              {interpolate(t.explainDownText, {
+                min: formatUsd(why.minUsd),
+                minPct: String(why.minPct),
+                current: formatUsd(why.downUsd),
+                currentPct: String(why.downPct),
+                max: formatUsd(why.maxUsd),
+                maxPct: String(why.maxPct),
+              })}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold text-neutral-800">{t.explainPrincipalTitle}</dt>
+            <dd className="tabular-nums">
+              {interpolate(t.explainPrincipalText, {
+                price: formatUsd(car.price),
+                down: formatUsd(why.downUsd),
+                rate: String(finance.usdToAmd),
+                amount: formatAmd(why.principalAmd),
+              })}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold text-neutral-800">{t.explainTermTitle}</dt>
+            <dd className="tabular-nums">
+              {interpolate(t.explainTermText, {
+                n: String(why.termMonths),
+                annual: String(finance.nominalRate),
+                monthly: String(why.monthlyRatePct),
+              })}
+            </dd>
+          </div>
+          <div>
+            <dt className="font-bold text-neutral-800">{t.explainFormulaTitle}</dt>
+            <dd>
+              <p className="font-bold tabular-nums text-neutral-900">{t.explainFormula}</p>
+              <p className="mt-1 text-[12px] leading-4">{t.explainLegend}</p>
+              <p className="mt-1 font-bold tabular-nums text-neutral-900">
+                {interpolate(t.explainResult, { monthly: formatAmd(why.monthlyPaymentAmd) })}
+              </p>
+            </dd>
+          </div>
+        </dl>
+      </section>
       {finance.disclaimer && (
         <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{finance.disclaimer}</p>
       )}

@@ -2,7 +2,7 @@
 
 import { useId, useState } from 'react';
 import Image from 'next/image';
-import { branchTelHref, type Branch } from '@/lib/branches';
+import { branchMapsUrl, branchTelHref, type Branch } from '@/lib/branches';
 import { interpolate } from '@/lib/messages';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { Button } from '@/components/ui/Button';
@@ -40,7 +40,7 @@ export function BranchMap({ branches }: { branches: Branch[] }) {
           href={`#${listId}`}
           className="inline-flex min-h-11 items-center justify-center rounded-pill bg-white/10 px-7 py-3 text-home-label font-normal text-white transition-colors duration-standard hover:bg-white/20"
         >
-          {t.cta}
+          {t.view}
         </a>
       </div>
 
@@ -117,9 +117,26 @@ export function BranchMap({ branches }: { branches: Branch[] }) {
               <dd>{active.hours}</dd>
             </div>
           </dl>
-          <Button href={branchTelHref(active.phone)} variant="primary" className="mt-6">
-            {t.cta}
-          </Button>
+          {/* Three different actions, three different labels: the hash link above is
+              "View", this pair is "Call" (tel:) and "Map" (Google Maps, new tab). */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button
+              href={branchTelHref(active.phone)}
+              variant="primary"
+              aria-label={interpolate(t.callAria, { name: active.name })}
+            >
+              {t.call}
+            </Button>
+            <Button
+              href={branchMapsUrl(active)}
+              variant="outline"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={interpolate(t.mapAria, { name: active.name })}
+            >
+              {t.map}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

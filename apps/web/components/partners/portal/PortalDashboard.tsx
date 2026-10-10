@@ -277,7 +277,7 @@ export function PortalDashboard() {
 
           {tab === 'orders' && (
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap xl:gap-8">
-              <label className="flex h-9 w-full items-center justify-between rounded-pill bg-neutral-25 px-3 text-[12px] leading-4 text-neutral-700 sm:w-[228px]">
+              <label className="flex h-11 w-full items-center justify-between rounded-pill bg-neutral-25 px-3 text-[12px] leading-4 text-neutral-700 sm:w-[228px]">
                 <span className="sr-only">{t.dashboard.filters.searchLabel}</span>
                 <input
                   type="search"
@@ -552,7 +552,7 @@ function ViewPill({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-[52px] px-4 py-2 text-[16px] leading-6 transition-colors duration-standard ${
+      className={`rounded-[52px] min-h-11 px-4 py-2 text-[16px] leading-6 transition-colors duration-standard ${
         active
           ? 'bg-neutral-700 font-medium text-white'
           : 'font-normal text-neutral-800 hover:bg-neutral-50'

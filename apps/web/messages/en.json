@@ -174,7 +174,12 @@
       "phoneLabel": "Phone",
       "addressLabel": "Address",
       "selectPrompt": "Choose a branch",
-      "photoAlt": "Photo of the {name} branch"
+      "photoAlt": "Photo of the {name} branch",
+      "view": "View our branches",
+      "call": "Call",
+      "map": "Map",
+      "callAria": "Call {name}",
+      "mapAria": "Open {name} on the map"
     },
     "carCard": {
       "cta": "See details",
@@ -267,7 +272,18 @@
         "nominalRate": "Nominal rate (subject to confirmation)",
         "effectiveRate": "Effective rate (subject to confirmation)",
         "monthly": "Monthly payment",
-        "price": "Price"
+        "price": "Price",
+        "explainHeading": "How it is calculated",
+        "explainDownTitle": "Down payment (min / selected / max)",
+        "explainDownText": "Minimum: {min} ({minPct}%), your choice: {current} ({currentPct}%), maximum: {max} ({maxPct}%). The limits are a share of the car price; the slider moves between them.",
+        "explainPrincipalTitle": "Loan amount",
+        "explainPrincipalText": "(Price − down payment) × exchange rate = ({price} − {down}) × {rate} = {amount}",
+        "explainTermTitle": "Term and interest",
+        "explainTermText": "Term: {n} months. Monthly rate: {annual}% ÷ 12 = {monthly}%.",
+        "explainFormulaTitle": "Monthly payment formula",
+        "explainFormula": "M = P · i · (1 + i)ⁿ ÷ ((1 + i)ⁿ − 1)",
+        "explainLegend": "M: monthly payment, P: loan amount (AMD), i: monthly rate (percent ÷ 100), n: term in months. If the rate is 0, M = P ÷ n.",
+        "explainResult": "M = {monthly}"
       },
       "similarOffers": {
         "heading": "Similar offers"
@@ -369,7 +385,12 @@
         "submit": "Find my car"
       }
     },
-    "languageLabel": "Language"
+    "languageLabel": "Language",
+    "notFound": {
+      "heading": "Page not found",
+      "body": "The address is wrong or the page was removed.",
+      "home": "Back to the homepage"
+    }
   },
   "home": {
     "hero": {

@@ -174,7 +174,12 @@
       "phoneLabel": "Հեռախոս",
       "addressLabel": "Հասցե",
       "selectPrompt": "Ընտրիր մասնաճյուղ",
-      "photoAlt": "{name} մասնաճյուղի լուսանկար"
+      "photoAlt": "{name} մասնաճյուղի լուսանկար",
+      "view": "Տեսնել մասնաճյուղերը",
+      "call": "Զանգահարել",
+      "map": "Քարտեզ",
+      "callAria": "Զանգահարել {name}",
+      "mapAria": "Բացել քարտեզում՝ {name}"
     },
     "carCard": {
       "cta": "Տեսնել մանրամասները",
@@ -196,9 +201,9 @@
       "etaDays": "Կհասնի ~{days} օրից",
       "auctionPrefix": "Աճուրդ:",
       "platformDeal": {
-        "COPART": "Copart Deal",
-        "IAAI": "IAAI Deal",
-        "MANHEIM": "Manheim Deal"
+        "COPART": "Copart առաջարկ",
+        "IAAI": "IAAI առաջարկ",
+        "MANHEIM": "Manheim առաջարկ"
       }
     },
     "carDetail": {
@@ -267,7 +272,18 @@
         "nominalRate": "Անվանական տոկոսադրույք (ճշգրտվող հաստատուն)",
         "effectiveRate": "Փաստացի տոկոսադրույք (ճշգրտվող հաստատուն)",
         "monthly": "Ամսավճար",
-        "price": "Գին"
+        "price": "Գին",
+        "explainHeading": "Ինչպե՞ս է հաշվարկվում",
+        "explainDownTitle": "Կանխավճար (նվազագույն / ընտրված / առավելագույն)",
+        "explainDownText": "Նվազագույնը՝ {min} ({minPct}%), ընտրածդ՝ {current} ({currentPct}%), առավելագույնը՝ {max} ({maxPct}%)։ Սահմանները մեքենայի գնի տոկոսն են, իսկ սահողով կարող ես ընտրել դրանց միջև։",
+        "explainPrincipalTitle": "Վարկի գումար",
+        "explainPrincipalText": "(Գին − կանխավճար) × փոխարժեք = ({price} − {down}) × {rate} = {amount}",
+        "explainTermTitle": "Ժամկետ և տոկոս",
+        "explainTermText": "Ժամկետը՝ {n} ամիս։ Ամսական տոկոսադրույքը՝ {annual}% ÷ 12 = {monthly}%։",
+        "explainFormulaTitle": "Ամսավճարի բանաձև",
+        "explainFormula": "M = P · i · (1 + i)ⁿ ÷ ((1 + i)ⁿ − 1)",
+        "explainLegend": "M՝ ամսավճար, P՝ վարկի գումար (AMD), i՝ ամսական տոկոսադրույք (տոկոսը ÷ 100), n՝ ժամկետը ամիսներով։ Եթե տոկոսադրույքը 0 է, M = P ÷ n։",
+        "explainResult": "M = {monthly}"
       },
       "similarOffers": {
         "heading": "Նմանատիպ առաջարկներ"
@@ -369,7 +385,12 @@
         "submit": "Գտնել իմ մեքենան"
       }
     },
-    "languageLabel": "Լեզու"
+    "languageLabel": "Լեզու",
+    "notFound": {
+      "heading": "Էջը չի գտնվել",
+      "body": "Հասցեն սխալ է կամ էջը հեռացվել է։",
+      "home": "Վերադառնալ գլխավոր էջ"
+    }
   },
   "home": {
     "hero": {
@@ -813,9 +834,9 @@
       "heading": "Շաբաթվա լավագույն առաջարկները ԱՄՆ աճուրդներից",
       "filters": {
         "tabAll": "Բոլորը",
-        "tabCopart": "Copart Deal",
-        "tabIaai": "IAAI Deal",
-        "tabManheim": "Manheim Deal",
+        "tabCopart": "Copart առաջարկ",
+        "tabIaai": "IAAI առաջարկ",
+        "tabManheim": "Manheim առաջարկ",
         "allMakes": "Մակնիշ: Բոլորը",
         "makePrefix": "Մակնիշ",
         "model": "Մոդել",

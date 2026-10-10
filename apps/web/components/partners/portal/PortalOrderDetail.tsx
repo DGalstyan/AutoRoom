@@ -531,7 +531,7 @@ function TabPill({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-[52px] px-4 py-2 text-[16px] leading-6 transition-colors duration-standard ${
+      className={`inline-flex items-center gap-1.5 rounded-[52px] min-h-11 px-4 py-2 text-[16px] leading-6 transition-colors duration-standard ${
         active
           ? 'bg-neutral-700 font-medium text-white'
           : 'font-normal text-neutral-800 hover:bg-neutral-50'

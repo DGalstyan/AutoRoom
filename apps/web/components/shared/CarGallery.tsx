@@ -170,7 +170,7 @@ export function CarGallery({
                 aria-selected={selectedAlbum === album && !showColorOverride}
                 aria-label={`${ALBUM_LABELS[album]} (${images.filter((image) => image.album === album).length})`}
                 onClick={() => selectAlbum(album)}
-                className={`rounded-[52px] px-4 py-2 text-[16px] leading-[24px] transition-colors duration-standard ${
+                className={`rounded-[52px] min-h-11 px-4 py-2 text-[16px] leading-[24px] transition-colors duration-standard ${
                   selectedAlbum === album && !showColorOverride
                     ? 'bg-neutral-700 font-medium text-white'
                     : 'text-neutral-800 hover:bg-neutral-50'

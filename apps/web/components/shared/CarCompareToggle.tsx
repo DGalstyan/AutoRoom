@@ -34,7 +34,7 @@ export function CarCompareToggle({
         event.stopPropagation();
         toggle(car);
       }}
-      className={`rounded-pill border px-[16px] py-[10px] text-[16px] font-medium leading-[20px] transition-colors duration-standard ${
+      className={`min-h-11 rounded-pill border px-[16px] py-[10px] text-[16px] font-medium leading-[20px] transition-colors duration-standard ${
         selected
           ? 'border-accent bg-accent text-ink'
           : 'border-white bg-transparent text-white hover:bg-white/10'

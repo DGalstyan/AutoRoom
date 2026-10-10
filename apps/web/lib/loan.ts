@@ -33,3 +33,37 @@ export function computeMonthlyPaymentAmd(
 export function formatAmd(amount: number): string {
   return `AMD ${Math.round(amount).toLocaleString('en-US')}`;
 }
+
+/**
+ * Every number behind the monthly figure, so the calculator can show its working. The same
+ * annuity inputs as `computeMonthlyPaymentAmd`: `monthlyPaymentAmd` here IS that function's
+ * result, so the explanation can never disagree with the figure above it.
+ */
+export function explainLoan(
+  priceUsd: number,
+  downPaymentUsd: number,
+  finance: Pick<
+    FinanceCalculator,
+    'termMonths' | 'nominalRate' | 'usdToAmd' | 'minDownPaymentRatio' | 'maxDownPaymentRatio'
+  >,
+) {
+  const minUsd = Math.round(priceUsd * finance.minDownPaymentRatio);
+  const maxUsd = Math.round(priceUsd * finance.maxDownPaymentRatio);
+  const downUsd = Math.min(maxUsd, Math.max(minUsd, downPaymentUsd));
+  const pct = (usd: number) => (priceUsd > 0 ? Math.round((usd / priceUsd) * 1000) / 10 : 0);
+  const principalUsd = Math.max(0, priceUsd - downUsd);
+  return {
+    minUsd,
+    maxUsd,
+    downUsd,
+    minPct: pct(minUsd),
+    maxPct: pct(maxUsd),
+    downPct: pct(downUsd),
+    principalUsd,
+    principalAmd: principalUsd * finance.usdToAmd,
+    /** Percent per month, e.g. 15.9 % a year → 1.325. */
+    monthlyRatePct: Math.round((finance.nominalRate / 12) * 1000) / 1000,
+    termMonths: finance.termMonths,
+    monthlyPaymentAmd: computeMonthlyPaymentAmd(priceUsd, downUsd, finance),
+  };
+}

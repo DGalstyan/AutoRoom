@@ -98,7 +98,7 @@ export function CustomsCalculator() {
 
         <Field label={t.auctionLabel} group>
           {() => (
-            <div className="flex h-9 gap-1 rounded-pill bg-neutral-25 p-1">
+            <div className="flex h-[52px] gap-1 rounded-pill bg-neutral-25 p-1">
               {AUCTIONS.map((option) => (
                 <button
                   key={option}
@@ -241,7 +241,7 @@ function NumberInput({
   prefix?: string;
 }) {
   return (
-    <div className="flex h-11 items-center gap-1 rounded-pill bg-neutral-25 px-3 sm:h-9">
+    <div className="flex h-11 items-center gap-1 rounded-pill bg-neutral-25 px-3">
       {prefix && <span className="text-[12px] text-neutral-600">{prefix}</span>}
       <input
         {...a11y}
@@ -272,7 +272,7 @@ function SelectInput({
       {...a11y}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-9 w-full appearance-none rounded-pill bg-neutral-25 px-3 text-[12px] font-medium text-neutral-800 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-8"
+      className="h-11 w-full appearance-none rounded-pill bg-neutral-25 px-3 text-[12px] font-medium text-neutral-800 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-8"
     >
       {placeholder && (
         <option value="" disabled>

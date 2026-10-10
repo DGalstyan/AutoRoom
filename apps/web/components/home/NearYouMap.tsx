@@ -39,7 +39,7 @@ export async function NearYouMap({
                   </p>
                   <a
                     href={branchTelHref(branch.phone)}
-                    className="mt-1 inline-block text-[14px] leading-5 text-white/70 hover:text-white"
+                    className="inline-flex min-h-11 items-center text-[14px] leading-5 text-white/70 hover:text-white"
                   >
                     {branch.phone}
                   </a>

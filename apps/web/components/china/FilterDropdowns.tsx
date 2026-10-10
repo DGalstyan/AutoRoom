@@ -47,7 +47,7 @@ function Trigger({
       aria-haspopup="listbox"
       aria-expanded={open}
       aria-controls={open ? controls : undefined}
-      className="flex h-9 w-full items-center justify-between rounded-pill bg-neutral-25 py-1 pl-3 pr-2 text-left text-[12px] font-medium leading-[18px] text-neutral-800 transition-colors duration-micro hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-[200px]"
+      className="flex h-11 w-full items-center justify-between rounded-pill bg-neutral-25 py-1 pl-3 pr-2 text-left text-[12px] font-medium leading-[18px] text-neutral-800 transition-colors duration-micro hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-[200px]"
     >
       <span className="truncate">{label}</span>
       <Image

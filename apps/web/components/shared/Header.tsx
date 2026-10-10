@@ -94,7 +94,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
             : `border border-white/10 backdrop-blur-lg ${scrolled ? 'bg-bg/80' : 'bg-bg/30'}`
         }`}
       >
-        <Link href="/" aria-label={nav.home} className="flex items-center gap-2 pl-0.5">
+        <Link href="/" aria-label={nav.home} className="flex min-h-11 items-center gap-2 pl-0.5">
           {/*
             Box aspect ratio (96×36 ≈ 2.67:1) matches the logo mark's own
             bounding box in Figma (121×46 ≈ 2.63:1, node `9321:6404`) closely
@@ -140,7 +140,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
               key={item.href}
               href={item.href}
               aria-current={pathname === item.href ? 'page' : undefined}
-              className={`inline-flex items-center gap-1 whitespace-nowrap px-2 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-2 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
               {item.chevron && (
