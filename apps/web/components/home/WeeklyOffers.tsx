@@ -79,6 +79,15 @@ export async function WeeklyOffers() {
           );
         })}
       </ul>
+
+      <p className="flex justify-center">
+        <Link
+          href="/offers"
+          className="inline-flex h-12 items-center rounded-pill bg-neutral-50 px-6 text-[14px] font-medium text-ink transition-colors duration-standard ease-expo hover:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          {t.viewAll}
+        </Link>
+      </p>
     </div>
   );
 }

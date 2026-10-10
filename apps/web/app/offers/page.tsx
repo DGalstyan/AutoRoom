@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *   own doc comment already describes verbatim as "the Figma 'Featured
  *   Cars' card treatment" — i.e. the *same* card Homepage's own
  *   `FeaturedCars` uses, not the badge-heavy China-list `CarCard`. Capped
- *   at 4 (`getFeaturedCars(4)`) with the exact gap Homepage's grid uses,
+ *   at 4 (`getFeaturedCars(24)`) with the exact gap Homepage's grid uses,
  *   rather than Homepage's own uncapped catalogue view.
  * - S2 "Ընթացիկ ակցիաներ" — `PromotionsSection`, which does correctly use
  *   the full `CarCard` (its badges/video-tag treatment matches Figma's

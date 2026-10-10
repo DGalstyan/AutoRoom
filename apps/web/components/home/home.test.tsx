@@ -136,8 +136,13 @@ describe('WeeklyOffers', () => {
   it('shows at most four featured cars as links with price and name', async () => {
     vi.mocked(getFeaturedCars).mockResolvedValue([1, 2, 3, 4, 5].map(car));
     render((await WeeklyOffers())!);
-    const links = screen.getAllByRole('link');
+    const all = screen.getAllByRole('link');
+    // Four car cards, then the «Դիտել բոլորը» link to the full list.
+    const links = all.filter((link) => link.getAttribute('href') !== '/offers');
     expect(links).toHaveLength(4);
+    expect(all.find((link) => link.getAttribute('href') === '/offers')).toHaveTextContent(
+      'Դիտել բոլորը',
+    );
     expect(links[0]).toHaveAttribute('href', '/usa/available/car-1');
     expect(links[0]).toHaveTextContent('McLaren 720S 1');
     expect(links[0]).toHaveTextContent('250,001 $');

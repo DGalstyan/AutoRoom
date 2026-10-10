@@ -439,7 +439,8 @@
     "featured": {
       "eyebrow": "Handpicked by our team",
       "heading": "This week's best offers",
-      "cta": "Get an offer"
+      "cta": "Get an offer",
+      "viewAll": "View all"
     },
     "anatomy": {
       "eyebrow": "Why AutoRoom",

@@ -16,7 +16,7 @@ import { getServerMessages } from '@/lib/i18n';
  * an oddly long single column.
  */
 export async function FeaturedCars() {
-  const [cars, { messages }] = await Promise.all([getFeaturedCars(24), getServerMessages()]);
+  const [cars, { messages }] = await Promise.all([getFeaturedCars(6), getServerMessages()]);
   const t = messages.home.featured;
   if (cars.length === 0) return null;
 
