@@ -46,7 +46,15 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
                   className="h-full w-auto object-contain"
                 />
               ) : (
-                <span className="text-[16px] font-medium text-ink">{bank.name}</span>
+                // No logo uploaded for the in-house row: show AutoRoom's own mark, not its name as text.
+                <Image
+                  src="/brand/logo-mark-dark.svg"
+                  alt={bank.name}
+                  width={143}
+                  height={55}
+                  unoptimized
+                  className="h-full w-auto object-contain"
+                />
               )}
             </button>
           ) : bank.loanUrl ? (

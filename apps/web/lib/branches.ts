@@ -16,6 +16,8 @@
  * callers should render nothing (not the old hardcoded list) when empty.
  */
 
+import { apiBase } from '@/lib/env';
+
 export interface Branch {
   id: string;
   name: string;
@@ -35,7 +37,7 @@ interface PublicBranchResponse {
 }
 
 export async function getBranches(): Promise<Branch[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/branches`, { next: { revalidate: 300 } });

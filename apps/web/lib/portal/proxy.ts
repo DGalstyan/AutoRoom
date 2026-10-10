@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { apiBase } from '@/lib/env';
 
 /**
  * Server-side proxy for the partner portal's auth/session calls
@@ -27,10 +28,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const REFRESH_COOKIE = 'ar_refresh';
 const CSRF_COOKIE = 'ar_csrf';
-
-function apiBase(): string {
-  return process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
-}
 
 /** Pulls one cookie's value + `Expires` out of a `Set-Cookie` header list. */
 function extractCookie(

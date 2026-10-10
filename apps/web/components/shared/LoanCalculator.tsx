@@ -44,6 +44,15 @@ export function LoanCalculator({
 
   const [downPayment, setDownPayment] = useState(defaultDownPayment);
   const clamped = Math.min(max, Math.max(min, downPayment));
+  // While typing, the field shows exactly what was typed; it snaps into range on blur/Enter.
+  const [draft, setDraft] = useState<string | null>(null);
+  const draftNumber = draft === null ? null : Number(draft);
+  const outOfRange = draft !== null && (draft === '' || draftNumber! < min || draftNumber! > max);
+
+  function commit(value: number) {
+    setDownPayment(Math.min(max, Math.max(min, Math.round(value))));
+    setDraft(null);
+  }
   const monthly = computeMonthlyPaymentAmd(car.price, clamped, finance);
   const why = explainLoan(car.price, clamped, finance);
   const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
@@ -72,22 +81,57 @@ export function LoanCalculator({
               <span>{t.price}</span>
               <span className="tabular-nums">{formatUsd(car.price)}</span>
             </div>
-            <div className="flex items-center justify-between text-[12px] font-medium leading-[18px] text-neutral-800">
-              <span className="flex items-center">
+            {/* The down payment: a real, full-size field (typing is free, the value is clamped when
+                the visitor leaves it or presses Enter) with − / + steppers, not a tiny inline number. */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => commit(clamped - step)}
+                disabled={clamped <= min}
+                aria-label={t.downPaymentDecrease}
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[22px] leading-none text-neutral-800 transition-colors duration-standard hover:bg-neutral-50 disabled:opacity-40"
+              >
+                <span aria-hidden="true">−</span>
+              </button>
+              <div
+                className={`flex h-11 min-w-0 flex-1 items-center gap-2 rounded-pill bg-neutral-25 px-4 focus-within:ring-2 focus-within:ring-accent ${outOfRange ? 'ring-1 ring-error' : ''}`}
+              >
+                <span aria-hidden="true" className="text-[16px] text-neutral-600">
+                  $
+                </span>
                 <input
                   id="loan-down-payment"
-                  type="number"
-                  min={min}
-                  max={max}
-                  step={step}
-                  value={clamped}
-                  onChange={(event) => setDownPayment(Number(event.target.value) || min)}
-                  style={{ width: `${String(clamped).length + 1}ch` }}
-                  className="-my-[13px] min-h-11 bg-transparent tabular-nums outline-none"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={draft ?? String(clamped)}
+                  onChange={(event) => {
+                    const digits = event.target.value.replace(/\D/g, '').slice(0, 9);
+                    setDraft(digits);
+                    const n = Number(digits);
+                    if (digits !== '' && n >= min && n <= max) setDownPayment(n);
+                  }}
+                  onBlur={() => commit(draft === null ? clamped : Number(draft) || min)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      commit(draft === null ? clamped : Number(draft) || min);
+                    }
+                  }}
+                  aria-invalid={outOfRange || undefined}
+                  aria-describedby="loan-down-payment-range"
+                  className="h-full min-w-0 flex-1 bg-transparent text-[16px] font-bold tabular-nums text-neutral-900 outline-none"
                 />
-                <span aria-hidden="true">$</span>
-              </span>
-              <span className="tabular-nums">{formatUsd(max)}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => commit(clamped + step)}
+                disabled={clamped >= max}
+                aria-label={t.downPaymentIncrease}
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[22px] leading-none text-neutral-800 transition-colors duration-standard hover:bg-neutral-50 disabled:opacity-40"
+              >
+                <span aria-hidden="true">+</span>
+              </button>
             </div>
             <input
               type="range"
@@ -99,6 +143,22 @@ export function LoanCalculator({
               className={`-my-[7px] h-11 w-full appearance-none bg-transparent ${THUMB}`}
               aria-label={t.downPayment}
             />
+            <p
+              id="loan-down-payment-range"
+              className={`flex justify-between text-[12px] font-medium leading-[18px] tabular-nums ${outOfRange ? 'text-error' : 'text-neutral-700'}`}
+            >
+              <span>
+                {t.downPaymentMin}: {formatUsd(min)}
+              </span>
+              <span>
+                {t.downPaymentMax}: {formatUsd(max)}
+              </span>
+            </p>
+            {outOfRange && (
+              <p role="alert" className="text-[12px] leading-4 text-error">
+                {interpolate(t.downPaymentRange, { min: formatUsd(min), max: formatUsd(max) })}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">

@@ -42,20 +42,28 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    remotePatterns: [
-      // Car photos uploaded through the admin panel (apps/api's uploads
-      // route), served from PUBLIC_API_URL. Production is admin.autoroom.am;
-      // localhost:4000 covers local dev against a real apps/api.
-      { protocol: 'https', hostname: 'admin.autoroom.am', pathname: '/api/uploads/**' },
-      { protocol: 'http', hostname: 'localhost', port: '4000', pathname: '/uploads/**' },
-    ],
-    // Next 16's SSRF guard otherwise refuses to optimize anything hosted on
-    // `localhost` (it resolves to a private IP), which is exactly what the
-    // `localhost:4000` pattern above is for — every admin-uploaded photo
-    // (team, cars, gallery) would 400 in local dev without this. No effect
-    // in production: `admin.autoroom.am` resolves publicly, never locally.
-    dangerouslyAllowLocalIP: true,
+    // Car/team/gallery photos uploaded through the admin panel are served by the API at
+    // `<NEXT_PUBLIC_API_URL>/uploads/**`. The origin comes from the environment (set at build
+    // time, see the Dockerfile and `.env.example`), never from a hardcoded host.
+    remotePatterns: [apiUploadsPattern()],
+    // Next 16's SSRF guard refuses to optimize anything hosted on a private address, which is
+    // what a local API is. Only relaxed outside production.
+    dangerouslyAllowLocalIP: process.env.NODE_ENV !== 'production',
   },
 };
+
+function apiUploadsPattern() {
+  const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!raw) {
+    throw new Error('NEXT_PUBLIC_API_URL is not set (see apps/web/.env.example).');
+  }
+  const url = new URL(raw);
+  return {
+    protocol: url.protocol.replace(':', '') as 'http' | 'https',
+    hostname: url.hostname,
+    ...(url.port ? { port: url.port } : {}),
+    pathname: `${url.pathname.replace(/\/+$/, '')}/uploads/**`,
+  };
+}
 
 export default nextConfig;

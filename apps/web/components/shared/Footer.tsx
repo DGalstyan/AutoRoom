@@ -46,7 +46,12 @@ interface FooterProps {
   contacts?: { general: GeneralContacts; social: SocialLinks; messengers?: MessengerLinks };
 }
 
-const NO_CONTACTS: GeneralContacts = { email: null, phones: [], workingHours: null };
+const NO_CONTACTS: GeneralContacts = {
+  email: null,
+  phones: [],
+  workingHours: null,
+  b2bPhone: null,
+};
 const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
 const NO_MESSENGERS: MessengerLinks = { whatsapp: null, viber: null, telegram: null };
 
@@ -75,7 +80,10 @@ export async function Footer({
     <div className="text-[12px] leading-[1.4] text-[#8f9fa3]">
       <p>{footer.rights.includes('©') ? footer.rights : `© ${year} AutoRoom — ${footer.rights}`}</p>
       <p className="mt-1 flex flex-wrap gap-x-4">
-        <Link href="/privacy" className="inline-flex min-h-11 min-w-11 items-center hover:text-white">
+        <Link
+          href="/privacy"
+          className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+        >
           {footer.privacyPolicy}
         </Link>
         <Link href="/terms" className="inline-flex min-h-11 min-w-11 items-center hover:text-white">
@@ -128,7 +136,10 @@ export async function Footer({
             <ul className="flex flex-wrap gap-x-6 gap-y-1 text-[16px] leading-6 text-[#8f9fa3] lg:gap-x-8 min-[1400px]:flex-nowrap min-[1400px]:gap-x-[41px]">
               {NAV.map(({ key, href }) => (
                 <li key={href}>
-                  <Link href={href} className="inline-flex min-h-11 min-w-11 items-center hover:text-white">
+                  <Link
+                    href={href}
+                    className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+                  >
                     {nav[key]}
                   </Link>
                 </li>

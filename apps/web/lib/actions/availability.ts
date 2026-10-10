@@ -1,5 +1,7 @@
 'use server';
 
+import { apiBase } from '@/lib/env';
+
 /**
  * Server Action wrapping `GET /public/availability` (`apps/api`'s
  * unauthenticated slot feed for the "Become a dealer" booking popup's time
@@ -34,7 +36,7 @@ export async function getPublicAvailability({
   to,
   branchId,
 }: GetAvailabilityParams): Promise<PublicAvailabilitySlot[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
   const params = new URLSearchParams({ from, to });
   if (branchId) params.set('branchId', branchId);
 

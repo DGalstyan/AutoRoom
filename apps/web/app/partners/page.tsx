@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { PartnersBookingProvider } from '@/components/partners/PartnersBookingProvider';
 import { PartnersHero } from '@/components/partners/PartnersHero';
+import { PartnersOnboarding } from '@/components/partners/PartnersOnboarding';
 import { PartnersWhy } from '@/components/partners/PartnersWhy';
 import { PartnersWhoCanJoin } from '@/components/partners/PartnersWhoCanJoin';
 import { PartnersPortalCta } from '@/components/partners/PartnersPortalCta';
@@ -33,10 +34,11 @@ export default async function PartnersPage() {
       branches={branches}
       footer={<Footer logo={logo} contacts={contacts} />}
     >
-      <PartnersHero />
+      <PartnersHero phone={contacts.general.b2bPhone} />
       <div className="bg-surface-light">
         <PartnersWhy />
         <PartnersWhoCanJoin />
+        <PartnersOnboarding />
         <PartnersPortalCta />
       </div>
     </PartnersBookingProvider>

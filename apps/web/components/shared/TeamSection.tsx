@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { LoadingImage } from '@/components/ui/LoadingImage';
 import type { TeamMember } from '@/lib/team';
 import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
@@ -40,10 +41,9 @@ function TeamCard({ member }: { member: TeamMember }) {
   return (
     <div className="group relative aspect-[327/490] w-full overflow-hidden rounded-[32px] bg-neutral-800">
       {member.photoUrl && (
-        <Image
+        <LoadingImage
           src={member.photoUrl}
           alt=""
-          fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
           className="object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
         />

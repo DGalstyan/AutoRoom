@@ -11,6 +11,8 @@ import {
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { publicVinLot } from '../lib/demoVinLot';
+import { isSafeGuestUrl, signGuestAccess, verifyGuestAccess } from '../lib/guestAccess';
+import { getSetting } from '../lib/settings';
 import { badRequest, conflict, notFound } from '../lib/errors';
 import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
@@ -113,7 +115,15 @@ const carBodySchema = z.object({
   vin: z.string().trim().max(32).nullish(),
   lotNumber: z.string().trim().max(40).nullish(),
   mileage: z.number().int().min(0).nullish(),
-  auctionViewUrl: z.string().trim().max(500).nullish(),
+  auctionViewUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .nullish()
+    .refine((value) => !value || isSafeGuestUrl(value), {
+      message:
+        'Use a plain http(s) link without a username/password in it — guests get a temporary link, never a shared login.',
+    }),
   auctionPlatform: z.nativeEnum(AuctionPlatform).nullish(),
 
   price: z.number().int().min(0),
@@ -630,6 +640,46 @@ carsRouter.get('/public/cars/:slug', async (req, res) => {
   res.json(serializePublicCar(car));
 });
 
+/**
+ * Issues a short-lived guest access token for an auction car's View-Only link. The link itself
+ * is not in this response; the web app exchanges the token (server to server) for a redirect.
+ */
+carsRouter.post('/public/cars/:slug/guest-access', async (req, res) => {
+  const car = await prisma.car.findFirst({
+    where: {
+      slug: String(req.params.slug ?? ''),
+      publishedAt: { not: null },
+      condition: 'AUCTION',
+    },
+    select: { id: true, auctionViewUrl: true },
+  });
+  if (!car?.auctionViewUrl) throw notFound('No guest access for this car');
+
+  const { ttlMinutes } = await getSetting('auction.guestAccess');
+  const { token, expiresAt } = signGuestAccess(car.id, ttlMinutes);
+  res.set('Cache-Control', 'no-store');
+  res.json({ token, expiresAt: expiresAt.toISOString(), ttlMinutes });
+});
+
+/** Resolves a guest token to the View-Only link while it is unexpired; 410 afterwards. */
+carsRouter.get('/public/auction-access/:token', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const result = verifyGuestAccess(String(req.params.token ?? ''));
+  if (!result.ok) {
+    res.status(result.reason === 'expired' ? 410 : 404).json({ error: result.reason });
+    return;
+  }
+  const car = await prisma.car.findUnique({
+    where: { id: result.carId },
+    select: { auctionViewUrl: true, publishedAt: true },
+  });
+  if (!car?.auctionViewUrl || !car.publishedAt) {
+    res.status(404).json({ error: 'invalid' });
+    return;
+  }
+  res.json({ url: car.auctionViewUrl, expiresAt: result.expiresAt.toISOString() });
+});
+
 /* --------------------------------- helpers --------------------------------- */
 
 function toWriteData(body: z.infer<typeof carBodySchema>) {
@@ -782,9 +832,14 @@ function normalizePriceJourney(
 function serializePublicCar(car: CarRow) {
   const serialized = serializeCar(car);
   return {
-    ...publicVinLot(serialized),
-    similarCars: serialized.similarCars.map((similar) => publicVinLot(similar)),
+    ...withheldGuestUrl(publicVinLot(serialized)),
+    similarCars: serialized.similarCars.map((similar) => withheldGuestUrl(publicVinLot(similar))),
   };
+}
+
+/** The View-Only link is only ever handed out through `/public/auction-access/:token`. */
+function withheldGuestUrl<T extends { auctionViewUrl: string | null }>(car: T) {
+  return { ...car, auctionViewUrl: null, hasGuestAccess: Boolean(car.auctionViewUrl) };
 }
 
 function serializeCar(car: CarRow) {

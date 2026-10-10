@@ -230,6 +230,8 @@ export interface Car {
   /** Link to the car's live listing on the auction house's own site. Set
    * alongside `auctionPlatform` for an `AUCTION` car. */
   auctionViewUrl: string | null;
+  /** Public responses withhold `auctionViewUrl` and say only whether a guest link exists. */
+  hasGuestAccess?: boolean;
   /** Which auction house an `AUCTION` car's listing is on. */
   auctionPlatform: AuctionPlatform | null;
 
@@ -1073,6 +1075,8 @@ export interface ContactsGeneral {
   phones: string[];
   email: string | null;
   workingHours: string | null;
+  /** Dealers/B2B line for the Partners page call button; null hides it. */
+  b2bPhone: string | null;
 }
 
 export interface HomeMapLocations {
@@ -1113,6 +1117,26 @@ export interface FinanceCalculator {
   disclaimer: string | null;
 }
 
+export interface FinanceCustoms {
+  usdToAmd: number | null;
+  rateSource: string | null;
+  /** `YYYY-MM-DD`. */
+  rateDate: string | null;
+  dutyPercent: number | null;
+  vatPercent: number | null;
+  exciseAmdPerCm3: {
+    under3: number | null;
+    between3And5: number | null;
+    between5And10: number | null;
+    over10: number | null;
+  };
+  evExempt: boolean;
+}
+
+export interface AuctionGuestAccess {
+  ttlMinutes: number;
+}
+
 export interface FeatureToggles {
   blog: boolean;
   quiz: boolean;
@@ -1135,6 +1159,8 @@ export interface SettingValues {
   'contacts.messengers': ContactsMessengers;
   'home.mapLocations': HomeMapLocations;
   'finance.calculator': FinanceCalculator;
+  'finance.customs': FinanceCustoms;
+  'auction.guestAccess': AuctionGuestAccess;
   'features.toggles': FeatureToggles;
   'localization.locales': LocalizationLocales;
 }

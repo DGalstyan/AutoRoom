@@ -82,6 +82,8 @@ export interface Car {
    * USA auction detail's "Տեսնել մեքենան օնլայն" CTA. Null until staff set
    * it; the button is skipped while unset. */
   auctionViewUrl?: string | null;
+  /** The public API withholds `auctionViewUrl`; this says a guest link exists and is reached through a time-limited access route. */
+  hasGuestAccess?: boolean;
   /** Which auction house this listing is on — set alongside `auctionViewUrl`. */
   auctionPlatform?: AuctionPlatform | null;
 

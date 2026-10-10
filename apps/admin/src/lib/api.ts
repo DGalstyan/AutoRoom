@@ -3,7 +3,13 @@ import { createApiClient, ApiError } from '@autoroom/api/client';
 export { ApiError };
 export type { ApiClient } from '@autoroom/api/client';
 
-const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
+const baseUrl = requireEnv(import.meta.env.VITE_API_URL, 'VITE_API_URL');
+
+/** No built-in localhost fallback: a missing value should fail at startup, not point at the wrong API. */
+function requireEnv(value: string | undefined, name: string): string {
+  if (!value) throw new Error(`${name} is not set (see apps/admin/.env.example).`);
+  return value;
+}
 
 /**
  * Builds a client bound to the current access token.

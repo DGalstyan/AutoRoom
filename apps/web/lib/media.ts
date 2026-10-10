@@ -14,6 +14,8 @@
  * `lib/faq.ts`) — there's no static "coming soon" stand-in for a whole reel.
  */
 
+import { apiBase } from '@/lib/env';
+
 export interface FounderVideo {
   title: string;
   videoUrl: string;
@@ -57,7 +59,7 @@ interface PublicMediaResponse {
 }
 
 export async function getFounderVideo(): Promise<FounderVideo | null> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/media?kind=FOUNDER`, { next: { revalidate: 300 } });
@@ -74,7 +76,7 @@ export async function getFounderVideo(): Promise<FounderVideo | null> {
 }
 
 export async function listGuideReels(): Promise<GuideReel[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/media?kind=GUIDE_REEL`, {
@@ -95,7 +97,7 @@ export async function listGuideReels(): Promise<GuideReel[]> {
 }
 
 export async function listCustomerStories(): Promise<CustomerStory[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/media?kind=CUSTOMER_STORY`, {

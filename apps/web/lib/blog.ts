@@ -6,6 +6,7 @@
  */
 
 import type { Locale } from '@/lib/i18n';
+import { apiBase } from '@/lib/env';
 
 type Localized = { hy?: string; ru?: string; en?: string } | null;
 
@@ -30,7 +31,7 @@ export interface BlogPost {
   publishedAt: string | null;
 }
 
-const base = () => process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+const base = apiBase;
 
 const pick = (text: Localized, locale: Locale) => text?.[locale] ?? text?.hy ?? '';
 

@@ -1,5 +1,5 @@
 import type { FeatureToggles, SettingRecord } from '@autoroom/api/client';
-import { Alert, Box, Stack, Switch, Typography } from '@mui/material';
+import { Alert, Box, Stack, Switch, TextField, Typography } from '@mui/material';
 import { SectionCard } from '@/pages/settings/SectionCard';
 import { useSettingSection } from '@/pages/settings/useSettingSection';
 import { brand } from '@/theme';
@@ -31,10 +31,11 @@ export function FeatureSettings({
   readOnly: boolean;
 }) {
   const features = useSettingSection('features.toggles', records);
-  if (!features.value) return null;
+  const guest = useSettingSection('auction.guestAccess', records);
+  if (!features.value || !guest.value) return null;
 
   return (
-    <Box sx={{ maxWidth: 720 }}>
+    <Stack spacing={2.5} sx={{ maxWidth: 720 }}>
       <SectionCard
         title="Feature toggles"
         description="Turn parts of the public site on and off without a deploy."
@@ -77,6 +78,28 @@ export function FeatureSettings({
           </Alert>
         )}
       </SectionCard>
-    </Box>
+
+      <SectionCard
+        title="Auction guest access"
+        description="“Տեսնել մեքենան օնլայն” gives each visitor a temporary, system-generated view-only access instead of a shared login. It stops working after this many minutes. The car's auction link is never shown on the public site, and must not contain a username or password."
+        dirty={guest.dirty}
+        saving={guest.saving}
+        readOnly={readOnly}
+        onSave={guest.save}
+        onSaveAsync={guest.saveAsync}
+        onReset={guest.reset}
+      >
+        <TextField
+          label="Access lasts (minutes)"
+          type="number"
+          value={guest.value.ttlMinutes}
+          onChange={(event) => guest.patch({ ttlMinutes: Number(event.target.value) })}
+          error={Boolean(guest.fieldErrors.ttlMinutes)}
+          helperText={guest.fieldErrors.ttlMinutes ?? 'Between 5 and 1440 (24 hours).'}
+          disabled={readOnly}
+          sx={{ maxWidth: 240 }}
+        />
+      </SectionCard>
+    </Stack>
   );
 }

@@ -92,6 +92,19 @@ export function ContactsSettings({
           />
 
           <TextField
+            label="B2B / dealers phone"
+            value={general.value.b2bPhone ?? ''}
+            onChange={(event) => general.patch({ b2bPhone: event.target.value || null })}
+            error={Boolean(general.fieldErrors.b2bPhone)}
+            helperText={
+              general.fieldErrors.b2bPhone ??
+              'Dialled by “Խոսել մեր մասնագետի հետ” on the Partners page. Blank hides that button.'
+            }
+            disabled={readOnly}
+            fullWidth
+          />
+
+          <TextField
             label="Working hours"
             value={general.value.workingHours ?? ''}
             onChange={(event) => general.patch({ workingHours: event.target.value || null })}

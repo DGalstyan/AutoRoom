@@ -17,6 +17,7 @@
  */
 
 import type { LeadPayload } from '@/lib/leads';
+import { apiBase } from '@/lib/env';
 
 export interface SubmitLeadResult {
   ok: boolean;
@@ -25,7 +26,7 @@ export interface SubmitLeadResult {
 }
 
 export async function submitLead(payload: LeadPayload): Promise<SubmitLeadResult> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
   const { answers, hidden } = payload;
 
   try {

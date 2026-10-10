@@ -16,6 +16,8 @@
  * there's no static/ISR caching here to lose.
  */
 
+import { apiBase } from '@/lib/env';
+
 export interface GalleryImage {
   id: string;
   imageUrl: string;
@@ -28,7 +30,7 @@ interface PublicGalleryResponse {
 }
 
 export async function getGalleryImages(): Promise<GalleryImage[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/gallery`, { cache: 'no-store' });

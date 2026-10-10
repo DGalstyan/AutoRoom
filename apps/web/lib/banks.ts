@@ -10,6 +10,8 @@
  * hardcoded bank list) when empty.
  */
 
+import { apiBase } from '@/lib/env';
+
 export interface Bank {
   id: string;
   name: string;
@@ -25,7 +27,7 @@ interface PublicBanksResponse {
 }
 
 export async function getBanks(): Promise<Bank[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/banks`, { next: { revalidate: 300 } });

@@ -14,6 +14,7 @@
  */
 
 import type { AuctionPlatform, Car, CarCondition, CarOrigin, CarSummary } from '@/lib/types/car';
+import { apiBase } from '@/lib/env';
 
 interface PublicCarsResponse {
   items: Car[];
@@ -25,7 +26,7 @@ interface PublicCarsResponse {
 const NO_CARS = { items: [] as Car[], total: 0 };
 
 export async function getFeaturedCars(limit = 4): Promise<Car[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/cars?featured=true&take=${limit}`, {
@@ -67,7 +68,7 @@ export async function listCars(filters: CarListFilters = {}): Promise<{
   items: Car[];
   total: number;
 }> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   const params = new URLSearchParams();
   if (filters.origin) params.set('origin', filters.origin);
@@ -101,7 +102,7 @@ export async function listCars(filters: CarListFilters = {}): Promise<{
  * unpublished row), so the page can 404 either way without distinguishing.
  */
 export async function getCarBySlug(slug: string): Promise<Car | null> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/cars/${encodeURIComponent(slug)}`, {

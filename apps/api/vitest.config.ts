@@ -35,6 +35,7 @@ export default defineConfig({
       ACCESS_TOKEN_TTL: '15m',
       CORS_ORIGINS: 'http://localhost:3000',
       APP_URL: 'http://localhost:3000/admin',
+      PUBLIC_API_URL: 'http://localhost:4000',
     },
   },
 });

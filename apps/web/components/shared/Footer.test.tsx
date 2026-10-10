@@ -11,6 +11,7 @@ const FILLED_CONTACTS = {
   general: {
     email: 'hello@autoroom.co',
     phones: ['+374 94 077757', '+374 77 838750'],
+    b2bPhone: null,
     workingHours: '10:00–22:00',
   },
   social: {

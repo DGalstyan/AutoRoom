@@ -6,7 +6,6 @@ import { MissionStatement } from '@/components/about/MissionStatement';
 import { WhyAutoRoom } from '@/components/home/WhyAutoRoom';
 import { PhotoGallery } from '@/components/about/PhotoGallery';
 import { AboutFinalCta } from '@/components/about/AboutFinalCta';
-import { AboutRepeatCta } from '@/components/about/AboutRepeatCta';
 import { getTeamMembers } from '@/lib/team';
 import { getGalleryImages } from '@/lib/gallery';
 import { getFounderVideo } from '@/lib/media';
@@ -28,9 +27,8 @@ export async function generateMetadata(): Promise<Metadata> {
  * `9Lq4XpWusTJj1VnM6laAZr`), pixel-audited section by section directly in
  * Figma's Dev Mode inspector (see report for exact node IDs/values):
  * S1 Hero → S2 Who We Are → S3 Why choose us → S4 Team + founder video +
- * photo gallery → S5 Final CTA → S5b a light block repeating the hero's own
- * intro + both CTAs verbatim (node `123:443`, missing from an earlier pass
- * — see `AboutRepeatCta`). S6 "Stay in touch" (socials) isn't a separate
+ * photo gallery → S5 Final CTA. (Figma's S5b, a block repeating the hero's own intro and both
+ * CTAs verbatim, is deliberately left out: the same copy twice on one page.) S6 "Stay in touch" (socials) isn't a separate
  * on-page block — it's the sitewide `Footer`, already rendered by the root
  * layout on every page, socials included.
  */
@@ -76,9 +74,6 @@ export default async function AboutPage() {
 
       <div className="mt-16 lg:mt-[150px]">
         <AboutFinalCta />
-      </div>
-      <div className="lg:mt-0">
-        <AboutRepeatCta />
       </div>
     </>
   );

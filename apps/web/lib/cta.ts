@@ -79,12 +79,12 @@ export const LEAD_CTAS = {
   'offers-s3-final-cta': 'universal',
   'about-s1-hero-consultation': 'universal',
   'about-s5-final-cta': 'universal',
-  'about-s5b-repeat-consultation': 'universal',
   'contact-s4-final-cta': 'universal',
   'compare-car-finder': 'universal',
   'contact-s1-form': 'contactForm', // the Contact page's own inline form, not a popup
   // Partners
   'partners-hero': 'partnerBooking',
+  'partners-onboarding': 'partnerBooking',
 } as const satisfies Record<string, LeadWidget>;
 
 export type LeadCtaId = keyof typeof LEAD_CTAS;

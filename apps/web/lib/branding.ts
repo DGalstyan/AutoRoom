@@ -15,6 +15,8 @@
  * missing logo is fine where a crashed page is not.
  */
 
+import { apiBase } from '@/lib/env';
+
 export interface BrandingLogos {
   logoLightUrl: string | null;
   logoDarkUrl: string | null;
@@ -36,7 +38,7 @@ export async function getBrandingLogos(): Promise<BrandingLogos> {
   // runs in the RSC render, never in the browser bundle. Dev-friendly default
   // matches the API's own `PUBLIC_API_URL` default; the production value is
   // wired via `docker-compose.prod.yml`, not here.
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/settings/public`, { next: { revalidate: 60 } });

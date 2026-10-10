@@ -17,7 +17,7 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  *    "Խոսել մեր մասնագետի հետ" pill (click-to-call).
  * Below `lg` the same layers stack in normal flow instead of absolute offsets.
  */
-export function PartnersHero() {
+export function PartnersHero({ phone }: { phone: string | null }) {
   const t = useMessages().partners.hero;
   const { open } = useBookingPopup();
 
@@ -54,12 +54,15 @@ export function PartnersHero() {
           >
             {t.cta} <ArrowUpRightIcon className="size-5" />
           </button>
-          <a
-            href="tel:+37444111111" // Footer's own general contact number (Figma "Dealers" page footer, verbatim).
-            className="inline-flex h-12 animate-fade-up items-center gap-1 rounded-pill bg-white px-6 text-[14px] font-medium leading-[18px] text-ink transition-colors duration-standard ease-expo [animation-delay:150ms] hover:bg-neutral-50 motion-reduce:animate-none"
-          >
-            {t.secondaryCta} <PhoneIcon className="size-[18px]" />
-          </a>
+          {/* The B2B line is admin-managed (Settings → Contacts); no number, no button. */}
+          {phone && (
+            <a
+              href={`tel:${phone.replace(/\s+/g, '')}`}
+              className="inline-flex h-12 animate-fade-up items-center gap-1 rounded-pill bg-white px-6 text-[14px] font-medium leading-[18px] text-ink transition-colors duration-standard ease-expo [animation-delay:150ms] hover:bg-neutral-50 motion-reduce:animate-none"
+            >
+              {t.secondaryCta} <PhoneIcon className="size-[18px]" />
+            </a>
+          )}
         </div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { LoadingImage } from '@/components/ui/LoadingImage';
 import { Reveal } from '@/components/ui/Reveal';
 import type { GalleryImage } from '@/lib/gallery';
 
@@ -70,10 +70,9 @@ function Tile({ src, className = '' }: { src: string; className?: string }) {
     <div
       className={`group relative h-[240px] w-full overflow-hidden rounded-[32px] sm:h-[300px] lg:h-[480px] ${className}`}
     >
-      <Image
+      <LoadingImage
         src={src}
         alt=""
-        fill
         sizes="(min-width: 640px) 50vw, 100vw"
         className="object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
       />

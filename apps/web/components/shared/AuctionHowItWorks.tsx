@@ -73,6 +73,9 @@ export function AuctionHowItWorks({ car }: { car: Car }) {
             </a>
           )}
         </div>
+        {viewLink && (
+          <p className="text-center text-[12px] leading-4 text-white/60">{t.access.validFor}</p>
+        )}
       </div>
     </section>
   );

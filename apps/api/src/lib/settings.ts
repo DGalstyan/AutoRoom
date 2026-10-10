@@ -67,6 +67,12 @@ const contactsGeneral = z.object({
     .union([z.string().email(), z.literal(''), z.null()])
     .transform((v) => (v === '' ? null : v)),
   workingHours: optionalText,
+  /** The dealers/B2B line behind «Խոսել մեր մասնագետի հետ» on /partners; blank hides that button. */
+  b2bPhone: z
+    .union([z.string().trim().min(5).max(40), z.literal(''), z.null()])
+    .transform((v) => (v === '' ? null : v))
+    .nullable()
+    .default(null),
 });
 
 const homeMapLocations = z.object({
@@ -124,6 +130,43 @@ const financeCalculator = z.object({
   defaultDownPaymentRatio: z.number().min(0).max(1),
   usdToAmd: z.number().positive().max(100_000),
   disclaimer: optionalText,
+});
+
+const percentOrNull = z.number().min(0).max(100).nullable();
+const amountOrNull = z.number().min(0).max(1_000_000).nullable();
+
+/**
+ * Customs rates for the USA calculator. Left blank until staff enter them from the current
+ * legal tariff: the site deliberately ships no duty figures of its own, because they are
+ * legally binding and change. While a rate is blank the calculator shows what it can work out
+ * and hands the rest to a specialist.
+ */
+const financeCustoms = z.object({
+  /** Override of `finance.calculator.usdToAmd` just for customs (e.g. the customs authority's rate). */
+  usdToAmd: z.number().positive().max(100_000).nullable(),
+  /** Where the rate comes from, shown to visitors, e.g. "ՀՀ ԿԲ" / "State Revenue Committee". */
+  rateSource: z.string().trim().max(120).nullable(),
+  /** The day the rate applies, `YYYY-MM-DD`. */
+  rateDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD')
+    .nullable(),
+  dutyPercent: percentOrNull,
+  vatPercent: percentOrNull,
+  /** Excise in AMD per cm³ of engine volume, by vehicle age band. */
+  exciseAmdPerCm3: z.object({
+    under3: amountOrNull,
+    between3And5: amountOrNull,
+    between5And10: amountOrNull,
+    over10: amountOrNull,
+  }),
+  /** Electric vehicles pay no duty or excise (VAT still applies). */
+  evExempt: z.boolean(),
+});
+
+const auctionGuestAccess = z.object({
+  /** How long a guest's View-Only access stays valid after it is issued. */
+  ttlMinutes: z.number().int().min(5).max(1440),
 });
 
 const featureToggles = z.object({
@@ -205,7 +248,7 @@ export const SETTINGS = {
     schema: contactsGeneral,
     isPublic: true,
     label: 'Contact details',
-    defaults: { phones: [], email: null, workingHours: '10:00–22:00' },
+    defaults: { phones: [], email: null, workingHours: '10:00–22:00', b2bPhone: null },
   }),
   'contacts.social': define({
     group: SettingGroup.CONTACTS,
@@ -252,6 +295,30 @@ export const SETTINGS = {
       usdToAmd: 390,
       disclaimer: null,
     },
+  }),
+  'finance.customs': define({
+    group: SettingGroup.FINANCE,
+    schema: financeCustoms,
+    isPublic: true,
+    label: 'Customs calculator',
+    defaults: {
+      usdToAmd: null,
+      rateSource: null,
+      rateDate: null,
+      dutyPercent: null,
+      vatPercent: null,
+      exciseAmdPerCm3: { under3: null, between3And5: null, between5And10: null, over10: null },
+      evExempt: false,
+    },
+  }),
+  'auction.guestAccess': define({
+    // Stored under FEATURES (the enum is a DB type; a new group would need a migration).
+    group: SettingGroup.FEATURES,
+    schema: auctionGuestAccess,
+    // Public: harmless, and the car page tells the visitor how long their access lasts.
+    isPublic: true,
+    label: 'Auction guest access',
+    defaults: { ttlMinutes: 60 },
   }),
   'features.toggles': define({
     group: SettingGroup.FEATURES,

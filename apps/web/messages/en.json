@@ -222,7 +222,12 @@
         "counter": "{n} / {total}",
         "region": "Vehicle gallery",
         "albums": "Gallery sections",
-        "videoLabel": "Video {n}"
+        "videoLabel": "Video {n}",
+        "zoom": "Zoom the photo",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "zoomReset": "Reset zoom",
+        "lightbox": "Photo viewer"
       },
       "specs": {
         "heading": "General specifications",
@@ -283,7 +288,12 @@
         "explainFormulaTitle": "Monthly payment formula",
         "explainFormula": "M = P · i · (1 + i)ⁿ ÷ ((1 + i)ⁿ − 1)",
         "explainLegend": "M: monthly payment, P: loan amount (AMD), i: monthly rate (percent ÷ 100), n: term in months. If the rate is 0, M = P ÷ n.",
-        "explainResult": "M = {monthly}"
+        "explainResult": "M = {monthly}",
+        "downPaymentMin": "Minimum",
+        "downPaymentMax": "Maximum",
+        "downPaymentRange": "The down payment must be between {min} and {max}",
+        "downPaymentDecrease": "Decrease the down payment",
+        "downPaymentIncrease": "Increase the down payment"
       },
       "similarOffers": {
         "heading": "Similar offers"
@@ -291,7 +301,7 @@
       "auctionFollowAlong": {
         "heading": "Follow the auction online",
         "intro1": "AutoRoom lets you follow Copart and IAAI auctions in real time, without a complicated sign-up or a long verification process.",
-        "intro2": "Once you've picked a car, simply log in with the View Only (Guest Login) viewing account AutoRoom provides and follow the whole auction live.",
+        "intro2": "Once you pick a car, press “View the car online”: the system creates a secure, temporary view-only access for you that ends automatically after a set time. There is no shared username or password.",
         "listIntro": "You can see:",
         "list": [
           "The car's full photos",
@@ -305,12 +315,20 @@
         "steps": [
           "Choose the car you are interested in.",
           "Click “View the car online”.",
-          "Sign in with the viewing account AutoRoom provides.",
+          "A temporary access created just for you opens — no username or password needed.",
           "Follow the auction in real time.",
           "See the price the car sells for at auction."
         ],
         "viewOnlineCta": "View the car online",
-        "contactCta": "Contact us"
+        "contactCta": "Contact us",
+        "access": {
+          "expiredHeading": "Access has expired",
+          "expiredBody": "Temporary guest access works for a limited time. Go back to the car page and press “View the car online” to get a new one.",
+          "invalidHeading": "This link is not valid",
+          "invalidBody": "This access link is wrong or no longer available. You can get a new one from the car page.",
+          "back": "Back to USA",
+          "validFor": "Access is temporary and ends automatically after a short time."
+        }
       },
       "ctaReserve": "Reserve before it arrives"
     },
@@ -876,7 +894,41 @@
         "minivan": "Minivan"
       },
       "submit": "Calculate",
-      "leadCommentHeading": "Customs calculator request"
+      "leadCommentHeading": "Customs calculator request",
+      "errors": {
+        "carValueRequired": "Enter the car value",
+        "carValueRange": "The value must be between $1 and $1,000,000",
+        "transportRange": "Transport must be between $0 and $100,000",
+        "engineTypeRequired": "Choose the engine type",
+        "ageRequired": "Choose the vehicle age",
+        "productionYearRequired": "Choose the production year",
+        "productionYearRange": "The production year must be within the last 30 years",
+        "ageYearMismatch": "The production year does not match the chosen age",
+        "engineVolumeRequired": "Enter the engine volume in cm³",
+        "engineVolumeRange": "The volume must be a whole number from 1 to 10,000 cm³"
+      },
+      "result": {
+        "heading": "Calculation details",
+        "customsValue": "Customs value",
+        "customsValueFormula": "(car value + transport) = {usd} × {rate} AMD",
+        "customsValueFormulaShort": "Customs value (car value + transport): {usd}",
+        "duty": "Customs duty",
+        "dutyFormula": "customs value × {percent}%",
+        "excise": "Excise",
+        "exciseFormula": "{volume} cm³ × {rate} AMD",
+        "vat": "VAT",
+        "vatFormula": "(customs value + duty + excise) × {percent}%",
+        "exemptNote": "Exempt (electric vehicle)",
+        "total": "Total customs payable",
+        "formula": "Formula: total = duty + excise + VAT.",
+        "rateLine": "Exchange rate: $1 = {rate} AMD · Source: {source} · Date: {date}",
+        "sourceUnknown": "not specified",
+        "sourceLoanRate": "loan calculator rate",
+        "dateUnknown": "not specified",
+        "ratesMissing": "The customs rates have not been entered yet, so we do not calculate the exact amount. Our specialist will work it out for you.",
+        "disclaimer": "This is an estimate, not legally binding; the customs authority determines the final amount.",
+        "cta": "Get an exact calculation"
+      }
     },
     "availableCars": {
       "heading": "Available cars in Armenia"
@@ -911,6 +963,11 @@
         "pennsylvania": "Pennsylvania (Philadelphia)",
         "alaska": "Alaska (Anchorage)",
         "hawaii": "Hawaii (Honolulu)"
+      },
+      "dst": {
+        "dst": "Daylight saving time",
+        "standard": "Standard time",
+        "none": "No daylight saving"
       }
     },
     "importProcess": {
@@ -1413,6 +1470,39 @@
     "portalCta": {
       "heading": "Manage your orders from one place",
       "cta": "Sign in"
+    },
+    "onboarding": {
+      "heading": "How to become a partner",
+      "steps": [
+        {
+          "title": "Book a meeting",
+          "text": "Pick a day and time that suit you: our specialist will call and answer every question."
+        },
+        {
+          "title": "Send your documents",
+          "text": "You send the company documents and we agree the terms of cooperation."
+        },
+        {
+          "title": "Sign and start working",
+          "text": "We sign the contract, open your account in the partner portal and take the first order."
+        }
+      ],
+      "requirementsTitle": "Requirements",
+      "requirements": [
+        "A legal entity or sole proprietor registered in Armenia",
+        "Experience in car trading or related services",
+        "A working phone number and email for order communication"
+      ],
+      "documentsTitle": "Documents",
+      "documents": [
+        "State registration certificate",
+        "Tax ID (TIN)",
+        "Passport or ID of the director",
+        "Bank account details"
+      ],
+      "responseLabel": "Response time",
+      "responseTime": "We reply within 1 business day",
+      "cta": "Book a meeting"
     }
   },
   "privacy": {

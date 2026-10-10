@@ -13,6 +13,8 @@
  * page is already fully dynamic.
  */
 
+import { apiBase } from '@/lib/env';
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -28,7 +30,7 @@ interface PublicTeamResponse {
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/team`, { cache: 'no-store' });

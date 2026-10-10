@@ -839,7 +839,7 @@ export function CarFormPage() {
               error={Boolean(fieldErrors.auctionViewUrl)}
               helperText={
                 fieldErrors.auctionViewUrl ??
-                'Guest-login link for “Տեսնել մեքենան օնլայն” on the auction detail page.'
+                'View-Only link behind “Տեսնել մեքենան օնլայն”. Never shown publicly: visitors get a temporary access generated from it. Must not contain a username or password.'
               }
             />
             {canReadPartners && (

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { CarCard } from '@/components/shared/CarCard';
 import { UsaHero } from '@/components/usa/UsaHero';
 import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
+import { getCustomsRates } from '@/lib/settings';
 import { UsaAuctionFilters } from '@/components/usa/UsaAuctionFilters';
 import { UsaStateClocks } from '@/components/usa/UsaStateClocks';
 import { UsaImportProcess } from '@/components/usa/UsaImportProcess';
@@ -67,6 +68,7 @@ export default async function UsaPage({
   const t = messages.usa;
 
   const sp = await searchParams;
+  const customs = await getCustomsRates();
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : undefined);
 
   const auctionPlatform = toAuctionPlatform(one(sp.auctionPlatform));
@@ -120,7 +122,7 @@ export default async function UsaPage({
         <CarGridSection heading={t.onRoad.heading} cars={onRoadCars} />
 
         <div className={`${COLUMN} mt-16 lg:mt-[150px]`}>
-          <CustomsCalculator />
+          <CustomsCalculator rates={customs.rates} fallbackUsdToAmd={customs.fallbackUsdToAmd} />
         </div>
       </div>
 

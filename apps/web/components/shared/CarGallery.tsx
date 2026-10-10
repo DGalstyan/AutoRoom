@@ -5,6 +5,7 @@ import Image from 'next/image';
 import type { CarImage, ImageAlbum } from '@/lib/types/car';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { interpolate } from '@/lib/messages';
+import { ImageLightbox } from '@/components/shared/ImageLightbox';
 
 const ALBUM_ORDER: ImageAlbum[] = ['EXTERIOR', 'INTERIOR', 'DETAILS', 'VIDEO'];
 
@@ -46,6 +47,7 @@ export function CarGallery({
   const [activeIndex, setActiveIndex] = useState(0);
   const [manualOverride, setManualOverride] = useState(false);
   const [canScrollMore, setCanScrollMore] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const stripRef = useRef<HTMLDivElement>(null);
 
   const albumImages = useMemo(
@@ -121,19 +123,45 @@ export function CarGallery({
             className="h-full w-full object-cover"
           />
         ) : activeImage ? (
-          <Image
-            src={activeImage.url}
-            alt={`${alt} — ${albumName ?? ''} ${activeIndex + 1}`.replace(/\s+/g, ' ').trim()}
-            fill
-            priority
-            sizes="(min-width: 1024px) 850px, 100vw"
-            className="object-cover"
-          />
+          <button
+            type="button"
+            onClick={() => setZoomOpen(true)}
+            aria-label={t.zoom}
+            className="absolute inset-0 cursor-zoom-in"
+          >
+            <Image
+              src={activeImage.url}
+              alt={`${alt} — ${albumName ?? ''} ${activeIndex + 1}`.replace(/\s+/g, ' ').trim()}
+              fill
+              priority
+              sizes="(min-width: 1024px) 850px, 100vw"
+              className="object-cover"
+            />
+          </button>
         ) : (
           <div
             className="h-full w-full bg-gradient-to-br from-ink via-surface to-muted/60"
             aria-hidden="true"
           />
+        )}
+
+        {activeImage && !isVideo && !showColorOverride && (
+          <button
+            type="button"
+            onClick={() => setZoomOpen(true)}
+            aria-label={t.zoom}
+            className="absolute right-3 top-3 flex size-11 items-center justify-center rounded-full bg-white/90 text-neutral-800 shadow-card transition-colors duration-standard hover:bg-white"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
+              <path
+                d="m13 13 4 4M8.5 6v5M6 8.5h5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
         )}
 
         {canStep && (
@@ -154,6 +182,19 @@ export function CarGallery({
           </span>
         )}
       </div>
+
+      {zoomOpen && activeImage && !isVideo && (
+        <ImageLightbox
+          images={albumImages}
+          index={Math.max(0, albumImages.indexOf(activeImage))}
+          alt={alt}
+          onIndexChange={(next) => {
+            setActiveIndex(next);
+            setManualOverride(true);
+          }}
+          onClose={() => setZoomOpen(false)}
+        />
+      )}
 
       <div className="flex flex-col gap-6">
         {albums.length > 0 && (

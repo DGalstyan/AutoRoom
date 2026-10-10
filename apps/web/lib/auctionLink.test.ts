@@ -2,6 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { auctionViewLink } from '@/lib/auctionLink';
 
 describe('auctionViewLink', () => {
+  it('sends a car with a guest link through the temporary-access route, never to the raw link', () => {
+    expect(
+      auctionViewLink({
+        slug: 'bmw-m4',
+        hasGuestAccess: true,
+        auctionViewUrl: null,
+        auctionPlatform: 'COPART',
+        lotNumber: '12345678',
+      }),
+    ).toBe('/usa/auctions/bmw-m4/view');
+  });
   it('prefers the View-Only link staff entered', () => {
     expect(
       auctionViewLink({

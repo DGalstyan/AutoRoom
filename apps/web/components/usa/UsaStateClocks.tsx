@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { interpolate } from '@/lib/messages';
 import type { Locale } from '@/lib/i18n';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
+import { dstStatus, hoursAhead, type DstStatus } from '@/lib/zoneTime';
 
 /**
  * USA S5 — "Տեղական ժամը ԱՄՆ նահանգներում". Two Figma nodes cover this
@@ -110,8 +111,7 @@ const STATE_OPTIONS: StateOption[] = [
   { key: 'hawaii', timeZone: 'Pacific/Honolulu' },
 ];
 
-const DEFAULT_STATE_KEY_A = 'california';
-const DEFAULT_STATE_KEY_B = 'newYork';
+const DEFAULT_STATE_KEY = 'california';
 
 const LOCALE_TAG: Record<Locale, string> = { hy: 'hy-AM', en: 'en-US', ru: 'ru-RU' };
 
@@ -166,32 +166,6 @@ function formatLocalizedDate(date: Date, timeZone: string, locale: Locale): stri
   const weekday = WEEKDAYS_HY[get('weekday')] ?? get('weekday');
   const month = MONTHS_HY[get('month')] ?? get('month');
   return `${weekday}, ${month} ${get('day')}`;
-}
-
-/** The offset trick: format the same instant *as if* `timeZone`'s wall-clock
- * fields were UTC, then diff that against the real UTC instant — works
- * correctly across DST without a timezone-data library. */
-function utcOffsetMinutes(timeZone: string, date: Date): number {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).formatToParts(date);
-  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
-  const asUtc = Date.UTC(
-    get('year'),
-    get('month') - 1,
-    get('day'),
-    get('hour'),
-    get('minute'),
-    get('second'),
-  );
-  return (asUtc - date.getTime()) / 60_000;
 }
 
 /** Degrees clockwise from 12 o'clock for each hand, reading `date`'s wall-clock
@@ -331,73 +305,56 @@ export function UsaStateClocks() {
   const t = useMessages().usa.stateClocks;
   const locale = useLocale();
   // Starts null so the server's markup and the client's first hydration
-  // pass render identically (see `PromoCountdown`'s doc comment for why
-  // computing a live clock value during render, rather than in an effect,
-  // is a reproducible hydration mismatch) — the real times fill in a tick
-  // later, imperceptibly.
+  // pass render identically (see `PromoCountdown`'s doc comment) — the real
+  // times fill in a tick later.
   const [now, setNow] = useState<Date | null>(null);
-  const [stateKeyA, setStateKeyA] = useState<string>(DEFAULT_STATE_KEY_A);
-  const [stateKeyB, setStateKeyB] = useState<string>(DEFAULT_STATE_KEY_B);
+  const [stateKey, setStateKey] = useState<string>(DEFAULT_STATE_KEY);
 
   useEffect(() => {
-    // Deferred a tick so this isn't a synchronous setState-in-effect (same
-    // pattern as `PromoCountdown`'s own first tick).
     queueMicrotask(() => setNow(new Date()));
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  const referenceOffset = now ? utcOffsetMinutes('Asia/Yerevan', now) : 0;
-
-  function diffCaptionFor(stateKey: string): string | undefined {
-    if (!now) return undefined;
-    const state = STATE_OPTIONS.find((option) => option.key === stateKey) ?? STATE_OPTIONS[0]!;
-    const diffHours = Math.round((utcOffsetMinutes(state.timeZone, now) - referenceOffset) / 60);
-    return interpolate(t.diff, { hours: diffHours > 0 ? `+${diffHours}` : `${diffHours}` });
-  }
+  const state = STATE_OPTIONS.find((option) => option.key === stateKey) ?? STATE_OPTIONS[0]!;
+  const hours = now ? hoursAhead(state.timeZone, 'Asia/Yerevan', now) : null;
+  const diffCaption =
+    hours === null
+      ? undefined
+      : interpolate(t.diff, { hours: hours > 0 ? `+${hours}` : `${hours}` });
 
   return (
-    <div className="flex flex-col items-center gap-16">
+    <div className="flex flex-col items-center gap-10 lg:gap-16">
       <h2 className="stretch-88 text-center text-[28px] font-light leading-[38px] text-ink sm:text-home-h2 sm:leading-[58px]">
         {t.heading}
       </h2>
-      <div className="grid w-full max-w-[1200px] grid-cols-1 justify-items-center gap-6 lg:grid-cols-3 lg:gap-12">
-        <ClockCard label={t.cities.yerevan} timeZone="Asia/Yerevan" now={now} locale={locale} />
-
+      {/* One tool: Yerevan, and the US state the visitor picks. Offsets and the DST badge come
+          from the time-zone database, so the gap shifts by itself when the US changes its clocks. */}
+      <div className="grid w-full max-w-[784px] grid-cols-1 justify-items-center gap-6 md:grid-cols-2 lg:gap-12">
         <ClockCard
-          selector={
-            <StatePicker
-              id="usa-state-select-a"
-              label={t.stateLabel}
-              value={stateKeyA}
-              onChange={setStateKeyA}
-              states={t.states}
-            />
-          }
-          timeZone={
-            (STATE_OPTIONS.find((option) => option.key === stateKeyA) ?? STATE_OPTIONS[0]!).timeZone
-          }
+          label={t.cities.yerevan}
+          timeZone="Asia/Yerevan"
           now={now}
           locale={locale}
-          diffCaption={diffCaptionFor(stateKeyA)}
+          dst={now ? dstStatus('Asia/Yerevan', now) : null}
+          dstLabels={t.dst}
         />
-
         <ClockCard
           selector={
             <StatePicker
-              id="usa-state-select-b"
+              id="usa-state-select"
               label={t.stateLabel}
-              value={stateKeyB}
-              onChange={setStateKeyB}
+              value={stateKey}
+              onChange={setStateKey}
               states={t.states}
             />
           }
-          timeZone={
-            (STATE_OPTIONS.find((option) => option.key === stateKeyB) ?? STATE_OPTIONS[0]!).timeZone
-          }
+          timeZone={state.timeZone}
           now={now}
           locale={locale}
-          diffCaption={diffCaptionFor(stateKeyB)}
+          diffCaption={diffCaption}
+          dst={now ? dstStatus(state.timeZone, now) : null}
+          dstLabels={t.dst}
         />
       </div>
     </div>
@@ -462,6 +419,8 @@ function ClockCard({
   now,
   locale,
   diffCaption,
+  dst,
+  dstLabels,
 }: {
   /** Plain city label — the Yerevan reference card. */
   label?: string;
@@ -475,26 +434,37 @@ function ClockCard({
   locale: Locale;
   /** Present only for the non-reference (selected-state) card. */
   diffCaption?: string;
+  /** Whether daylight saving is in effect, off, or not observed here; null until the clock starts. */
+  dst: DstStatus | null;
+  dstLabels: Record<DstStatus, string>;
 }) {
   return (
     <div className="flex w-full max-w-[368px] flex-col items-center gap-6 overflow-hidden rounded-[48px] bg-white px-6 py-8 text-center sm:py-12 lg:py-16">
       {selector ?? <p className="text-[16px] leading-6 text-ink">{label}</p>}
       <AnalogClock now={now} timeZone={timeZone} />
       <div className="flex flex-col gap-1">
-        <p className="font-display text-home-h2 font-light text-ink">
-          {now
-            ? new Intl.DateTimeFormat(LOCALE_TAG[locale], {
+        {now ? (
+          <>
+            <p className="font-display text-home-h2 font-light text-ink">
+              {new Intl.DateTimeFormat(LOCALE_TAG[locale], {
                 timeZone,
                 hour: 'numeric',
                 minute: '2-digit',
                 hour12: true,
-              }).format(now)
-            : '—'}
-        </p>
-        <p className="font-display text-[24px] font-normal leading-9 text-ink">
-          {now ? formatLocalizedDate(now, timeZone, locale) : '—'}
-        </p>
+              }).format(now)}
+            </p>
+            <p className="font-display text-[24px] font-normal leading-9 text-ink">
+              {formatLocalizedDate(now, timeZone, locale)}
+            </p>
+          </>
+        ) : (
+          <div aria-hidden="true" className="flex animate-pulse flex-col items-center gap-3">
+            <div className="h-[58px] w-48 rounded-md bg-neutral-100" />
+            <div className="h-9 w-56 rounded-md bg-neutral-100" />
+          </div>
+        )}
         {diffCaption && <p className="text-caption text-ink/50">{diffCaption}</p>}
+        {dst && <p className="text-caption text-ink/50">{dstLabels[dst]}</p>}
       </div>
     </div>
   );

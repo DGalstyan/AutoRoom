@@ -1,5 +1,7 @@
 'use server';
 
+import { apiBase } from '@/lib/env';
+
 /**
  * Server Actions for the SMS-code check in front of the "Become a dealer"
  * meeting request (`apps/api`'s `POST /phone-verifications`). Same reasoning as
@@ -7,7 +9,7 @@
  * network, never from the visitor's browser, so no CORS change is needed.
  */
 
-const base = () => process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+const base = apiBase;
 
 /** Whether the API currently requires a verified phone for a meeting request. */
 export async function isPhoneVerificationRequired(): Promise<boolean> {

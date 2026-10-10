@@ -13,6 +13,7 @@
  */
 
 import type { LeadHiddenContext } from '@/lib/leads';
+import { apiBase } from '@/lib/env';
 
 /** Mirrors `apps/api`'s `MeetingFormat` enum — `apps/web` has no dependency
  * on `@autoroom/api/client` (that alias is `apps/admin`-only), so this is
@@ -45,7 +46,7 @@ export type PartnerLeadResult =
   { ok: true } | { ok: false; reason: 'conflict' | 'unverified' | 'error' };
 
 export async function submitPartnerLead(payload: PartnerLeadPayload): Promise<PartnerLeadResult> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
   const { answers, hidden } = payload;
 
   try {

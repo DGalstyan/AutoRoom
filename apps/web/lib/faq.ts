@@ -29,6 +29,7 @@
 
 import type { FaqItem } from '@/lib/data/faq';
 import type { Locale } from '@/lib/i18n';
+import { apiBase } from '@/lib/env';
 
 export type FaqTopic = 'CHINA' | 'USA' | 'GENERAL';
 
@@ -47,7 +48,7 @@ interface PublicFaqResponse {
 }
 
 export async function getFaq(topic: FaqTopic, locale: Locale = 'hy'): Promise<FaqItem[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/public/faq?topic=${topic}`, {

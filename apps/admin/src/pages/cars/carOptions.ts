@@ -92,7 +92,8 @@ export function formatMoney(amount: number | null | undefined, currency = '$') {
  * car (the list's featured toggle, the similar-cars picker) without routing
  * the viewer through the full edit form.
  */
-const WEB_URL = import.meta.env.VITE_WEB_URL ?? 'http://localhost:3000';
+const WEB_URL = import.meta.env.VITE_WEB_URL;
+if (!WEB_URL) throw new Error('VITE_WEB_URL is not set (see apps/admin/.env.example).');
 
 /**
  * Where this car appears on the public site — mirrors `apps/web`'s own

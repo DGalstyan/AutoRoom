@@ -4,6 +4,8 @@
  * are sourced from. Never throws: an unreachable API or an unset key falls back
  * to the same four places the API seeds by default.
  */
+
+import { apiBase } from '@/lib/env';
 export interface MapLocation {
   name: string;
   lat: number;
@@ -18,7 +20,7 @@ const DEFAULT_LOCATIONS: MapLocation[] = [
 ];
 
 export async function getMapLocations(): Promise<MapLocation[]> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
   try {
     const res = await fetch(`${base}/settings/public`, { next: { revalidate: 60 } });
     if (!res.ok) return DEFAULT_LOCATIONS;

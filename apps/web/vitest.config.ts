@@ -22,6 +22,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    env: { API_INTERNAL_URL: 'http://api.test' },
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     include: ['**/*.test.{ts,tsx}'],

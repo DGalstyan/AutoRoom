@@ -18,10 +18,14 @@
  * "working hours" alongside phone/email/socials).
  */
 
+import { apiBase } from '@/lib/env';
+
 export interface GeneralContacts {
   email: string | null;
   phones: string[];
   workingHours: string | null;
+  /** Dealers/B2B line for /partners; null hides the call button. */
+  b2bPhone: string | null;
 }
 
 export interface SocialLinks {
@@ -39,12 +43,22 @@ export interface MessengerLinks {
 }
 
 interface PublicSettingsResponse {
-  'contacts.general'?: { phones: string[]; email: string | null; workingHours: string };
+  'contacts.general'?: {
+    phones: string[];
+    email: string | null;
+    workingHours: string;
+    b2bPhone?: string | null;
+  };
   'contacts.social'?: SocialLinks;
   'contacts.messengers'?: { links?: Partial<MessengerLinks> };
 }
 
-const NO_CONTACTS: GeneralContacts = { email: null, phones: [], workingHours: null };
+const NO_CONTACTS: GeneralContacts = {
+  email: null,
+  phones: [],
+  workingHours: null,
+  b2bPhone: null,
+};
 const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
 export const NO_MESSENGERS: MessengerLinks = { whatsapp: null, viber: null, telegram: null };
 
@@ -53,7 +67,7 @@ export async function getContacts(): Promise<{
   social: SocialLinks;
   messengers: MessengerLinks;
 }> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     const res = await fetch(`${base}/settings/public`, { next: { revalidate: 60 } });
@@ -70,6 +84,7 @@ export async function getContacts(): Promise<{
             email: general.email,
             phones: general.phones,
             workingHours: general.workingHours || null,
+            b2bPhone: general.b2bPhone ?? null,
           }
         : NO_CONTACTS,
       social: social ?? NO_SOCIAL,

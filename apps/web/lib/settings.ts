@@ -15,7 +15,9 @@
 import { cookies } from 'next/headers';
 import type { FinanceCalculator } from '@/lib/types/car';
 import type { Locale } from '@/lib/i18n';
+import type { CustomsRates } from '@/lib/customs';
 import { MAINTENANCE_PREVIEW_COOKIE } from '@/lib/maintenancePreviewCookie';
+import { apiBase } from '@/lib/env';
 
 const FINANCE_CALCULATOR_DEFAULTS: FinanceCalculator = {
   termMonths: 60,
@@ -41,6 +43,7 @@ const LOCALIZATION_DEFAULTS: LocalizationSettings = {
 
 interface PublicSettingsResponse {
   'finance.calculator'?: FinanceCalculator;
+  'finance.customs'?: CustomsRates;
   'localization.locales'?: LocalizationSettings;
   'features.toggles'?: { maintenanceMode: boolean };
 }
@@ -48,7 +51,7 @@ interface PublicSettingsResponse {
 async function fetchPublicSettings(
   options: { fresh?: boolean } = {},
 ): Promise<PublicSettingsResponse | null> {
-  const base = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
+  const base = apiBase();
 
   try {
     // `fresh` skips the Data Cache entirely: a `revalidate` window, even a
@@ -75,6 +78,28 @@ async function fetchPublicSettings(
 export async function getFinanceCalculatorSettings(): Promise<FinanceCalculator> {
   const data = await fetchPublicSettings();
   return data?.['finance.calculator'] ?? FINANCE_CALCULATOR_DEFAULTS;
+}
+
+/** Blank until admin enters them: the site ships no customs figures of its own (see `lib/customs.ts`). */
+const CUSTOMS_DEFAULTS: CustomsRates = {
+  usdToAmd: null,
+  rateSource: null,
+  rateDate: null,
+  dutyPercent: null,
+  vatPercent: null,
+  exciseAmdPerCm3: { under3: null, between3And5: null, between5And10: null, over10: null },
+  evExempt: false,
+};
+
+export async function getCustomsRates(): Promise<{
+  rates: CustomsRates;
+  fallbackUsdToAmd: number;
+}> {
+  const data = await fetchPublicSettings();
+  return {
+    rates: data?.['finance.customs'] ?? CUSTOMS_DEFAULTS,
+    fallbackUsdToAmd: (data?.['finance.calculator'] ?? FINANCE_CALCULATOR_DEFAULTS).usdToAmd,
+  };
 }
 
 export async function getLocalizationSettings(): Promise<LocalizationSettings> {

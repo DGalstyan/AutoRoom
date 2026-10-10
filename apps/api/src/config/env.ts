@@ -21,7 +21,7 @@ const schema = z.object({
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid connection string'),
   CORS_ORIGINS: z
     .string()
-    .default('http://localhost:3000')
+    .min(1, 'CORS_ORIGINS must list the allowed web/admin origins')
     .transform((value) =>
       value
         .split(',')
@@ -48,14 +48,14 @@ const schema = z.object({
    * Where the reset link points — the admin SPA, not the API. The panel is
    * served under `/admin`, so the base includes that segment.
    */
-  APP_URL: z.string().url().default('http://localhost:3000/admin'),
+  APP_URL: z.string().url('APP_URL must be the admin panel URL'),
   /**
    * This API's own public origin, used to build absolute URLs for uploaded
    * files (see routes/uploads.ts). Not derivable from the request: behind the
    * reverse proxy, the API is reached at `<domain>/api`, and the app has no
    * way to know that external prefix from `req` alone.
    */
-  PUBLIC_API_URL: z.string().url().default('http://localhost:4000'),
+  PUBLIC_API_URL: z.string().url('PUBLIC_API_URL must be the API public origin'),
   /** Leave unset for host-only cookies; set to share across subdomains. */
   COOKIE_DOMAIN: z.string().optional(),
 

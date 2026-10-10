@@ -4,6 +4,7 @@ import { CarDetailHero } from '@/components/shared/CarDetailHero';
 import { AuctionFollowAlong } from '@/components/shared/AuctionFollowAlong';
 import { AuctionHowItWorks } from '@/components/shared/AuctionHowItWorks';
 import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
+import { getCustomsRates } from '@/lib/settings';
 import { getCarBySlug } from '@/lib/cars';
 import { getBanks } from '@/lib/banks';
 import { formatUsd } from '@/lib/types/car';
@@ -51,6 +52,7 @@ export default async function UsaAuctionCarDetailPage({
   if (!car || car.condition !== 'AUCTION') notFound();
 
   const banks = await getBanks();
+  const customs = await getCustomsRates();
 
   return (
     <>
@@ -70,7 +72,7 @@ export default async function UsaAuctionCarDetailPage({
 
       <div className="bg-surface-light">
         <div className="mx-auto max-w-page px-4 py-14 sm:px-6 lg:px-12 lg:pb-[150px] lg:pt-[102px]">
-          <CustomsCalculator />
+          <CustomsCalculator rates={customs.rates} fallbackUsdToAmd={customs.fallbackUsdToAmd} />
         </div>
       </div>
     </>
