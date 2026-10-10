@@ -1,9 +1,7 @@
-import { AnimatedImage } from '@/components/ui/AnimatedImage';
-
 /**
  * Homepage hero — Figma `Homepage` (436:1891), 0–942px:
- *  - the animated desert clip (originally a 28 MB GIF, here a ~1.7 MB animated
- *    WebP over an instant poster), 1448×814 at (-7,-2);
+ *  - the animated desert clip (the Figma GIF, supplied as a ~230 KB looping MP4 over
+ *    an instant poster), 1448×814 at (-7,-2);
  *  - a 21px backdrop-blur scrim at 50% black over the top 838px;
  *  - a 5px-blurred tan→white fade (rgb(107,93,78) → rgb(250,250,250)) over the
  *    last 309px, so the stats read as part of the page rather than a hard cut;
@@ -13,13 +11,28 @@ import { AnimatedImage } from '@/components/ui/AnimatedImage';
 export function HomeHero({ h1, stats }: { h1: string; stats: { value: string; label: string }[] }) {
   return (
     <section className="relative isolate overflow-x-clip pb-16 pt-[132px] lg:h-[942px] lg:pb-0 lg:pt-0">
-      <AnimatedImage
-        src="/images/home/v2/hero.webp"
-        poster="/images/home/v2/hero-poster.webp"
-        priority
-        className="absolute inset-x-0 -top-[2px] -z-10 h-[calc(100%-120px)] lg:h-[814px]"
-        imgClassName="object-cover"
-      />
+      {/* The clip is letterboxed (black bars top and bottom), so it is scaled up to crop them.
+          Reduced-motion visitors get the still poster instead of an autoplaying video. */}
+      <div className="absolute inset-x-0 -top-[2px] -z-10 h-[calc(100%-120px)] overflow-hidden lg:h-[814px]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/home/v2/hero-poster.webp"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <video
+          src="/videos/home-hero.mp4"
+          poster="/images/home/v2/hero-poster.webp"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full scale-[1.42] object-cover motion-reduce:hidden"
+        />
+      </div>
       <div
         className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-120px)] bg-black opacity-50 backdrop-blur-[21px] lg:h-[838px]"
         aria-hidden="true"
