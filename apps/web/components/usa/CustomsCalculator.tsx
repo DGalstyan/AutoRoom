@@ -142,23 +142,23 @@ export function CustomsCalculator({
       <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
 
       {/* Figma 282:1705: the fields sit in one white card (radius 32, padding 24 / 48). */}
-      <div className="flex flex-col gap-4 rounded-[32px] bg-white p-6 sm:px-12">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="flex flex-col items-center gap-6 rounded-[32px] bg-white p-6 sm:px-12">
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <Field label={t.carValueLabel} error={err('carValue')}>
             {(a11y) => <NumberInput {...a11y} value={carValue} onChange={setCarValue} prefix="$" />}
           </Field>
 
           <Field label={t.auctionLabel} group>
             {() => (
-              <div className="flex h-[52px] gap-1 rounded-pill bg-neutral-25 p-1">
+              <div className="flex h-9 items-center justify-between gap-1 rounded-[10px] bg-neutral-25 px-2 py-1">
                 {AUCTIONS.map((option) => (
                   <button
                     key={option}
                     type="button"
                     aria-pressed={auction === option}
                     onClick={() => setAuction(option)}
-                    className={`flex-1 rounded-pill text-[12px] font-medium transition-colors ${
-                      auction === option ? 'bg-neutral-700 text-white' : 'text-neutral-800'
+                    className={`flex h-[29px] max-w-[90px] flex-1 items-center justify-center rounded-[4px] bg-white p-0.5 text-[12px] font-semibold leading-[18px] text-neutral-900 transition-shadow ${
+                      auction === option ? 'ring-2 ring-accent' : 'ring-1 ring-transparent'
                     }`}
                   >
                     {t.auctionOptions[option]}
@@ -192,7 +192,7 @@ export function CustomsCalculator({
           </Field>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
           <Field label={t.engineTypeLabel} error={err('engineType')}>
             {(a11y) => (
               <SelectInput
@@ -253,14 +253,13 @@ export function CustomsCalculator({
             )}
           </Field>
         </div>
+        <button
+          type="submit"
+          className="inline-flex h-12 w-fit shrink-0 items-center justify-center rounded-pill bg-accent px-6 text-[14px] font-medium text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          {t.submit}
+        </button>
       </div>
-
-      <button
-        type="submit"
-        className="inline-flex h-12 w-fit shrink-0 self-center items-center justify-center rounded-pill bg-accent px-6 text-[14px] font-medium text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-      >
-        {t.submit}
-      </button>
 
       {result && (
         <CustomsResultPanel
@@ -274,7 +273,8 @@ export function CustomsCalculator({
   );
 }
 
-const CALC_LABEL = 'text-[12px] font-medium text-neutral-700';
+// Figma 282:1709: 10px Regular labels, 12px in from the field's edge, 4px above the field.
+const CALC_LABEL = 'pl-3 text-[10px] font-normal leading-4 text-neutral-800';
 
 function Field({
   label,
@@ -293,7 +293,7 @@ function Field({
       group={group}
       error={error}
       labelClassName={CALC_LABEL}
-      className="gap-2"
+      className="gap-1"
     >
       {children}
     </UiField>
@@ -310,19 +310,38 @@ function NumberInput({
   onChange: (value: string) => void;
   prefix?: string;
 }) {
+  const clearLabel = useMessages().usa.customsCalculator.clear;
   return (
     <div
-      className={`flex h-11 items-center gap-1 rounded-pill bg-neutral-25 px-3 ${a11y['aria-invalid'] ? 'ring-1 ring-error' : ''}`}
+      className={`flex h-9 items-center gap-1 rounded-full bg-neutral-25 pl-3 pr-2 ${a11y['aria-invalid'] ? 'ring-1 ring-error' : ''}`}
     >
-      {prefix && <span className="text-[12px] text-neutral-600">{prefix}</span>}
+      {prefix && <span className="text-[12px] leading-[18px] text-neutral-800">{prefix}</span>}
       <input
         {...a11y}
         type="number"
         min={0}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-full w-full bg-transparent text-[12px] font-medium text-neutral-800 outline-none"
+        className="h-full w-full bg-transparent text-[12px] font-medium leading-[18px] text-neutral-800 outline-none"
       />
+      {value !== '' && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label={clearLabel}
+          className="flex size-6 shrink-0 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-900"
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <circle cx="6" cy="6" r="5.5" fill="currentColor" opacity="0.25" />
+            <path
+              d="M4 4l4 4M8 4 4 8"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
@@ -344,7 +363,7 @@ function SelectInput({
       {...a11y}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-11 w-full appearance-none rounded-pill bg-neutral-25 px-3 text-[12px] aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-error font-medium text-neutral-800 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-8"
+      className="h-9 w-full appearance-none rounded-full bg-neutral-25 pl-3 text-[12px] leading-[18px] aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-error font-medium text-neutral-800 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-8"
     >
       {placeholder && (
         <option value="" disabled>

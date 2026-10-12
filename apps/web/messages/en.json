@@ -262,7 +262,37 @@
         "mileageValue": "{km} km",
         "location": "Location",
         "damageHistory": "Damage history",
-        "mileageValueMi": "{km} mi"
+        "mileageValueMi": "{km} mi",
+        "damageTypes": {
+          "rear bumper": "Rear bumper",
+          "front bumper": "Front bumper",
+          "front end": "Front end",
+          "rear end": "Rear end",
+          "front left": "Front left",
+          "front right": "Front right",
+          "rear left": "Rear left",
+          "rear right": "Rear right",
+          "left side": "Left side",
+          "right side": "Right side",
+          "side": "Side",
+          "roof": "Roof",
+          "hood": "Hood",
+          "trunk": "Trunk",
+          "door": "Door",
+          "all over": "All over",
+          "undercarriage": "Undercarriage",
+          "mechanical": "Mechanical",
+          "water/flood": "Water/flood",
+          "flood": "Flood",
+          "hail": "Hail",
+          "fire": "Fire",
+          "vandalism": "Vandalism",
+          "minor dents/scratches": "Minor dents/scratches",
+          "minor dent/scratches": "Minor dent/scratches",
+          "normal wear": "Normal wear",
+          "none": "None",
+          "no damage": "No damage"
+        }
       },
       "colorPicker": {
         "heading": "Choose a color"
@@ -324,7 +354,7 @@
           "Follow the auction in real time.",
           "See the price the car sells for at auction."
         ],
-        "viewOnlineCta": "View the car online",
+        "viewOnlineCta": "See the car online",
         "contactCta": "Contact us",
         "access": {
           "expiredHeading": "Access has expired",
@@ -984,7 +1014,8 @@
         "ratesMissing": "The customs rates have not been entered yet, so we do not calculate the exact amount. Our specialist will work it out for you.",
         "disclaimer": "This is an estimate, not legally binding; the customs authority determines the final amount.",
         "cta": "Get an exact calculation"
-      }
+      },
+      "clear": "Clear"
     },
     "availableCars": {
       "heading": "Available cars in Armenia"

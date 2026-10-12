@@ -146,7 +146,7 @@ export async function Footer({
         {/* Right block */}
         <div className="flex flex-col justify-between gap-12 lg:w-[calc(50%-24px)] lg:max-w-[600px] lg:gap-0">
           <nav aria-label={nav.primaryNav}>
-            <ul className="type-body flex flex-wrap gap-x-6 gap-y-1 text-footer-link lg:gap-x-8 min-[1400px]:flex-nowrap min-[1400px]:gap-x-[41px]">
+            <ul className="type-body flex flex-wrap gap-x-6 gap-y-1 text-footer-link lg:gap-x-8 min-[1700px]:flex-nowrap min-[1700px]:gap-x-[41px]">
               {NAV.map(({ key, href }) => (
                 <li key={href}>
                   <Link

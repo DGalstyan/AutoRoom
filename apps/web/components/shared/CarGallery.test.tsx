@@ -36,6 +36,22 @@ describe('CarGallery', () => {
     expect(screen.getByText('3 / 3')).toBeInTheDocument();
   });
 
+  it('renders a tab for every album that has media, video included', () => {
+    renderWithLocale(<CarGallery images={[...IMAGES, image('v1', 'VIDEO')]} alt="Li Auto L9" />);
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+      t.exterior,
+      t.interior,
+      t.details,
+      t.video,
+    ]);
+  });
+
+  it('shows the thumbnail strip even when an album has a single photo', () => {
+    renderWithLocale(<CarGallery images={[image('e1', 'EXTERIOR')]} alt="Honda CR-V" />);
+    expect(screen.getAllByRole('tab')).toHaveLength(1);
+    expect(document.querySelector('button[aria-current="true"]')).not.toBeNull();
+  });
+
   it('lists Exterior, Interior and Details as tabs with their photo counts', () => {
     renderWithLocale(<CarGallery images={IMAGES} alt="Li Auto L9" />);
     const tabs = screen.getAllByRole('tab');

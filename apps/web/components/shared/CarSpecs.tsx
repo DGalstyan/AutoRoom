@@ -60,7 +60,9 @@ export function CarSpecs({ car }: { car: Car }) {
         }
       : null,
     car.location ? { label: t.location, value: car.location } : null,
-    car.damageHistory ? { label: t.damageHistory, value: car.damageHistory } : null,
+    car.damageHistory
+      ? { label: t.damageHistory, value: localizeDamage(car.damageHistory, t.damageTypes) }
+      : null,
   ].filter((row): row is { label: string; value: string } => row !== null);
 
   return (
@@ -85,4 +87,17 @@ export function CarSpecs({ car }: { car: Car }) {
       </div>
     </div>
   );
+}
+
+/**
+ * Auction damage notes are entered once, in English ("Rear bumper"). Each comma / semicolon / slash-separated
+ * part found in the language's `damageTypes` list is shown in that language; anything else stays as written.
+ */
+function localizeDamage(value: string, types: Record<string, string>): string {
+  const whole = types[value.trim().toLowerCase()];
+  if (whole) return whole;
+  return value
+    .split(/\s*[,;]\s*/)
+    .map((part) => types[part.trim().toLowerCase()] ?? part)
+    .join(', ');
 }
