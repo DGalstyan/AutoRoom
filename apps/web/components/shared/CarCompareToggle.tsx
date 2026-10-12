@@ -17,10 +17,12 @@ export function CarCompareToggle({
   car,
   label,
   labelSelected,
+  className = '',
 }: {
   car: CompareCarRef;
   label: string;
   labelSelected: string;
+  className?: string;
 }) {
   const { isSelected, toggle } = useCompare();
   const selected = isSelected(car.id);
@@ -34,7 +36,7 @@ export function CarCompareToggle({
         event.stopPropagation();
         toggle(car);
       }}
-      className={`min-h-11 rounded-pill border px-[16px] py-[10px] text-[16px] font-medium leading-[20px] transition-colors duration-standard ${
+      className={`${className} min-h-11 rounded-pill border px-[16px] py-[10px] text-[16px] font-medium leading-[20px] transition-colors duration-standard max-sm:px-3 max-sm:py-2 max-sm:text-[14px] ${
         selected
           ? 'border-accent bg-accent text-ink'
           : 'border-white bg-transparent text-white hover:bg-white/10'

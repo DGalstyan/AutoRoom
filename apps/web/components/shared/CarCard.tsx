@@ -73,7 +73,7 @@ export async function CarCard({
   return (
     <Link
       href={href ?? carHref(car)}
-      className={`group relative block aspect-[3/2] w-full overflow-hidden rounded-xl bg-neutral-800 transition-transform duration-standard ease-expo hover:-translate-y-1 ${isPromoEnded ? 'grayscale' : ''}`}
+      className={`group relative block aspect-[4/5] w-full overflow-hidden rounded-xl sm:aspect-[3/2] bg-neutral-800 transition-transform duration-standard ease-expo hover:-translate-y-1 ${isPromoEnded ? 'grayscale' : ''}`}
     >
       {imageSrc ? (
         <Image
@@ -102,12 +102,12 @@ export async function CarCard({
           {isPromo ? (
             <>
               <span
-                className={`rounded-pill px-[16px] py-[10px] text-[16px] font-bold leading-[20px] text-white ${isPromoActive ? 'bg-error' : 'bg-white/10'}`}
+                className={`rounded-pill px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-bold leading-[20px] text-white ${isPromoActive ? 'bg-error' : 'bg-white/10'}`}
               >
                 {isPromoActive ? t.promo : t.promoEnded}
               </span>
               {isPromoActive && (
-                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
                   <PromoCountdown deadline={car.promoDeadline!} />
                 </span>
               )}
@@ -115,17 +115,17 @@ export async function CarCard({
           ) : (
             <>
               {car.condition === 'AUCTION' && car.auctionPlatform ? (
-                <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] leading-[20px] text-white">
+                <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 leading-[20px] text-white">
                   <span className="font-bold">{t.auctionPrefix} </span>
                   {t.platformDeal[car.auctionPlatform]}
                 </span>
               ) : (
-                <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
                   {t.conditions[car.condition]}
                 </span>
               )}
               {car.financingAvailable && (
-                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
                   {t.financingAvailable}
                 </span>
               )}
@@ -134,12 +134,12 @@ export async function CarCard({
                   both optional admin fields, so they simply don't render for
                   every other card on the site that leaves them unset. */}
               {car.statusBadge && (
-                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
                   {t.statusBadges[car.statusBadge]}
                 </span>
               )}
               {car.deliveryEtaDays != null && (
-                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] font-medium leading-[20px] text-white">
+                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
                   {interpolate(t.etaDays, { days: String(car.deliveryEtaDays) })}
                 </span>
               )}
@@ -158,6 +158,9 @@ export async function CarCard({
             }}
             label={compareT.toggle}
             labelSelected={compareT.toggleSelected}
+            // Promotion cards are crowded with the promo + countdown badges on a phone; the compare
+            // toggle is still on the car's own page there.
+            className={isPromo ? 'max-sm:hidden' : undefined}
           />
         </div>
 
@@ -172,12 +175,12 @@ export async function CarCard({
               {infoPills.map((label) => (
                 <span
                   key={label}
-                  className="rounded-pill bg-white/10 px-[10px] py-[10px] text-[16px] font-medium leading-[20px] text-white"
+                  className="rounded-pill bg-white/10 px-[10px] py-[10px] text-[16px] max-sm:py-2 max-sm:text-[14px] font-medium leading-[20px] text-white"
                 >
                   {label}
                 </span>
               ))}
-              <span className="flex items-center gap-[10px] rounded-pill bg-white/10 px-[10px] py-[10px] text-[16px] font-medium leading-[20px]">
+              <span className="flex items-center gap-[10px] rounded-pill bg-white/10 px-[10px] py-[10px] text-[16px] max-sm:py-2 max-sm:text-[14px] font-medium leading-[20px]">
                 {hasDiscount && (
                   <span className="tabular-nums text-white line-through">
                     {formatUsd(car.oldPrice!)}
