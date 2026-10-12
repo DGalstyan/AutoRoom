@@ -28,7 +28,7 @@ export interface FaqProps {
 export function Faq({ items, heading, hideHeading = false, initialCount, viewAllHref }: FaqProps) {
   const t = useMessages().common.faq;
   // The design (Figma 436:2012) shows the first question open.
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(initialCount == null);
   const baseId = useId();
 

@@ -204,8 +204,9 @@ export function ContactForm() {
                 ref={phoneRef}
                 name="phone"
                 type="tel"
-                inputMode="numeric"
+                inputMode="tel"
                 autoComplete="tel"
+                placeholder="+374 __ ______"
                 value={phone}
                 onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
                 onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}

@@ -768,7 +768,7 @@
     "finalCta": {
       "heading": "Couldn't find a deal that fits?",
       "text": "Leave your details",
-      "cta": "Submit"
+      "cta": "Leave a request"
     },
     "detail": {
       "back": "All offers",
@@ -851,16 +851,18 @@
       "call": "Call",
       "map": "Map",
       "callAria": "Call {name}",
-      "mapAria": "Open {name} on the map"
+      "mapAria": "Open {name} on the map",
+      "photoAlt": "AutoRoom branch, {city}"
     },
     "finalCta": {
       "heading": "Couldn't find a deal that fits?",
       "text": "Leave your details",
-      "cta": "Submit"
+      "cta": "Leave a request"
     },
     "quick": {
       "label": "Quick contact"
-    }
+    },
+    "intro": "Call, write or leave a request. We reply the same day."
   },
   "usa": {
     "meta": {

@@ -9,9 +9,12 @@ const items = [
 ];
 
 describe('Faq accordion (Figma 436:2012)', () => {
-  it('opens the first question by default, the rest closed', () => {
+  it('starts with every answer closed', () => {
     renderWithLocale(<Faq items={items} hideHeading />);
-    expect(screen.getByRole('button', { name: 'First?' })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: 'First?' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
     expect(screen.getByRole('button', { name: 'Second?' })).toHaveAttribute(
       'aria-expanded',
       'false',
@@ -36,6 +39,7 @@ describe('Faq accordion (Figma 436:2012)', () => {
 
   it('closed items are the pill-shaped rows, the open one a 32px card', () => {
     const { container } = renderWithLocale(<Faq items={items} hideHeading />);
+    fireEvent.click(screen.getByRole('button', { name: 'First?' }));
     const cards = container.querySelectorAll('h3 + div, h3');
     expect(container.querySelector('.rounded-\\[32px\\]')).not.toBeNull();
     expect(container.querySelector('.rounded-\\[236px\\]')).not.toBeNull();
