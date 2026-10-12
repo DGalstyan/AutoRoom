@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type { CarOrigin, Media, MediaInput, MediaKind } from '@autoroom/api/client';
 import {
-  Alert,
   Box,
   Button,
   Dialog,
@@ -18,7 +17,9 @@ import {
   Typography,
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
-import { errorMessage } from '@/lib/api';
+import { errorMessage, extractFieldErrors } from '@/lib/api';
+import { FormErrorAlert } from '@/components/form/FormErrorAlert';
+import { describeFields } from '@/components/form/useZodForm';
 import { UploadField } from '@/components/UploadField';
 import { KINDS, kindHint } from '@/pages/stories/kinds';
 import { ORIGINS } from '@/pages/cars/carOptions';
@@ -32,6 +33,12 @@ import { toYouTubeEmbedUrl } from '@/lib/youtube';
  * how it went — and showing them against a founder film would invite someone to
  * fill in a "customer" for a video that has none.
  */
+const FIELD_LABELS: Record<string, string> = {
+  videoUrl: 'Video',
+  title: 'Title',
+  posterUrl: 'Poster image',
+};
+
 export function StoryDialog({
   item,
   defaultKind,
@@ -75,11 +82,21 @@ export function StoryDialog({
         },
   );
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const mutation = useMutation({
     mutationFn: () => (item ? api.media.update(item.id, draft) : api.media.create(draft)),
     onSuccess: () => onDone(item ? 'Saved.' : 'Video added.'),
-    onError: (caught) => setError(errorMessage(caught)),
+    onError: (caught) => {
+      const fields = extractFieldErrors(caught);
+      setFieldErrors(fields);
+      // Name the field(s) rather than the generic "Request validation failed".
+      setError(
+        Object.keys(fields).length > 0
+          ? describeFields(fields, FIELD_LABELS)
+          : errorMessage(caught),
+      );
+    },
   });
 
   function set<K extends keyof MediaInput>(key: K, value: MediaInput[K]) {
@@ -101,7 +118,7 @@ export function StoryDialog({
         <DialogTitle>{item ? 'Edit video' : 'Add video'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ pt: 1 }}>
-            {error && <Alert severity="error">{error}</Alert>}
+            <FormErrorAlert message={error} />
 
             <TextField
               label="Kind"
@@ -132,6 +149,7 @@ export function StoryDialog({
               value={draft.videoUrl || null}
               onChange={(url) => set('videoUrl', url ?? '')}
               helperText="Upload an MP4/WebM file, or paste a YouTube link (watch, share, or Shorts URL)."
+              errorText={fieldErrors.videoUrl}
               disabled={mutation.isPending}
               maxSizeLabel="Up to 200 MB"
               preview={(url) => {

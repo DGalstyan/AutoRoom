@@ -5,6 +5,7 @@ import type { Lead } from '@autoroom/api/client';
 import { Badge, Box, Divider, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import { useAuth } from '@/auth/AuthProvider';
+import { formatDateTime } from '@/pages/availability/time';
 
 const POLL_INTERVAL_MS = 30_000;
 const PREVIEW_COUNT = 5;
@@ -119,7 +120,7 @@ function LeadPreview({ lead, onClose }: { lead: Lead; onClose: () => void }) {
           </Typography>
         )}
         <Typography sx={{ fontSize: '0.6875rem', color: 'text.secondary', mt: 0.25 }}>
-          {lead.sourcePage} · {new Date(lead.createdAt).toLocaleString()}
+          {lead.sourcePage} · {formatDateTime(lead.createdAt)}
         </Typography>
       </Box>
     </MenuItem>

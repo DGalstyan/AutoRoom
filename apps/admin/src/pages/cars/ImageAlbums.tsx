@@ -10,6 +10,7 @@ import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { ALBUMS } from '@/pages/cars/carOptions';
 import { brand } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 /** A file uploaded before the car exists to attach it to — not a `CarImage` yet. */
 export interface StagedImage {
@@ -239,7 +240,7 @@ function AlbumRow({
                   {isVideo ? (
                     <Box
                       component="video"
-                      src={image.url}
+                      src={assetUrl(image.url)}
                       muted
                       playsInline
                       preload="metadata"
@@ -249,7 +250,7 @@ function AlbumRow({
                   ) : (
                     <Box
                       component="img"
-                      src={image.thumbnailUrl ?? image.url}
+                      src={assetUrl(image.thumbnailUrl ?? image.url)}
                       alt=""
                       loading="lazy"
                       draggable={false}

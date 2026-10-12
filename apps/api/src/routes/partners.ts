@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict, notFound } from '../lib/errors';
 import { generateTemporaryPassword, hashPassword } from '../lib/password';
+import { optionalPhone } from '../lib/phoneRule';
+import { wordSearch } from '../lib/search';
 import { requireAuth } from '../middleware/auth';
 import { requirePartner } from '../middleware/partner';
 import { requirePermission } from '../middleware/rbac';
@@ -27,7 +29,7 @@ export const partnersRouter = Router();
 const partnerBodySchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(120),
   company: z.string().trim().max(160).nullish(),
-  phone: z.string().trim().max(40).nullish(),
+  phone: optionalPhone,
   email: z
     .union([z.string().email(), z.literal(''), z.null()])
     .transform((v) => (v === '' ? null : v)),
@@ -53,7 +55,7 @@ const bookingBodySchema = z
     carId: z.string().min(1).nullish(),
     slotId: z.string().min(1).nullish(),
     customerName: z.string().trim().max(120).nullish(),
-    customerPhone: z.string().trim().max(40).nullish(),
+    customerPhone: optionalPhone,
     scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()).optional(),
     status: z.nativeEnum(BookingStatus).default(BookingStatus.REQUESTED),
     notes: z.string().trim().max(2000).nullish(),
@@ -87,13 +89,7 @@ partnersRouter.get(
     const { search, take, skip } = req.query as unknown as z.infer<typeof listQuerySchema>;
 
     const where: Prisma.PartnerWhereInput = search
-      ? {
-          OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { company: { contains: search, mode: 'insensitive' } },
-            { email: { contains: search, mode: 'insensitive' } },
-          ],
-        }
+      ? { AND: wordSearch(search, (c) => [{ name: c }, { company: c }, { email: c }]) }
       : {};
 
     const [items, total] = await Promise.all([
@@ -171,7 +167,16 @@ partnersRouter.delete(
     // Their cars survive with `partnerId` nulled (SetNull); bookings do not
     // outlive the partner they belong to (Cascade).
     await prisma.partner.delete({ where: { id } });
-    if (partner.userId) await revokeAllSessions(partner.userId);
+    if (partner.userId) {
+      // The portal login must stop working, not just lose its current sessions: disable the
+      // account (a partner-role account only — never an admin that happened to be linked) so it
+      // cannot sign in again, then end whatever sessions it has open.
+      await prisma.user.updateMany({
+        where: { id: partner.userId, role: { key: 'partner' } },
+        data: { status: UserStatus.DISABLED },
+      });
+      await revokeAllSessions(partner.userId);
+    }
 
     await audit(req.auth?.userId, 'partner.delete', id, { name: partner.name });
     res.status(204).end();
@@ -284,11 +289,24 @@ partnersRouter.post(
       throw badRequest('Unknown partner');
     }
 
+    // A new booking cannot be dated before now (a few minutes' grace for clock skew).
+    const earliest = Date.now() - 5 * 60_000;
+    if (!body.slotId && body.scheduledAt && new Date(body.scheduledAt).getTime() < earliest) {
+      throw new z.ZodError([
+        { code: 'custom', path: ['scheduledAt'], message: 'Pick a time that has not passed yet' },
+      ]);
+    }
+
     const booking = body.slotId
       ? // Serializable, because claiming the last place is read-then-write: two
         // requests reading "one place left" would otherwise both take it.
         await inSlotTransaction(async (tx) => {
           const slot = await resolveSlotForBooking(tx, body.slotId!, body.status);
+          if (slot.startsAt.getTime() < earliest) {
+            throw new z.ZodError([
+              { code: 'custom', path: ['slotId'], message: 'That slot has already started' },
+            ]);
+          }
           return tx.booking.create({
             data: { ...body, slotId: body.slotId, scheduledAt: slot.startsAt },
             include: BOOKING_INCLUDE,

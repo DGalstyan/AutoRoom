@@ -22,6 +22,7 @@ export function UploadField({
   value,
   onChange,
   helperText,
+  errorText,
   disabled = false,
   preview,
   maxSizeLabel = 'Up to 25 MB',
@@ -34,6 +35,8 @@ export function UploadField({
   value: string | null;
   onChange: (url: string | null) => void;
   helperText?: string;
+  /** A validation message from the server for this field; shown in red in place of the help text. */
+  errorText?: string | null;
   disabled?: boolean;
   /** Renders the current value once set — a poster thumbnail, a video tag. */
   preview?: (url: string) => React.ReactNode;
@@ -84,8 +87,8 @@ export function UploadField({
         onChange={(event) => onChange(event.target.value || null)}
         fullWidth
         disabled={disabled || busy}
-        error={Boolean(error)}
-        helperText={error ?? helperText}
+        error={Boolean(error ?? errorText)}
+        helperText={error ?? errorText ?? helperText}
       />
 
       <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>

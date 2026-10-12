@@ -11,6 +11,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DataTable } from '@/components/DataTable';
 import { TeamMemberDialog } from '@/pages/team/TeamMemberDialog';
 import { brand } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 /**
  * Team — the "Մեր թիմը" grid on the About page: photo, name, title, and an
@@ -113,7 +114,7 @@ export function TeamPage() {
                 {member.photoUrl && (
                   <Box
                     component="img"
-                    src={member.photoThumbnailUrl ?? member.photoUrl}
+                    src={assetUrl(member.photoThumbnailUrl ?? member.photoUrl)}
                     alt=""
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />

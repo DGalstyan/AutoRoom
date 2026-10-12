@@ -24,8 +24,11 @@ export function useZodForm<Schema extends z.ZodType>({
   schema,
   initialValues,
   onSubmit,
+  fieldLabels = {},
 }: {
   schema: Schema;
+  /** Human names for the fields (`{ coverUrl: 'Cover image' }`), used in the error banner. */
+  fieldLabels?: Record<string, string>;
   initialValues: z.input<Schema>;
   /** Receives the parsed value — coerced and defaulted by the schema. */
   onSubmit: (values: z.output<Schema>) => Promise<unknown>;
@@ -68,13 +71,17 @@ export function useZodForm<Schema extends z.ZodType>({
         // A validation failure the schema did not catch belongs on its field.
         // Anything else — a conflict, a 500, a dead network — has no field to
         // sit on and becomes the form-level message.
-        if (Object.keys(fields).length > 0) setErrors(fields);
-        else setFormError(errorMessage(caught));
+        if (Object.keys(fields).length > 0) {
+          setErrors(fields);
+          // Also say so at the top, naming the field: a field may be out of view or have no
+          // visible input of its own (an upload, a switch).
+          setFormError(describeFields(fields, fieldLabels));
+        } else setFormError(errorMessage(caught));
       } finally {
         setSubmitting(false);
       }
     },
-    [schema, values, onSubmit],
+    [schema, values, onSubmit, fieldLabels],
   );
 
   return {
@@ -91,6 +98,13 @@ export function useZodForm<Schema extends z.ZodType>({
       helperText: errors[name],
     }),
   };
+}
+
+/** `Cover image: Enter a full image link. Page URL: …` */
+export function describeFields(fields: FieldErrors, labels: Record<string, string>): string {
+  return Object.entries(fields)
+    .map(([path, message]) => `${labels[path] ?? path}: ${message}`)
+    .join(' · ');
 }
 
 function toFieldErrors(issues: readonly { path: PropertyKey[]; message: string }[]): FieldErrors {

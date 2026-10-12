@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
+import { FormErrorAlert } from '@/components/form/FormErrorAlert';
 import { UploadField } from '@/components/UploadField';
 
 /**
@@ -122,7 +123,7 @@ export function BranchDialog({
         <DialogTitle>{branch ? 'Edit branch' : 'Add branch'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ pt: 1 }}>
-            {error && <Alert severity="error">{error}</Alert>}
+            <FormErrorAlert message={error} />
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField

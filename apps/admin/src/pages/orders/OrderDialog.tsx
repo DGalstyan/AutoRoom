@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage, extractFieldErrors } from '@/lib/api';
+import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 /**
  * Starts a new order for a car that doesn't have one yet. Create-only — an
@@ -34,9 +35,19 @@ export function OrderDialog({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  // The picker searches on the server (debounced) rather than filtering one fixed page of cars
+  // on the client, so what is typed is what is matched: every word, against make/model/slug/VIN.
+  const [typed, setTyped] = useState('');
+  const pickerSearch = useDebouncedValue(typed.trim(), 300);
   const carsQuery = useQuery({
-    queryKey: ['cars', 'order-picker'],
-    queryFn: () => api.cars.list({ take: 100, sort: 'createdAt', direction: 'desc' }),
+    queryKey: ['cars', 'order-picker', pickerSearch],
+    queryFn: () =>
+      api.cars.list({
+        take: 25,
+        sort: 'createdAt',
+        direction: 'desc',
+        ...(pickerSearch ? { search: pickerSearch } : {}),
+      }),
   });
   const cars = carsQuery.data?.items ?? [];
 
@@ -74,6 +85,10 @@ export function OrderDialog({
                 `${candidate.make} ${candidate.model} (${candidate.year})${candidate.vin ? ` · ${candidate.vin}` : ''}`
               }
               isOptionEqualToValue={(a, b) => a.id === b.id}
+              filterOptions={(options) => options}
+              onInputChange={(_event, text, reason) => {
+                if (reason === 'input') setTyped(text);
+              }}
               onChange={(_event, selected) => setCar(selected)}
               renderInput={(params) => (
                 <TextField

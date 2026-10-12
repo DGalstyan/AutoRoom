@@ -31,6 +31,7 @@ import { DataTable } from '@/components/DataTable';
 import { PasswordField } from '@/components/PasswordField';
 import { StatusBadge } from '@/components/StatusBadge';
 import { brand, mono } from '@/theme';
+import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 const BLANK: PartnerInput = {
   name: '',
@@ -56,6 +57,7 @@ export function PartnersPage() {
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search.trim(), 300);
   const [menu, setMenu] = useState<{ anchor: HTMLElement; partner: Partner } | null>(null);
   const [editing, setEditing] = useState<{ partner?: Partner } | null>(null);
   const [account, setAccount] = useState<Partner | null>(null);
@@ -74,8 +76,8 @@ export function PartnersPage() {
   const canSetPassword = identity?.permissions.includes('users:UPDATE') ?? false;
 
   const partnersQuery = useQuery({
-    queryKey: ['partners', search],
-    queryFn: () => api.partners.list({ search: search || undefined, take: 100 }),
+    queryKey: ['partners', debouncedSearch],
+    queryFn: () => api.partners.list({ search: debouncedSearch || undefined, take: 100 }),
   });
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['partners'] });
@@ -157,6 +159,7 @@ export function PartnersPage() {
           },
           {
             key: 'contact',
+            hideBelow: 900,
             header: 'Contact',
             render: (partner) => (
               <Box sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
@@ -171,6 +174,7 @@ export function PartnersPage() {
           },
           {
             key: 'cars',
+            hideBelow: 840,
             header: 'Cars',
             align: 'center',
             render: (partner) =>
@@ -198,6 +202,7 @@ export function PartnersPage() {
           },
           {
             key: 'bookings',
+            hideBelow: 840,
             header: 'Bookings',
             align: 'center',
             render: (partner) => (

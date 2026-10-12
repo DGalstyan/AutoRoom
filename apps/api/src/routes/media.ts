@@ -26,7 +26,10 @@ export const mediaRouter = Router();
 const mediaBodySchema = z.object({
   kind: z.nativeEnum(MediaKind),
   title: z.string().trim().min(1, 'A title is required').max(160),
-  videoUrl: z.string().url().max(2048),
+  videoUrl: z
+    .string()
+    .url('Enter a full video link starting with https:// (an uploaded file or a YouTube link)')
+    .max(2048),
   posterUrl: z
     .union([z.string().url().max(2048), z.literal(''), z.null()])
     .transform((value) => (value === '' ? null : value))

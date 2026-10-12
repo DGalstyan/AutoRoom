@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { z } from 'zod';
 import type { BlogPost, Locale } from '@autoroom/api/client';
 import {
-  Alert,
   Avatar,
   Button,
   Dialog,
@@ -18,7 +17,9 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
 import { useZodForm } from '@/components/form/useZodForm';
+import { FormErrorAlert } from '@/components/form/FormErrorAlert';
 import { UploadField } from '@/components/UploadField';
+import { assetUrl } from '@/lib/assets';
 
 const LANGUAGES: { value: Locale; label: string; required?: boolean }[] = [
   { value: 'hy', label: 'Armenian', required: true },
@@ -100,6 +101,13 @@ export function BlogDialog({
   const { values, setValue, errors, formError, submitting, handleSubmit } = useZodForm({
     schema,
     initialValues,
+    fieldLabels: {
+      coverUrl: 'Cover image',
+      slug: 'Page URL',
+      'title.hy': 'Title (Armenian)',
+      'body.hy': 'Article text (Armenian)',
+      published: 'Published',
+    },
     onSubmit: async (parsed) => {
       const excerpt = {
         hy: clean(parsed.excerpt.hy),
@@ -125,7 +133,7 @@ export function BlogDialog({
         <DialogTitle>{post ? 'Edit article' : 'Add article'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ pt: 1 }}>
-            {formError && <Alert severity="error">{formError}</Alert>}
+            <FormErrorAlert message={formError} />
 
             <Tabs
               value={language}
@@ -206,10 +214,17 @@ export function BlogDialog({
               accept="image/*"
               value={values.coverUrl || null}
               onChange={(url) => setValue('coverUrl', url ?? '')}
-              helperText="Landscape, ideally 16:9. Optional."
+              helperText="Landscape, ideally 16:9. Optional: you can save without one."
+              errorText={errors.coverUrl}
               disabled={submitting}
               preview={(url) => (
-                <Avatar src={url} alt="" variant="rounded" sx={{ width: 160, height: 90 }} />
+                <Avatar
+                  src={assetUrl(url)}
+                  imgProps={{ referrerPolicy: 'no-referrer' }}
+                  alt=""
+                  variant="rounded"
+                  sx={{ width: 160, height: 90 }}
+                />
               )}
             />
 

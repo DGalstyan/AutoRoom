@@ -273,13 +273,13 @@ export function CarFormPage() {
       // Save look like it did nothing, so fall back to a toast with the
       // real message.
       const [firstInvalidField] = Object.keys(fields);
-      const scrolled = firstInvalidField ? scrollToField(firstInvalidField) : false;
-      if (!scrolled) {
-        toast(
-          firstInvalidField ? fields[firstInvalidField]! : errorMessage(error, 'Could not save.'),
-          'error',
-        );
-      }
+      if (firstInvalidField) scrollToField(firstInvalidField);
+      // Always say what failed, even when the field is on screen or scrolled to: a page that jumps
+      // with no message looks like a bug, and the message is short.
+      toast(
+        firstInvalidField ? fields[firstInvalidField]! : errorMessage(error, 'Could not save.'),
+        'error',
+      );
     },
   });
 
@@ -291,6 +291,15 @@ export function CarFormPage() {
     if (readOnly || savedSnapshot === null) return false;
     return JSON.stringify(draft) !== JSON.stringify(savedSnapshot) || pendingImages.length > 0;
   }, [draft, savedSnapshot, pendingImages, readOnly]);
+
+  /** Save: with nothing changed there is nothing to send, so say so rather than doing nothing. */
+  function save() {
+    if (!creating && !dirty) {
+      toast('No changes to save.');
+      return;
+    }
+    saveMutation.mutate(draft);
+  }
 
   const saveAsync = useCallback(async () => {
     try {
@@ -453,11 +462,7 @@ export function CarFormPage() {
             </Button>
           )}
           {!readOnly && (
-            <Button
-              onClick={() => saveMutation.mutate(draft)}
-              disabled={saveMutation.isPending}
-              variant="contained"
-            >
+            <Button onClick={save} disabled={saveMutation.isPending} variant="contained">
               {saveMutation.isPending ? 'Saving…' : creating ? 'Create car' : 'Save'}
             </Button>
           )}
@@ -1005,11 +1010,7 @@ export function CarFormPage() {
             <Button component={RouterLink} to="/cars" color="inherit">
               Cancel
             </Button>
-            <Button
-              onClick={() => saveMutation.mutate(draft)}
-              disabled={saveMutation.isPending}
-              variant="contained"
-            >
+            <Button onClick={save} disabled={saveMutation.isPending} variant="contained">
               {saveMutation.isPending ? 'Saving…' : creating ? 'Create car' : 'Save'}
             </Button>
           </Stack>

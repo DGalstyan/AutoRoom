@@ -9,6 +9,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { useToast } from '@/components/ToastProvider';
 import { brand } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 /**
  * Colour options for a made-to-order car.
@@ -132,7 +133,7 @@ function ColourRow({
         {colour.imageUrl && (
           <Box
             component="img"
-            src={colour.imageUrl}
+            src={assetUrl(colour.imageUrl)}
             alt=""
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />

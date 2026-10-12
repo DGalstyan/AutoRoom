@@ -35,8 +35,9 @@ export function StageTimeline({ order, canAdvance }: { order: Order; canAdvance:
       void queryClient.invalidateQueries({ queryKey: ['order', order.id] });
     },
     onError: (caught) => {
-      setFieldErrors(extractFieldErrors(caught));
-      setError(errorMessage(caught));
+      const fields = extractFieldErrors(caught);
+      setFieldErrors(fields);
+      setError(Object.keys(fields).length > 0 ? null : errorMessage(caught));
     },
   });
 
@@ -73,6 +74,11 @@ export function StageTimeline({ order, canAdvance }: { order: Order; canAdvance:
               select
               size="small"
               sx={{ minWidth: 170 }}
+              error={Boolean(fieldErrors.stage)}
+              helperText={
+                fieldErrors.stage ??
+                (stage === order.stage ? 'Already at this stage: pick the next one' : undefined)
+              }
             >
               {STAGES.map((entry) => (
                 <MenuItem key={entry.value} value={entry.value}>
@@ -99,7 +105,12 @@ export function StageTimeline({ order, canAdvance }: { order: Order; canAdvance:
               error={Boolean(fieldErrors.note)}
               helperText={fieldErrors.note}
             />
-            <Button type="submit" variant="contained" size="small" disabled={mutation.isPending}>
+            <Button
+              type="submit"
+              variant="contained"
+              size="small"
+              disabled={mutation.isPending || stage === order.stage}
+            >
               {mutation.isPending ? 'Saving…' : 'Advance'}
             </Button>
           </Stack>

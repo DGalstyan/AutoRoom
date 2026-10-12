@@ -222,7 +222,7 @@ export function LeadsPage() {
             width: 140,
             render: (lead) => (
               <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
-                {new Date(lead.createdAt).toLocaleString()}
+                {formatDateTime(lead.createdAt)}
               </Typography>
             ),
           },
@@ -254,6 +254,7 @@ export function LeadsPage() {
           },
           {
             key: 'about',
+            hideBelow: 900,
             header: 'About',
             render: (lead) => {
               const parts = [
@@ -322,6 +323,7 @@ export function LeadsPage() {
           },
           {
             key: 'source',
+            hideBelow: 840,
             header: 'Source',
             hidden: scope === 'meetings',
             render: (lead) => (

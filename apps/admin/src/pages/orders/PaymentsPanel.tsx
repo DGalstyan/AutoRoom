@@ -112,7 +112,12 @@ export function PaymentsPanel({
       )}
 
       {adding && (
-        <AddPaymentDialog orderId={order.id} onClose={() => setAdding(false)} onDone={refresh} />
+        <AddPaymentDialog
+          orderId={order.id}
+          amountDue={order.amountDue}
+          onClose={() => setAdding(false)}
+          onDone={refresh}
+        />
       )}
 
       {removing && (
@@ -146,10 +151,13 @@ function Summary({ label, value }: { label: string; value: string }) {
 
 function AddPaymentDialog({
   orderId,
+  amountDue,
   onClose,
   onDone,
 }: {
   orderId: string;
+  /** What is still owed on the order; a payment above this is refused. */
+  amountDue: number;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -172,12 +180,15 @@ function AddPaymentDialog({
       onClose();
     },
     onError: (caught) => {
-      setFieldErrors(extractFieldErrors(caught));
-      setError(errorMessage(caught));
+      const fields = extractFieldErrors(caught);
+      setFieldErrors(fields);
+      // A field message sits under its input; the banner is only for errors with no field.
+      setError(Object.keys(fields).length > 0 ? null : errorMessage(caught));
     },
   });
 
-  const canSubmit = Number(amount) > 0 && Boolean(paidAt);
+  const overpays = Number(amount) > amountDue;
+  const canSubmit = Number(amount) > 0 && Boolean(paidAt) && !overpays;
 
   return (
     <Dialog open onClose={mutation.isPending ? undefined : onClose} maxWidth="xs" fullWidth>
@@ -201,8 +212,15 @@ function AddPaymentDialog({
               required
               fullWidth
               slotProps={{ htmlInput: { min: 1, step: 1 } }}
-              error={Boolean(fieldErrors.amount)}
-              helperText={fieldErrors.amount}
+              error={Boolean(fieldErrors.amount) || overpays}
+              helperText={
+                fieldErrors.amount ??
+                (overpays
+                  ? amountDue > 0
+                    ? `More than the ${formatMoney(amountDue)} still due`
+                    : 'Nothing is due: this order is paid in full'
+                  : `Still due: ${formatMoney(amountDue)}`)
+              }
             />
             <TextField
               label="Date"

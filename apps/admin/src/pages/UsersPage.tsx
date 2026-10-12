@@ -295,8 +295,14 @@ export function UsersPage() {
         )}
 
         {canUpdate && canReadRoles && roles.length > 0 && <Divider />}
+        {canUpdate && canReadRoles && menu?.user.id === identity?.userId && (
+          <MenuItem disabled sx={{ fontSize: '0.8125rem', whiteSpace: 'normal', maxWidth: 260 }}>
+            You cannot change your own role. Ask another Super admin.
+          </MenuItem>
+        )}
         {canUpdate &&
           canReadRoles &&
+          menu?.user.id !== identity?.userId &&
           roles.map((role) => {
             const current = menu?.user.role?.key === role.key;
             return (

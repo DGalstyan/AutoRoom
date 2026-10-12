@@ -1,3 +1,4 @@
+import './lib/zodMessages';
 import express, { type Express } from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';

@@ -21,6 +21,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage } from '@/lib/api';
 import { CONDITION_LABEL, formatMoney } from '@/pages/cars/carOptions';
 import { brand, mono } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 type TabKey = 'cars' | 'bookings';
 
@@ -202,7 +203,7 @@ function CarCard({ car }: { car: PortalCar }) {
         {cover ? (
           <Box
             component="img"
-            src={cover.url}
+            src={assetUrl(cover.url)}
             alt=""
             loading="lazy"
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}

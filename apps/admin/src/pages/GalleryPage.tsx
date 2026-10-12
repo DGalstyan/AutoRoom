@@ -13,6 +13,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DataTable } from '@/components/DataTable';
 import { GalleryImageDialog } from '@/pages/gallery/GalleryImageDialog';
 import { brand } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 /**
  * Gallery — the photo collage on the About page, right below the "Մեր
@@ -119,7 +120,7 @@ export function GalleryPage() {
               >
                 <Box
                   component="img"
-                  src={image.thumbnailUrl ?? image.imageUrl}
+                  src={assetUrl(image.thumbnailUrl ?? image.imageUrl)}
                   alt=""
                   sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />

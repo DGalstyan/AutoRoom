@@ -57,8 +57,9 @@ const postBodySchema = z
     title: titleSchema,
     excerpt: excerptSchema,
     body: bodySchema,
+    // Optional: the admin sends `null` (or nothing) when there is no cover image.
     coverUrl: z
-      .union([z.string().url().max(2048), z.literal('')])
+      .union([z.string().url('Enter a full image link').max(2048), z.literal(''), z.null()])
       .optional()
       .transform((value) => value || null),
     published: z.boolean().default(false),

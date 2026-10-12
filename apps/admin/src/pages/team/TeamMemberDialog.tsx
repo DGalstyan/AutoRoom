@@ -15,6 +15,7 @@ import {
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { UploadField } from '@/components/UploadField';
+import { assetUrl } from '@/lib/assets';
 
 /** Add or edit a person in the About page's "Մեր թիմը" grid. */
 export function TeamMemberDialog({
@@ -115,7 +116,13 @@ export function TeamMemberDialog({
               }
               disabled={mutation.isPending}
               preview={(url) => (
-                <Avatar src={url} alt="" variant="rounded" sx={{ width: 96, height: 96 }} />
+                <Avatar
+                  src={assetUrl(url)}
+                  imgProps={{ referrerPolicy: 'no-referrer' }}
+                  alt=""
+                  variant="rounded"
+                  sx={{ width: 96, height: 96 }}
+                />
               )}
             />
 

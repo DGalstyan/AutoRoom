@@ -3,6 +3,7 @@ import { CarOrigin, DocumentKind, InspectionStatus, OrderStageName, Prisma } fro
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict, notFound } from '../lib/errors';
+import { wordSearch } from '../lib/search';
 import { requireAuth } from '../middleware/auth';
 import { requirePartner } from '../middleware/partner';
 import { requirePermission } from '../middleware/rbac';
@@ -115,12 +116,12 @@ ordersRouter.get(
       ...(query.origin ? { car: { origin: query.origin } } : {}),
       ...(query.search
         ? {
-            OR: [
-              { orderNumber: { contains: query.search, mode: 'insensitive' } },
-              { car: { vin: { contains: query.search, mode: 'insensitive' } } },
-              { car: { make: { contains: query.search, mode: 'insensitive' } } },
-              { car: { model: { contains: query.search, mode: 'insensitive' } } },
-            ],
+            AND: wordSearch(query.search, (c) => [
+              { orderNumber: c },
+              { car: { vin: c } },
+              { car: { make: c } },
+              { car: { model: c } },
+            ]),
           }
         : {}),
     };
@@ -275,7 +276,14 @@ ordersRouter.post(
   async (req, res) => {
     const id = String(req.params.id ?? '');
     const body = req.body as z.infer<typeof stageAdvanceSchema>;
-    if (!(await prisma.order.findUnique({ where: { id } }))) throw notFound('Order not found');
+    const current = await prisma.order.findUnique({ where: { id }, select: { stage: true } });
+    if (!current) throw notFound('Order not found');
+    // Re-selecting the stage the order is already at only adds a duplicate timeline entry.
+    if (current.stage === body.stage) {
+      throw new z.ZodError([
+        { code: 'custom', path: ['stage'], message: 'The order is already at this stage' },
+      ]);
+    }
 
     const occurredAt = new Date(body.occurredAt);
 
@@ -335,7 +343,27 @@ ordersRouter.post(
   async (req, res) => {
     const id = String(req.params.id ?? '');
     const body = req.body as z.infer<typeof paymentCreateSchema>;
-    if (!(await prisma.order.findUnique({ where: { id } }))) throw notFound('Order not found');
+    const order = await prisma.order.findUnique({
+      where: { id },
+      select: { car: { select: { price: true } }, payments: { select: { amount: true } } },
+    });
+    if (!order) throw notFound('Order not found');
+
+    // A payment cannot exceed what is still owed: an overpayment would show "Paid $5 / Due $0" on
+    // a $1 order with nothing to say it was a mistake.
+    const due = order.car.price - order.payments.reduce((sum, p) => sum + p.amount, 0);
+    if (body.amount > Math.max(0, due)) {
+      throw new z.ZodError([
+        {
+          code: 'custom',
+          path: ['amount'],
+          message:
+            due > 0
+              ? `This is more than the ${due.toLocaleString('en-US')} still due on the order`
+              : 'Nothing is due on this order: it is already paid in full',
+        },
+      ]);
+    }
 
     const payment = await prisma.payment.create({
       data: {

@@ -34,6 +34,8 @@ import {
 } from '@/pages/cars/carOptions';
 import { SimilarCarsDialog } from '@/pages/cars/SimilarCarsDialog';
 import { brand, mono } from '@/theme';
+import { assetUrl } from '@/lib/assets';
+import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 type SortKey = NonNullable<CarListQuery['sort']>;
 
@@ -63,6 +65,7 @@ export function CarsPage() {
   const [featured, setFeatured] = useState(false);
   const [published, setPublished] = useState<'' | 'true' | 'false'>('');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search.trim(), 300);
   const [sort, setSort] = useState<SortKey>('createdAt');
   const [direction, setDirection] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(0);
@@ -94,7 +97,7 @@ export function CarsPage() {
     ...(partnerId ? { partnerId } : {}),
     ...(featured ? { featured: true } : {}),
     ...(published ? { published: published === 'true' } : {}),
-    ...(search ? { search } : {}),
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
     sort,
     direction,
     take: rowsPerPage,
@@ -330,7 +333,7 @@ export function CarsPage() {
                   {cover && (
                     <Box
                       component="img"
-                      src={cover.thumbnailUrl ?? cover.url}
+                      src={assetUrl(cover.thumbnailUrl ?? cover.url)}
                       alt=""
                       sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
@@ -366,6 +369,7 @@ export function CarsPage() {
           },
           {
             key: 'origin',
+            hideBelow: 820,
             header: 'Origin',
             render: (car) => (
               <Typography sx={{ fontSize: '0.875rem' }}>{ORIGIN_LABEL[car.origin]}</Typography>
@@ -391,6 +395,7 @@ export function CarsPage() {
           },
           {
             key: 'partner',
+            hideBelow: 900,
             header: 'Partner',
             hidden: !canReadPartners,
             render: (car) =>
@@ -411,6 +416,7 @@ export function CarsPage() {
           },
           {
             key: 'featured',
+            hideBelow: 820,
             header: 'Featured',
             align: 'center',
             render: (car) => (

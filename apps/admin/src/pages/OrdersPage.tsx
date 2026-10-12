@@ -17,6 +17,7 @@ import {
   STAGE_TONE,
 } from '@/pages/orders/orderOptions';
 import { mono } from '@/theme';
+import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 /**
  * Shipments — `references/admin.md` C4. One row per order: which car, which
@@ -29,6 +30,7 @@ export function OrdersPage() {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search.trim(), 300);
   const [origin, setOrigin] = useState<CarOrigin | ''>('');
   const [stage, setStage] = useState<OrderStageName | ''>('');
   const [page, setPage] = useState(0);
@@ -38,7 +40,7 @@ export function OrdersPage() {
   const canCreate = identity?.permissions.includes('orders:CREATE') ?? false;
 
   const query = {
-    ...(search ? { search } : {}),
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
     ...(origin ? { origin } : {}),
     ...(stage ? { stage } : {}),
     take: rowsPerPage,

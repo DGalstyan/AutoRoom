@@ -252,9 +252,17 @@ export function AvailabilityPage() {
           slot={editing.slot}
           branches={branches}
           onClose={() => setEditing(null)}
-          onDone={(message) => {
+          onDone={(message, startsAt) => {
             setEditing(null);
-            toast(message);
+            const day = toDateInput(new Date(startsAt));
+            if (day < from || day > to) {
+              // Widen the range so the slot that was just saved is actually visible.
+              if (day < from) setFrom(day);
+              if (day > to) setTo(day);
+              toast(`${message} It is on ${day}, so the date range was widened to show it.`);
+            } else {
+              toast(message);
+            }
             void refresh();
           }}
         />

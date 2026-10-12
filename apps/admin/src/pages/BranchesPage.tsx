@@ -12,6 +12,7 @@ import { DataTable } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { BranchDialog } from '@/pages/branches/BranchDialog';
 import { brand, mono } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 /**
  * Branches — the pins behind Homepage Section 8, `Մեր մասնաճյուղերը`.
@@ -119,7 +120,7 @@ export function BranchesPage() {
                 {branch.photoUrl && (
                   <Box
                     component="img"
-                    src={branch.photoUrl}
+                    src={assetUrl(branch.photoUrl)}
                     alt=""
                     sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />

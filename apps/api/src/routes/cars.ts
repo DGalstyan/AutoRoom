@@ -10,6 +10,7 @@ import {
 } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { wordSearch } from '../lib/search';
 import { publicVinLot } from '../lib/demoVinLot';
 import { isSafeGuestUrl, signGuestAccess, verifyGuestAccess } from '../lib/guestAccess';
 import { getSetting } from '../lib/settings';
@@ -326,14 +327,15 @@ carsRouter.get(
         : query.published
           ? { publishedAt: { not: null } }
           : { publishedAt: null }),
+      // Every word must match the make, model, slug or VIN: "McLaren 720S" is one car.
       ...(query.search
         ? {
-            OR: [
-              { make: { contains: query.search, mode: 'insensitive' } },
-              { model: { contains: query.search, mode: 'insensitive' } },
-              { slug: { contains: query.search, mode: 'insensitive' } },
-              { vin: { contains: query.search, mode: 'insensitive' } },
-            ],
+            AND: wordSearch(query.search, (c) => [
+              { make: c },
+              { model: c },
+              { slug: c },
+              { vin: c },
+            ]),
           }
         : {}),
       ...facetWhere(query),
@@ -619,16 +621,7 @@ carsRouter.get('/public/cars', validateQuery(listQuerySchema), async (req, res) 
     ...(query.search
       ? {
           // Every word must match the make or the model: "byd seal" is one car, not all BYDs.
-          AND: query.search
-            .split(/\s+/)
-            .filter(Boolean)
-            .slice(0, 5)
-            .map((word) => ({
-              OR: [
-                { make: { contains: word, mode: 'insensitive' as const } },
-                { model: { contains: word, mode: 'insensitive' as const } },
-              ],
-            })),
+          AND: wordSearch(query.search, (c) => [{ make: c }, { model: c }]),
         }
       : {}),
   };

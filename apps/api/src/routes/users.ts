@@ -28,6 +28,22 @@ export const usersRouter = Router();
  */
 const PRIVILEGED_ROLE_KEYS = new Set(['super_admin', 'admin']);
 
+/**
+ * Refuses an action that would leave no active super admin: demoting, disabling or deleting the
+ * last one. Without this the only account that can manage roles can be removed by a stray click
+ * (or by a second admin), and nobody can restore it from the panel.
+ */
+async function assertNotLastSuperAdmin(
+  user: { id: string; role: { key: string } | null },
+  what: string,
+) {
+  if (user.role?.key !== 'super_admin') return;
+  const others = await prisma.user.count({
+    where: { id: { not: user.id }, status: UserStatus.ACTIVE, role: { key: 'super_admin' } },
+  });
+  if (others === 0) throw badRequest(`${what} would leave the system without a Super admin`);
+}
+
 const listQuerySchema = z.object({
   status: z.nativeEnum(UserStatus).optional(),
   take: z.coerce.number().int().min(1).max(100).default(50),
@@ -194,6 +210,11 @@ usersRouter.patch(
     });
     if (!user) throw notFound('User not found');
 
+    if (user.id === req.auth?.userId) {
+      throw badRequest('You cannot change your own role');
+    }
+    if (roleKey !== 'super_admin') await assertNotLastSuperAdmin(user, 'Changing this role');
+
     // Demoting an existing privileged account is as sensitive as granting one.
     if (user.role && PRIVILEGED_ROLE_KEYS.has(user.role.key) && !can(req.auth, 'roles', 'UPDATE')) {
       throw forbidden(
@@ -240,6 +261,7 @@ usersRouter.patch(
     if (user.id === req.auth?.userId) {
       throw badRequest('You cannot change your own account status');
     }
+    if (status !== UserStatus.ACTIVE) await assertNotLastSuperAdmin(user, 'Disabling this account');
     if (user.role && PRIVILEGED_ROLE_KEYS.has(user.role.key) && !can(req.auth, 'roles', 'UPDATE')) {
       throw forbidden(`Changing a ${user.role.key} account requires role management rights`);
     }
@@ -357,6 +379,7 @@ usersRouter.delete(
     if (id === req.auth?.userId) throw badRequest('You cannot delete your own account');
 
     const user = await loadEditableUser(id, req.auth);
+    await assertNotLastSuperAdmin(user, 'Deleting this account');
 
     // Audit rows outlive the account (the actor relation is SetNull), so the
     // record of what they did survives the deletion.

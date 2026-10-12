@@ -147,6 +147,7 @@ export function FaqPage() {
         columns={[
           {
             key: 'position',
+            hideBelow: 720,
             width: 56,
             render: (item) => (
               <Typography sx={{ fontFamily: mono, fontSize: '0.75rem', color: 'text.secondary' }}>
@@ -185,6 +186,7 @@ export function FaqPage() {
           },
           {
             key: 'topic',
+            hideBelow: 820,
             header: 'Section',
             render: (item) => (
               <Typography sx={{ fontSize: '0.875rem' }}>{topicLabel(item.topic)}</Typography>

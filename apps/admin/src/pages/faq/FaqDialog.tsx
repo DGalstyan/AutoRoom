@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { z } from 'zod';
 import type { Faq, FaqTopic, Locale } from '@autoroom/api/client';
 import {
-  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -16,6 +15,7 @@ import {
   Tabs,
   TextField,
 } from '@mui/material';
+import { FormErrorAlert } from '@/components/form/FormErrorAlert';
 import { useAuth } from '@/auth/AuthProvider';
 import { useZodForm } from '@/components/form/useZodForm';
 import { TOPICS, topicHint } from '@/pages/faq/topics';
@@ -134,7 +134,7 @@ export function FaqDialog({
         <DialogTitle>{item ? 'Edit question' : 'Add question'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} sx={{ pt: 1 }}>
-            {formError && <Alert severity="error">{formError}</Alert>}
+            <FormErrorAlert message={formError} />
 
             <TextField
               label="Section"

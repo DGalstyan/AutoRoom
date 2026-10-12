@@ -26,7 +26,7 @@ export function SlotDialog({
   slot?: AvailabilitySlot;
   branches: Branch[];
   onClose: () => void;
-  onDone: (message: string) => void;
+  onDone: (message: string, startsAt: string) => void;
 }) {
   const { api } = useAuth();
 
@@ -52,7 +52,7 @@ export function SlotDialog({
   const mutation = useMutation({
     mutationFn: () =>
       slot ? api.availability.update(slot.id, draft) : api.availability.create(draft),
-    onSuccess: () => onDone(slot ? 'Slot saved.' : 'Slot added.'),
+    onSuccess: () => onDone(slot ? 'Slot saved.' : 'Slot added.', draft.startsAt),
     onError: (caught) => setError(errorMessage(caught)),
   });
 
@@ -110,7 +110,11 @@ export function SlotDialog({
               onChange={(event) => set('branchId', event.target.value || null)}
               select
               fullWidth
-              helperText="Where the appointment happens."
+              helperText={
+                draft.branchId
+                  ? 'Where the appointment happens.'
+                  : 'No branch: the slot is offered as an online / phone meeting.'
+              }
             >
               <MenuItem value="">No branch</MenuItem>
               {branches.map((branch) => (

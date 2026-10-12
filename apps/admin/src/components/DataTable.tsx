@@ -39,6 +39,12 @@ export interface Column<T> {
    * would leave a headed column that never has content, which reads as a bug.
    */
   hidden?: boolean;
+  /**
+   * Hide the column when the table's own card is narrower than this many px (a container query,
+   * so it follows the card — a laptop with a side panel open — not the screen). Give the least
+   * important columns the larger numbers; the status and actions columns never set it.
+   */
+  hideBelow?: number;
 }
 
 export interface SortState {
@@ -66,6 +72,13 @@ export interface PaginationState {
  * populated. Those were hand-written on every screen, which is how one page
  * ends up with a spinner and another with a blank rectangle.
  */
+/** `display: none` once the card is narrower than the column's `hideBelow`. */
+function hideRule(column: { hideBelow?: number }) {
+  return column.hideBelow
+    ? { [`@container (max-width: ${column.hideBelow}px)`]: { display: 'none' } }
+    : undefined;
+}
+
 export function DataTable<T>({
   columns,
   rows,
@@ -109,7 +122,10 @@ export function DataTable<T>({
   const sortable = visible.filter((column) => column.sortKey);
 
   return (
-    <Paper variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
+    <Paper
+      variant="outlined"
+      sx={{ borderRadius: 3, overflow: 'hidden', containerType: 'inline-size' }}
+    >
       {toolbar && (
         <Stack
           direction={{ xs: 'column', md: 'row' }}
@@ -252,14 +268,15 @@ export function DataTable<T>({
         </Box>
       ) : (
         <Box sx={{ overflowX: 'auto' }}>
-          <Table sx={{ minWidth }}>
+          {/* Narrow cards drop their low-priority columns (hideBelow) instead of scrolling sideways. */}
+          <Table sx={{ minWidth: 560, '@container (min-width: 1000px)': { minWidth } }}>
             <TableHead>
               <TableRow>
                 {visible.map((column) => (
                   <TableCell
                     key={column.key}
                     align={column.align}
-                    sx={{ width: column.width }}
+                    sx={{ width: column.width, ...hideRule(column) }}
                     sortDirection={sort && column.sortKey === sort.key ? sort.direction : false}
                   >
                     {column.sortKey && onSortChange ? (
@@ -286,7 +303,7 @@ export function DataTable<T>({
                   sx={onRowClick ? { cursor: 'pointer' } : undefined}
                 >
                   {visible.map((column) => (
-                    <TableCell key={column.key} align={column.align}>
+                    <TableCell key={column.key} align={column.align} sx={hideRule(column)}>
                       {column.render(row)}
                     </TableCell>
                   ))}

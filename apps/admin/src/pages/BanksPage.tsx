@@ -12,6 +12,7 @@ import { DataTable } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { BankDialog } from '@/pages/banks/BankDialog';
 import { brand } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 /**
  * Banks — the partner-bank grid behind the China (and USA) page's financing
@@ -118,7 +119,7 @@ export function BanksPage() {
                 {bank.logoUrl && (
                   <Box
                     component="img"
-                    src={bank.logoUrl}
+                    src={assetUrl(bank.logoUrl)}
                     alt=""
                     sx={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                   />

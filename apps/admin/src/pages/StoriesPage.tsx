@@ -25,6 +25,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { StoryDialog } from '@/pages/stories/StoryDialog';
 import { KINDS, kindLabel } from '@/pages/stories/kinds';
 import { brand, mono } from '@/theme';
+import { assetUrl } from '@/lib/assets';
 
 /**
  * The video behind the homepage — Section 7's Customer Story Wall above all,
@@ -250,7 +251,7 @@ function StoryCard({ item, onMenu }: { item: Media; onMenu?: (anchor: HTMLElemen
         {item.posterUrl ? (
           <Box
             component="img"
-            src={item.posterUrl}
+            src={assetUrl(item.posterUrl)}
             alt=""
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />

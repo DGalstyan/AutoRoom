@@ -15,6 +15,7 @@ import {
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage, extractFieldErrors } from '@/lib/api';
 import { UploadField } from '@/components/UploadField';
+import { assetUrl } from '@/lib/assets';
 
 /** Add or edit one tile in the About page's photo collage. */
 export function GalleryImageDialog({
@@ -79,7 +80,13 @@ export function GalleryImageDialog({
               }
               disabled={mutation.isPending}
               preview={(url) => (
-                <Avatar src={url} alt="" variant="rounded" sx={{ width: 160, height: 90 }} />
+                <Avatar
+                  src={assetUrl(url)}
+                  imgProps={{ referrerPolicy: 'no-referrer' }}
+                  alt=""
+                  variant="rounded"
+                  sx={{ width: 160, height: 90 }}
+                />
               )}
             />
 
