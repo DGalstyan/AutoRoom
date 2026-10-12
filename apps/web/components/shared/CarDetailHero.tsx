@@ -77,7 +77,7 @@ export function CarDetailHero({
   return (
     <div className="flex flex-col gap-9">
       {/* Pinned under the floating header while the page scrolls (Figma: sticky). */}
-      <div className="z-30 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:sticky lg:top-[104px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+      <div className="z-30 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:sticky lg:shadow-card lg:top-[104px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         {variant === 'auction' ? (
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:gap-x-[38px] lg:whitespace-nowrap">
             <h1 className="font-display text-[28px] font-semibold leading-10 text-neutral-900 sm:text-[36px] sm:leading-[56px]">

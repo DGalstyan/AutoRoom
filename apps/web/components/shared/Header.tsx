@@ -84,7 +84,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
       // `9321:6395`) — Figma only shows this top-of-page state; the
       // condensed `top-2` on scroll is this component's pre-existing,
       // unverified-by-Figma judgment call, kept as-is.
-      className={`fixed inset-x-0 z-30 px-4 transition-[top] duration-standard ease-expo ${scrolled ? 'top-2' : 'top-9'}`}
+      className={`fixed inset-x-0 z-40 px-4 transition-[top] duration-standard ease-expo ${scrolled ? 'top-2' : 'top-9'}`}
     >
       <div
         // Horizontal padding (`px-6` = 24px at `sm:`) and vertical padding
