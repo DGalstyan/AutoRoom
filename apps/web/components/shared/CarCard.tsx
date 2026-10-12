@@ -7,6 +7,7 @@ import { getServerMessages } from '@/lib/i18n';
 import { interpolate } from '@/lib/messages';
 import { PromoCountdown } from '@/components/shared/PromoCountdown';
 import { CarCompareToggle } from '@/components/shared/CarCompareToggle';
+import { CardArrow } from '@/components/ui/CardArrow';
 
 /**
  * The full listing-grid car card — China (and later USA) page S2, and the
@@ -58,7 +59,8 @@ export async function CarCard({
   const { messages } = await getServerMessages();
   const t = messages.common.carCard;
   const compareT = messages.common.compare;
-  const imageSrc = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
+  // The full photo, not the 480px list thumbnail: these cards are 648px wide and the thumbnail looked soft.
+  const imageSrc = car.images[0]?.url ?? car.images[0]?.thumbnailUrl;
 
   const hasDiscount = car.oldPrice != null && car.oldPrice > car.price;
   const deadline = car.promoDeadline ? new Date(car.promoDeadline) : null;
@@ -73,15 +75,15 @@ export async function CarCard({
   return (
     <Link
       href={href ?? carHref(car)}
-      className={`group relative block aspect-[4/5] w-full overflow-hidden rounded-xl sm:aspect-[3/2] bg-neutral-800 transition-transform duration-standard ease-expo hover:-translate-y-1 ${isPromoEnded ? 'grayscale' : ''}`}
+      className={`group relative block aspect-[4/5] w-full overflow-hidden rounded-xl sm:aspect-[3/2] transition-transform duration-standard ease-expo hover:-translate-y-1 ${isPromoEnded ? 'bg-black' : 'bg-neutral-800'}`}
     >
       {imageSrc ? (
         <LoadingImage
           src={imageSrc}
           alt={`${car.make} ${car.model}`}
           priority={priority}
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          className="object-cover"
+          sizes="(min-width: 1024px) 648px, 100vw"
+          className={`object-cover ${isPromoEnded ? 'mix-blend-luminosity' : ''}`}
         />
       ) : (
         <div
@@ -92,7 +94,7 @@ export async function CarCard({
 
       {/* Bottom-heavy scrim, matches Figma's 3-stop gradient exactly. */}
       <div
-        className={`absolute inset-0 bg-gradient-to-t from-black from-[8.565%] via-black/0 via-[41.654%] to-[89.231%] ${heavyTopScrim ? 'to-black' : 'to-black/50'}`}
+        className={`absolute inset-0 bg-gradient-to-t from-black from-[8.565%] via-black/0 via-[41.654%] to-[89.231%] ${heavyTopScrim || isPromoEnded ? 'to-black' : 'to-black/50'}`}
         aria-hidden="true"
       />
 
@@ -100,16 +102,13 @@ export async function CarCard({
         <div className={`flex flex-wrap items-center gap-[5px] ${badgesEnd ? 'justify-end' : ''}`}>
           {isPromo ? (
             <>
-              <span
-                className={`rounded-pill px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-bold leading-[20px] text-white ${isPromoActive ? 'bg-error' : 'bg-white/10'}`}
-              >
-                {isPromoActive ? t.promo : t.promoEnded}
+              {/* Figma 439:2655/2657: 10px all round. Ended promotions keep the red badge and swap the countdown for "ended". */}
+              <span className="rounded-pill bg-error p-[10px] text-[16px] font-bold leading-[20px] text-white">
+                {t.promo}
               </span>
-              {isPromoActive && (
-                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
-                  <PromoCountdown deadline={car.promoDeadline!} />
-                </span>
-              )}
+              <span className="rounded-pill border border-white bg-transparent p-[10px] text-[16px] font-medium leading-[20px] text-white">
+                {isPromoActive ? <PromoCountdown deadline={car.promoDeadline!} /> : t.promoEnded}
+              </span>
             </>
           ) : (
             <>
@@ -144,23 +143,23 @@ export async function CarCard({
               )}
             </>
           )}
-          <CarCompareToggle
-            car={{
-              id: car.id,
-              slug: car.slug,
-              make: car.make,
-              model: car.model,
-              year: car.year,
-              imageUrl: imageSrc,
-              origin: car.origin,
-              condition: car.condition,
-            }}
-            label={compareT.toggle}
-            labelSelected={compareT.toggleSelected}
-            // Promotion cards are crowded with the promo + countdown badges on a phone; the compare
-            // toggle is still on the car's own page there.
-            className={isPromo ? 'max-sm:hidden' : undefined}
-          />
+          {/* Not on promotion cards: the design's badge row there is the badge and the countdown only. */}
+          {!isPromo && (
+            <CarCompareToggle
+              car={{
+                id: car.id,
+                slug: car.slug,
+                make: car.make,
+                model: car.model,
+                year: car.year,
+                imageUrl: imageSrc,
+                origin: car.origin,
+                condition: car.condition,
+              }}
+              label={compareT.toggle}
+              labelSelected={compareT.toggleSelected}
+            />
+          )}
         </div>
 
         <div className="flex flex-col items-start gap-[10px]">
@@ -185,34 +184,17 @@ export async function CarCard({
                     {formatUsd(car.oldPrice!)}
                   </span>
                 )}
-                <Price className={hasDiscount ? 'text-error' : 'text-white'}>
-                  {formatUsd(car.price)}
-                </Price>
+                {hasDiscount ? (
+                  <span className="tabular-nums text-error">{formatUsd(car.price)}</span>
+                ) : (
+                  <Price className="text-white">{formatUsd(car.price)}</Price>
+                )}
               </span>
             </div>
-            <span
-              aria-hidden="true"
-              className="flex size-11 shrink-0 items-center justify-center rounded-pill bg-white/10 text-white transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
-            >
-              <ArrowGlyph />
-            </span>
+            <CardArrow />
           </div>
         </div>
       </div>
     </Link>
-  );
-}
-
-function ArrowGlyph() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path
-        d="M4 12 12 4M12 4H5M12 4v7"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

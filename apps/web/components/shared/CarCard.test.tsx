@@ -49,4 +49,42 @@ describe('CarCard', () => {
     renderWithLocale(await CarCard({ car: car({ auctionPlatform: null }) }));
     expect(screen.getByText(t.conditions.AUCTION)).toBeInTheDocument();
   });
+
+  it('shows an ended promotion as a greyscale card with the red badge and an "ended" badge', async () => {
+    const { container } = renderWithLocale(
+      await CarCard({
+        car: car({
+          oldPrice: 250000,
+          promoDeadline: '2020-01-01T00:00:00.000Z',
+          images: [
+            {
+              id: 'i1',
+              carId: 'c1',
+              album: 'EXTERIOR',
+              url: 'https://x.test/a.jpg',
+              thumbnailUrl: null,
+              position: 0,
+            },
+          ],
+        }),
+      }),
+    );
+    expect(screen.getByText(t.promo)).toBeInTheDocument();
+    expect(screen.getByText(t.promoEnded)).toBeInTheDocument();
+    expect(container.querySelector('.mix-blend-luminosity')).not.toBeNull();
+    expect(container.querySelector('.bg-black')).not.toBeNull();
+  });
+
+  it('shows a live promotion with the badge and countdown only (no compare chip)', async () => {
+    renderWithLocale(
+      await CarCard({
+        car: car({
+          oldPrice: 250000,
+          promoDeadline: new Date(Date.now() + 86_400_000).toISOString(),
+        }),
+      }),
+    );
+    expect(screen.getByText(t.promo)).toBeInTheDocument();
+    expect(screen.queryByText(t.promoEnded)).not.toBeInTheDocument();
+  });
 });

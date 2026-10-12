@@ -794,7 +794,7 @@
       "heading": "This week's best deals"
     },
     "promotions": {
-      "heading": "Promotions",
+      "heading": "Current promotions",
       "tabCurrent": "Current",
       "tabPast": "Past",
       "emptyCurrent": "No active promotions right now.",
@@ -803,7 +803,7 @@
     "finalCta": {
       "heading": "Couldn't find a deal that fits?",
       "text": "Leave your details",
-      "cta": "Leave a request"
+      "cta": "Fill in"
     },
     "detail": {
       "back": "All offers",
@@ -834,8 +834,7 @@
       "expiredCta": "Get a similar offer",
       "currentOffers": "See current offers",
       "details": "Details"
-    },
-    "heading": "Special offers"
+    }
   },
   "contact": {
     "meta": {

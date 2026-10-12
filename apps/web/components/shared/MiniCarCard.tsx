@@ -1,6 +1,7 @@
 'use client';
 
 import { LoadingImage } from '@/components/ui/LoadingImage';
+import { CardArrow } from '@/components/ui/CardArrow';
 import Link from 'next/link';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
@@ -66,12 +67,7 @@ export function MiniCarCard({
               {car.make} {car.model}
             </p>
           </div>
-          <span
-            aria-hidden="true"
-            className="flex size-[54px] shrink-0 items-center justify-center rounded-pill text-white transition-colors duration-standard group-hover:bg-accent group-hover:text-ink"
-          >
-            <ArrowGlyph />
-          </span>
+          <CardArrow />
         </div>
       </Link>
     );

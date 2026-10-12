@@ -16,6 +16,7 @@ export function CtaBand({
   onClick,
   href,
   padded = false,
+  buttonTone = 'accent',
 }: {
   heading: ReactNode;
   sub?: ReactNode;
@@ -24,6 +25,8 @@ export function CtaBand({
   href?: string;
   /** Grow with the copy (80px above and below) instead of the fixed 336px band — for a long sub-line. */
   padded?: boolean;
+  /** `glass` is the dark outlined pill (the Offers band); `accent` the gold one. */
+  buttonTone?: 'glass' | 'accent';
 }) {
   return (
     <section className="bg-ink text-white">
@@ -39,7 +42,7 @@ export function CtaBand({
           )}
         </Reveal>
         {/* Not wrapped in a fade-in: the button must be there as soon as the band is. */}
-        <GlassButton tone="accent" onClick={onClick} href={href}>
+        <GlassButton tone={buttonTone} onClick={onClick} href={href}>
           {buttonLabel}
         </GlassButton>
       </div>

@@ -18,6 +18,7 @@ export function OffersFinalCta() {
       heading={t.heading}
       sub={t.text}
       buttonLabel={t.cta}
+      buttonTone="glass"
       onClick={() => openUniversal({ sourceCta: 'offers-s3-final-cta' })}
     />
   );
