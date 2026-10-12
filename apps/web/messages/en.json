@@ -9,21 +9,23 @@
     "nav": {
       "home": "Home",
       "china": "China",
-      "usa": "USA",
-      "offers": "Special offers",
-      "partners": "Partners",
+      "usa": "US",
+      "offers": "Featured cars",
+      "partners": "Dealers",
       "about": "About us",
       "contact": "Contact",
       "menuOpen": "Open menu",
       "menuClose": "Close menu",
       "primaryNav": "Primary navigation",
-      "headerCta": "Get an offer",
+      "headerCta": "Get Started",
       "blog": "Blog",
       "partnerPortal": "Partner portal"
     },
     "stickyCta": {
       "label": "Haven't found your car? Let's find it together",
-      "button": "Choose"
+      "button": "Choose",
+      "title": "Not sure which car to pick?",
+      "sub": "Answer 5 questions in 60 seconds"
     },
     "footer": {
       "tagline": "We import trust, not just cars.",

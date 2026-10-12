@@ -17,15 +17,7 @@ vi.mock('@/components/shared/LeadWidgetProvider', () => ({
   useLeadWidgets: () => ({ openUniversal, openQuiz: vi.fn(), isAnyOpen: false }),
 }));
 
-const EXPECTED_NAV_HREFS = [
-  '/china',
-  '/usa',
-  '/partners',
-  '/about',
-  '/offers',
-  '/blog',
-  '/contact',
-];
+const EXPECTED_NAV_HREFS = ['/china', '/usa', '/partners', '/about', '/offers', '/contact'];
 
 describe('Header', () => {
   it('renders the home logo link', () => {
@@ -57,6 +49,7 @@ describe('Header', () => {
     renderWithLocale(<Header />);
     const navEl = screen.getByRole('navigation', { name: nav.primaryNav });
     const links = Array.from(navEl.querySelectorAll('a')).map((a) => a.getAttribute('href'));
+    // Blog is not in the design's bar (it is in the phone menu and the footer); the portal icon is.
     expect(links).toEqual(EXPECTED_NAV_HREFS);
   });
 

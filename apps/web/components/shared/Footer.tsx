@@ -31,12 +31,15 @@ const MESSENGERS: { key: keyof MessengerLinks; icon: SocialKey; label: string }[
   { key: 'viber', icon: 'viber', label: 'Viber' },
 ];
 
+/** Footer links keep the design's tight spacing: the 44px tap area is an invisible extension (`after`), not layout height. */
+
 const NAV = [
   { key: 'china', href: '/china' },
   { key: 'usa', href: '/usa' },
   { key: 'partners', href: '/partners' },
   { key: 'about', href: '/about' },
   { key: 'offers', href: '/offers' },
+  { key: 'blog', href: '/blog' },
 ] as const;
 
 interface FooterProps {
@@ -82,11 +85,14 @@ export async function Footer({
       <p className="mt-1 flex flex-wrap gap-x-4">
         <Link
           href="/privacy"
-          className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
         >
           {footer.privacyPolicy}
         </Link>
-        <Link href="/terms" className="inline-flex min-h-11 min-w-11 items-center hover:text-white">
+        <Link
+          href="/terms"
+          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
+        >
           {footer.terms}
         </Link>
       </p>
@@ -144,7 +150,7 @@ export async function Footer({
                 <li key={href}>
                   <Link
                     href={href}
-                    className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+                    className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
                   >
                     {nav[key]}
                   </Link>
@@ -165,7 +171,7 @@ export async function Footer({
                       <li key={phone}>
                         <a
                           href={branchTelHref(phone)}
-                          className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+                          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
                         >
                           {phone}
                         </a>
@@ -175,7 +181,7 @@ export async function Footer({
                       <li>
                         <a
                           href={`mailto:${email}`}
-                          className="inline-flex min-h-11 min-w-11 items-center hover:text-white"
+                          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
                         >
                           {email}
                         </a>

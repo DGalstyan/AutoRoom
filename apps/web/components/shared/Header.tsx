@@ -19,8 +19,14 @@ const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string; chevron?:
   { key: 'partners', href: '/partners' },
   { key: 'about', href: '/about' },
   { key: 'offers', href: '/offers' },
-  { key: 'blog', href: '/blog' },
   { key: 'contact', href: '/contact' },
+];
+
+/** The phone menu is the one place that also lists the Blog (it is not in the design's bar); the footer links it on desktop. */
+const MENU_LINKS = [
+  ...NAV_LINKS.slice(0, -1),
+  { key: 'blog' as const, href: '/blog' },
+  ...NAV_LINKS.slice(-1),
 ];
 
 interface HeaderProps {
@@ -77,7 +83,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
       // `9321:6395`) — Figma only shows this top-of-page state; the
       // condensed `top-2` on scroll is this component's pre-existing,
       // unverified-by-Figma judgment call, kept as-is.
-      className={`fixed inset-x-0 z-30 px-4 transition-[top] duration-standard ease-expo sm:px-6 ${scrolled ? 'top-2' : 'top-9'}`}
+      className={`fixed inset-x-0 z-30 px-4 transition-[top] duration-standard ease-expo ${scrolled ? 'top-2' : 'top-9'}`}
     >
       <div
         // Horizontal padding (`px-6` = 24px at `sm:`) and vertical padding
@@ -140,7 +146,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
               key={item.href}
               href={item.href}
               aria-current={pathname === item.href ? 'page' : undefined}
-              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-2 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-2 py-1 text-[16px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
               {item.chevron && (
@@ -231,7 +237,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
                 />
               </svg>
             </button>
-            {[{ key: 'home' as const, href: '/' }, ...NAV_LINKS].map((item) => (
+            {[{ key: 'home' as const, href: '/' }, ...MENU_LINKS].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

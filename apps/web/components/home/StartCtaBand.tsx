@@ -16,7 +16,8 @@ export function StartCtaBand() {
   const { openQuiz } = useLeadWidgets();
   return (
     <CtaBand
-      heading={t.label}
+      heading={t.title}
+      sub={t.sub}
       buttonLabel={t.button}
       onClick={() => openQuiz({ sourceCta: 'home-start-band' })}
     />
