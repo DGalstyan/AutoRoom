@@ -45,7 +45,7 @@ export function CompareTable({
   return (
     <div className="flex w-full flex-col gap-12">
       <Reveal delayMs={80}>
-        <div className="flex items-center gap-8 sm:gap-16">
+        <div className="grid grid-cols-2 items-stretch gap-3 sm:flex sm:items-center sm:gap-16">
           <CarHeaderCard car={carA} onChange={() => changeOther(toRef(carB))} />
           <BoltGlyph className="hidden size-[60px] shrink-0 text-accent sm:block" />
           <CarHeaderCard car={carB} onChange={() => changeOther(toRef(carA))} />
@@ -141,12 +141,12 @@ function CompareRow({ label, valueA, valueB }: { label: string; valueA: string; 
   const differs = valueA !== valueB;
   // Figma 448:13725: 150px values (16px Medium) either side of a 351px label, every price in $.
   const value =
-    'w-[150px] shrink-0 text-[16px] font-medium leading-5 tabular-nums text-neutral-800';
+    'min-w-0 text-center text-[16px] font-medium leading-5 tabular-nums text-neutral-800 sm:w-[150px] sm:shrink-0';
   return (
-    <div className="flex w-full items-center justify-center gap-6 rounded-md bg-white p-3 transition-shadow duration-standard ease-expo hover:shadow-[0_4px_16px_rgba(13,13,13,0.06)] sm:gap-12">
+    <div className="grid w-full grid-cols-2 items-center gap-x-3 gap-y-1 rounded-md bg-white p-3 transition-shadow duration-standard ease-expo hover:shadow-[0_4px_16px_rgba(13,13,13,0.06)] sm:flex sm:justify-center sm:gap-12">
       <span className={value}>{valueA}</span>
       <span
-        className={`w-[351px] shrink-0 text-center text-[20px] font-bold leading-8 ${
+        className={`col-span-2 text-center text-[16px] font-bold leading-6 max-sm:order-first sm:w-[351px] sm:shrink-0 sm:text-[20px] sm:leading-8 ${
           differs ? 'text-error' : 'text-ink'
         }`}
       >
@@ -174,22 +174,22 @@ function CarHeaderCard({ car, onChange }: { car: Car; onChange: () => void }) {
   const changeLabel = useMessages().common.compare.page.changeCar;
   const image = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
   return (
-    <div className="flex min-w-0 flex-1 items-center gap-6 rounded-[24px] bg-white p-3">
+    <div className="flex min-w-0 flex-1 flex-col gap-3 rounded-[24px] bg-white p-3 sm:flex-row sm:items-center sm:gap-6">
       {image ? (
         <Image
           src={image}
           alt=""
           width={305}
           height={172}
-          className="h-[86px] w-[152px] shrink-0 rounded-[19.449px] object-cover sm:h-[171.594px] sm:w-[305.057px]"
+          className="aspect-[305/172] h-auto w-full shrink-0 rounded-[14px] object-cover sm:h-[171.594px] sm:w-[305.057px] sm:rounded-[19.449px]"
         />
       ) : (
-        <div className="h-[86px] w-[152px] shrink-0 rounded-[19.449px] bg-neutral-100 sm:h-[171.594px] sm:w-[305.057px]" />
+        <div className="aspect-[305/172] w-full shrink-0 rounded-[14px] bg-neutral-100 sm:h-[171.594px] sm:w-[305.057px] sm:rounded-[19.449px]" />
       )}
-      <div className="flex flex-1 items-center justify-between">
+      <div className="flex flex-1 items-center justify-between gap-1 px-1 pb-1 sm:px-0 sm:pb-0">
         <div className="text-neutral-800">
-          <p className="text-[24px] font-bold leading-9">{car.make}</p>
-          <p className="text-[16px] font-medium leading-5">{car.model}</p>
+          <p className="text-[18px] font-bold leading-6 sm:text-[24px] sm:leading-9">{car.make}</p>
+          <p className="text-[14px] font-medium leading-5 sm:text-[16px]">{car.model}</p>
         </div>
         <button
           type="button"

@@ -19,7 +19,7 @@ export async function ChinaServices() {
   return (
     <section aria-label={t.label} className="bg-ink px-4 py-9 sm:px-6 lg:px-12">
       <div className="mx-auto flex max-w-[1344px] flex-col gap-4 lg:gap-8">
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
           <Card tone="light" index={0}>
             <div className="absolute left-1/2 top-6 flex w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 items-end justify-center gap-4">
               <p className="stretch-90 w-[229px] min-w-0 shrink text-[14px] font-medium leading-[18px] text-neutral-700">
@@ -79,7 +79,7 @@ export async function ChinaServices() {
           </Card>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[437px_1fr]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[437px_1fr]">
           <Card tone="dark" index={3}>
             <div className="absolute left-6 top-[calc(50%+14.5px)] h-[302px] w-[calc(100%-36px)] max-w-[401px] -translate-y-1/2">
               <div className="flex flex-col gap-[18px]">
@@ -148,7 +148,7 @@ export async function ChinaServices() {
           </Card>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
           <Card tone="dark" index={5}>
             <div className="absolute left-1/2 top-1/2 flex w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 -translate-y-1/2 flex-col gap-[37px]">
               <div className="flex flex-col gap-6">
