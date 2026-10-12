@@ -27,13 +27,13 @@ const inter = Inter({
 // so Sora/Inter still draw Latin and digits; the fuller file leads and the smaller one
 // covers whatever it lacks, with Noto Sans Armenian as the last resort.
 const sfArmenian = localFont({
-  src: './fonts/SF-Armenian.ttf',
+  src: './fonts/SF-Armenian.woff2',
   variable: '--font-sf-am',
   weight: '1 1000',
   display: 'swap',
 });
 const sfArmenianAlt = localFont({
-  src: './fonts/SFArmenian.ttf',
+  src: './fonts/SFArmenian.woff2',
   variable: '--font-sf-am-alt',
   weight: '1 1000',
   display: 'swap',

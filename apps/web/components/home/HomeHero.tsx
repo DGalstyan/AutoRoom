@@ -28,7 +28,7 @@ export function HomeHero({ h1, stats }: { h1: string; stats: { value: string; la
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden="true"
           className="absolute inset-0 h-full w-full scale-[1.42] object-cover motion-reduce:hidden"
         />
