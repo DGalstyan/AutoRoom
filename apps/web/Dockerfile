@@ -22,6 +22,14 @@ COPY apps/api/src apps/api/src
 # container start.
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# `next build` pre-renders a couple of routes (the 404 page and the root layout's branding fetch),
+# and those read the API address. There is no API during the image build, so the fetch fails and the
+# page falls back to its defaults — but the variable must exist or the build stops. This is the
+# docker-compose service address, the same value the running container gets from
+# docker-compose.prod.yml, which overrides it at start; it is build-only and not used at runtime.
+ARG API_INTERNAL_URL=http://api:4000
+ENV API_INTERNAL_URL=$API_INTERNAL_URL
 RUN npm run build --workspace apps/web
 
 FROM node:22-alpine AS runtime
