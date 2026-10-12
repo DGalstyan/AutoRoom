@@ -52,6 +52,7 @@ export function BranchDialog({
           lng: branch.lng,
           mapUrl: branch.mapUrl,
           photoUrl: branch.photoUrl,
+          translations: branch.translations,
           position: branch.position,
         }
       : {
@@ -66,6 +67,7 @@ export function BranchDialog({
           lng: null,
           mapUrl: null,
           photoUrl: null,
+          translations: null,
           position: nextPosition,
         },
   );
@@ -79,6 +81,17 @@ export function BranchDialog({
 
   function set<K extends keyof BranchInput>(key: K, value: BranchInput[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
+  }
+
+  /** One language's wording of one field; blank means "show the Armenian". */
+  function setTranslation(lang: 'ru' | 'en', key: 'name' | 'city' | 'address', value: string) {
+    setDraft((current) => ({
+      ...current,
+      translations: {
+        ...(current.translations ?? {}),
+        [lang]: { ...(current.translations?.[lang] ?? {}), [key]: value },
+      },
+    }));
   }
 
   /** Empty is allowed — a branch without a pin is a real, if incomplete, state. */
@@ -137,6 +150,37 @@ export function BranchDialog({
               required
               fullWidth
             />
+
+            <Divider textAlign="left">
+              <Typography variant="caption" color="text.secondary">
+                Other languages (optional)
+              </Typography>
+            </Divider>
+            <Typography variant="body2" color="text.secondary">
+              What English and Russian visitors see. Blank fields show the Armenian above.
+            </Typography>
+            {(['en', 'ru'] as const).map((lang) => (
+              <Stack key={lang} direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField
+                  label={`Name (${lang})`}
+                  value={draft.translations?.[lang]?.name ?? ''}
+                  onChange={(event) => setTranslation(lang, 'name', event.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label={`City (${lang})`}
+                  value={draft.translations?.[lang]?.city ?? ''}
+                  onChange={(event) => setTranslation(lang, 'city', event.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label={`Address (${lang})`}
+                  value={draft.translations?.[lang]?.address ?? ''}
+                  onChange={(event) => setTranslation(lang, 'address', event.target.value)}
+                  fullWidth
+                />
+              </Stack>
+            ))}
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField

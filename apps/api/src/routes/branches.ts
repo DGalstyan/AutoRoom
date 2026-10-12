@@ -20,6 +20,23 @@ import { validateBody } from '../middleware/validate';
  */
 export const branchesRouter = Router();
 
+/** One language's wording of a branch: every field optional, blank = fall back to the Armenian. */
+type BranchTranslations = Partial<
+  Record<'ru' | 'en', { name?: string; city?: string; address?: string; hours?: string }>
+>;
+
+const branchTextSchema = z
+  .object({
+    name: z.string().trim().max(120).optional(),
+    city: z.string().trim().max(80).optional(),
+    address: z.string().trim().max(200).optional(),
+    hours: z.string().trim().max(80).optional(),
+  })
+  .transform((value) => {
+    const cleaned = Object.fromEntries(Object.entries(value).filter(([, text]) => text));
+    return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+  });
+
 const branchBodySchema = z.object({
   name: z.string().trim().min(1, 'A name is required').max(120),
   city: z.string().trim().min(1, 'A city is required').max(80),
@@ -39,6 +56,16 @@ const branchBodySchema = z.object({
     .union([z.string().url().max(2048), z.literal(''), z.null()])
     .transform((value) => (value === '' ? null : value))
     .nullish(),
+
+  /// Russian / English wording; nothing written = the site shows the Armenian.
+  translations: z
+    .object({ ru: branchTextSchema.optional(), en: branchTextSchema.optional() })
+    .nullish()
+    .transform((value) => {
+      if (!value) return null;
+      const cleaned = Object.fromEntries(Object.entries(value).filter(([, text]) => text));
+      return Object.keys(cleaned).length > 0 ? cleaned : null;
+    }),
 
   /// Order of the pins and of the cards beneath the map.
   position: z.number().int().min(0).max(999).default(0),
@@ -132,6 +159,7 @@ function toWriteData(body: z.infer<typeof branchBodySchema>) {
     lng: body.lng ?? null,
     mapUrl: body.mapUrl ?? null,
     photoUrl: body.photoUrl ?? null,
+    translations: body.translations ?? Prisma.DbNull,
     position: body.position,
   };
 }
@@ -148,6 +176,7 @@ function serializeBranch(branch: Prisma.BranchGetPayload<object>) {
     lng: branch.lng,
     mapUrl: branch.mapUrl,
     photoUrl: branch.photoUrl,
+    translations: (branch.translations as BranchTranslations | null) ?? null,
     position: branch.position,
   };
 }

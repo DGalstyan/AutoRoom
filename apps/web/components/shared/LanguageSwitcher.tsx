@@ -1,14 +1,12 @@
 'use client';
 
-import type { Locale } from '@/lib/i18n';
+import { LOCALE_LABELS } from '@/lib/localeLabels';
 import {
   useEnabledLocales,
   useLocale,
   useMessages,
   useSetLocale,
 } from '@/components/shared/LocaleProvider';
-
-const LABELS: Record<Locale, string> = { hy: 'ՀԱՅ', en: 'EN', ru: 'РУС' };
 
 /**
  * Header language toggle. Only offers the locales the admin has enabled
@@ -59,7 +57,7 @@ export function LanguageSwitcher({
                 : 'text-white hover:bg-white/10'
           }`}
         >
-          {LABELS[code]}
+          {LOCALE_LABELS[code]}
         </button>
       ))}
     </div>

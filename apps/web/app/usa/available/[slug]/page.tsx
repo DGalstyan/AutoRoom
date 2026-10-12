@@ -17,9 +17,23 @@ export async function generateMetadata({
   const car = await getCarBySlug(slug);
   if (!car) return {};
 
+  const photo = car.images[0]?.url;
+  const title = `${car.make} ${car.model} — AutoRoom`;
+  const description = `${car.make} ${car.model}, ${car.year} — ${formatUsd(car.price)}: մանրամասներ, ֆինանսավորում և առաքման ժամկետ ԱՄՆ-ից AutoRoom-ի միջոցով։`;
   return {
-    title: `${car.make} ${car.model} — AutoRoom`,
-    description: `${car.make} ${car.model}, ${car.year} — ${formatUsd(car.price)}: մանրամասներ, ֆինանսավորում և առաքման ժամկետ ԱՄՆ-ից AutoRoom-ի միջոցով։`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      ...(photo ? { images: [{ url: photo, alt: `${car.make} ${car.model}` }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      ...(photo ? { images: [photo] } : {}),
+    },
   };
 }
 

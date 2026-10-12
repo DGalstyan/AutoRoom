@@ -110,7 +110,17 @@ export function buildLeadHidden(input: {
  * the file it's in into an async server action, incompatible with this
  * file's plain type/util exports that Client Components import directly.
  */
-export { submitLead } from '@/lib/actions/leads';
+import { submitLead as submitLeadAction, type SubmitLeadResult } from '@/lib/actions/leads';
+import { settle } from '@/lib/settle';
+
+/** The action, made safe to await: it always resolves, with `failure` set when it timed out or threw. */
+export function submitLead(
+  payload: LeadPayload,
+): Promise<SubmitLeadResult & { failure?: 'timeout' | 'network' }> {
+  return settle(submitLeadAction(payload)) as Promise<
+    SubmitLeadResult & { failure?: 'timeout' | 'network' }
+  >;
+}
 
 export const CHANNEL_INSTRUMENTAL: Record<LeadChannel, string> = {
   call: 'զանգով',

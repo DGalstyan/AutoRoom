@@ -48,6 +48,15 @@ const optionalText = (max: number) =>
     .optional()
     .transform((value) => (value ? value : undefined));
 
+/** An optional email: empty is fine, anything else must look like an address. */
+const optionalEmail = z
+  .union([z.string().trim().max(200), z.literal('')])
+  .optional()
+  .transform((value) => (value ? value : undefined))
+  .refine((value) => value === undefined || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
+    message: 'Enter a valid email address',
+  });
+
 const createLeadBodySchema = z
   .object({
     // Required on every lead form — enforced here as well as in the browser, so
@@ -68,7 +77,7 @@ const createLeadBodySchema = z
         const digits = value.replace(/\D/g, '').length;
         return digits >= 8 && digits <= 15;
       }, 'Enter a valid phone number (8–15 digits)'),
-    email: optionalText(200),
+    email: optionalEmail,
 
     topic: optionalText(120),
     interest: optionalText(40),

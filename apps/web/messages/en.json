@@ -7,7 +7,7 @@
     "maintenanceHeading": "The site is temporarily unavailable",
     "maintenanceBody": "We're carrying out maintenance. Please check back shortly.",
     "nav": {
-      "home": "HOME",
+      "home": "Home",
       "china": "China",
       "usa": "USA",
       "offers": "Special offers",
@@ -97,7 +97,9 @@
       "messengerGreeting": "Hello, I'm {name}. I just sent a request on the AutoRoom website.",
       "messengerGreetingCar": "Hello, I'm {name}. I just sent a request about {car} on the AutoRoom website.",
       "arrivalLabel": "Arrival date",
-      "optionalHint": "Optional — a couple of taps make the offer more accurate."
+      "optionalHint": "Optional — a couple of taps make the offer more accurate.",
+      "sendFailed": "Connection problem: your request was not sent. Check your connection and try again, or call us.",
+      "retry": "Try again"
     },
     "quiz": {
       "title": "Find your car in 60 seconds",
@@ -406,6 +408,10 @@
       "heading": "Page not found",
       "body": "The address is wrong or the page was removed.",
       "home": "Back to the homepage"
+    },
+    "meta": {
+      "title": "AutoRoom — Car imports from the USA and China",
+      "description": "We import cars from the USA, China, Europe and other international markets."
     }
   },
   "home": {
@@ -827,7 +833,8 @@
         "nameInvalid": "The name must contain letters"
       },
       "requiredHint": "* required fields",
-      "addComment": "Add a comment"
+      "addComment": "Add a comment",
+      "retry": "Try again"
     },
     "branches": {
       "heading": "Branches",
@@ -841,6 +848,9 @@
       "heading": "Couldn't find a deal that fits?",
       "text": "Leave your details",
       "cta": "Submit"
+    },
+    "quick": {
+      "label": "Quick contact"
     }
   },
   "usa": {
@@ -1180,7 +1190,8 @@
         "phoneInvalid": "The phone number must have 8 digits after +374",
         "slotRequired": "Please pick a day and time",
         "slotTaken": "That time was just taken. Please pick another.",
-        "companyRequired": "Enter the company name"
+        "companyRequired": "Enter the company name",
+        "sendFailed": "Connection problem: your request was not sent. Check your connection and try again, or call us."
       },
       "steps": {
         "data": "Details",

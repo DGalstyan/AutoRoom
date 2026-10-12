@@ -85,6 +85,8 @@ export function UsaAuctionContactPopup({
   const [qualification, setQualification] = useState<QualificationValues>({ financing: 'need' });
   const [comment, setComment] = useState('');
   const [touched, setTouched] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const popupT = useMessages().common.popup;
   const [status, setStatus] = useState<Status>('idle');
   const [successName, setSuccessName] = useState('');
 
@@ -113,8 +115,9 @@ export function UsaAuctionContactPopup({
       setTouched(true);
       return;
     }
+    setFailed(false);
     setStatus('submitting');
-    await submitLead({
+    const result = await submitLead({
       answers: {
         name: name.trim(),
         phone,
@@ -127,6 +130,11 @@ export function UsaAuctionContactPopup({
       },
       hidden: buildLeadHidden({ sourcePage, sourceCta, locale }),
     });
+    if (!result.ok) {
+      setFailed(true);
+      setStatus('idle');
+      return;
+    }
     setSuccessName(name.trim());
     setStatus('success');
   }
@@ -188,7 +196,7 @@ export function UsaAuctionContactPopup({
                 aria-invalid={nameError}
                 aria-describedby={nameError ? 'uap-name-error' : undefined}
                 placeholder={t.namePlaceholder}
-                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
               />
               {nameError && (
                 <p id="uap-name-error" className="mt-1 text-small text-accent">
@@ -212,7 +220,7 @@ export function UsaAuctionContactPopup({
                 onBlur={() => setTouched(true)}
                 aria-invalid={phoneError}
                 aria-describedby={phoneError ? 'uap-phone-error' : undefined}
-                className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
               />
               {phoneError && (
                 <p id="uap-phone-error" className="mt-1 text-small text-accent">
@@ -232,7 +240,7 @@ export function UsaAuctionContactPopup({
                 value={carLink}
                 onChange={(event) => setCarLink(event.target.value)}
                 placeholder={t.carLinkPlaceholder}
-                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
               />
             </div>
 
@@ -257,6 +265,11 @@ export function UsaAuctionContactPopup({
               />
             </div>
           </div>
+          {failed && (
+            <p role="alert" className="mt-4 text-small text-error">
+              {popupT.sendFailed}
+            </p>
+          )}
         </div>
 
         <div className={DIALOG_FOOTER}>
@@ -264,7 +277,7 @@ export function UsaAuctionContactPopup({
             {t.cancel}
           </Button>
           <Button type="submit" variant="primary" disabled={status === 'submitting'}>
-            {status === 'submitting' ? t.sending : t.submit}
+            {status === 'submitting' ? t.sending : failed ? popupT.retry : t.submit}
           </Button>
         </div>
       </form>

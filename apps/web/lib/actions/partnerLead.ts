@@ -51,6 +51,7 @@ export async function submitPartnerLead(payload: PartnerLeadPayload): Promise<Pa
 
   try {
     const res = await fetch(`${base}/leads`, {
+      signal: AbortSignal.timeout(10_000),
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

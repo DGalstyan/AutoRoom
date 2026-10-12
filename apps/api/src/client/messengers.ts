@@ -49,6 +49,14 @@ export function parsePhone(input: string): ParseResult {
   // Armenian local format: 0 + 8 digits.
   else if (digits.length === 9 && digits.startsWith('0')) digits = ARMENIA_CC + digits.slice(1);
 
+  // An Armenian number is the country code plus exactly 8 digits; "374945544" is a typo, not a link.
+  if (digits.startsWith(ARMENIA_CC) && digits.length !== ARMENIA_CC.length + 8) {
+    return {
+      ok: false,
+      message: 'An Armenian number is +374 followed by 8 digits, e.g. +374 93 88 28 18',
+    };
+  }
+
   if (digits.length < 8 || digits.length > 15 || digits.startsWith('0')) {
     return {
       ok: false,

@@ -10,6 +10,7 @@ import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 import { getPublicAvailability, type PublicAvailabilitySlot } from '@/lib/actions/availability';
 import { submitPartnerLead, type MeetingFormat } from '@/lib/actions/partnerLead';
+import { settle } from '@/lib/settle';
 import { FieldSelect } from '@/components/ui/FieldSelect';
 import {
   confirmPhoneCode,
@@ -170,6 +171,7 @@ export function PartnerBookingPopup({
   footer,
 }: PartnerBookingPopupProps) {
   const t = useMessages().partners.bookingPopup;
+  const popupT = useMessages().common.popup;
   const locale = useLocale();
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -333,7 +335,7 @@ export function PartnerBookingPopup({
   }, [selectedDate, selectedTime, meetingFormat, t]);
 
   async function requestCode(): Promise<boolean> {
-    const result = await sendPhoneCode(phone, locale);
+    const result = await settle(sendPhoneCode(phone, locale));
     if (result.ok) {
       setCode('');
       setCodeError(null);
@@ -341,11 +343,13 @@ export function PartnerBookingPopup({
       return true;
     }
     setCodeError(
-      result.reason === 'rate'
-        ? t.verify.errors.tooMany
-        : result.reason === 'invalid'
-          ? t.verify.errors.invalidPhone
-          : t.verify.errors.sendFailed,
+      !('reason' in result)
+        ? t.verify.errors.sendFailed
+        : result.reason === 'rate'
+          ? t.verify.errors.tooMany
+          : result.reason === 'invalid'
+            ? t.verify.errors.invalidPhone
+            : t.verify.errors.sendFailed,
     );
     return false;
   }
@@ -359,7 +363,15 @@ export function PartnerBookingPopup({
 
     // Ask for the SMS code first, unless the API does not need one or this very
     // number was already proven.
-    if (proof?.phone !== phone && (await isPhoneVerificationRequired())) {
+    let needsCode = false;
+    if (proof?.phone !== phone) {
+      const check = await settle(
+        isPhoneVerificationRequired().then((required) => ({ ok: true as const, required })),
+      );
+      // If the lookup itself timed out, carry on: the submit below reports any real problem.
+      needsCode = 'required' in check && check.required;
+    }
+    if (needsCode) {
       await requestCode();
       setStatus('code');
       return;
@@ -374,10 +386,16 @@ export function PartnerBookingPopup({
     }
     setCodeBusy(true);
     setCodeError(null);
-    const result = await confirmPhoneCode(phone, code);
+    const result = await settle(confirmPhoneCode(phone, code));
     setCodeBusy(false);
     if (!result.ok) {
-      setCodeError(result.reason === 'wrong' ? t.verify.errors.wrong : t.verify.errors.expired);
+      setCodeError(
+        'failure' in result
+          ? t.verify.errors.sendFailed
+          : result.reason === 'wrong'
+            ? t.verify.errors.wrong
+            : t.verify.errors.expired,
+      );
       return;
     }
     setProof({ phone, token: result.token });
@@ -398,33 +416,38 @@ export function PartnerBookingPopup({
           ...(selectedTime.split(':').map(Number) as [number, number]),
         ).toISOString();
 
-    const result = await submitPartnerLead({
-      answers: {
-        name: name.trim(),
-        phone,
-        email: email.trim() || undefined,
-        company: company.trim() || undefined,
-        activityType: activityType || undefined,
-        comment: comment.trim() || undefined,
-        meetingFormat,
-        meetingSlotId: matchedSlot?.id,
-        meetingAt,
-        meetingBranchId: meetingFormat === 'OFFICE' ? branchId : undefined,
-        meetingAddress: meetingFormat === 'OTHER' ? address.trim() : undefined,
-        phoneVerificationToken,
-      },
-      hidden: {
-        sourcePage: '/partners',
-        sourceCta,
-        timestamp: new Date().toISOString(),
-        locale,
-        device: detectDevice(),
-      },
-    });
+    const result = await settle(
+      submitPartnerLead({
+        answers: {
+          name: name.trim(),
+          phone,
+          email: email.trim() || undefined,
+          company: company.trim() || undefined,
+          activityType: activityType || undefined,
+          comment: comment.trim() || undefined,
+          meetingFormat,
+          meetingSlotId: matchedSlot?.id,
+          meetingAt,
+          meetingBranchId: meetingFormat === 'OFFICE' ? branchId : undefined,
+          meetingAddress: meetingFormat === 'OTHER' ? address.trim() : undefined,
+          phoneVerificationToken,
+        },
+        hidden: {
+          sourcePage: '/partners',
+          sourceCta,
+          timestamp: new Date().toISOString(),
+          locale,
+          device: detectDevice(),
+        },
+      }),
+    );
 
     if (result.ok) {
       setSuccessName(name.trim());
       setStatus('success');
+    } else if ('failure' in result) {
+      // Timed out or never reached the server: show the error and keep the form so it can be retried.
+      setStatus('error');
     } else if (result.reason === 'conflict') {
       setStatus('conflict');
       setSelectedTime(null);
@@ -766,6 +789,11 @@ export function PartnerBookingPopup({
                 )}
 
                 {summaryLine && <p className="text-small font-medium text-ink">{summaryLine}</p>}
+                {status === 'error' && (
+                  <p role="alert" className="text-small text-error">
+                    {t.errors.sendFailed}
+                  </p>
+                )}
                 {status === 'conflict' && (
                   <p className="text-small text-accent">{t.errors.slotTaken}</p>
                 )}
@@ -853,7 +881,7 @@ export function PartnerBookingPopup({
               variant="primary"
               disabled={status === 'submitting' || status === 'code' || !isValid}
             >
-              {status === 'submitting' ? t.sending : t.submit}
+              {status === 'submitting' ? t.sending : status === 'error' ? popupT.retry : t.submit}
             </Button>
           </div>
         </form>

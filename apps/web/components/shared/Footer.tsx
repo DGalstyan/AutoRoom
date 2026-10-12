@@ -113,7 +113,7 @@ export async function Footer({
                 <p className="text-[16px] font-medium leading-6 text-white">
                   {footer.socialHeading}
                 </p>
-                <ul className="flex max-w-[110px] flex-wrap-reverse content-end items-end gap-[10px] sm:max-w-[120px]">
+                <ul className="grid grid-cols-3 gap-[10px]">
                   {socialLinks.map(({ key, icon, label, href }) => (
                     <li key={key} className="flex h-11 w-11 items-center justify-center">
                       <a
@@ -121,7 +121,7 @@ export async function Footer({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={label}
-                        className="block rounded-full transition-transform duration-standard ease-expo hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                        className="flex size-11 items-center justify-center rounded-full transition-transform duration-standard ease-expo hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                       >
                         <SocialDisc name={icon} />
                       </a>

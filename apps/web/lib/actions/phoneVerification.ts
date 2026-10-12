@@ -30,6 +30,7 @@ export type SendCodeResult =
 export async function sendPhoneCode(phone: string, locale: string): Promise<SendCodeResult> {
   try {
     const res = await fetch(`${base()}/phone-verifications`, {
+      signal: AbortSignal.timeout(10_000),
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, locale }),
@@ -49,6 +50,7 @@ export type ConfirmCodeResult =
 export async function confirmPhoneCode(phone: string, code: string): Promise<ConfirmCodeResult> {
   try {
     const res = await fetch(`${base()}/phone-verifications/confirm`, {
+      signal: AbortSignal.timeout(10_000),
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, code }),

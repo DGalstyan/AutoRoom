@@ -231,6 +231,8 @@ model Branch {
   lng      Float?
   mapUrl   String?
   photoUrl String?
+  /// Per-language overrides of name/city/address/hours: `{ ru?: {...}, en?: {...} }`. Armenian is the columns above.
+  translations Json?
   /// Display order on the public site.
   position Int     @default(0)
 

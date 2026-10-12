@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Noto_Sans_Armenian } from 'next/font/google';
 import localFont from 'next/font/local';
+import { headers } from 'next/headers';
 import './globals.css';
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
@@ -49,11 +50,41 @@ const notoSansArmenian = Noto_Sans_Armenian({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'AutoRoom — Ավտոմեքենաների ներմուծում ԱՄՆ-ից և Չինաստանից',
-  description:
-    'Ներմուծում ենք ավտոմեքենաներ ԱՄՆ-ից, Չինաստանից, Եվրոպայից և այլ միջազգային շուկաներից։',
-};
+/** The tab title and search description follow the visitor's language like everything else on the page. */
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, messages } = await getServerMessages();
+  const { title, description } = messages.common.meta;
+  const origin = await requestOrigin();
+  // Link previews (Facebook, Telegram, WhatsApp, X): a picture, title and description in the
+  // visitor's language. Pages with their own picture (a car) override `openGraph.images`.
+  const image = { url: '/og/default.jpg', width: 1200, height: 630, alt: title };
+  return {
+    metadataBase: origin ? new URL(origin) : undefined,
+    title,
+    description,
+    openGraph: {
+      type: 'website',
+      siteName: 'AutoRoom',
+      locale: OG_LOCALE[locale],
+      title,
+      description,
+      images: [image],
+    },
+    twitter: { card: 'summary_large_image', title, description, images: [image.url] },
+  };
+}
+
+const OG_LOCALE = { hy: 'hy_AM', en: 'en_US', ru: 'ru_RU' } as const;
+
+/** This request's own origin, so the share-image URL is absolute without hardcoding a host. */
+async function requestOrigin(): Promise<string | null> {
+  const h = await headers();
+  const host = h.get('x-forwarded-host') ?? h.get('host');
+  if (!host) return null;
+  const proto =
+    h.get('x-forwarded-proto') ?? (process.env.NODE_ENV === 'production' ? 'https' : 'http');
+  return `${proto}://${host}`;
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Server-side only: never throws (see `getBrandingLogos`/`getContacts`),

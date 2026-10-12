@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { FIELD_PILL } from '@/components/ui/Field';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { formatArmenianPhone } from '@/lib/phone';
@@ -21,8 +22,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * 72px-tall pill with a `neutral-25` (#fafafa) fill, not the 48px
  * bordered-white-box `rounded-md` inputs this used to have.
  */
-const FIELD_CLASSES =
-  'h-[72px] w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent';
+const FIELD_CLASSES = `${FIELD_PILL} sm:h-[72px]`;
 const LABEL_CLASSES = 'mb-2 block text-[16px] font-medium leading-5 text-neutral-800';
 
 /**
@@ -173,6 +173,7 @@ export function ContactForm() {
               id="contact-name"
               ref={nameRef}
               name="name"
+              maxLength={120}
               type="text"
               autoComplete="name"
               value={name}
@@ -229,6 +230,7 @@ export function ContactForm() {
                 id="contact-email"
                 ref={emailRef}
                 name="email"
+                maxLength={200}
                 type="email"
                 autoComplete="email"
                 value={email}
@@ -277,6 +279,7 @@ export function ContactForm() {
               <textarea
                 id="contact-comment"
                 name="comment"
+                maxLength={2000}
                 rows={4}
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
@@ -304,7 +307,7 @@ export function ContactForm() {
                 t.sending
               ) : (
                 <>
-                  {t.submit}
+                  {submitFailed ? t.retry : t.submit}
                   <ArrowUpRightIcon className="size-5" />
                 </>
               )}

@@ -4,6 +4,7 @@ import { ContactForm } from '@/components/contact/ContactForm';
 import { BranchCards } from '@/components/contact/BranchCards';
 import { ContactFaq } from '@/components/contact/ContactFaq';
 import { ContactFinalCta } from '@/components/contact/ContactFinalCta';
+import { ContactQuickActions } from '@/components/contact/ContactQuickActions';
 import { getServerMessages } from '@/lib/i18n';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -40,11 +41,17 @@ export default function ContactPage() {
   // Spacing from Figma "Contact us" 436:2389: the contact + form cards start 185px down
   // (below the floating header); 150px between every following block.
   return (
-    <>
+    <div>
       <section className={`${COLUMN} pt-32 lg:pt-[185px]`}>
+        {/* Phones: Call / WhatsApp / Viber first, then the form, then the full contact card. */}
+        <ContactQuickActions variant="strip" />
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-[618fr_683fr] sm:gap-x-[43px]">
-          <ContactInfo />
-          <ContactForm />
+          <div className="max-sm:order-2">
+            <ContactInfo />
+          </div>
+          <div className="max-sm:order-1">
+            <ContactForm />
+          </div>
         </div>
       </section>
 
@@ -59,6 +66,8 @@ export default function ContactPage() {
       <div className="mt-16 lg:mt-[150px]">
         <ContactFinalCta />
       </div>
-    </>
+
+      <ContactQuickActions variant="bar" />
+    </div>
   );
 }

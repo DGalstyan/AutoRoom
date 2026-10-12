@@ -26,6 +26,10 @@ export const fieldControlClass =
   'placeholder:text-neutral-600 focus:border-accent focus-visible:ring-2 focus-visible:ring-accent ' +
   'aria-[invalid=true]:border-error disabled:opacity-50';
 
+/** The one text-field look for every lead form (Contact page and popups): 56px rounded pill, soft fill, gold focus ring. */
+export const FIELD_PILL =
+  'h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error';
+
 export function Field({
   label,
   hint,

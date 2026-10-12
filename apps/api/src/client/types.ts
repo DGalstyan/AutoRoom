@@ -567,6 +567,15 @@ export interface BranchRef {
   city: string;
 }
 
+export interface BranchText {
+  name?: string;
+  city?: string;
+  address?: string;
+  hours?: string;
+}
+
+export type BranchTranslations = Partial<Record<'ru' | 'en', BranchText>>;
+
 /** A branch — a pin on the homepage map and everything its popup shows. */
 export interface Branch extends BranchRef {
   address: string;
@@ -578,6 +587,8 @@ export interface Branch extends BranchRef {
   /** Backs the `Ուղղություն` link out to Google Maps. */
   mapUrl: string | null;
   photoUrl: string | null;
+  /** Russian / English wording of name, city, address and hours; blank fields fall back to Armenian. */
+  translations: BranchTranslations | null;
   position: number;
 }
 

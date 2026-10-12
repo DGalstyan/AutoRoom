@@ -62,7 +62,7 @@ export async function ContactInfo() {
   const messengerLinks = configuredMessengers(messengers);
 
   return (
-    <div className="flex flex-col justify-center rounded-xl bg-white p-9 shadow-card">
+    <div className="flex h-full flex-col justify-center rounded-xl bg-white p-6 shadow-card sm:p-9">
       <h1 className="font-display text-home-card-title font-bold text-ink">{t.heading}</h1>
 
       <ul className="mt-4 space-y-4">
@@ -124,7 +124,7 @@ export async function ContactInfo() {
                   href={social[key]!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-lead text-neutral-800 hover:text-accent"
+                  className="inline-flex min-h-11 items-center gap-1 text-lead text-neutral-800 hover:text-accent"
                 >
                   <ArrowUpRightIcon className="size-4" />
                   {name}

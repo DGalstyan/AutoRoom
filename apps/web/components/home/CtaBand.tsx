@@ -38,11 +38,10 @@ export function CtaBand({
             </p>
           )}
         </Reveal>
-        <Reveal delayMs={120}>
-          <GlassButton onClick={onClick} href={href}>
-            {buttonLabel}
-          </GlassButton>
-        </Reveal>
+        {/* Not wrapped in a fade-in: the button must be there as soon as the band is. */}
+        <GlassButton onClick={onClick} href={href}>
+          {buttonLabel}
+        </GlassButton>
       </div>
     </section>
   );

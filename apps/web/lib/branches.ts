@@ -17,6 +17,7 @@
  */
 
 import { apiBase } from '@/lib/env';
+import { getLocale, type Locale } from '@/lib/i18n';
 
 export interface Branch {
   id: string;
@@ -29,11 +30,28 @@ export interface Branch {
    * generated search-by-address URL when not set (see `branchMapsUrl`). */
   mapUrl: string | null;
   photoUrl: string | null;
+  /** Per-language wording from the admin; `getBranches` applies the visitor's language. */
+  translations?: Partial<
+    Record<'ru' | 'en', { name?: string; city?: string; address?: string; hours?: string }>
+  > | null;
 }
 
 interface PublicBranchResponse {
   items: Branch[];
   total: number;
+}
+
+/** `branch` in the visitor's language: each translated field replaces the Armenian one, the rest stays. */
+export function localizeBranch(branch: Branch, locale: Locale): Branch {
+  const text = locale === 'hy' ? undefined : branch.translations?.[locale];
+  if (!text) return branch;
+  return {
+    ...branch,
+    name: text.name || branch.name,
+    city: text.city || branch.city,
+    address: text.address || branch.address,
+    hours: text.hours || branch.hours,
+  };
 }
 
 export async function getBranches(): Promise<Branch[]> {
@@ -44,7 +62,8 @@ export async function getBranches(): Promise<Branch[]> {
     if (!res.ok) return [];
 
     const data = (await res.json()) as PublicBranchResponse;
-    return data.items;
+    const locale = await getLocale();
+    return data.items.map((branch) => localizeBranch(branch, locale));
   } catch {
     return [];
   }

@@ -87,11 +87,27 @@ const homeMapLocations = z.object({
     .max(20),
 });
 
+/**
+ * A social link must open AutoRoom's own page: the right site, and a path (a bare `instagram.com`
+ * would send visitors to the site's home page, not to AutoRoom).
+ */
+const socialProfileUrl = (host: RegExp, site: string) =>
+  optionalUrl.refine(
+    (value) => {
+      if (value === null) return true;
+      const url = new URL(value);
+      return host.test(url.hostname) && url.pathname.replace(/\/+$/, '') !== '';
+    },
+    {
+      message: `Enter the link to AutoRoom's ${site} page, e.g. https://${site.toLowerCase()}.com/autoroom`,
+    },
+  );
+
 const contactsSocial = z.object({
-  facebook: optionalUrl,
-  instagram: optionalUrl,
-  tiktok: optionalUrl,
-  linkedin: optionalUrl,
+  facebook: socialProfileUrl(/(^|\.)(facebook|fb)\.com$/i, 'Facebook'),
+  instagram: socialProfileUrl(/(^|\.)instagram\.com$/i, 'Instagram'),
+  tiktok: socialProfileUrl(/(^|\.)tiktok\.com$/i, 'TikTok'),
+  linkedin: socialProfileUrl(/(^|\.)linkedin\.com$/i, 'LinkedIn'),
 });
 
 /**

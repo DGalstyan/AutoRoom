@@ -16,7 +16,9 @@ const CLASSES =
   'transition-[background,box-shadow,transform] duration-standard ease-expo ' +
   'hover:from-[#111] hover:to-[#1c1c1c] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.45)] ' +
   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ' +
-  'sm:h-[108px] sm:min-w-[231px] sm:px-6';
+  'sm:h-[108px] sm:min-w-[231px] sm:px-6 ' +
+  // On a phone the dark glass pill barely shows against the black band: use the gold primary there.
+  'max-sm:from-accent max-sm:to-accent max-sm:text-ink max-sm:shadow-none max-sm:hover:from-accent-600 max-sm:hover:to-accent-600';
 
 export function GlassButton({
   children,

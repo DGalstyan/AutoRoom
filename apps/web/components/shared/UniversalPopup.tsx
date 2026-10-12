@@ -78,6 +78,7 @@ export function UniversalPopup({
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+374 ');
   const [touched, setTouched] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [interest, setInterest] = useState<LeadInterest | undefined>(preselect?.interest);
   const [budget, setBudget] = useState<LeadBudget | undefined>(preselect?.budget);
   const [financing, setFinancing] = useState<LeadFinancing | undefined>();
@@ -124,10 +125,11 @@ export function UniversalPopup({
       setTouched(true);
       return;
     }
+    setFailed(false);
     setStatus('submitting');
     const commentParts = [comment.trim()];
     if (color) commentParts.unshift(`${t.colorLabel}: ${color}`);
-    await submitLead({
+    const result = await submitLead({
       answers: {
         name: name.trim(),
         phone,
@@ -141,6 +143,12 @@ export function UniversalPopup({
       },
       hidden: buildLeadHidden({ sourcePage, sourceCta, locale, car, quizAnswers }),
     });
+    if (!result.ok) {
+      // Not sent: say so and let the visitor retry (the button is live again).
+      setFailed(true);
+      setStatus('idle');
+      return;
+    }
     setSuccessName(name.trim());
     setSuccessChannel(channel);
     setStatus('success');
@@ -256,7 +264,7 @@ export function UniversalPopup({
                 aria-invalid={nameError}
                 aria-describedby={nameError ? 'up-name-error' : undefined}
                 placeholder={t.namePlaceholder}
-                className="h-12 w-full rounded-md border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
               />
               {nameError && (
                 <p id="up-name-error" className="mt-1 text-small text-accent">
@@ -279,7 +287,7 @@ export function UniversalPopup({
                 onBlur={() => setTouched(true)}
                 aria-invalid={phoneError}
                 aria-describedby={phoneError ? 'up-phone-error' : undefined}
-                className="h-12 w-full rounded-pill border border-line-light px-4 text-body text-ink outline-none focus:border-accent"
+                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
               />
               {phoneError && (
                 <p id="up-phone-error" className="mt-1 text-small text-accent">
@@ -322,11 +330,23 @@ export function UniversalPopup({
               fields={car ? ['budget', 'financing', 'channel'] : undefined}
             />
           </div>
+
+          {failed && (
+            <p role="alert" className="text-small text-error">
+              {t.sendFailed}
+            </p>
+          )}
         </div>
 
         <div className={DIALOG_FOOTER}>
           <Button type="submit" variant="primary" disabled={!isValid || status === 'submitting'}>
-            {status === 'submitting' ? t.sending : car ? t.submitPerCar : t.submit}
+            {status === 'submitting'
+              ? t.sending
+              : failed
+                ? t.retry
+                : car
+                  ? t.submitPerCar
+                  : t.submit}
           </Button>
         </div>
       </form>

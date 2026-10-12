@@ -1,11 +1,7 @@
 'use client';
 
-import type { Locale } from '@/lib/i18n';
+import { LOCALE_LABELS } from '@/lib/localeLabels';
 import { useEnabledLocales, useLocale, useSetLocale } from '@/components/shared/LocaleProvider';
-
-// The design (Figma 436:2097) lists the languages as plain text, English first.
-const LABELS: Record<Locale, string> = { en: 'En', hy: 'Arm', ru: 'Ru' };
-const ORDER: Locale[] = ['en', 'hy', 'ru'];
 
 /**
  * Footer "Languages" list — En / Arm / Ru as plain text buttons: the current
@@ -16,7 +12,7 @@ export function FooterLanguages({ heading }: { heading: string }) {
   const locale = useLocale();
   const enabled = useEnabledLocales();
   const { setLocale, isPending } = useSetLocale();
-  const options = ORDER.filter((code) => enabled.includes(code));
+  const options = enabled;
   if (options.length <= 1) return null;
 
   return (
@@ -35,7 +31,7 @@ export function FooterLanguages({ heading }: { heading: string }) {
                 locale === code ? 'text-white' : 'text-footer-link'
               }`}
             >
-              {LABELS[code]}
+              {LOCALE_LABELS[code]}
             </button>
           </li>
         ))}

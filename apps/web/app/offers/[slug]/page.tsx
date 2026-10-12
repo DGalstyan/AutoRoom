@@ -29,8 +29,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const car = await getOffer(slug);
   if (!car) return {};
+  const photo = car.images[0]?.url;
+  const title = `${car.make} ${car.model} — ${formatUsd(car.price)} | AutoRoom`;
   return {
-    title: `${car.make} ${car.model} — ${formatUsd(car.price)} | AutoRoom`,
+    title,
+    openGraph: {
+      title,
+      ...(photo ? { images: [{ url: photo, alt: `${car.make} ${car.model}` }] } : {}),
+    },
     // An ended offer stays reachable for anyone with the link, but is not worth indexing.
     robots:
       promoStatus(car.promoDeadline) === 'expired' ? { index: false, follow: true } : undefined,

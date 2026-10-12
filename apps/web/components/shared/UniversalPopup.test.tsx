@@ -139,3 +139,38 @@ describe('UniversalPopup — continue in messenger', () => {
     expect(screen.queryByRole('link', { name: /Continue in/ })).not.toBeInTheDocument();
   });
 });
+
+describe('UniversalPopup when the send fails', () => {
+  beforeEach(() => submitLead.mockReset());
+
+  function fill() {
+    renderWithLocale(
+      <UniversalPopup open onClose={() => {}} sourcePage="/" sourceCta="hero" />,
+      'en',
+    );
+    fireEvent.change(screen.getByLabelText(m.nameLabel), { target: { value: 'Anna' } });
+    fireEvent.change(screen.getByLabelText(m.phoneLabel), { target: { value: '77123456' } });
+  }
+
+  it('shows an error and a live retry button when the request is rejected, not a frozen "Sending…"', async () => {
+    submitLead.mockRejectedValueOnce(new Error('Failed to fetch'));
+    fill();
+    fireEvent.click(screen.getByRole('button', { name: m.submit }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(m.sendFailed);
+    const retry = screen.getByRole('button', { name: m.retry });
+    expect(retry).toBeEnabled();
+    expect(screen.queryByText(m.sending)).not.toBeInTheDocument();
+  });
+
+  it('does not show success when the API answered not-ok, and a retry that works does', async () => {
+    submitLead.mockResolvedValueOnce({ ok: false }).mockResolvedValueOnce({ ok: true });
+    fill();
+    fireEvent.click(screen.getByRole('button', { name: m.submit }));
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: m.retry }));
+    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
+  });
+});
