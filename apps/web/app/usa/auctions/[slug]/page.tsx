@@ -72,7 +72,7 @@ export default async function UsaAuctionCarDetailPage({
     <>
       <div className="bg-surface-light">
         <div className="mx-auto max-w-page px-4 pt-32 sm:px-6 sm:pt-[185px] lg:px-12">
-          <CarDetailHero car={car} banks={banks} />
+          <CarDetailHero car={car} banks={banks} variant="auction" />
         </div>
       </div>
 

@@ -79,6 +79,7 @@ export const LEAD_CTAS = {
   'usa-s9-final-cta': 'usaAuction',
   'usa-import-process': 'usaAuction',
   'usa-auction-detail-follow-along': 'usaAuction',
+  'usa-auction-detail-hero': 'usaAuction',
   'usa-customs-calculator': 'universal',
   // Other pages
   'offers-s3-final-cta': 'universal',

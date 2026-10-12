@@ -139,122 +139,125 @@ export function CustomsCalculator({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-10">
-      <h2 className="type-h2 text-ink">{t.heading}</h2>
+      <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Field label={t.carValueLabel} error={err('carValue')}>
-          {(a11y) => <NumberInput {...a11y} value={carValue} onChange={setCarValue} prefix="$" />}
-        </Field>
+      {/* Figma 282:1705: the fields sit in one white card (radius 32, padding 24 / 48). */}
+      <div className="flex flex-col gap-4 rounded-[32px] bg-white p-6 sm:px-12">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label={t.carValueLabel} error={err('carValue')}>
+            {(a11y) => <NumberInput {...a11y} value={carValue} onChange={setCarValue} prefix="$" />}
+          </Field>
 
-        <Field label={t.auctionLabel} group>
-          {() => (
-            <div className="flex h-[52px] gap-1 rounded-pill bg-neutral-25 p-1">
-              {AUCTIONS.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  aria-pressed={auction === option}
-                  onClick={() => setAuction(option)}
-                  className={`flex-1 rounded-pill text-[12px] font-medium transition-colors ${
-                    auction === option ? 'bg-neutral-700 text-white' : 'text-neutral-800'
-                  }`}
-                >
-                  {t.auctionOptions[option]}
-                </button>
-              ))}
-            </div>
-          )}
-        </Field>
+          <Field label={t.auctionLabel} group>
+            {() => (
+              <div className="flex h-[52px] gap-1 rounded-pill bg-neutral-25 p-1">
+                {AUCTIONS.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={auction === option}
+                    onClick={() => setAuction(option)}
+                    className={`flex-1 rounded-pill text-[12px] font-medium transition-colors ${
+                      auction === option ? 'bg-neutral-700 text-white' : 'text-neutral-800'
+                    }`}
+                  >
+                    {t.auctionOptions[option]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </Field>
 
-        <Field label={t.auctionLocationLabel}>
-          {(a11y) => (
-            <SelectInput
-              {...a11y}
-              value={auctionLocation}
-              onChange={setAuctionLocation}
-              placeholder={t.auctionLocationPlaceholder}
-            >
-              {stateOptions.map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
-            </SelectInput>
-          )}
-        </Field>
+          <Field label={t.auctionLocationLabel}>
+            {(a11y) => (
+              <SelectInput
+                {...a11y}
+                value={auctionLocation}
+                onChange={setAuctionLocation}
+                placeholder={t.auctionLocationPlaceholder}
+              >
+                {stateOptions.map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </SelectInput>
+            )}
+          </Field>
 
-        <Field label={t.transportFeeLabel} error={err('transport')}>
-          {(a11y) => (
-            <NumberInput {...a11y} value={transportFee} onChange={setTransportFee} prefix="$" />
-          )}
-        </Field>
-      </div>
+          <Field label={t.transportFeeLabel} error={err('transport')}>
+            {(a11y) => (
+              <NumberInput {...a11y} value={transportFee} onChange={setTransportFee} prefix="$" />
+            )}
+          </Field>
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <Field label={t.engineTypeLabel} error={err('engineType')}>
-          {(a11y) => (
-            <SelectInput
-              {...a11y}
-              value={engineType}
-              onChange={(v) => setEngineType(v as Powertrain)}
-            >
-              {POWERTRAINS.map((option) => (
-                <option key={option} value={option}>
-                  {powertrainLabels[option]}
-                </option>
-              ))}
-            </SelectInput>
-          )}
-        </Field>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Field label={t.engineTypeLabel} error={err('engineType')}>
+            {(a11y) => (
+              <SelectInput
+                {...a11y}
+                value={engineType}
+                onChange={(v) => setEngineType(v as Powertrain)}
+              >
+                {POWERTRAINS.map((option) => (
+                  <option key={option} value={option}>
+                    {powertrainLabels[option]}
+                  </option>
+                ))}
+              </SelectInput>
+            )}
+          </Field>
 
-        <Field label={t.ageLabel} error={err('age')}>
-          {(a11y) => (
-            <SelectInput {...a11y} value={age} onChange={(v) => setAge(v as Age)}>
-              {AGES.map((option) => (
-                <option key={option} value={option}>
-                  {t.ageOptions[option]}
-                </option>
-              ))}
-            </SelectInput>
-          )}
-        </Field>
+          <Field label={t.ageLabel} error={err('age')}>
+            {(a11y) => (
+              <SelectInput {...a11y} value={age} onChange={(v) => setAge(v as Age)}>
+                {AGES.map((option) => (
+                  <option key={option} value={option}>
+                    {t.ageOptions[option]}
+                  </option>
+                ))}
+              </SelectInput>
+            )}
+          </Field>
 
-        <Field label={t.productionYearLabel} error={err('productionYear')}>
-          {(a11y) => (
-            <SelectInput {...a11y} value={productionYear} onChange={setProductionYear}>
-              {PRODUCTION_YEARS.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </SelectInput>
-          )}
-        </Field>
+          <Field label={t.productionYearLabel} error={err('productionYear')}>
+            {(a11y) => (
+              <SelectInput {...a11y} value={productionYear} onChange={setProductionYear}>
+                {PRODUCTION_YEARS.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </SelectInput>
+            )}
+          </Field>
 
-        <Field label={t.engineVolumeLabel} error={err('engineVolume')}>
-          {(a11y) => <NumberInput {...a11y} value={engineVolume} onChange={setEngineVolume} />}
-        </Field>
+          <Field label={t.engineVolumeLabel} error={err('engineVolume')}>
+            {(a11y) => <NumberInput {...a11y} value={engineVolume} onChange={setEngineVolume} />}
+          </Field>
 
-        <Field label={t.vehicleTypeLabel}>
-          {(a11y) => (
-            <SelectInput
-              {...a11y}
-              value={vehicleType}
-              onChange={(v) => setVehicleType(v as VehicleType)}
-            >
-              {VEHICLE_TYPES.map((option) => (
-                <option key={option} value={option}>
-                  {t.vehicleTypeOptions[option]}
-                </option>
-              ))}
-            </SelectInput>
-          )}
-        </Field>
+          <Field label={t.vehicleTypeLabel}>
+            {(a11y) => (
+              <SelectInput
+                {...a11y}
+                value={vehicleType}
+                onChange={(v) => setVehicleType(v as VehicleType)}
+              >
+                {VEHICLE_TYPES.map((option) => (
+                  <option key={option} value={option}>
+                    {t.vehicleTypeOptions[option]}
+                  </option>
+                ))}
+              </SelectInput>
+            )}
+          </Field>
+        </div>
       </div>
 
       <button
         type="submit"
-        className="inline-flex h-12 w-fit shrink-0 items-center justify-center rounded-pill bg-accent px-6 text-[14px] font-medium text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="inline-flex h-12 w-fit shrink-0 self-center items-center justify-center rounded-pill bg-accent px-6 text-[14px] font-medium text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         {t.submit}
       </button>

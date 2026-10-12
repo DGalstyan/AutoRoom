@@ -54,7 +54,9 @@ export function CarSpecs({ car }: { car: Car }) {
     car.mileage
       ? {
           label: t.mileage,
-          value: interpolate(t.mileageValue, { km: car.mileage.toLocaleString('en-US') }),
+          value: interpolate(car.origin === 'USA' ? t.mileageValueMi : t.mileageValue, {
+            km: car.mileage.toLocaleString('en-US'),
+          }),
         }
       : null,
     car.location ? { label: t.location, value: car.location } : null,
@@ -63,12 +65,15 @@ export function CarSpecs({ car }: { car: Car }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-display text-[24px] font-bold leading-[32px] text-neutral-800">
+      <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
         {t.heading}
       </h2>
       <div className="flex flex-col gap-2">
         {rows.map((row) => (
-          <div key={row.label} className="flex min-h-12 items-center gap-3 rounded-md bg-white p-3">
+          <div
+            key={row.label}
+            className="flex min-h-12 items-center gap-3 rounded-md bg-white p-3 sm:gap-0"
+          >
             <span className="type-body w-[140px] shrink-0 text-neutral-700 [overflow-wrap:anywhere] sm:w-[221px]">
               {row.label}
             </span>

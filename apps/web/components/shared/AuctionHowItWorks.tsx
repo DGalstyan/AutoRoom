@@ -33,8 +33,10 @@ export function AuctionHowItWorks({ car }: { car: Car }) {
         <ol className="flex w-full max-w-[860px] flex-col gap-9 lg:gap-12">
           {t.steps.map((step, index) => (
             <li key={step} className="relative flex min-h-[52px] items-center gap-4 sm:gap-10">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-[14px] font-medium text-white sm:size-[50px] sm:text-[16px] sm:leading-6">
-                {String(index + 1).padStart(2, '0')}
+              <span className="flex w-10 shrink-0 justify-center sm:w-[60px]">
+                <span className="flex size-10 items-center justify-center rounded-full bg-white/10 text-[14px] font-medium text-white sm:size-[50px] sm:text-[16px] sm:leading-6">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
               </span>
               <span className="min-w-0 flex-1 rounded-[20px] bg-white/10 p-4 text-[16px] font-bold leading-6 text-white">
                 {step}
@@ -42,7 +44,7 @@ export function AuctionHowItWorks({ car }: { car: Car }) {
               {index < t.steps.length - 1 && (
                 <span
                   aria-hidden="true"
-                  className="absolute left-5 top-[calc(50%+27px)] h-9 w-0.5 -translate-x-1/2 bg-white/20 sm:left-[25px] sm:top-[58px]"
+                  className="absolute left-5 top-[calc(50%+27px)] h-9 w-0.5 -translate-x-1/2 bg-white/20 sm:left-[30px] sm:top-[58px]"
                 />
               )}
             </li>

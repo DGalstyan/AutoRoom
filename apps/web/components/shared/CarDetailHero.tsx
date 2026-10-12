@@ -10,6 +10,7 @@ import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
 import { arrivalDateFromEta } from '@/lib/arrival';
+import { auctionViewLink } from '@/lib/auctionLink';
 import type { Bank } from '@/lib/banks';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
@@ -38,9 +39,23 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * `china.detail`; that copy is generic UI labels (not China-specific
  * wording), now under the shared `common.carDetail` namespace instead.
  */
-export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
+export function CarDetailHero({
+  car,
+  banks,
+  variant = 'default',
+}: {
+  car: Car;
+  banks: Bank[];
+  /**
+   * `auction`: the USA auction page's own bar (Figma "USA Inner" 282:1599): a 36px Semibold name, a 24px
+   * Regular price 38px after it, and two buttons — contact the team, and watch the auction online.
+   */
+  variant?: 'default' | 'auction';
+}) {
   const t = useMessages().common.carDetail;
-  const { openUniversal } = useLeadWidgets();
+  const auctionT = t.auctionFollowAlong;
+  const { openUniversal, openUsaAuctionPopup } = useLeadWidgets();
+  const viewLink = variant === 'auction' ? auctionViewLink(car) : null;
   const { openPicker } = useCompare();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
 
@@ -61,58 +76,94 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
 
   return (
     <div className="flex flex-col gap-9">
-      <div className="flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:whitespace-nowrap">
-          <h1 className="font-display text-[28px] font-medium leading-[40px] text-neutral-900 sm:text-[44px] sm:leading-[56px]">
-            {car.make} {car.model}
-          </h1>
-          <Price size="lg" className="text-neutral-900">
-            {formatUsd(car.price)}
-          </Price>
-        </div>
+      {/* Pinned under the floating header while the page scrolls (Figma: sticky). */}
+      <div className="z-30 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:sticky lg:top-[104px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+        {variant === 'auction' ? (
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:gap-x-[38px] lg:whitespace-nowrap">
+            <h1 className="font-display text-[28px] font-semibold leading-10 text-neutral-900 sm:text-[36px] sm:leading-[56px]">
+              {car.make} {car.model}
+            </h1>
+            <p className="font-display text-[24px] font-normal leading-9 tabular-nums text-neutral-900">
+              {formatUsd(car.price)}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:whitespace-nowrap">
+            <h1 className="font-display text-[28px] font-medium leading-[40px] text-neutral-900 sm:text-[44px] sm:leading-[56px]">
+              {car.make} {car.model}
+            </h1>
+            <Price size="lg" className="text-neutral-900">
+              {formatUsd(car.price)}
+            </Price>
+          </div>
+        )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <a
-            href="#loan-calculator"
-            className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
-          >
-            {t.ctaLoan}
-            <ArrowGlyph />
-          </a>
-          {isOnRoad && (
+        {variant === 'auction' ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => openUsaAuctionPopup({ sourceCta: 'usa-auction-detail-hero' })}
+              className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] leading-[18px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
+            >
+              {auctionT.contactCta}
+              <ArrowGlyph />
+            </button>
+            {viewLink && (
+              <a
+                href={viewLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] leading-[18px] text-neutral-900 transition-colors duration-standard hover:bg-accent-600"
+              >
+                {auctionT.viewOnlineCta}
+                <ArrowGlyph />
+              </a>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="#loan-calculator"
+              className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
+            >
+              {t.ctaLoan}
+              <ArrowGlyph />
+            </a>
+            {isOnRoad && (
+              <button
+                type="button"
+                onClick={() =>
+                  openUniversal({
+                    sourceCta: 'car-detail-reserve-before-arrival',
+                    // Vehicle data + VIN/lot ride in `carContext`; the arrival
+                    // day is computed now (today + this car's delivery ETA).
+                    car: { ...carContext, arrivalDate: arrivalDateFromEta(car.deliveryEtaDays) },
+                  })
+                }
+                className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-accent-600"
+              >
+                {t.ctaReserve}
+                <ArrowGlyph />
+              </button>
+            )}
             <button
               type="button"
               onClick={() =>
-                openUniversal({
-                  sourceCta: 'car-detail-reserve-before-arrival',
-                  // Vehicle data + VIN/lot ride in `carContext`; the arrival
-                  // day is computed now (today + this car's delivery ETA).
-                  car: { ...carContext, arrivalDate: arrivalDateFromEta(car.deliveryEtaDays) },
-                })
+                openUniversal({ sourceCta: 'car-detail-per-car-offer', car: carContext })
               }
-              className="inline-flex h-12 items-center gap-1 rounded-pill bg-accent px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-accent-600"
+              className={`inline-flex h-12 items-center gap-1 rounded-pill px-6 text-[14px] text-neutral-900 transition-colors duration-standard ${
+                isOnRoad ? 'bg-neutral-50 hover:bg-neutral-100' : 'bg-accent hover:bg-accent-600'
+              }`}
             >
-              {t.ctaReserve}
+              {t.ctaOffer}
               <ArrowGlyph />
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() =>
-              openUniversal({ sourceCta: 'car-detail-per-car-offer', car: carContext })
-            }
-            className={`inline-flex h-12 items-center gap-1 rounded-pill px-6 text-[14px] text-neutral-900 transition-colors duration-standard ${
-              isOnRoad ? 'bg-neutral-50 hover:bg-neutral-100' : 'bg-accent hover:bg-accent-600'
-            }`}
-          >
-            {t.ctaOffer}
-            <ArrowGlyph />
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-6 bg-surface-light py-12 lg:flex-row lg:items-start">
-        <div className="min-w-0 lg:flex-[850]">
+        <div className="min-w-0 lg:sticky lg:top-[200px] lg:flex-[850] lg:self-start">
           <CarGallery
             images={car.images}
             colorImageUrl={selectedColorImage}
@@ -125,7 +176,7 @@ export function CarDetailHero({ car, banks }: { car: Car; banks: Bank[] }) {
 
           {colors.length > 0 && (
             <div className="flex flex-col gap-4">
-              <h2 className="font-display text-[24px] font-bold leading-[32px] text-neutral-800">
+              <h2 className="font-display text-[20px] font-bold leading-[32px] text-neutral-800">
                 {t.colorPicker.heading}
               </h2>
               <div className="flex flex-wrap items-center gap-3">

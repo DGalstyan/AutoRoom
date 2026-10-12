@@ -11,11 +11,9 @@ export function AuctionFollowAlong() {
   const t = useMessages().common.carDetail.auctionFollowAlong;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="font-display text-[24px] font-bold leading-[36px] text-neutral-800">
-        {t.heading}
-      </h2>
-      <div className="flex flex-col gap-3 text-lead text-neutral-700">
+    <div className="flex flex-col gap-6">
+      <h2 className="type-h2 text-ink">{t.heading}</h2>
+      <div className="flex flex-col gap-[10px] text-[18px] leading-7 text-neutral-800 sm:text-[24px] sm:leading-9">
         <p>{t.intro1}</p>
         <p>{t.intro2}</p>
         <div>

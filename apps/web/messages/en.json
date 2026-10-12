@@ -261,7 +261,8 @@
         "mileage": "Mileage",
         "mileageValue": "{km} km",
         "location": "Location",
-        "damageHistory": "Damage history"
+        "damageHistory": "Damage history",
+        "mileageValueMi": "{km} mi"
       },
       "colorPicker": {
         "heading": "Choose a color"
@@ -319,7 +320,7 @@
         "steps": [
           "Choose the car you are interested in.",
           "Click “View the car online”.",
-          "A temporary access created just for you opens — no username or password needed.",
+          "A temporary view-only access opens for you.",
           "Follow the auction in real time.",
           "See the price the car sells for at auction."
         ],
