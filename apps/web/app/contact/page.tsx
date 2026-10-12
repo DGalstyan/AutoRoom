@@ -6,7 +6,7 @@ import { ContactFaq } from '@/components/contact/ContactFaq';
 import { ContactFinalCta } from '@/components/contact/ContactFinalCta';
 import { ContactQuickActions } from '@/components/contact/ContactQuickActions';
 import { getServerMessages } from '@/lib/i18n';
-    import { pageMetadata } from '@/lib/pageMeta';
+import { pageMetadata } from '@/lib/pageMeta';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
