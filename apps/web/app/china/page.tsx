@@ -9,13 +9,16 @@ import { ChinaFinalCta } from '@/components/china/ChinaFinalCta';
 import { listCars, listMakeModelFacets } from '@/lib/cars';
 import { getBanks } from '@/lib/banks';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 import type { CarCondition } from '@/lib/types/car';
 
-export const metadata: Metadata = {
-  title: 'Ավտոմեքենաներ Չինաստանից — AutoRoom',
-  description:
-    'Ընտրիր և պատվիրիր մեքենա Չինաստանից AutoRoom-ի միջոցով՝ թափանցիկ գնագոյացմամբ, ֆինանսավորմամբ և ամբողջական ուղեկցումով մինչև հանձնում։',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { messages } = await getServerMessages();
+  return pageMetadata({
+    title: messages.china.meta.title,
+    description: messages.china.meta.description,
+  });
+}
 
 /** The design's 1344px column inside 48px gutters (Figma 1440 canvas). */
 const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';

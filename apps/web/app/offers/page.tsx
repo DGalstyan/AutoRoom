@@ -4,16 +4,17 @@ import { PromotionsSection } from '@/components/shared/PromotionsSection';
 import { OffersFinalCta } from '@/components/shared/OffersFinalCta';
 import { getFeaturedCars, listPromoCars } from '@/lib/cars';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 
 /** The design's 1344px column inside 48px gutters (Figma 1440 canvas). */
 const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return {
+  return pageMetadata({
     title: messages.offers.meta.title,
     description: messages.offers.meta.description,
-  };
+  });
 }
 
 /**
@@ -51,12 +52,12 @@ export default async function OffersPage() {
 
   return (
     <>
-      <h1 className="sr-only">{t.meta.title}</h1>
       {/* pt-32/pt-40 clears the fixed pill header — this page has no hero to
           borrow that clearance from, same as the China listing/About pages. */}
       {/* The first heading sits 221px down in the design (below the fixed header). */}
       <section className={`${COLUMN} bg-surface-light pt-32 text-ink sm:pt-[221px]`}>
-        <h2 className="type-h2">{t.featured.heading}</h2>
+        <h1 className="type-h2">{t.heading}</h1>
+        <h2 className="type-h2 mt-12 lg:mt-[100px]">{t.featured.heading}</h2>
         {featured.length > 0 && (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:gap-x-12 lg:gap-y-8">
             {featured.map((car, index) => (

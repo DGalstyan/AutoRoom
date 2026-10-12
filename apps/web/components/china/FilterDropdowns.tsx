@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import Image from 'next/image';
+import { formatUsd } from '@/lib/types/car';
 
 const ICONS = '/images/china/filters';
 const SHADOW = 'shadow-[0_1px_12px_rgba(19,15,38,0.04)]';
@@ -174,7 +175,7 @@ export function ListDropdown({
   );
 }
 
-const fmt = (n: number) => `${n.toLocaleString('en-US')}$`;
+const fmt = formatUsd;
 
 const THUMB =
   '[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-[30px] [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-[url(/images/china/filters/knob.svg)] [&::-webkit-slider-thumb]:bg-contain [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-[30px] [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[url(/images/china/filters/knob.svg)] [&::-moz-range-thumb]:bg-contain';

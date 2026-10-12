@@ -701,6 +701,10 @@
         "text": ["Vehicle secured.", "Route planned.", "Delivery coordinated."]
       },
       "availability": "24/7"
+    },
+    "meta": {
+      "title": "Cars from China — AutoRoom",
+      "description": "Choose and order a car from China through AutoRoom: transparent pricing, financing and full support up to delivery."
     }
   },
   "about": {
@@ -759,7 +763,7 @@
       "heading": "This week's best deals"
     },
     "promotions": {
-      "heading": "Current Promotions",
+      "heading": "Promotions",
       "tabCurrent": "Current",
       "tabPast": "Past",
       "emptyCurrent": "No active promotions right now.",
@@ -799,7 +803,8 @@
       "expiredCta": "Get a similar offer",
       "currentOffers": "See current offers",
       "details": "Details"
-    }
+    },
+    "heading": "Special offers"
   },
   "contact": {
     "meta": {

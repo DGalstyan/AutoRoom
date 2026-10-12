@@ -10,10 +10,14 @@ import { getBranches } from '@/lib/branches';
 import { getBrandingLogos } from '@/lib/branding';
 import { getContacts } from '@/lib/contacts';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return { title: messages.partners.meta.title, description: messages.partners.meta.description };
+  return pageMetadata({
+    title: messages.partners.meta.title,
+    description: messages.partners.meta.description,
+  });
 }
 
 /**

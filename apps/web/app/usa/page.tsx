@@ -13,6 +13,7 @@ import { UsaFinalCta } from '@/components/usa/UsaFinalCta';
 import { listCars, listMakeModelFacets } from '@/lib/cars';
 import { listGuideReels } from '@/lib/media';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 import type { AuctionPlatform, Car } from '@/lib/types/car';
 
 const PLATFORMS: readonly AuctionPlatform[] = ['COPART', 'IAAI', 'MANHEIM'];
@@ -23,10 +24,10 @@ function toAuctionPlatform(value: string | undefined): AuctionPlatform | undefin
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return {
+  return pageMetadata({
     title: messages.usa.meta.title,
     description: messages.usa.meta.description,
-  };
+  });
 }
 
 /**

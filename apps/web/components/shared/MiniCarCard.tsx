@@ -60,7 +60,7 @@ export function MiniCarCard({
         <div className="relative flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col items-start">
             <span className="p-[10px] text-[16px] font-medium leading-[20px] tabular-nums text-white">
-              {car.price.toLocaleString('en-US')}$
+              {formatUsd(car.price)}
             </span>
             <p className="font-display text-[24px] font-normal leading-9 text-white">
               {car.make} {car.model}

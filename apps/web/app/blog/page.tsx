@@ -3,10 +3,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { listBlogPosts } from '@/lib/blog';
 import { getLocale, getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return { title: messages.blog.meta.title, description: messages.blog.meta.description };
+  return pageMetadata({
+    title: messages.blog.meta.title,
+    description: messages.blog.meta.description,
+  });
 }
 
 const formatDate = (iso: string, locale: string) =>

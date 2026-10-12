@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import { PortalLoginForm } from '@/components/partners/portal/PortalLoginForm';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return {
+  return pageMetadata({
     title: messages.partners.portal.meta.title,
     description: messages.partners.portal.meta.description,
-  };
+  });
 }
 
 /**

@@ -2,10 +2,14 @@ import type { Metadata } from 'next';
 import { MachineryActions } from '@/components/machinery/MachineryActions';
 import { MachineryGlyph } from '@/components/machinery/MachineryGlyph';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return { title: messages.machinery.meta.title, description: messages.machinery.meta.description };
+  return pageMetadata({
+    title: messages.machinery.meta.title,
+    description: messages.machinery.meta.description,
+  });
 }
 
 /**

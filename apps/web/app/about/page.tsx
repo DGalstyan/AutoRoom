@@ -10,16 +10,17 @@ import { getTeamMembers } from '@/lib/team';
 import { getGalleryImages } from '@/lib/gallery';
 import { getFounderVideo } from '@/lib/media';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 
 /** The 1440 design's column: 1344px, 48px gutters (16 / 24 on phones and tablets). */
 const COLUMN = 'mx-auto max-w-page px-4 sm:px-6 lg:px-12';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return {
+  return pageMetadata({
     title: messages.about.meta.title,
     description: messages.about.meta.description,
-  };
+  });
 }
 
 /**

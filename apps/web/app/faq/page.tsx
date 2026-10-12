@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Faq } from '@/components/shared/Faq';
 import { getFaq, type FaqTopic } from '@/lib/faq';
 import { getServerMessages } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/pageMeta';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,10 @@ const TOPICS: { id: string; topic: FaqTopic; key: 'general' | 'china' | 'usa' }[
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return { title: messages.faqPage.meta.title, description: messages.faqPage.meta.description };
+  return pageMetadata({
+    title: messages.faqPage.meta.title,
+    description: messages.faqPage.meta.description,
+  });
 }
 
 /**
