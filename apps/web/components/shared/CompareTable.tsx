@@ -4,8 +4,7 @@ import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
 import { Reveal } from '@/components/ui/Reveal';
-import { Price } from '@/components/ui/Price';
-import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
+import { computeMonthlyPaymentAmd } from '@/lib/loan';
 import { useCompare, type CompareCarRef } from '@/components/shared/CompareProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { interpolate } from '@/lib/messages';
@@ -44,7 +43,7 @@ export function CompareTable({
   const specRows = buildSpecRows(carA, carB, specsT);
 
   return (
-    <div className="flex w-full flex-col gap-16">
+    <div className="flex w-full flex-col gap-12">
       <Reveal delayMs={80}>
         <div className="flex items-center gap-8 sm:gap-16">
           <CarHeaderCard car={carA} onChange={() => changeOther(toRef(carB))} />
@@ -59,13 +58,11 @@ export function CompareTable({
             label={t.priceFinal}
             valueA={formatUsd(carA.estFinalPriceAM ?? carA.price)}
             valueB={formatUsd(carB.estFinalPriceAM ?? carB.price)}
-            price
           />
           <CompareRow
             label={t.priceMonthly}
-            valueA={formatAmd(monthlyA)}
-            valueB={formatAmd(monthlyB)}
-            price
+            valueA={formatUsd(Math.round(monthlyA / finance.usdToAmd))}
+            valueB={formatUsd(Math.round(monthlyB / finance.usdToAmd))}
           />
         </CompareSection>
 
@@ -140,42 +137,22 @@ function CompareSection({ heading, children }: { heading: string; children: Reac
   );
 }
 
-function CompareRow({
-  label,
-  valueA,
-  valueB,
-  price = false,
-}: {
-  label: string;
-  valueA: string;
-  valueB: string;
-  /** Price rows use the canonical price type (20px/700, tabular) and a wider value column. */
-  price?: boolean;
-}) {
+function CompareRow({ label, valueA, valueB }: { label: string; valueA: string; valueB: string }) {
   const differs = valueA !== valueB;
+  // Figma 448:13725: 150px values (16px Medium) either side of a 351px label, every price in $.
+  const value =
+    'w-[150px] shrink-0 text-[16px] font-medium leading-5 tabular-nums text-neutral-800';
   return (
     <div className="flex w-full items-center justify-center gap-6 rounded-md bg-white p-3 transition-shadow duration-standard ease-expo hover:shadow-[0_4px_16px_rgba(13,13,13,0.06)] sm:gap-12">
-      {price ? (
-        <Price className="w-[190px] shrink-0 text-neutral-800">{valueA}</Price>
-      ) : (
-        <span className="w-[150px] shrink-0 text-[16px] font-medium leading-5 tabular-nums text-neutral-800">
-          {valueA}
-        </span>
-      )}
+      <span className={value}>{valueA}</span>
       <span
-        className={`${price ? 'w-[271px]' : 'w-[351px]'} shrink-0 text-center text-[20px] font-bold leading-8 ${
+        className={`w-[351px] shrink-0 text-center text-[20px] font-bold leading-8 ${
           differs ? 'text-error' : 'text-ink'
         }`}
       >
         {label}
       </span>
-      {price ? (
-        <Price className="w-[190px] shrink-0 text-neutral-800">{valueB}</Price>
-      ) : (
-        <span className="w-[150px] shrink-0 text-[16px] font-medium leading-5 tabular-nums text-neutral-800">
-          {valueB}
-        </span>
-      )}
+      <span className={value}>{valueB}</span>
     </div>
   );
 }

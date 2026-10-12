@@ -5,6 +5,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { CompareTable } from '@/components/shared/CompareTable';
 import { CompareCarFinder } from '@/components/shared/CompareCarFinder';
 import { getCarBySlug } from '@/lib/cars';
+import { carHref } from '@/lib/types/car';
 import { getFinanceCalculatorSettings } from '@/lib/settings';
 import { getServerMessages } from '@/lib/i18n';
 
@@ -41,7 +42,25 @@ export default async function ComparePage({
   return (
     <Section tone="light" wide className="pt-32 sm:pb-[150px] sm:pt-[185px]">
       <Reveal>
-        <h1 className="type-h2 mb-16 text-ink">{t.heading}</h1>
+        <div className="mb-16 flex items-center gap-3">
+          {/* 48px "‹" before the heading, back to the car the comparison started from. */}
+          <Link
+            href={carA ? carHref(carA) : '/china'}
+            aria-label={t.back}
+            className="flex size-12 shrink-0 items-center justify-center rounded-pill text-ink transition-colors duration-standard hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <path
+                d="m29 14-10 10 10 10"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+          <h1 className="type-h2 text-ink">{t.heading}</h1>
+        </div>
       </Reveal>
 
       {carA && carB ? (

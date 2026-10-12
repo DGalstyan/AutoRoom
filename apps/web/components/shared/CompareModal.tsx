@@ -84,15 +84,26 @@ export function CompareModal() {
   }
 
   const canConfirm = cars.length === 2;
+  /** The second car, once chosen: it is shown in the search field rather than as another card. */
+  const picked = cars.length === 2 ? cars[1] : undefined;
 
   return (
-    <Dialog open={isPickerOpen} onClose={closePicker} titleId={titleId} closeLabel={closeLabel}>
-      <h2 id={titleId} className="font-display text-h3 font-bold text-ink">
+    <Dialog
+      open={isPickerOpen}
+      onClose={closePicker}
+      titleId={titleId}
+      closeLabel={closeLabel}
+      // Figma 448:13651: 568px wide, 36px padding, 30px corners, X 16px from the edges (its glyph
+      // sits 13px inside the 44px tap box, hence 3px).
+      panelClassName="max-w-[568px] rounded-[30px] p-6 sm:p-9"
+      closeButtonClassName="right-1 top-1 sm:right-[3px] sm:top-[3px]"
+    >
+      <h2 id={titleId} className="font-display text-[20px] font-bold leading-8 text-[#0F1B33]">
         {t.heading}
       </h2>
 
       <div className="mt-6 flex flex-col gap-3">
-        {cars.map((car) => (
+        {cars.slice(0, 1).map((car) => (
           <div
             key={car.id}
             className="flex items-center gap-4 rounded-[24px] bg-neutral-25 p-3 sm:gap-6"
@@ -111,9 +122,9 @@ export function CompareModal() {
                 aria-hidden
               />
             )}
-            <div className="flex-1 text-ink">
-              <p className="text-[16px] font-bold leading-5">{car.make}</p>
-              <p className="text-[12px] font-medium leading-4 text-neutral-700">{car.model}</p>
+            <div className="flex-1">
+              <p className="text-[16px] font-bold leading-5 text-neutral-800">{car.make}</p>
+              <p className="text-[12px] font-medium leading-4 text-neutral-800">{car.model}</p>
             </div>
             <button
               type="button"
@@ -125,72 +136,93 @@ export function CompareModal() {
             </button>
           </div>
         ))}
+      </div>
 
-        {cars.length < 2 && (
-          <div className="flex flex-col gap-2">
-            <label htmlFor="compare-search" className="text-[16px] font-medium text-neutral-700">
-              {t.searchLabel}
-            </label>
-            <div>
+      {/* Stays after a car is picked, now showing it; typing in it swaps the pick for a new search. */}
+      {cars.length > 0 && (
+        <div className="mt-6 flex flex-col gap-2">
+          <label htmlFor="compare-search" className="text-[16px] font-medium text-neutral-800">
+            {t.searchLabel}
+          </label>
+          <div>
+            <div className="relative">
               <input
                 id="compare-search"
                 type="text"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                value={picked ? `${picked.make} ${picked.model}` : query}
+                onChange={(event) => {
+                  if (picked) remove(picked.id);
+                  setQuery(event.target.value);
+                }}
                 placeholder={t.searchPlaceholder}
                 autoComplete="off"
-                className="h-[72px] w-full rounded-[50px] bg-neutral-25 px-6 text-[16px] text-neutral-800 outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
+                className="h-[72px] w-full rounded-[50px] bg-neutral-25 pl-6 pr-14 text-[16px] text-neutral-800 outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent"
               />
-              {query.trim() && (
-                /* In the flow, not floating: the dialog scrolls, so an absolutely positioned
+              <svg
+                className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-neutral-800"
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="m2 4.5 4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+            {query.trim() && (
+              /* In the flow, not floating: the dialog scrolls, so an absolutely positioned
                   list hung below the field was clipped by the panel and, on its white
                   background with a faint shadow, read as missing. */
-                <div
-                  role="listbox"
-                  aria-label={t.searchLabel}
-                  className="mt-2 max-h-64 overflow-y-auto rounded-2xl border border-line-light bg-white p-2"
-                >
-                  {results.length === 0 ? (
-                    <p className="p-3 text-[14px] text-neutral-700">{t.noResults}</p>
-                  ) : (
-                    results.map((result) => (
-                      <button
-                        key={result.id}
-                        type="button"
-                        role="option"
-                        aria-selected="false"
-                        onClick={() => pick(result)}
-                        className="flex w-full items-center gap-3 rounded-xl p-3 text-left hover:bg-neutral-25"
-                      >
-                        {result.imageUrl ? (
-                          <Image
-                            src={result.imageUrl}
-                            alt=""
-                            width={48}
-                            height={32}
-                            className="h-8 w-12 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="h-8 w-12 rounded bg-neutral-100" aria-hidden />
-                        )}
-                        <span className="text-[14px] text-ink">
-                          {result.make} {result.model} {result.year}
-                        </span>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
+              <div
+                role="listbox"
+                aria-label={t.searchLabel}
+                className="mt-2 max-h-64 overflow-y-auto rounded-2xl border border-line-light bg-white p-2"
+              >
+                {results.length === 0 ? (
+                  <p className="p-3 text-[14px] text-neutral-700">{t.noResults}</p>
+                ) : (
+                  results.map((result) => (
+                    <button
+                      key={result.id}
+                      type="button"
+                      role="option"
+                      aria-selected="false"
+                      onClick={() => pick(result)}
+                      className="flex w-full items-center gap-3 rounded-xl p-3 text-left hover:bg-neutral-25"
+                    >
+                      {result.imageUrl ? (
+                        <Image
+                          src={result.imageUrl}
+                          alt=""
+                          width={48}
+                          height={32}
+                          className="h-8 w-12 rounded object-cover"
+                        />
+                      ) : (
+                        <div className="h-8 w-12 rounded bg-neutral-100" aria-hidden />
+                      )}
+                      <span className="text-[14px] text-ink">
+                        {result.make} {result.model} {result.year}
+                      </span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="mt-9 flex items-center justify-end gap-3">
+      <div className="mt-6 flex items-center justify-center gap-3">
         <button
           type="button"
           onClick={closePicker}
-          className="h-12 rounded-pill bg-neutral-100 px-6 text-[14px] font-bold text-ink"
+          className="h-12 rounded-pill bg-neutral-50 px-6 text-[14px] font-bold text-ink hover:bg-neutral-100"
         >
           {t.cancel}
         </button>
@@ -198,7 +230,7 @@ export function CompareModal() {
           type="button"
           disabled={!canConfirm}
           onClick={confirm}
-          className="h-12 rounded-pill bg-accent px-6 text-[14px] font-bold text-ink disabled:pointer-events-none disabled:opacity-50"
+          className="h-12 rounded-pill bg-accent px-6 text-[14px] font-bold text-neutral-800 disabled:pointer-events-none disabled:opacity-50"
         >
           {t.confirm}
         </button>

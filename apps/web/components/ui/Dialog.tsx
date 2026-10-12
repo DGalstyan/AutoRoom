@@ -15,6 +15,13 @@ interface DialogProps {
   children: ReactNode;
   closeLabel: string;
   className?: string;
+  /**
+   * Replaces the default panel width, corner radius and padding (`max-w-lg rounded-lg p-6 sm:p-8`) for a
+   * popup drawn to different measurements. Layout-only: keep the colours and overflow behaviour here.
+   */
+  panelClassName?: string;
+  /** Where the X sits; defaults to 16px in from the top-right corner of its 44px tap box. */
+  closeButtonClassName?: string;
   /** false: clicking the dark overlay does nothing (Esc and the X still close) — for forms a stray click would wipe. */
   closeOnOverlay?: boolean;
   /**
@@ -36,6 +43,8 @@ export function Dialog({
   children,
   closeLabel,
   className = '',
+  panelClassName,
+  closeButtonClassName = 'right-4 top-4',
   closeOnOverlay = true,
   fixedLayout = false,
 }: DialogProps) {
@@ -72,15 +81,19 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`relative z-10 max-h-[90vh] w-full max-w-lg rounded-lg bg-white shadow-card outline-none ${
-          fixedLayout ? 'flex flex-col overflow-hidden' : 'overflow-y-auto p-6 sm:p-8'
+        className={`relative z-10 max-h-[90vh] w-full bg-white shadow-card outline-none ${
+          panelClassName ?? 'max-w-lg rounded-lg'
+        } ${
+          fixedLayout
+            ? 'flex flex-col overflow-hidden'
+            : `overflow-y-auto ${panelClassName ? '' : 'p-6 sm:p-8'}`
         } ${className}`}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label={closeLabel}
-          className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-pill text-ink/60 transition-colors hover:bg-surface-light hover:text-ink"
+          className={`absolute ${closeButtonClassName} z-10 flex h-11 w-11 items-center justify-center rounded-pill text-ink/60 transition-colors hover:bg-surface-light hover:text-ink`}
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path
