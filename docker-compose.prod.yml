@@ -51,11 +51,15 @@ services:
       API_INTERNAL_URL: http://api:4000
     ports:
       - '127.0.0.1:3000:3000'
+    # Resized photos are kept across deploys instead of being rebuilt on every first visit.
+    volumes:
+      - webcache:/app/apps/web/.next/cache
     networks: [internal]
 
 networks:
   internal:
 
 volumes:
+  webcache:
   pgdata:
   uploads:

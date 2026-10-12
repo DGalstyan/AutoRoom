@@ -34,24 +34,38 @@ export function PhotoGallery({ images }: { images: GalleryImage[] }) {
   const rows = chunkIntoRows(sorted);
 
   return (
-    <div className="flex flex-col gap-4 lg:gap-6">
-      {rows.map((row, rowIndex) => (
-        <div
-          key={rowIndex}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-x-[26px] lg:gap-y-6"
-        >
-          {row.images.map((image, tileIndex) => (
-            <Reveal
-              key={image.id}
-              delayMs={tileIndex * 100}
-              className={tileIndex === row.wideIndex ? 'sm:col-span-2' : undefined}
-            >
-              <Tile src={image.imageUrl} n={sorted.indexOf(image) + 1} />
-            </Reveal>
-          ))}
-        </div>
-      ))}
-    </div>
+    <>
+      {/* Phones: one swipeable strip instead of a page-long stack of full-width photos. */}
+      <ul
+        aria-label="AutoRoom"
+        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:hidden [&::-webkit-scrollbar]:hidden"
+      >
+        {sorted.map((image, index) => (
+          <li key={image.id} className="w-[78%] shrink-0 snap-center">
+            <Tile src={image.imageUrl} n={index + 1} />
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden flex-col gap-4 sm:flex lg:gap-6">
+        {rows.map((row, rowIndex) => (
+          <div
+            key={rowIndex}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-x-[26px] lg:gap-y-6"
+          >
+            {row.images.map((image, tileIndex) => (
+              <Reveal
+                key={image.id}
+                delayMs={tileIndex * 100}
+                className={tileIndex === row.wideIndex ? 'sm:col-span-2' : undefined}
+              >
+                <Tile src={image.imageUrl} n={sorted.indexOf(image) + 1} />
+              </Reveal>
+            ))}
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 

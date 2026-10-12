@@ -366,6 +366,8 @@ model TeamMember {
   /// grid card — see `CarImage.thumbnailUrl`'s doc comment for the pattern.
   photoThumbnailUrl String?
   linkedinUrl       String?
+  /// English / Russian wording of name and title: `{ en?: {name?, title?}, ru?: {...} }`. Armenian is the columns above.
+  translations      Json?
   position          Int     @default(0)
 
   createdAt DateTime @default(now())

@@ -37,7 +37,7 @@ export function AboutHero() {
             </button>
             <Link
               href="/contact"
-              className="inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-white px-6 text-[14px] font-medium leading-[18px] text-ink transition-colors duration-standard ease-expo hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              className="inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-ink px-6 text-[14px] font-medium leading-[18px] text-white transition-colors duration-standard ease-expo hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
               {t.cta.contact}
               <ArrowUpRightIcon className="size-5" />

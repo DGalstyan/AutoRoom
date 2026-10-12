@@ -6,11 +6,13 @@ import {
   Avatar,
   Button,
   Dialog,
+  Divider,
   DialogActions,
   DialogContent,
   DialogTitle,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material';
 import { useAuth } from '@/auth/AuthProvider';
 import { errorMessage, extractFieldErrors } from '@/lib/api';
@@ -39,6 +41,7 @@ export function TeamMemberDialog({
           photoUrl: member.photoUrl,
           photoThumbnailUrl: member.photoThumbnailUrl,
           linkedinUrl: member.linkedinUrl,
+          translations: member.translations,
           position: member.position,
         }
       : {
@@ -47,6 +50,7 @@ export function TeamMemberDialog({
           photoUrl: null,
           photoThumbnailUrl: null,
           linkedinUrl: null,
+          translations: null,
           position: nextPosition,
         },
   );
@@ -61,6 +65,17 @@ export function TeamMemberDialog({
       setError(errorMessage(caught));
     },
   });
+
+  /** One language's wording of one field; blank means "show the Armenian". */
+  function setTranslation(lang: 'ru' | 'en', key: 'name' | 'title', value: string) {
+    setDraft((current) => ({
+      ...current,
+      translations: {
+        ...(current.translations ?? {}),
+        [lang]: { ...(current.translations?.[lang] ?? {}), [key]: value },
+      },
+    }));
+  }
 
   function set<K extends keyof TeamMemberInput>(key: K, value: TeamMemberInput[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -102,6 +117,31 @@ export function TeamMemberDialog({
               error={Boolean(fieldErrors.title)}
               helperText={fieldErrors.title ?? 'e.g. CEO'}
             />
+
+            <Divider textAlign="left">
+              <Typography variant="caption" color="text.secondary">
+                Other languages (optional)
+              </Typography>
+            </Divider>
+            <Typography variant="body2" color="text.secondary">
+              What English and Russian visitors see. Blank fields show the Armenian above.
+            </Typography>
+            {(['en', 'ru'] as const).map((lang) => (
+              <Stack key={lang} direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField
+                  label={`Name (${lang})`}
+                  value={draft.translations?.[lang]?.name ?? ''}
+                  onChange={(event) => setTranslation(lang, 'name', event.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label={`Title (${lang})`}
+                  value={draft.translations?.[lang]?.title ?? ''}
+                  onChange={(event) => setTranslation(lang, 'title', event.target.value)}
+                  fullWidth
+                />
+              </Stack>
+            ))}
 
             <UploadField
               label="Photo"

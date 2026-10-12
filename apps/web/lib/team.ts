@@ -14,6 +14,7 @@
  */
 
 import { apiBase } from '@/lib/env';
+import { getLocale, type Locale } from '@/lib/i18n';
 
 export interface TeamMember {
   id: string;
@@ -21,12 +22,21 @@ export interface TeamMember {
   title: string;
   photoUrl: string | null;
   linkedinUrl: string | null;
+  /** English / Russian wording; `getTeamMembers` applies the visitor's language. */
+  translations?: Partial<Record<'ru' | 'en', { name?: string; title?: string }>> | null;
   position: number;
 }
 
 interface PublicTeamResponse {
   items: TeamMember[];
   total: number;
+}
+
+/** `member` in the visitor's language: each translated field replaces the Armenian one. */
+export function localizeMember(member: TeamMember, locale: Locale): TeamMember {
+  const text = locale === 'hy' ? undefined : member.translations?.[locale];
+  if (!text) return member;
+  return { ...member, name: text.name || member.name, title: text.title || member.title };
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
@@ -37,7 +47,8 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
     if (!res.ok) return [];
 
     const data = (await res.json()) as PublicTeamResponse;
-    return data.items;
+    const locale = await getLocale();
+    return data.items.map((member) => localizeMember(member, locale));
   } catch {
     return [];
   }

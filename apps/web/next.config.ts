@@ -46,6 +46,9 @@ const nextConfig: NextConfig = {
     // `<NEXT_PUBLIC_API_URL>/uploads/**`. The origin comes from the environment (set at build
     // time, see the Dockerfile and `.env.example`), never from a hardcoded host.
     remotePatterns: [apiUploadsPattern()],
+    // Uploaded files get a random name and are never edited in place, so a resized copy can be kept
+    // for a year; the default would re-fetch and re-resize them every few hours.
+    minimumCacheTTL: 60 * 60 * 24 * 365,
     // Next 16's SSRF guard refuses to optimize anything hosted on a private address, which is
     // what a local API is. Only relaxed outside production.
     dangerouslyAllowLocalIP: process.env.NODE_ENV !== 'production',

@@ -15,6 +15,19 @@ import { validateBody } from '../middleware/validate';
  */
 export const teamRouter = Router();
 
+type TeamTranslations = Partial<Record<'ru' | 'en', { name?: string; title?: string }>>;
+
+/** One language's wording of a person: blank fields fall back to the Armenian. */
+const teamTextSchema = z
+  .object({
+    name: z.string().trim().max(80).optional(),
+    title: z.string().trim().max(80).optional(),
+  })
+  .transform((value) => {
+    const cleaned = Object.fromEntries(Object.entries(value).filter(([, text]) => text));
+    return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+  });
+
 const teamMemberBodySchema = z.object({
   name: z.string().trim().min(1, 'A name is required').max(80),
   title: z.string().trim().min(1, 'A title is required').max(80),
@@ -31,6 +44,15 @@ const teamMemberBodySchema = z.object({
     .union([z.string().url().max(2048), z.literal(''), z.null()])
     .transform((value) => (value === '' ? null : value))
     .nullish(),
+  /// English / Russian wording; nothing written = the site shows the Armenian.
+  translations: z
+    .object({ ru: teamTextSchema.optional(), en: teamTextSchema.optional() })
+    .nullish()
+    .transform((value) => {
+      if (!value) return null;
+      const cleaned = Object.fromEntries(Object.entries(value).filter(([, text]) => text));
+      return Object.keys(cleaned).length > 0 ? cleaned : null;
+    }),
   /// Order of the cards in the team grid.
   position: z.number().int().min(0).max(999).default(0),
 });
@@ -110,6 +132,7 @@ function toWriteData(body: z.infer<typeof teamMemberBodySchema>) {
     photoUrl: body.photoUrl ?? null,
     photoThumbnailUrl: body.photoThumbnailUrl ?? null,
     linkedinUrl: body.linkedinUrl ?? null,
+    translations: body.translations ?? Prisma.DbNull,
     position: body.position,
   };
 }
@@ -122,6 +145,7 @@ function serializeTeamMember(member: Prisma.TeamMemberGetPayload<object>) {
     photoUrl: member.photoUrl,
     photoThumbnailUrl: member.photoThumbnailUrl,
     linkedinUrl: member.linkedinUrl,
+    translations: (member.translations as TeamTranslations | null) ?? null,
     position: member.position,
   };
 }

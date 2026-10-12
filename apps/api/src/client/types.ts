@@ -621,6 +621,8 @@ export interface TeamMember {
    * grid card. */
   photoThumbnailUrl: string | null;
   linkedinUrl: string | null;
+  /** English / Russian name and title; blank fields fall back to Armenian. */
+  translations: Partial<Record<'ru' | 'en', { name?: string; title?: string }>> | null;
   position: number;
 }
 

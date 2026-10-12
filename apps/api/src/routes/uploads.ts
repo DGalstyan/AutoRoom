@@ -7,6 +7,7 @@ import { env } from '../config/env';
 import { badRequest } from '../lib/errors';
 import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
+import { shrinkImageInPlace } from '../lib/imageShrink';
 
 /**
  * File uploads.
@@ -90,16 +91,19 @@ uploadsRouter.post(
       next();
     });
   },
-  (req, res) => {
+  async (req, res) => {
     const file = req.file;
     if (!file) throw badRequest('No file was uploaded');
+
+    // Camera originals are 10-30 MB; scale them down once so no visitor has to download that.
+    const shrink = await shrinkImageInPlace(file.path);
 
     // Absolute so the admin — served from a different origin — can render it
     // without knowing where the API lives.
     res.status(201).json({
       url: `${env.PUBLIC_API_URL}/uploads/${file.filename}`,
       filename: file.filename,
-      size: file.size,
+      size: shrink.after,
       mimeType: file.mimetype,
     });
   },
