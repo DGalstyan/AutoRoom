@@ -86,13 +86,13 @@ export async function Footer({
       <p className="mt-1 flex flex-wrap gap-x-4">
         <Link
           href="/privacy"
-          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
+          className="relative inline-flex min-h-11 items-center hover:text-white max-lg:after:hidden lg:min-h-0 lg:after:absolute lg:after:-inset-x-1 lg:after:-inset-y-2.5 lg:after:content-['']"
         >
           {footer.privacyPolicy}
         </Link>
         <Link
           href="/terms"
-          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
+          className="relative inline-flex min-h-11 items-center hover:text-white max-lg:after:hidden lg:min-h-0 lg:after:absolute lg:after:-inset-x-1 lg:after:-inset-y-2.5 lg:after:content-['']"
         >
           {footer.terms}
         </Link>
@@ -151,7 +151,7 @@ export async function Footer({
                 <li key={href}>
                   <Link
                     href={href}
-                    className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
+                    className="relative inline-flex min-h-11 items-center hover:text-white max-lg:after:hidden lg:min-h-0 lg:after:absolute lg:after:-inset-x-1 lg:after:-inset-y-2.5 lg:after:content-['']"
                   >
                     {nav[key]}
                   </Link>
@@ -172,7 +172,7 @@ export async function Footer({
                       <li key={phone}>
                         <a
                           href={branchTelHref(phone)}
-                          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
+                          className="relative inline-flex min-h-11 items-center hover:text-white max-lg:after:hidden lg:min-h-0 lg:after:absolute lg:after:-inset-x-1 lg:after:-inset-y-2.5 lg:after:content-['']"
                         >
                           {phone}
                         </a>
@@ -182,7 +182,7 @@ export async function Footer({
                       <li>
                         <a
                           href={`mailto:${email}`}
-                          className="relative inline-flex items-center hover:text-white after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']"
+                          className="relative inline-flex min-h-11 items-center hover:text-white max-lg:after:hidden lg:min-h-0 lg:after:absolute lg:after:-inset-x-1 lg:after:-inset-y-2.5 lg:after:content-['']"
                         >
                           {email}
                         </a>

@@ -65,14 +65,14 @@ export function JourneyStrip({
                 {/* Phones/tablets get a full-photo crop; the desktop strip uses the design's narrow slices. */}
                 <Image
                   src={`/images/home/v2/journey-m-${index + 1}.webp`}
-                  alt=""
+                  alt={step.title}
                   fill
                   sizes="(min-width: 640px) 90vw, 100vw"
                   className="object-cover min-[1400px]:hidden"
                 />
                 <Image
                   src={`/images/home/v2/journey-${index + 1}.webp`}
-                  alt=""
+                  alt={step.title}
                   fill
                   sizes={isActive ? '452px' : '141px'}
                   className="hidden object-cover min-[1400px]:block"

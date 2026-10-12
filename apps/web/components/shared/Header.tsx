@@ -221,7 +221,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
             aria-label={nav.primaryNav}
             tabIndex={-1}
             // Leaves a strip of backdrop on any phone so a tap outside still closes it.
-            className="absolute right-0 top-0 flex h-full w-[min(320px,calc(100%-56px))] flex-col gap-1 overflow-y-auto overscroll-contain bg-surface p-6 pt-20 outline-none"
+            className="absolute right-0 top-0 flex h-full w-[min(320px,calc(100%-56px))] flex-col gap-1 overflow-y-auto overscroll-contain bg-surface p-6 pt-20 outline-none [&>*]:shrink-0"
           >
             <button
               type="button"

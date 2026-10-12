@@ -42,7 +42,8 @@ export function Reveal({
           observer.disconnect();
         }
       },
-      { threshold: 0.2 },
+      // Starts a little before the block scrolls in, so it is already solid when it arrives.
+      { threshold: 0, rootMargin: '0px 0px 12% 0px' },
     );
     observer.observe(node);
     return () => observer.disconnect();

@@ -16,7 +16,7 @@ export function FooterLanguages({ heading }: { heading: string }) {
   if (options.length <= 1) return null;
 
   return (
-    <div className="flex flex-col items-end gap-[15px]">
+    <div className="flex flex-col items-start gap-[15px] sm:items-end">
       <p className="text-[12px] font-medium leading-4 text-white">{heading}</p>
       <ul className="flex items-start gap-5">
         {options.map((code) => (
