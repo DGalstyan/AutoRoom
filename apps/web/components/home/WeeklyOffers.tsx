@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { LoadingImage } from '@/components/ui/LoadingImage';
 import Link from 'next/link';
 import { getFeaturedCars } from '@/lib/cars';
 import { getServerMessages } from '@/lib/i18n';
@@ -34,10 +34,9 @@ export async function WeeklyOffers() {
                   className="group relative flex h-[300px] w-full flex-col justify-end overflow-hidden rounded-[32px] bg-neutral-800 px-4 pb-3 sm:h-[360px] lg:h-[432px] lg:max-w-[648px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                 >
                   {image && (
-                    <Image
+                    <LoadingImage
                       src={image}
                       alt={`${car.make} ${car.model}`}
-                      fill
                       priority={index === 0}
                       sizes="(min-width: 1024px) 648px, (min-width: 768px) 50vw, 100vw"
                       className="object-cover transition-transform duration-[700ms] ease-expo group-hover:scale-[1.04]"

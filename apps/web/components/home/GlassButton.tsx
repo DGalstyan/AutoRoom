@@ -20,17 +20,28 @@ const CLASSES =
   // On a phone the dark glass pill barely shows against the black band: use the gold primary there.
   'max-sm:from-accent max-sm:to-accent max-sm:text-ink max-sm:shadow-none max-sm:hover:from-accent-600 max-sm:hover:to-accent-600';
 
+/** Same size and shape as the glass pill, in the gold primary colour. */
+const ACCENT =
+  'group inline-flex h-16 max-w-full min-w-[160px] shrink-0 items-center text-center sm:whitespace-nowrap justify-center gap-1 rounded-pill bg-accent px-8 text-[20px] leading-7 text-ink ' +
+  'transition-colors duration-standard ease-expo hover:bg-accent-600 ' +
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ' +
+  'sm:h-[108px] sm:min-w-[231px] sm:px-6';
+
 export function GlassButton({
   children,
   onClick,
   href,
   className = '',
+  tone = 'glass',
 }: {
   children: ReactNode;
   onClick?: () => void;
   href?: string;
   className?: string;
+  /** `accent` is the gold primary pill: use it where the dark glass would disappear into a black band. */
+  tone?: 'glass' | 'accent';
 }) {
+  const classes = tone === 'accent' ? ACCENT : CLASSES;
   const content = (
     <>
       {children}
@@ -52,13 +63,13 @@ export function GlassButton({
   );
   if (href) {
     return (
-      <Link href={href} className={`${CLASSES} ${className}`}>
+      <Link href={href} className={`${classes} ${className}`}>
         {content}
       </Link>
     );
   }
   return (
-    <button type="button" onClick={onClick} className={`${CLASSES} ${className}`}>
+    <button type="button" onClick={onClick} className={`${classes} ${className}`}>
       {content}
     </button>
   );

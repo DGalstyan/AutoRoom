@@ -25,6 +25,7 @@ const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string; chevron?:
 /** The phone menu is the one place that also lists the Blog (it is not in the design's bar); the footer links it on desktop. */
 const MENU_LINKS = [
   ...NAV_LINKS.slice(0, -1),
+  { key: 'machinery' as const, href: '/machinery' },
   { key: 'blog' as const, href: '/blog' },
   ...NAV_LINKS.slice(-1),
 ];
@@ -58,9 +59,9 @@ export function Header({ logo = null }: HeaderProps = {}) {
   const { openUniversal } = useLeadWidgets();
 
   // Close the drawer automatically if the viewport grows past the mobile
-  // breakpoint (kept in sync with the `xl:` classes below).
+  // breakpoint (kept in sync with the `lg:` classes below).
   useEffect(() => {
-    const mql = window.matchMedia('(min-width: 1280px)');
+    const mql = window.matchMedia('(min-width: 1024px)');
     const onChange = () => setDrawerOpen(false);
     mql.addEventListener('change', onChange);
     return () => mql.removeEventListener('change', onChange);
@@ -94,7 +95,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
         // component's pre-existing judgment call for legibility over
         // arbitrary scrolled-past content, now anchored to the correct
         // unscrolled baseline.
-        className={`relative mx-auto flex max-w-header items-center justify-between gap-2 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:gap-4 sm:px-6 lg:py-4 ${
+        className={`relative mx-auto flex max-w-header items-center justify-between gap-2 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:gap-4 sm:px-6 lg:gap-2 lg:px-4 lg:py-4 xl:gap-4 xl:px-6 ${
           isLightHeader
             ? 'border border-line-light bg-white'
             : `border border-white/10 backdrop-blur-lg ${scrolled ? 'bg-bg/80' : 'bg-bg/30'}`
@@ -139,14 +140,14 @@ export function Header({ logo = null }: HeaderProps = {}) {
         */}
         <nav
           aria-label={nav.primaryNav}
-          className="hidden items-center gap-0.5 xl:flex min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-1.5"
+          className="hidden items-center gap-0 lg:flex xl:gap-0.5 min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-1.5"
         >
           {NAV_LINKS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-current={pathname === item.href ? 'page' : undefined}
-              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-2 py-1 text-[16px] leading-6 transition-colors duration-micro hover:text-accent ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-1.5 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent xl:px-2 xl:text-[16px] ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
               {item.chevron && (
@@ -164,7 +165,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 xl:flex">
+        <div className="hidden items-center gap-2 lg:flex xl:gap-3">
           {/* Dealers have their own door: the portal, kept apart from the page links. */}
           <Link
             href="/partners/portal"
@@ -182,7 +183,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
           <button
             type="button"
             onClick={() => openUniversal({ sourceCta: 'header-cta' })}
-            className="inline-flex h-12 shrink-0 items-center gap-1 rounded-pill bg-accent px-6 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="inline-flex h-12 shrink-0 items-center gap-1 rounded-pill bg-accent px-4 text-small font-normal text-ink transition-colors duration-standard ease-expo hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent xl:px-6"
           >
             {nav.headerCta}
             <ArrowGlyph />
@@ -192,7 +193,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
         {/* On phones/tablets the request button lives in the menu (below), not in the bar. */}
         <button
           type="button"
-          className={`flex h-11 w-11 items-center justify-center rounded-pill xl:hidden ${isLightHeader ? 'text-ink' : 'text-white'}`}
+          className={`flex h-11 w-11 items-center justify-center rounded-pill lg:hidden ${isLightHeader ? 'text-ink' : 'text-white'}`}
           aria-expanded={drawerOpen}
           aria-controls={drawerId}
           aria-label={drawerOpen ? nav.menuClose : nav.menuOpen}
@@ -205,7 +206,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
       </div>
 
       {drawerOpen && (
-        <div className="fixed inset-0 z-40 xl:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden">
           <button
             type="button"
             aria-label={nav.menuClose}

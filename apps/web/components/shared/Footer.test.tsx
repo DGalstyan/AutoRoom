@@ -145,6 +145,7 @@ describe('Footer', () => {
       '/partners',
       '/about',
       '/offers',
+      '/machinery',
       '/blog',
     ]);
   });

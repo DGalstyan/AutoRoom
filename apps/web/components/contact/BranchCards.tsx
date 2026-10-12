@@ -83,7 +83,7 @@ export async function BranchCards() {
               {branch.photoUrl ? (
                 <Image
                   src={branch.photoUrl}
-                  alt=""
+                  alt={branch.name}
                   fill
                   sizes="(min-width: 1024px) 690px, 100vw"
                   className="object-cover"

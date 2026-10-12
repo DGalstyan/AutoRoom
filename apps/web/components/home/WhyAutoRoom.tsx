@@ -51,7 +51,7 @@ export function WhyAutoRoom({
                 ? '/images/home/v2/anatomy-car-baked.webp'
                 : '/images/home/v2/anatomy-car.webp'
             }
-            alt=""
+            alt={heading}
             fill
             sizes="(min-width: 1024px) 971px, 100vw"
             className="object-contain"

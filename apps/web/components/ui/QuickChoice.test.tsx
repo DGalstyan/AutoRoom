@@ -3,9 +3,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { QuickChoice } from '@/components/ui/QuickChoice';
 
 const FOUR = ['a', 'b', 'c', 'd'].map((k) => ({ key: k, label: k.toUpperCase() }));
+const FIVE = [...FOUR, { key: 'e', label: 'E' }];
 
 describe('QuickChoice', () => {
-  it('renders ≤4 options as chips under a visible legend', () => {
+  it('renders up to five options as chips under a visible legend', () => {
     render(<QuickChoice label="Budget" options={FOUR} value={undefined} onChange={() => {}} />);
     expect(screen.getByRole('group', { name: 'Budget' })).toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(4);
@@ -24,9 +25,9 @@ describe('QuickChoice', () => {
     expect(onChange).toHaveBeenLastCalledWith(undefined);
   });
 
-  it('falls back to a labelled dropdown above 4 options', () => {
+  it('falls back to a labelled dropdown above five options', () => {
     const onChange = vi.fn();
-    const many = [...FOUR, { key: 'e', label: 'E' }];
+    const many = [...FIVE, { key: 'f', label: 'F' }];
     render(<QuickChoice label="Timing" options={many} value="e" onChange={onChange} />);
     const select = screen.getByLabelText('Timing');
     expect(select.tagName).toBe('SELECT');

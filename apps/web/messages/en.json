@@ -19,7 +19,8 @@
       "primaryNav": "Primary navigation",
       "headerCta": "Get Started",
       "blog": "Blog",
-      "partnerPortal": "Partner portal"
+      "partnerPortal": "Partner portal",
+      "machinery": "Construction machinery"
     },
     "stickyCta": {
       "label": "Haven't found your car? Let's find it together",
@@ -55,7 +56,8 @@
         "usa": "A car from the USA",
         "china": "A car from China",
         "in-stock": "In-stock car",
-        "undecided": "Not sure yet"
+        "undecided": "Not sure yet",
+        "machinery": "Construction machinery"
       },
       "budgetLabel": "Budget",
       "budgetOptions": {
@@ -572,6 +574,11 @@
       "heading": "Haven't found your car?",
       "text": "Leave your details, and our specialist will help you find the best option.",
       "cta": "Get started"
+    },
+    "machinery": {
+      "title": "Construction machinery",
+      "text": "We import construction machinery from China to order",
+      "cta": "See the machinery"
     }
   },
   "china": {
@@ -1963,5 +1970,30 @@
     },
     "empty": "Questions are coming soon.",
     "contactCta": "Contact us"
+  },
+  "machinery": {
+    "meta": {
+      "title": "Construction machinery from China — AutoRoom",
+      "description": "Construction machinery imported from China to order, with the price, delivery time and financing calculated for you."
+    },
+    "heading": "Construction machinery from China",
+    "text": "We import construction machinery from China to order. Tell us what you need and our specialist will work out the price, delivery time and financing options.",
+    "badge": "To order",
+    "steps": [
+      {
+        "title": "Tell us what you need",
+        "text": "Leave a request with the model, or the job the machine has to do."
+      },
+      {
+        "title": "Get a calculation",
+        "text": "Our specialist works out the price, delivery time and financing options."
+      },
+      {
+        "title": "We order and deliver",
+        "text": "Once agreed, we import the machinery and see it through to handover."
+      }
+    ],
+    "cta": "Get an offer",
+    "contact": "Contact us"
   }
 }

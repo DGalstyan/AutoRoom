@@ -10,11 +10,11 @@ export interface QuickChoiceOption<K extends string> {
 }
 
 /** More options than this and a row of chips stops being "quick" — fall back to a dropdown. */
-export const MAX_CHIP_OPTIONS = 4;
+export const MAX_CHIP_OPTIONS = 5;
 
 /**
  * One-tap answer to a closed question (budget, financing, timing, channel…).
- * ≤4 options render as chips (one tap, all options visible); more render as a
+ * ≤5 options render as chips (one tap, all options visible); more render as a
  * native dropdown so the form never grows a wall of pills. Either way the
  * label is persistent and visible, and the answer is optional — tapping the
  * selected chip again (or choosing the blank dropdown entry) clears it.

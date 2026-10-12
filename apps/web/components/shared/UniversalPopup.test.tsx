@@ -34,7 +34,7 @@ describe('UniversalPopup lead context', () => {
     fireEvent.change(screen.getByLabelText(m.phoneLabel), { target: { value: '77123456' } });
     fireEvent.click(screen.getByRole('button', { name: m.submitPerCar }));
 
-    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1), { timeout: 5000 });
     const { hidden } = submitLead.mock.calls[0]![0];
     expect(hidden).toMatchObject({
       sourcePage: '/china/li-auto-l9',
@@ -95,7 +95,7 @@ describe('UniversalPopup single screen', () => {
     fireEvent.change(screen.getByLabelText(m.nameLabel), { target: { value: 'Anna' } });
     fireEvent.change(screen.getByLabelText(m.phoneLabel), { target: { value: '77123456' } });
     fireEvent.click(screen.getByRole('button', { name: m.submit }));
-    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1), { timeout: 5000 });
     expect(submitLead.mock.calls[0]![0].answers).toMatchObject({ name: 'Anna' });
   });
 });
@@ -170,7 +170,7 @@ describe('UniversalPopup when the send fails', () => {
     expect(await screen.findByRole('alert')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: m.retry }));
-    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(2), { timeout: 5000 });
     await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
   });
 });

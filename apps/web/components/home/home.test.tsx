@@ -5,6 +5,7 @@ import { CtaBand } from '@/components/home/CtaBand';
 import { HomeHero } from '@/components/home/HomeHero';
 import { JourneyStrip } from '@/components/home/JourneyStrip';
 import { WhyAutoRoom } from '@/components/home/WhyAutoRoom';
+import { renderWithLocale } from '@/lib/test-utils';
 import { WeeklyOffers } from '@/components/home/WeeklyOffers';
 import { getFeaturedCars } from '@/lib/cars';
 import type { Car } from '@/lib/types/car';
@@ -135,7 +136,7 @@ describe('WeeklyOffers', () => {
 
   it('shows at most four featured cars as links with price and name', async () => {
     vi.mocked(getFeaturedCars).mockResolvedValue([1, 2, 3, 4, 5].map(car));
-    render((await WeeklyOffers())!);
+    renderWithLocale((await WeeklyOffers())!);
     const all = screen.getAllByRole('link');
     // Four car cards, then the «Դիտել բոլորը» link to the full list.
     const links = all.filter((link) => link.getAttribute('href') !== '/offers');

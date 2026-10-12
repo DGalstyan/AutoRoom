@@ -73,6 +73,8 @@ export const LEAD_CTAS = {
   // Offers
   'offer-detail-get-offer': 'universal',
   'offer-detail-similar': 'universal',
+  // Machinery
+  'machinery-hero': 'universal',
   // USA
   'usa-s9-final-cta': 'usaAuction',
   'usa-import-process': 'usaAuction',

@@ -39,7 +39,7 @@ export function CtaBand({
           )}
         </Reveal>
         {/* Not wrapped in a fade-in: the button must be there as soon as the band is. */}
-        <GlassButton onClick={onClick} href={href}>
+        <GlassButton tone="accent" onClick={onClick} href={href}>
           {buttonLabel}
         </GlassButton>
       </div>

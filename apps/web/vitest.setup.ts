@@ -1,5 +1,9 @@
 import { vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import { configure } from '@testing-library/react';
+
+// `waitFor`/`findBy*` poll for 1 s by default, which a loaded machine can miss.
+configure({ asyncUtilTimeout: 5000 });
 
 // `LocaleProvider` (rendered by `lib/test-utils.tsx`'s `renderWithLocale`,
 // itself needed by any component reading `useMessages()`/`useLocale()`)

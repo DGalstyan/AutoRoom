@@ -1,7 +1,7 @@
 'use client';
 
+import { LoadingImage } from '@/components/ui/LoadingImage';
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
@@ -45,10 +45,9 @@ export function MiniCarCard({
         className="group relative flex aspect-[3/2] w-full flex-col justify-end overflow-hidden rounded-[32px] bg-neutral-800 px-4 pb-3 transition-transform duration-standard ease-expo hover:-translate-y-1"
       >
         {imageSrc && (
-          <Image
+          <LoadingImage
             src={imageSrc}
             alt={`${car.make} ${car.model}`}
-            fill
             priority={priority}
             sizes="(min-width: 1024px) 648px, 100vw"
             className="object-cover transition-transform duration-[600ms] ease-expo group-hover:scale-[1.03]"
@@ -84,10 +83,9 @@ export function MiniCarCard({
       className="group relative block aspect-[3/2] w-full overflow-hidden rounded-xl bg-neutral-800 shadow-card transition-transform duration-standard ease-expo hover:-translate-y-1"
     >
       {imageSrc ? (
-        <Image
+        <LoadingImage
           src={imageSrc}
           alt={`${car.make} ${car.model}`}
-          fill
           priority={priority}
           sizes="(min-width: 1024px) 50vw, 100vw"
           className="object-cover"

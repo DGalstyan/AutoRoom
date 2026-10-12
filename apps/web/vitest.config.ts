@@ -25,6 +25,9 @@ export default defineConfig({
     env: { API_INTERNAL_URL: 'http://api.test' },
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    // The popup tests await real async steps (a dialog, a mocked server action); under a full parallel
+    // run on a busy machine the defaults (5 s per test) are tight, so give them room.
+    testTimeout: 20_000,
     include: ['**/*.test.{ts,tsx}'],
     exclude: ['node_modules', '.next'],
   },

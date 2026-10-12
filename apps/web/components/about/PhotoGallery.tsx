@@ -46,7 +46,7 @@ export function PhotoGallery({ images }: { images: GalleryImage[] }) {
               delayMs={tileIndex * 100}
               className={tileIndex === row.wideIndex ? 'sm:col-span-2' : undefined}
             >
-              <Tile src={image.imageUrl} />
+              <Tile src={image.imageUrl} n={sorted.indexOf(image) + 1} />
             </Reveal>
           ))}
         </div>
@@ -65,14 +65,15 @@ function chunkIntoRows(images: GalleryImage[]) {
   return rows;
 }
 
-function Tile({ src, className = '' }: { src: string; className?: string }) {
+function Tile({ src, n, className = '' }: { src: string; n: number; className?: string }) {
   return (
     <div
       className={`group relative h-[240px] w-full overflow-hidden rounded-[32px] sm:h-[300px] lg:h-[480px] ${className}`}
     >
       <LoadingImage
         src={src}
-        alt=""
+        // Uploaded photos carry no caption, so name the brand and the picture's place in the set.
+        alt={`AutoRoom ${n}`}
         sizes="(min-width: 640px) 50vw, 100vw"
         className="object-cover transition-transform duration-700 ease-expo group-hover:scale-105"
       />

@@ -57,7 +57,7 @@ export interface UniversalPopupProps {
 
 type Status = 'idle' | 'submitting' | 'success';
 
-const INTEREST_KEYS: LeadInterest[] = ['usa', 'china', 'in-stock', 'undecided'];
+const INTEREST_KEYS: LeadInterest[] = ['usa', 'china', 'in-stock', 'machinery', 'undecided'];
 
 export function UniversalPopup({
   open,

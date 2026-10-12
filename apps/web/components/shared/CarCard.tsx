@@ -1,5 +1,5 @@
+import { LoadingImage } from '@/components/ui/LoadingImage';
 import Link from 'next/link';
-import Image from 'next/image';
 import type { CarSummary } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
@@ -76,10 +76,9 @@ export async function CarCard({
       className={`group relative block aspect-[4/5] w-full overflow-hidden rounded-xl sm:aspect-[3/2] bg-neutral-800 transition-transform duration-standard ease-expo hover:-translate-y-1 ${isPromoEnded ? 'grayscale' : ''}`}
     >
       {imageSrc ? (
-        <Image
+        <LoadingImage
           src={imageSrc}
           alt={`${car.make} ${car.model}`}
-          fill
           priority={priority}
           sizes="(min-width: 1024px) 50vw, 100vw"
           className="object-cover"

@@ -34,7 +34,7 @@ describe('USA auction popup — quick qualification', () => {
     fireEvent.click(screen.getByRole('button', { name: p.channelOptions.viber }));
     fireEvent.click(screen.getByRole('button', { name: m.usa.auctionPopup.submit }));
 
-    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1), { timeout: 5000 });
     const { answers, hidden } = submitLead.mock.calls[0]![0];
     expect(answers).toMatchObject({
       budget: '20-35k',
