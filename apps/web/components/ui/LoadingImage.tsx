@@ -10,6 +10,7 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * the card is just an empty dark box for seconds. Place it inside a `relative` sized container.
  */
 export function LoadingImage({
+  alt,
   className = '',
   onLoad,
   onError,
@@ -36,6 +37,7 @@ export function LoadingImage({
       )}
       <Image
         {...props}
+        alt={alt}
         ref={ref}
         fill
         onLoad={(event) => {

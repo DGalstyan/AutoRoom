@@ -117,6 +117,9 @@ export function NearYouGlobe({ poster, locations }: { poster: string; locations:
       canvas.removeEventListener('pointercancel', up);
       globe?.destroy();
     };
+    // `locationsKey` is the serialized `locations`: rebuild the globe only when their content changes,
+    // not whenever the server hands down a new array with the same places.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationsKey]);
 
   return (
