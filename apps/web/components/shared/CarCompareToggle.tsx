@@ -17,11 +17,14 @@ export function CarCompareToggle({
   label,
   labelSelected,
   className = '',
+  compact = false,
 }: {
   car: CompareCarRef;
   label: string;
   labelSelected: string;
   className?: string;
+  /** Icon only (the label stays for screen readers) — for card rows too crowded for the full chip. */
+  compact?: boolean;
 }) {
   const { isSelected, toggle } = useCompare();
   const selected = isSelected(car.id);
@@ -37,7 +40,8 @@ export function CarCompareToggle({
           : 'border-white bg-transparent text-white hover:bg-white/10'
       }`}
     >
-      ⚖ {selected ? labelSelected : label}
+      <span aria-hidden="true">⚖</span>{' '}
+      <span className={compact ? 'sr-only' : ''}>{selected ? labelSelected : label}</span>
     </button>
   );
 }

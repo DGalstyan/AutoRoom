@@ -165,6 +165,7 @@ export async function CarCard({
           {!isPromo && (
             <CarCompareToggle
               className="pointer-events-auto relative z-[2]"
+              compact={crowded}
               car={{
                 id: car.id,
                 slug: car.slug,
