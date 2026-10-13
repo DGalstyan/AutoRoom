@@ -18,6 +18,7 @@ export function ChinaFinalCta() {
       heading={t.heading}
       sub={t.text}
       buttonLabel={t.cta}
+      buttonTone="glass"
       onClick={() =>
         openUniversal({ sourceCta: 'china-s7-final-cta', preselect: { interest: 'china' } })
       }

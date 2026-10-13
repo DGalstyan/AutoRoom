@@ -748,7 +748,7 @@ export function PartnerBookingPopup({
                     )}
                   </div>
                 </div>
-                {slotError && <p className="text-small text-accent">{t.errors.slotRequired}</p>}
+                {slotError && <p className="text-small text-error">{t.errors.slotRequired}</p>}
 
                 <Field id="pbp-format" label={t.formatLabel}>
                   <FieldSelect
@@ -795,7 +795,7 @@ export function PartnerBookingPopup({
                   </p>
                 )}
                 {status === 'conflict' && (
-                  <p className="text-small text-accent">{t.errors.slotTaken}</p>
+                  <p className="text-small text-error">{t.errors.slotTaken}</p>
                 )}
               </div>
             </div>
@@ -832,7 +832,7 @@ export function PartnerBookingPopup({
                   className="h-12 w-full rounded-pill border border-line-light px-4 text-center text-[20px] tracking-[0.4em] tabular-nums text-ink outline-none focus:border-accent"
                 />
                 {codeError && (
-                  <p id="pbp-code-error" role="alert" className="mt-1 text-small text-accent">
+                  <p id="pbp-code-error" role="alert" className="mt-1 text-small text-error">
                     {codeError}
                   </p>
                 )}
@@ -923,7 +923,7 @@ function Field({
 
 function FieldError({ id, children }: { id: string; children: ReactNode }) {
   return (
-    <p id={id} role="alert" className="text-small text-accent">
+    <p id={id} role="alert" className="text-small text-error">
       {children}
     </p>
   );

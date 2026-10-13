@@ -8,11 +8,14 @@ import { useEnabledLocales, useLocale, useSetLocale } from '@/components/shared/
  * language in white, the others in #8f9fa3. Only the locales an admin has
  * enabled are offered; renders nothing when there is just one.
  */
+const FOOTER_ORDER = ['en', 'hy', 'ru'];
+
 export function FooterLanguages({ heading }: { heading: string }) {
   const locale = useLocale();
   const enabled = useEnabledLocales();
   const { setLocale, isPending } = useSetLocale();
-  const options = enabled;
+  // The design lists them En / Arm / Ru, whatever order the admin enabled them in.
+  const options = [...enabled].sort((a, b) => FOOTER_ORDER.indexOf(a) - FOOTER_ORDER.indexOf(b));
   if (options.length <= 1) return null;
 
   return (

@@ -47,7 +47,7 @@ describe('ChinaFilters', () => {
     expect(list.querySelectorAll('li')).toHaveLength(3);
     fireEvent.click(
       screen.getByRole('button', {
-        name: t.removeFilter.replace('{label}', `${t.makePrefix}: BYD`),
+        name: t.removeFilter.replace('{label}', 'BYD'),
       }),
     );
     expect(push).toHaveBeenCalledWith('/china?q=seal&condition=IN_STOCK', { scroll: false });

@@ -256,6 +256,7 @@
         "transmission": "Փոխանցման տուփ",
         "seats": "Նստատեղերի քանակ",
         "warranty": "Երաշխիք",
+        "warrantyNone": "Չկա",
         "vin": "VIN",
         "lotNumber": "Լոտի համար",
         "mileage": "Վազք",
@@ -632,7 +633,7 @@
       "activeFilters": "Ակտիվ ֆիլտրեր",
       "removeFilter": "Հեռացնել ֆիլտրը՝ {label}",
       "chipSearch": "Որոնում՝ {value}",
-      "chipPrice": "Գին՝ {from}$ – {to}$"
+      "chipPrice": "Գին՝ {from} – {to}"
     },
     "empty": "Այս ֆիլտրերով մեքենաներ առայժմ չկան։",
     "financing": {

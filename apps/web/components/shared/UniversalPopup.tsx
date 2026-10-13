@@ -267,7 +267,7 @@ export function UniversalPopup({
                 className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
               />
               {nameError && (
-                <p id="up-name-error" className="mt-1 text-small text-accent">
+                <p id="up-name-error" className="mt-1 text-small text-error">
                   {t.errors.nameRequired}
                 </p>
               )}
@@ -291,7 +291,7 @@ export function UniversalPopup({
                 className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
               />
               {phoneError && (
-                <p id="up-phone-error" className="mt-1 text-small text-accent">
+                <p id="up-phone-error" className="mt-1 text-small text-error">
                   {t.errors.phoneInvalid}
                 </p>
               )}

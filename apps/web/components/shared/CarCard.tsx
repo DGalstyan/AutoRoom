@@ -73,10 +73,19 @@ export async function CarCard({
   );
 
   return (
-    <Link
-      href={href ?? carHref(car)}
+    <div
       className={`group relative block aspect-[4/5] w-full overflow-hidden rounded-xl sm:aspect-[3/2] transition-transform duration-standard ease-expo hover:-translate-y-1 ${isPromoEnded ? 'bg-black' : 'bg-neutral-800'}`}
     >
+      {/* The card's link is a sibling of the compare button, not its parent (a button inside
+          a link is invalid HTML): it stretches over the whole card, and the button sits above it. */}
+      <Link
+        href={href ?? carHref(car)}
+        className="absolute inset-0 z-[1] rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        <span className="sr-only">
+          {car.make} {car.model}
+        </span>
+      </Link>
       {imageSrc ? (
         <LoadingImage
           src={imageSrc}
@@ -98,7 +107,7 @@ export async function CarCard({
         aria-hidden="true"
       />
 
-      <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6">
+      <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4 sm:p-6">
         <div className={`flex flex-wrap items-center gap-[5px] ${badgesEnd ? 'justify-end' : ''}`}>
           {isPromo ? (
             <>
@@ -146,6 +155,7 @@ export async function CarCard({
           {/* Not on promotion cards: the design's badge row there is the badge and the countdown only. */}
           {!isPromo && (
             <CarCompareToggle
+              className="pointer-events-auto relative z-[2]"
               car={{
                 id: car.id,
                 slug: car.slug,
@@ -195,6 +205,6 @@ export async function CarCard({
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

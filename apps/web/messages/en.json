@@ -256,6 +256,7 @@
         "transmission": "Transmission",
         "seats": "Seats",
         "warranty": "Warranty",
+        "warrantyNone": "None",
         "vin": "VIN",
         "lotNumber": "Lot number",
         "mileage": "Mileage",
@@ -632,7 +633,7 @@
       "activeFilters": "Active filters",
       "removeFilter": "Remove filter: {label}",
       "chipSearch": "Search: {value}",
-      "chipPrice": "Price: ${from} – ${to}"
+      "chipPrice": "Price: {from} – {to}"
     },
     "empty": "No cars match these filters yet.",
     "financing": {
@@ -695,7 +696,7 @@
     "finalCta": {
       "heading": "Your next car is already in China — let's get started",
       "text": "Leave your details, get an offer",
-      "cta": "Get started"
+      "cta": "Fill in"
     },
     "services": {
       "label": "Our services",

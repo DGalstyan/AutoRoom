@@ -89,7 +89,7 @@ export function CarDetailHero({
           </div>
         ) : (
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:whitespace-nowrap">
-            <h1 className="font-display text-[28px] font-medium leading-[40px] text-neutral-900 sm:text-[44px] sm:leading-[56px]">
+            <h1 className="font-display text-[28px] font-medium uppercase leading-[40px] text-neutral-900 sm:text-[44px] sm:leading-[56px]">
               {car.make} {car.model}
             </h1>
             <Price size="lg" className="text-neutral-900">

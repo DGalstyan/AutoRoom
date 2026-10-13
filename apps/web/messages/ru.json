@@ -256,6 +256,7 @@
         "transmission": "Коробка передач",
         "seats": "Количество мест",
         "warranty": "Гарантия",
+        "warrantyNone": "Нет",
         "vin": "VIN",
         "lotNumber": "Номер лота",
         "mileage": "Пробег",
@@ -632,7 +633,7 @@
       "activeFilters": "Активные фильтры",
       "removeFilter": "Убрать фильтр: {label}",
       "chipSearch": "Поиск: {value}",
-      "chipPrice": "Цена: {from}$ – {to}$"
+      "chipPrice": "Цена: {from} – {to}"
     },
     "empty": "По этим фильтрам автомобилей пока нет.",
     "financing": {

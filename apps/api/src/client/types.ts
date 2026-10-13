@@ -1131,6 +1131,7 @@ export interface FinanceCalculator {
   defaultDownPaymentRatio: number;
   usdToAmd: number;
   disclaimer: string | null;
+  disclaimerTranslations?: { en: string | null; ru: string | null };
 }
 
 export interface FinanceCustoms {

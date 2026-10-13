@@ -42,7 +42,7 @@ export function ChinaFinancing({ banks }: { banks: Bank[] }) {
               {partnerBanks.map((bank) => (
                 <div
                   key={bank.id}
-                  className="flex h-[113px] min-w-[200px] flex-1 items-center justify-center rounded-xl bg-white p-3 lg:flex-none"
+                  className="flex h-[113px] min-w-[200px] flex-1 items-center justify-center rounded-xl bg-white p-3 lg:basis-0"
                 >
                   {bank.logoUrl ? (
                     <Image

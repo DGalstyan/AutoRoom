@@ -47,11 +47,12 @@ export function Header({ logo = null }: HeaderProps = {}) {
   // glass treatment read as a visibly wrong, unexplained dark bar floating
   // over a white page before this.
   const pathname = usePathname();
-  // Light hero pages (About, Contact — Figma 436:2185/2390) and the portal draw the pill white.
+  // Light pages (About, Contact — Figma 436:2185/2390; China and its car pages — 458:457) and the portal draw the pill white.
   const isLightHeader =
     (pathname?.startsWith('/partners/portal') ?? false) ||
     pathname === '/about' ||
-    pathname === '/contact';
+    pathname === '/contact' ||
+    (pathname?.startsWith('/china') ?? false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerId = useId();
   const drawerRef = useRef<HTMLDivElement>(null);

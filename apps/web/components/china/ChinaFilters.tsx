@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { interpolate } from '@/lib/messages';
+import { formatUsd } from '@/lib/types/car';
 import { ListDropdown, PriceDropdown } from '@/components/china/FilterDropdowns';
 
 const PRICE_MIN = 1_000;
@@ -98,14 +99,14 @@ export function ChinaFilters({
   if (make) {
     chips.push({
       key: 'make',
-      label: `${t.makePrefix}: ${make}`,
+      label: make,
       clear: () => updateParams({ make: null, model: null }),
     });
   }
   if (model) {
     chips.push({
       key: 'model',
-      label: `${t.model}: ${model}`,
+      label: model,
       clear: () => updateParams({ model: null }),
     });
   }
@@ -113,8 +114,8 @@ export function ChinaFilters({
     chips.push({
       key: 'price',
       label: interpolate(t.chipPrice, {
-        from: priceMin.toLocaleString('en-US'),
-        to: priceMax.toLocaleString('en-US'),
+        from: formatUsd(priceMin),
+        to: formatUsd(priceMax),
       }),
       clear: () => {
         setPriceMin(PRICE_MIN);
@@ -135,6 +136,19 @@ export function ChinaFilters({
     event.preventDefault();
     updateParams({ q: draft.trim() || null });
   }
+
+  // Search applies as you type, like the other filters (after a short pause, so each
+  // keystroke is not a navigation). `latest` keeps the effect from re-firing on `updateParams`.
+  const latest = useRef(updateParams);
+  useEffect(() => {
+    latest.current = updateParams;
+  });
+  useEffect(() => {
+    const next = draft.trim();
+    if (next === query) return;
+    const timer = setTimeout(() => latest.current({ q: next || null }), 400);
+    return () => clearTimeout(timer);
+  }, [draft, query]);
 
   return (
     <div className="flex flex-col">

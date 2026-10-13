@@ -146,6 +146,8 @@ const financeCalculator = z.object({
   defaultDownPaymentRatio: z.number().min(0).max(1),
   usdToAmd: z.number().positive().max(100_000),
   disclaimer: optionalText,
+  /** The small print in the other site languages; `disclaimer` itself is the Armenian text. */
+  disclaimerTranslations: z.object({ en: optionalText, ru: optionalText }).optional(),
 });
 
 const percentOrNull = z.number().min(0).max(100).nullable();

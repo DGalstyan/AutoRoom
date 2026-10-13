@@ -138,6 +138,7 @@ export interface FinanceCalculator {
   defaultDownPaymentRatio: number;
   usdToAmd: number;
   disclaimer: string | null;
+  disclaimerTranslations?: { en: string | null; ru: string | null };
 }
 
 /** Where a `CarCard`/`FeaturedCars` link should point (future car-detail routes). */

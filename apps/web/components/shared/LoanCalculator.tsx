@@ -7,7 +7,7 @@ import { formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
 import { computeMonthlyPaymentAmd, explainLoan, formatAmd } from '@/lib/loan';
 import { interpolate } from '@/lib/messages';
-import { useMessages } from '@/components/shared/LocaleProvider';
+import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 /**
  * China/USA car-detail S3.6b — "Վարկի պայմաններ" real-time
@@ -28,6 +28,10 @@ export function LoanCalculator({
   finance: FinanceCalculator;
 }) {
   const t = useMessages().common.carDetail.loanCalculator;
+  const locale = useLocale();
+  // The admin enters the small print in Armenian; other languages show their own text, or nothing.
+  const disclaimer =
+    locale === 'hy' ? finance.disclaimer : (finance.disclaimerTranslations?.[locale] ?? null);
   const min = useMemo(
     () => Math.round(car.price * finance.minDownPaymentRatio),
     [car.price, finance.minDownPaymentRatio],
@@ -255,8 +259,8 @@ export function LoanCalculator({
           </div>
         </dl>
       </section>
-      {finance.disclaimer && (
-        <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{finance.disclaimer}</p>
+      {disclaimer && (
+        <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{disclaimer}</p>
       )}
     </div>
   );

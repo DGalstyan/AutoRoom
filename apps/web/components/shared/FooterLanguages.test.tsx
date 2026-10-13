@@ -21,9 +21,10 @@ describe('FooterLanguages', () => {
   it('lists the enabled languages with the same labels as the menu, marking the current one', () => {
     renderWith('hy', ['hy', 'en', 'ru']);
     const buttons = screen.getAllByRole('button');
+    // The design's order: En / Arm / Ru.
     expect(buttons.map((b) => b.textContent)).toEqual([
-      LOCALE_LABELS.hy,
       LOCALE_LABELS.en,
+      LOCALE_LABELS.hy,
       LOCALE_LABELS.ru,
     ]);
     expect(screen.getByRole('button', { name: LOCALE_LABELS.hy })).toHaveAttribute(

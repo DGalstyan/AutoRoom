@@ -10,8 +10,7 @@ import { useCompare, type CompareCarRef } from '@/components/shared/CompareProvi
  * `useCompare()` — same reasoning `PromoCountdown` is a separate client
  * child inside it.
  *
- * Sits inside `CarCard`'s own `<Link>`, so a click has to stop the
- * navigation it would otherwise trigger.
+ * Sits beside `CarCard`'s stretched link (never inside it), above it in the stacking order.
  */
 export function CarCompareToggle({
   car,
@@ -31,11 +30,7 @@ export function CarCompareToggle({
     <button
       type="button"
       aria-pressed={selected}
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        toggle(car);
-      }}
+      onClick={() => toggle(car)}
       className={`${className} min-h-11 rounded-pill border px-[16px] py-[10px] text-[16px] font-medium leading-[20px] transition-colors duration-standard max-sm:px-3 max-sm:py-2 max-sm:text-[14px] ${
         selected
           ? 'border-accent bg-accent text-ink'

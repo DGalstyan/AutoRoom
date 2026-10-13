@@ -151,6 +151,42 @@ export function FinanceSettings({
             minRows={2}
             fullWidth
           />
+          <TextField
+            label="Disclaimer (English)"
+            value={v.disclaimerTranslations?.en ?? ''}
+            onChange={(event) =>
+              finance.patch({
+                disclaimerTranslations: {
+                  ...{ en: null, ru: null },
+                  ...v.disclaimerTranslations,
+                  en: event.target.value || null,
+                },
+              })
+            }
+            helperText="Shown instead of the Armenian text on the English site."
+            disabled={readOnly}
+            multiline
+            minRows={2}
+            fullWidth
+          />
+          <TextField
+            label="Disclaimer (Russian)"
+            value={v.disclaimerTranslations?.ru ?? ''}
+            onChange={(event) =>
+              finance.patch({
+                disclaimerTranslations: {
+                  ...{ en: null, ru: null },
+                  ...v.disclaimerTranslations,
+                  ru: event.target.value || null,
+                },
+              })
+            }
+            helperText="Shown instead of the Armenian text on the Russian site."
+            disabled={readOnly}
+            multiline
+            minRows={2}
+            fullWidth
+          />
         </Stack>
       </SectionCard>
 

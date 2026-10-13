@@ -17,6 +17,16 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * divided list — so it reads against the section's off-white backdrop the
  * same way every other row-card on this page does.
  */
+/** A bare number in the battery field is kWh (the admin enters "130.15"). */
+function batteryLabel(value: string): string {
+  return /^\d+(\.\d+)?$/.test(value.trim()) ? `${value.trim()} kWh` : value;
+}
+
+/** The warranty field is free text; "no" in any of the site's languages reads as none. */
+function isNoWarranty(value: string): boolean {
+  return /^(no|none|n\/a|-|нет|չկա|ոչ)$/i.test(value.trim());
+}
+
 export function CarSpecs({ car }: { car: Car }) {
   const messages = useMessages();
   const t = messages.common.carDetail.specs;
@@ -40,12 +50,14 @@ export function CarSpecs({ car }: { car: Car }) {
           value: interpolate(t.rangeValue, { km: car.range.toLocaleString('en-US') }),
         }
       : null,
-    car.battery ? { label: t.battery, value: car.battery } : null,
+    car.battery ? { label: t.battery, value: batteryLabel(car.battery) } : null,
     car.engine ? { label: t.engine, value: car.engine } : null,
     car.drivetrain ? { label: t.drivetrain, value: car.drivetrain } : null,
     car.transmission ? { label: t.transmission, value: car.transmission } : null,
     car.seats ? { label: t.seats, value: String(car.seats) } : null,
-    car.warranty ? { label: t.warranty, value: car.warranty } : null,
+    car.warranty
+      ? { label: t.warranty, value: isNoWarranty(car.warranty) ? t.warrantyNone : car.warranty }
+      : null,
     // USA auction/available cars carry these; a China car (no auction lot,
     // no odometer reading yet) simply has them null and the row is skipped —
     // same "field renders nothing until set" contract as everywhere else.

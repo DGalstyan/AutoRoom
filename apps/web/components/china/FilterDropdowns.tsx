@@ -214,6 +214,8 @@ export function PriceDropdown({
 
   const changed = low > min || high < max;
   const pct = (n: number) => ((n - min) / (max - min)) * 100;
+  // Two values this close would print on top of each other; set them either side of the knobs.
+  const close = pct(high) - pct(low) < 30;
   const triggerLabel = changed ? `${fmt(low)} – ${fmt(high)}` : label;
 
   return (
@@ -237,33 +239,49 @@ export function PriceDropdown({
             <PriceInput
               label={fromLabel}
               value={low}
-              onValue={(v) => onChange(Math.min(Math.max(v, min), high), high)}
-              onDone={() => onCommit(low, high)}
+              empty={low <= min}
+              onApply={(v) => {
+                const next = Math.min(Math.max(v ?? min, min), high);
+                onChange(next, high);
+                onCommit(next, high);
+              }}
             />
             <PriceInput
               label={toLabel}
               value={high}
-              onValue={(v) => onChange(low, Math.max(Math.min(v, max), low))}
-              onDone={() => onCommit(low, high)}
+              empty={high >= max}
+              onApply={(v) => {
+                const next = Math.max(Math.min(v ?? max, max), low);
+                onChange(low, next);
+                onCommit(low, next);
+              }}
             />
           </div>
 
           <div className="relative mt-[18px] h-[18px] text-[12px] font-medium leading-[18px] text-neutral-800">
             {changed ? (
-              <>
+              close ? (
                 <span
-                  className="absolute -translate-x-1/2 whitespace-nowrap"
-                  style={{ left: `calc(15px + (100% - 30px) * ${pct(low) / 100})` }}
+                  className={`absolute whitespace-nowrap ${pct(high) > 50 ? 'right-0' : 'left-0'}`}
                 >
-                  {fmt(low)}
+                  {fmt(low)} – {fmt(high)}
                 </span>
-                <span
-                  className="absolute -translate-x-1/2 whitespace-nowrap"
-                  style={{ left: `calc(15px + (100% - 30px) * ${pct(high) / 100})` }}
-                >
-                  {fmt(high)}
-                </span>
-              </>
+              ) : (
+                <>
+                  <span
+                    className="absolute -translate-x-1/2 whitespace-nowrap"
+                    style={{ left: `calc(15px + (100% - 30px) * ${pct(low) / 100})` }}
+                  >
+                    {fmt(low)}
+                  </span>
+                  <span
+                    className="absolute -translate-x-1/2 whitespace-nowrap"
+                    style={{ left: `calc(15px + (100% - 30px) * ${pct(high) / 100})` }}
+                  >
+                    {fmt(high)}
+                  </span>
+                </>
+              )
             ) : (
               <span className="flex justify-between">
                 <span>{fmt(min)}</span>
@@ -308,24 +326,40 @@ export function PriceDropdown({
 function PriceInput({
   label,
   value,
-  onValue,
-  onDone,
+  empty,
+  onApply,
 }: {
   label: string;
   value: number;
-  onValue: (value: number) => void;
-  onDone: () => void;
+  /** At its bound: shown blank so the "From" / "To" placeholder reads, as in the design. */
+  empty: boolean;
+  /** `null` when the field was cleared. Called on blur or Enter, never per keystroke. */
+  onApply: (value: number | null) => void;
 }): ReactNode {
+  const [draft, setDraft] = useState<string | null>(null);
+  const shown = draft ?? (empty ? '' : value.toLocaleString('en-US'));
+
+  function apply() {
+    if (draft === null) return;
+    const digits = draft.replace(/\D/g, '');
+    setDraft(null);
+    onApply(digits === '' ? null : Number(digits));
+  }
+
   return (
     <label className="flex h-9 min-w-0 flex-1 items-center rounded-pill bg-neutral-25 pl-3 pr-2 text-[12px] font-medium leading-[18px] text-neutral-800">
       <span className="sr-only">{label}</span>
       <input
-        type="number"
+        type="text"
         inputMode="numeric"
-        value={value}
-        onChange={(event) => onValue(Number(event.target.value) || 0)}
-        onBlur={onDone}
-        onKeyDown={(event) => event.key === 'Enter' && onDone()}
+        autoComplete="off"
+        value={shown}
+        onChange={(event) => {
+          const digits = event.target.value.replace(/\D/g, '').slice(0, 9);
+          setDraft(digits === '' ? '' : Number(digits).toLocaleString('en-US'));
+        }}
+        onBlur={apply}
+        onKeyDown={(event) => event.key === 'Enter' && apply()}
         placeholder={label}
         className="min-w-0 flex-1 bg-transparent tabular-nums outline-none"
       />
