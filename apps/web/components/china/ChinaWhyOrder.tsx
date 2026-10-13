@@ -14,7 +14,8 @@ const PHOTOS = [
 /**
  * China "why order through AutoRoom" — a light section (Figma 458:773): a centred 44px light
  * title and five white 48px cards, each with the gold 01–05 number, title and text on the left
- * and a 556×356 photo on the right.
+ * and a 556×356 photo on the right. From `lg`, each card pins under the header as the next one
+ * scrolls up over it (the design's `sticky top-0` cards), so they stack.
  */
 export async function ChinaWhyOrder() {
   const { messages } = await getServerMessages();
@@ -29,7 +30,7 @@ export async function ChinaWhyOrder() {
 
         <ol className="flex flex-col gap-6 lg:gap-8">
           {t.features.map((feature, index) => (
-            <li key={feature.title}>
+            <li key={feature.title} className="lg:sticky lg:top-[132px]">
               <Reveal delayMs={0}>
                 <div className="flex flex-col gap-8 rounded-[32px] bg-white p-6 shadow-[0_8px_57px_rgba(0,0,0,0.03)] sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:rounded-[48px] lg:p-16">
                   <div className="flex min-w-0 flex-col gap-3 lg:max-w-[555px]">

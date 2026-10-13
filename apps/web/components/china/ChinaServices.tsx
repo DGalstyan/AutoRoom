@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
-import { Reveal } from '@/components/ui/Reveal';
+import { ScrollRise } from '@/components/ui/ScrollRise';
 import { getServerMessages } from '@/lib/i18n';
 
 const IMG = '/images/china/services';
@@ -17,10 +17,14 @@ export async function ChinaServices() {
   const t = messages.china.services;
 
   return (
-    <section aria-label={t.label} className="bg-ink px-4 py-9 sm:px-6 lg:px-12">
-      <div className="mx-auto flex max-w-[1344px] flex-col gap-4 lg:gap-8">
+    <section aria-label={t.label} className="overflow-hidden bg-ink px-4 py-9 sm:px-6 lg:px-12">
+      <ScrollRise
+        distance={700}
+        settleAt={36}
+        className="mx-auto flex max-w-[1344px] flex-col gap-4 lg:gap-8"
+      >
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
-          <Card tone="light" index={0}>
+          <Card tone="light">
             <div className="absolute left-1/2 top-6 flex w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 items-end justify-center gap-4">
               <p className="stretch-90 w-[229px] min-w-0 shrink text-[14px] font-medium leading-[18px] text-neutral-700">
                 {t.import.eyebrow}
@@ -36,7 +40,7 @@ export async function ChinaServices() {
             />
           </Card>
 
-          <Card tone="dark" index={1}>
+          <Card tone="dark">
             <div className="absolute left-1/2 top-1/2 flex w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 -translate-y-1/2 flex-col gap-[37px]">
               <div className="flex flex-col gap-6">
                 <h3 className="stretch-90 text-[24px] font-bold leading-9 text-white">
@@ -52,7 +56,7 @@ export async function ChinaServices() {
             </div>
           </Card>
 
-          <Card tone="light" index={2}>
+          <Card tone="light">
             <div className="absolute left-6 top-[calc(50%+14.5px)] h-[302px] w-[calc(100%-36px)] max-w-[401px] -translate-y-1/2">
               <div className="flex flex-col gap-[18px]">
                 <hr className="border-0 border-t border-neutral-100" />
@@ -80,7 +84,7 @@ export async function ChinaServices() {
         </div>
 
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[437px_1fr]">
-          <Card tone="dark" index={3}>
+          <Card tone="dark">
             <div className="absolute left-6 top-[calc(50%+14.5px)] h-[302px] w-[calc(100%-36px)] max-w-[401px] -translate-y-1/2">
               <div className="flex flex-col gap-[18px]">
                 <hr className="border-0 border-t border-neutral-700" />
@@ -111,7 +115,7 @@ export async function ChinaServices() {
             </div>
           </Card>
 
-          <Card tone="light" index={4} className="px-6 py-[25px]">
+          <Card tone="light" className="px-6 py-[25px]">
             <div className="flex flex-col gap-[68px]">
               <h3 className="stretch-90 whitespace-nowrap text-[24px] font-bold leading-9 text-ink">
                 {t.chinese.title}
@@ -149,7 +153,7 @@ export async function ChinaServices() {
         </div>
 
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
-          <Card tone="dark" index={5}>
+          <Card tone="dark">
             <div className="absolute left-1/2 top-1/2 flex w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 -translate-y-1/2 flex-col gap-[37px]">
               <div className="flex flex-col gap-6">
                 <h3 className="stretch-90 text-[24px] font-bold leading-9 text-white">
@@ -164,7 +168,7 @@ export async function ChinaServices() {
             </div>
           </Card>
 
-          <Card tone="light" index={6}>
+          <Card tone="light">
             <div className="absolute left-1/2 top-[14px] flex w-[calc(100%-64px)] max-w-[373px] -translate-x-1/2 flex-wrap items-end justify-between gap-x-3 gap-y-1">
               <p className="stretch-90 max-w-[150px] text-[14px] font-medium leading-[18px] text-neutral-700">
                 {t.b2b.eyebrow}
@@ -183,7 +187,7 @@ export async function ChinaServices() {
             </div>
           </Card>
 
-          <Card tone="dark" index={7}>
+          <Card tone="dark">
             <div className="absolute left-1/2 top-[calc(50%-75px)] flex w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 -translate-y-1/2 flex-col gap-[37px]">
               <div className="flex flex-col gap-6">
                 <h3 className="stretch-90 text-[24px] font-bold leading-9 text-white">
@@ -217,24 +221,22 @@ export async function ChinaServices() {
             </div>
           </Card>
         </div>
-      </div>
+      </ScrollRise>
     </section>
   );
 }
 
 function Card({
   tone,
-  index,
   className = '',
   children,
 }: {
   tone: 'light' | 'dark';
-  index: number;
   className?: string;
   children: ReactNode;
 }) {
   return (
-    <Reveal delayMs={(index % 3) * 80} className="h-full">
+    <div className="h-full">
       <div
         className={`relative h-[417px] overflow-hidden rounded-[32px] transition-transform duration-standard ease-expo hover:-translate-y-1 ${
           tone === 'light' ? 'bg-white' : 'bg-neutral-800'
@@ -242,7 +244,7 @@ function Card({
       >
         {children}
       </div>
-    </Reveal>
+    </div>
   );
 }
 
