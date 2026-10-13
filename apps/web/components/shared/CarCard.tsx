@@ -68,6 +68,13 @@ export async function CarCard({
   const isPromoActive = isPromo && deadline.getTime() > new Date().getTime();
   const isPromoEnded = isPromo && !isPromoActive;
 
+  // Four or more chips (condition, financing, status/ETA, compare) do not fit one 648px row at 16px
+  // in Armenian, and the compare chip would drop onto the photo; they tighten up instead.
+  const crowded =
+    !isPromo &&
+    [car.financingAvailable, car.statusBadge, car.deliveryEtaDays != null].filter(Boolean).length >=
+      2;
+
   const infoPills = [car.year ? String(car.year) : null, car.trim ?? null].filter(
     (v): v is string => Boolean(v),
   );
@@ -108,7 +115,9 @@ export async function CarCard({
       />
 
       <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4 sm:p-6">
-        <div className={`flex flex-wrap items-center gap-[5px] ${badgesEnd ? 'justify-end' : ''}`}>
+        <div
+          className={`flex flex-wrap items-center gap-[5px] ${badgesEnd ? 'justify-end' : ''} ${crowded ? 'sm:[&>*]:!px-3 sm:[&>*]:!text-[14px] sm:[&>*]:!leading-5' : ''}`}
+        >
           {isPromo ? (
             <>
               {/* Figma 439:2655/2657: 10px all round. Ended promotions keep the red badge and swap the countdown for "ended". */}

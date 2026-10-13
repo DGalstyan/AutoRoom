@@ -23,7 +23,7 @@ export async function ChinaWhyOrder() {
 
   return (
     <section className="bg-surface-light px-4 pb-16 pt-16 text-ink sm:px-6 lg:px-12 lg:pb-[150px] lg:pt-[150px]">
-      <div className="mx-auto flex max-w-page flex-col gap-10 lg:gap-14">
+      <div className="mx-auto flex max-w-page flex-col gap-10 lg:gap-[127px]">
         <h2 className="text-center text-[28px] font-light leading-[36px] sm:text-[44px] sm:leading-[58px]">
           {t.heading}
         </h2>
@@ -33,7 +33,7 @@ export async function ChinaWhyOrder() {
             <li key={feature.title} className="lg:sticky lg:top-[132px]">
               <Reveal delayMs={0}>
                 <div className="flex flex-col gap-8 rounded-[32px] bg-white p-6 shadow-[0_8px_57px_rgba(0,0,0,0.03)] sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:rounded-[48px] lg:p-16">
-                  <div className="flex min-w-0 flex-col gap-3 lg:max-w-[555px]">
+                  <div className="flex min-w-0 flex-col justify-center gap-3 lg:min-h-[414px] lg:max-w-[555px]">
                     <p
                       className="text-[36px] font-bold leading-[48px] text-accent lg:text-[52px] lg:leading-[66px]"
                       aria-hidden="true"
@@ -56,7 +56,7 @@ export async function ChinaWhyOrder() {
                   >
                     <Image
                       src={PHOTOS[index]!}
-                      alt=""
+                      alt={feature.title}
                       fill
                       sizes="(min-width: 1024px) 556px, 100vw"
                       className={index === 1 ? 'object-contain' : 'object-cover'}
