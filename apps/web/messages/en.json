@@ -231,7 +231,8 @@
         "zoomIn": "Zoom in",
         "zoomOut": "Zoom out",
         "zoomReset": "Reset zoom",
-        "lightbox": "Photo viewer"
+        "lightbox": "Photo viewer",
+        "download": "Download photo"
       },
       "specs": {
         "heading": "General specifications",
@@ -1554,7 +1555,8 @@
             "BILL_OF_SALE": "Bill of sale",
             "OTHER": "Other"
           },
-          "open": "Open"
+          "open": "Open",
+          "download": "Download"
         },
         "photosTab": {
           "empty": "No photos yet.",

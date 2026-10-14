@@ -10,6 +10,7 @@ import { errorMessage } from '@/lib/portal/api';
 import { formatUsd } from '@/lib/types/car';
 import { interpolate } from '@/lib/messages';
 import { formatDate } from '@/lib/dateFormat';
+import { ImageLightbox } from '@/components/shared/ImageLightbox';
 
 /** The four steps this page's stepper shows — Figma node `431:667`. Not all
  * five `OrderStageName` values: `DELIVERED` isn't a step here, it's past
@@ -36,6 +37,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'commodity' | 'invoices' | 'documents' | 'photos'>('commodity');
+  const [viewing, setViewing] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,6 +98,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
         : interpolate(t.invoiceChip.due, { amount: formatUsd(order.amountDue) }),
     paid: order.paymentStatus === 'PAID',
   };
+  const allPhotos = photoGroups.flatMap((group) => group.urls.map((url) => ({ url })));
   const photoCount = photoGroups.reduce((sum, group) => sum + group.urls.length, 0);
 
   return (
@@ -328,6 +331,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
                 empty={t.invoicesTab.empty}
                 kinds={t.documentsTab.kinds}
                 openLabel={t.documentsTab.open}
+                downloadLabel={t.documentsTab.download}
                 chip={invoiceChip}
               />
             )}
@@ -354,20 +358,24 @@ export function PortalOrderDetail({ id }: { id: string }) {
                           <ul className="mt-4 flex flex-wrap gap-3">
                             {group.urls.map((url, index) => (
                               <li key={url}>
-                                <a
-                                  href={url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="relative block size-[128px] overflow-hidden rounded-[24px] bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setViewing(allPhotos.findIndex((photo) => photo.url === url))
+                                  }
+                                  aria-label={interpolate(t.photosTab.photo, {
+                                    n: String(index + 1),
+                                  })}
+                                  className="relative block size-[128px] cursor-zoom-in overflow-hidden rounded-[24px] bg-neutral-100 outline-none focus-visible:ring-2 focus-visible:ring-accent"
                                 >
                                   <Image
                                     src={url}
-                                    alt={interpolate(t.photosTab.photo, { n: String(index + 1) })}
+                                    alt=""
                                     fill
                                     sizes="128px"
                                     className="object-cover"
                                   />
-                                </a>
+                                </button>
                               </li>
                             ))}
                           </ul>
@@ -387,6 +395,16 @@ export function PortalOrderDetail({ id }: { id: string }) {
           </div>
         </div>
       </div>
+      {viewing !== null && (
+        <ImageLightbox
+          images={allPhotos}
+          index={viewing}
+          alt={`${t.orderNumberPrefix}${order.orderNumber}`}
+          onIndexChange={setViewing}
+          onClose={() => setViewing(null)}
+          downloadHref={downloadHref}
+        />
+      )}
     </div>
   );
 }
@@ -584,22 +602,26 @@ function DocumentRow({
   document,
   kinds,
   openLabel,
+  downloadLabel,
   chip,
 }: {
   document: OrderDocument;
   kinds: Record<string, string>;
   openLabel: string;
+  downloadLabel: string;
   /** Invoices carry the order's payment state, as in the design. */
   chip?: { label: string; paid: boolean };
 }) {
+  const action =
+    'flex size-10 shrink-0 items-center justify-center rounded-full text-neutral-700 transition-colors duration-standard hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent';
   return (
-    <li>
+    <li className="flex min-h-12 items-center gap-2 rounded-[12px] bg-white pr-2 text-[14px] leading-5 text-neutral-800">
       <a
         href={document.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${openLabel}: ${document.name}`}
-        className="flex min-h-12 items-center gap-3 rounded-[12px] bg-white px-4 py-3 text-[14px] leading-5 text-neutral-800 transition-colors duration-standard hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+        className="flex min-w-0 flex-1 items-center gap-3 rounded-[12px] py-3 pl-4 transition-colors duration-standard hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
       >
         <DocGlyph />
         <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{document.name}</span>
@@ -607,6 +629,23 @@ function DocumentRow({
           <Badge tone={chip.paid ? 'success' : 'neutral'}>{chip.label}</Badge>
         )}
         <span className="shrink-0 text-[12px] text-neutral-600">{kinds[document.kind]}</span>
+      </a>
+      <a
+        href={downloadHref(document.url, document.name)}
+        download=""
+        aria-label={`${downloadLabel}: ${document.name}`}
+        title={downloadLabel}
+        className={action}
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path
+            d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 16h12"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </a>
     </li>
   );
@@ -617,12 +656,14 @@ function DocumentList({
   empty,
   kinds,
   openLabel,
+  downloadLabel,
   chip,
 }: {
   documents: OrderDocument[];
   empty: string;
   kinds: Record<string, string>;
   openLabel: string;
+  downloadLabel: string;
   chip?: { label: string; paid: boolean };
 }) {
   if (documents.length === 0) {
@@ -640,6 +681,7 @@ function DocumentList({
           document={document}
           kinds={kinds}
           openLabel={openLabel}
+          downloadLabel={downloadLabel}
           chip={chip}
         />
       ))}
@@ -662,6 +704,7 @@ function DocumentsByAge({
     monthsAgo: string;
     kinds: Record<string, string>;
     open: string;
+    download: string;
   };
 }) {
   const [now] = useState(() => Date.now());
@@ -702,6 +745,7 @@ function DocumentsByAge({
                 document={document}
                 kinds={t.kinds}
                 openLabel={t.open}
+                downloadLabel={t.download}
               />
             ))}
           </ul>
@@ -812,19 +856,24 @@ function ActionsCard({
   );
 }
 
-/** No zip endpoint exists — this opens each image as its own download,
- * spaced out so the browser doesn't treat a burst of `.click()` calls as a
- * popup flood and block the later ones. */
+/** Same-origin link that serves an uploaded file as a download (see `app/api/portal/download`). */
+function downloadHref(url: string, name?: string): string {
+  const file = encodeURIComponent(url.split('/').pop() ?? '');
+  return `/api/portal/download?file=${file}${name ? `&name=${encodeURIComponent(name)}` : ''}`;
+}
+
+/** No zip endpoint exists — each image downloads on its own, spaced out so the browser doesn't
+ * treat a burst of clicks as a popup flood and block the later ones. */
 async function downloadAll(urls: string[]) {
   for (const url of urls) {
     const link = document.createElement('a');
-    link.href = url;
+    link.href = downloadHref(url);
     link.download = '';
     link.rel = 'noopener';
     document.body.appendChild(link);
     link.click();
     link.remove();
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 400));
   }
 }
 

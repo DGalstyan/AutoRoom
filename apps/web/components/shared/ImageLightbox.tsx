@@ -32,12 +32,15 @@ export function ImageLightbox({
   alt,
   onIndexChange,
   onClose,
+  downloadHref,
 }: {
   images: { url: string }[];
   index: number;
   alt: string;
   onIndexChange: (index: number) => void;
   onClose: () => void;
+  /** When given, a download button for the current photo points here. */
+  downloadHref?: (url: string) => string;
 }) {
   const t = useMessages().common.carDetail.gallery;
   const closeLabel = useMessages().common.popup.close;
@@ -165,6 +168,24 @@ export function ImageLightbox({
               1:1
             </span>
           </button>
+          {downloadHref && (
+            <a
+              href={downloadHref(image.url)}
+              download=""
+              className={button}
+              aria-label={t.download}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path
+                  d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 16h12"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+          )}
           <button type="button" className={button} onClick={onClose} aria-label={closeLabel}>
             <span aria-hidden="true" className="text-[22px] leading-none">
               ×
