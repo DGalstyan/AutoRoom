@@ -1525,7 +1525,8 @@
           "pickUp": "Получение",
           "received": "Получено",
           "photosCount": "{count} фото",
-          "downloadAll": "Скачать всё"
+          "downloadAll": "Скачать всё",
+          "auction": "Аукцион"
         },
         "insurance": {
           "notProtectedTitle": "Ваш заказ не застрахован.",
@@ -1561,6 +1562,23 @@
         "photosTab": {
           "empty": "Фото пока нет.",
           "photo": "Фото {n}"
+        },
+        "payments": {
+          "heading": "Платежи",
+          "price": "Стоимость автомобиля",
+          "paid": "Оплачено",
+          "due": "К оплате",
+          "status": {
+            "PENDING": "Не оплачено",
+            "PARTIAL": "Частично оплачено",
+            "PAID": "Оплачено"
+          },
+          "empty": "Платежей пока нет.",
+          "method": "Способ"
+        },
+        "invoiceChip": {
+          "paid": "Оплачено",
+          "due": "К оплате: {amount}"
         }
       }
     },

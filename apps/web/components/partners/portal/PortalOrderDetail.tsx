@@ -9,6 +9,7 @@ import { usePortalAuth } from '@/components/partners/portal/PortalAuthProvider';
 import { errorMessage } from '@/lib/portal/api';
 import { formatUsd } from '@/lib/types/car';
 import { interpolate } from '@/lib/messages';
+import { formatDate } from '@/lib/dateFormat';
 
 /** The four steps this page's stepper shows — Figma node `431:667`. Not all
  * five `OrderStageName` values: `DELIVERED` isn't a step here, it's past
@@ -84,10 +85,17 @@ export function PortalOrderDetail({ id }: { id: string }) {
 
   const invoices = order.documents.filter((document) => document.kind === 'INVOICE');
   const photoGroups = [
-    { label: t.photos.pickUp, urls: order.photos.pickUp },
+    { label: t.photos.auction, urls: order.photos.pickUp },
     { label: t.photos.received, urls: order.photos.received },
     { label: order.deliveryBranch ?? '—', urls: order.photos.handover },
   ];
+  const invoiceChip = {
+    label:
+      order.paymentStatus === 'PAID'
+        ? t.invoiceChip.paid
+        : interpolate(t.invoiceChip.due, { amount: formatUsd(order.amountDue) }),
+    paid: order.paymentStatus === 'PAID',
+  };
   const photoCount = photoGroups.reduce((sum, group) => sum + group.urls.length, 0);
 
   return (
@@ -220,6 +228,10 @@ export function PortalOrderDetail({ id }: { id: string }) {
           <ActionsCard order={order} t={t.actions} />
         </div>
 
+        <div className="mt-6">
+          <PaymentsCard order={order} t={t.payments} />
+        </div>
+
         {/* Figma 441:6959: the sections bar, then the panel for the chosen tab. */}
         <div className="mt-9 flex flex-col gap-9">
           <div
@@ -316,6 +328,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
                 empty={t.invoicesTab.empty}
                 kinds={t.documentsTab.kinds}
                 openLabel={t.documentsTab.open}
+                chip={invoiceChip}
               />
             )}
 
@@ -474,8 +487,8 @@ function Card({
 }) {
   return (
     <div className="flex flex-col gap-6 rounded-[32px] bg-neutral-25 px-5 py-8 sm:px-9">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="stretch-90 text-[20px] font-bold leading-8 text-ink">{heading}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <h2 className="stretch-90 min-w-0 text-[20px] font-bold leading-8 text-ink">{heading}</h2>
         {badge}
       </div>
       <div className="flex flex-col gap-2">{children}</div>
@@ -503,7 +516,7 @@ const BADGE_TONE_CLASSES: Record<'neutral' | 'success', string> = {
 function Badge({ tone, children }: { tone: 'neutral' | 'success'; children: React.ReactNode }) {
   return (
     <span
-      className={`shrink-0 rounded-full px-4 py-1 text-[14px] font-medium leading-5 ${BADGE_TONE_CLASSES[tone]}`}
+      className={`max-w-full rounded-full px-4 py-1 text-[14px] font-medium leading-5 [overflow-wrap:anywhere] ${BADGE_TONE_CLASSES[tone]}`}
     >
       {children}
     </span>
@@ -571,10 +584,13 @@ function DocumentRow({
   document,
   kinds,
   openLabel,
+  chip,
 }: {
   document: OrderDocument;
   kinds: Record<string, string>;
   openLabel: string;
+  /** Invoices carry the order's payment state, as in the design. */
+  chip?: { label: string; paid: boolean };
 }) {
   return (
     <li>
@@ -587,6 +603,9 @@ function DocumentRow({
       >
         <DocGlyph />
         <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{document.name}</span>
+        {chip && document.kind === 'INVOICE' && (
+          <Badge tone={chip.paid ? 'success' : 'neutral'}>{chip.label}</Badge>
+        )}
         <span className="shrink-0 text-[12px] text-neutral-600">{kinds[document.kind]}</span>
       </a>
     </li>
@@ -598,11 +617,13 @@ function DocumentList({
   empty,
   kinds,
   openLabel,
+  chip,
 }: {
   documents: OrderDocument[];
   empty: string;
   kinds: Record<string, string>;
   openLabel: string;
+  chip?: { label: string; paid: boolean };
 }) {
   if (documents.length === 0) {
     return (
@@ -614,7 +635,13 @@ function DocumentList({
   return (
     <ul className="flex flex-col gap-2 rounded-[32px] bg-neutral-25 px-4 py-6 sm:px-9">
       {documents.map((document) => (
-        <DocumentRow key={document.id} document={document} kinds={kinds} openLabel={openLabel} />
+        <DocumentRow
+          key={document.id}
+          document={document}
+          kinds={kinds}
+          openLabel={openLabel}
+          chip={chip}
+        />
       ))}
     </ul>
   );
@@ -801,7 +828,60 @@ async function downloadAll(urls: string[]) {
   }
 }
 
-function formatDateOnly(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString('hy-AM', { dateStyle: 'medium' });
+const formatDateOnly = formatDate;
+
+/** What the partner has paid against the vehicle price, and each payment on the ledger. */
+function PaymentsCard({
+  order,
+  t,
+}: {
+  order: Order;
+  t: {
+    heading: string;
+    price: string;
+    paid: string;
+    due: string;
+    status: Record<'PENDING' | 'PARTIAL' | 'PAID', string>;
+    empty: string;
+  };
+}) {
+  return (
+    <div className="rounded-[32px] bg-white p-4 sm:p-6 lg:pt-9">
+      <div className="flex flex-col gap-6 rounded-[32px] bg-neutral-25 px-5 py-8 sm:px-9">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <h2 className="stretch-90 min-w-0 text-[20px] font-bold leading-8 text-ink">
+            {t.heading}
+          </h2>
+          <Badge tone={order.paymentStatus === 'PAID' ? 'success' : 'neutral'}>
+            {t.status[order.paymentStatus]}
+          </Badge>
+        </div>
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4">
+          <Field label={t.price} value={formatUsd(order.car.price)} />
+          <Field label={t.paid} value={formatUsd(order.amountPaid)} />
+          <Field label={t.due} value={formatUsd(order.amountDue)} />
+        </div>
+        {order.payments.length === 0 ? (
+          <p className="text-[14px] leading-5 text-neutral-700">{t.empty}</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {order.payments.map((payment) => (
+              <li
+                key={payment.id}
+                className="flex items-center justify-between gap-3 rounded-[12px] bg-white p-3 text-[16px] leading-5"
+              >
+                <span className="min-w-0 text-neutral-700 [overflow-wrap:anywhere]">
+                  {formatDate(payment.paidAt)}
+                  {payment.method ? ` · ${payment.method}` : ''}
+                </span>
+                <span className="shrink-0 font-medium tabular-nums text-neutral-800">
+                  {formatUsd(payment.amount)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
 }

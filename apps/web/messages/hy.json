@@ -1522,7 +1522,8 @@
           "pickUp": "Վերցում",
           "received": "Ստացված",
           "photosCount": "{count} լուսանկար",
-          "downloadAll": "Ներբեռնել բոլորը"
+          "downloadAll": "Ներբեռնել բոլորը",
+          "auction": "Աճուրդ"
         },
         "insurance": {
           "notProtectedTitle": "Քո պատվերն ապահովագրված չէ։",
@@ -1558,6 +1559,23 @@
         "photosTab": {
           "empty": "Լուսանկարներ դեռ չկան։",
           "photo": "Լուսանկար {n}"
+        },
+        "payments": {
+          "heading": "Վճարումներ",
+          "price": "Մեքենայի գինը",
+          "paid": "Վճարված",
+          "due": "Մնացորդ",
+          "status": {
+            "PENDING": "Չվճարված",
+            "PARTIAL": "Մասամբ վճարված",
+            "PAID": "Վճարված"
+          },
+          "empty": "Վճարումներ դեռ գրանցված չեն։",
+          "method": "Եղանակ"
+        },
+        "invoiceChip": {
+          "paid": "Վճարված",
+          "due": "Մնացորդ՝ {amount}"
         }
       }
     },

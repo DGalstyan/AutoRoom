@@ -37,6 +37,8 @@ const ALLOWED = new Map([
   ['image/svg+xml', '.svg'],
   ['image/x-icon', '.ico'],
   ['image/vnd.microsoft.icon', '.ico'],
+  // Order paperwork (invoices, customs forms, a title).
+  ['application/pdf', '.pdf'],
   ['video/mp4', '.mp4'],
   ['video/webm', '.webm'],
 ]);

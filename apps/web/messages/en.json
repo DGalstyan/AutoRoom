@@ -1522,7 +1522,8 @@
           "pickUp": "Pick up",
           "received": "Received",
           "photosCount": "{count} photos",
-          "downloadAll": "Download all"
+          "downloadAll": "Download all",
+          "auction": "Auction"
         },
         "insurance": {
           "notProtectedTitle": "Your order is not protected.",
@@ -1558,6 +1559,23 @@
         "photosTab": {
           "empty": "No photos yet.",
           "photo": "Photo {n}"
+        },
+        "payments": {
+          "heading": "Payments",
+          "price": "Vehicle price",
+          "paid": "Paid",
+          "due": "Due",
+          "status": {
+            "PENDING": "Not paid",
+            "PARTIAL": "Partially paid",
+            "PAID": "Paid"
+          },
+          "empty": "No payments recorded yet.",
+          "method": "Method"
+        },
+        "invoiceChip": {
+          "paid": "Paid",
+          "due": "Due {amount}"
         }
       }
     },

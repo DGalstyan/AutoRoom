@@ -15,6 +15,7 @@ import { ListDropdown } from '@/components/china/FilterDropdowns';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { errorMessage } from '@/lib/portal/api';
 import { carHref } from '@/lib/types/car';
+import { formatDate as formatShortDate, formatDateTime } from '@/lib/dateFormat';
 import { usePortalAuth } from '@/components/partners/portal/PortalAuthProvider';
 
 /**
@@ -85,7 +86,10 @@ export function PortalDashboard() {
   const branchOptions = useMemo(() => {
     const list = orders ?? [];
     const seen = new Set<string>();
-    for (const order of list) if (order.car.location) seen.add(order.car.location);
+    for (const order of list) {
+      const branch = orderBranch(order);
+      if (branch) seen.add(branch);
+    }
     return Array.from(seen).sort();
   }, [orders]);
 
@@ -97,7 +101,7 @@ export function PortalDashboard() {
     const filtered = list.filter((order) => {
       if (originFilter !== 'ALL' && order.car.origin !== originFilter) return false;
       if (stageFilter && order.stage !== stageFilter) return false;
-      if (branchFilter !== 'ALL' && order.car.location !== branchFilter) return false;
+      if (branchFilter !== 'ALL' && orderBranch(order) !== branchFilter) return false;
       if (!term) return true;
       return (
         order.orderNumber.toLowerCase().includes(term) ||
@@ -440,7 +444,7 @@ export function PortalDashboard() {
                         <Td>{order.car.model}</Td>
                         <Td>{t.dashboard.orderStage[order.stage]}</Td>
                         <Td>{order.car.origin === 'CHINA' ? nav.china : nav.usa}</Td>
-                        <Td>{order.car.location ?? '—'}</Td>
+                        <Td>{orderBranch(order) ?? '—'}</Td>
                       </tr>
                     ))}
                   </tbody>
@@ -458,12 +462,12 @@ export function PortalDashboard() {
           (bookings.length === 0 ? (
             <Empty message={t.dashboard.noBookings} />
           ) : (
-            <div className="overflow-hidden rounded-[24px] bg-white">
+            <div className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] text-left">
+                <table className="w-full min-w-[760px] table-fixed text-left">
                   <thead>
-                    <tr className="border-b border-line-light bg-neutral-25">
-                      <Th>{t.dashboard.table.when}</Th>
+                    <tr className="bg-ink">
+                      <Th first>{t.dashboard.table.when}</Th>
                       <Th>{t.dashboard.table.customer}</Th>
                       <Th>{t.dashboard.table.car}</Th>
                       <Th>{t.dashboard.table.status}</Th>
@@ -471,8 +475,8 @@ export function PortalDashboard() {
                   </thead>
                   <tbody>
                     {bookings.map((booking) => (
-                      <tr key={booking.id} className="border-b border-line-light last:border-0">
-                        <Td>{formatWhen(booking.scheduledAt)}</Td>
+                      <tr key={booking.id} className="odd:bg-white even:bg-page">
+                        <Td first>{formatWhen(booking.scheduledAt)}</Td>
                         <Td>
                           {booking.customerName ?? '—'}
                           {booking.customerPhone && (
@@ -486,7 +490,7 @@ export function PortalDashboard() {
                             ? `${booking.car.make} ${booking.car.model} ${booking.car.year}`
                             : '—'}
                         </Td>
-                        <Td>
+                        <Td wrap>
                           <BookingStatusChip
                             status={booking.status}
                             t={t.dashboard.bookingStatus}
@@ -626,10 +630,19 @@ function Th({ children, first = false }: { children: React.ReactNode; first?: bo
   );
 }
 
-function Td({ children, first = false }: { children: React.ReactNode; first?: boolean }) {
+function Td({
+  children,
+  first = false,
+  wrap = false,
+}: {
+  children: React.ReactNode;
+  first?: boolean;
+  /** Let the content wrap instead of being clipped (chips). */
+  wrap?: boolean;
+}) {
   return (
     <td
-      className={`h-[72px] truncate py-4 pr-3 text-[14px] leading-[18px] text-ink ${first ? 'pl-6' : 'pl-3'}`}
+      className={`h-[72px] py-4 pr-3 text-[14px] leading-[18px] text-ink ${wrap ? '' : 'truncate'} ${first ? 'pl-6' : 'pl-3'}`}
     >
       {children}
     </td>
@@ -637,11 +650,16 @@ function Td({ children, first = false }: { children: React.ReactNode; first?: bo
 }
 
 function formatWhen(iso: string) {
-  return new Date(iso).toLocaleString('hy-AM', { dateStyle: 'medium', timeStyle: 'short' });
+  return formatDateTime(iso) ?? '—';
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('hy-AM', { dateStyle: 'medium' });
+  return formatShortDate(iso) ?? '—';
+}
+
+/** The branch a car is going to: the order's own delivery branch, else where the car is. */
+function orderBranch(order: Order): string | null {
+  return order.deliveryBranch ?? order.car.location ?? null;
 }
 
 function formatMoney(amount: number) {
