@@ -11,9 +11,9 @@ import { apiBase } from '@/lib/env';
  *
  * `PartnerBookingPopup` calls this once a calendar month is shown, to know
  * which of the fixed daily time chips are already taken. Never throws: an
- * unreachable API or zero rows both resolve to an empty list, and the popup
- * then treats every fixed chip as open (matching `references/pages.md` §5
- * S5's own fallback — "taken=disabled" implies "otherwise available").
+ * unreachable API resolves to an empty list flagged `failed`, which the popup shows as an error
+ * with a reload action instead of offering every time as free; the API refuses a taken time on
+ * submit regardless.
  */
 
 export interface PublicAvailabilitySlot {
@@ -35,6 +35,8 @@ export interface PublicAvailability {
   items: PublicAvailabilitySlot[];
   /** Start times (ISO) of dealer meetings already requested — never offered again. */
   takenTimes: string[];
+  /** The feed could not be read, so an empty list means "unknown", not "nothing taken". */
+  failed?: boolean;
 }
 
 export async function getPublicAvailability({
@@ -50,7 +52,7 @@ export async function getPublicAvailability({
     const res = await fetch(`${base}/public/availability?${params.toString()}`, {
       cache: 'no-store',
     });
-    if (!res.ok) return { items: [], takenTimes: [] };
+    if (!res.ok) return { items: [], takenTimes: [], failed: true };
     const data = (await res.json()) as {
       items: PublicAvailabilitySlot[];
       total: number;
@@ -58,6 +60,6 @@ export async function getPublicAvailability({
     };
     return { items: data.items, takenTimes: data.takenTimes ?? [] };
   } catch {
-    return { items: [], takenTimes: [] };
+    return { items: [], takenTimes: [], failed: true };
   }
 }

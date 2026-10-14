@@ -92,13 +92,18 @@ export function PortalOrderDetail({ id }: { id: string }) {
     { label: t.photos.received, urls: order.photos.received },
     { label: order.deliveryBranch ?? '—', urls: order.photos.handover },
   ];
-  const invoiceChip = {
-    label:
-      order.paymentStatus === 'PAID'
-        ? t.invoiceChip.paid
-        : interpolate(t.invoiceChip.due, { amount: formatUsd(order.amountDue) }),
-    paid: order.paymentStatus === 'PAID',
-  };
+  // Invoices carry no amount of their own, only the order has a price and payments. With several
+  // invoices the order's balance would read as each one's, so the chip is shown for a lone invoice.
+  const invoiceChip =
+    invoices.length === 1
+      ? {
+          label:
+            order.paymentStatus === 'PAID'
+              ? t.invoiceChip.paid
+              : interpolate(t.invoiceChip.due, { amount: formatUsd(order.amountDue) }),
+          paid: order.paymentStatus === 'PAID',
+        }
+      : undefined;
   const allPhotos = photoGroups.flatMap((group) => group.urls.map((url) => ({ url })));
   const photoCount = photoGroups.reduce((sum, group) => sum + group.urls.length, 0);
 
@@ -145,6 +150,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
             order={order}
             stageLabels={stageLabels}
             dateLabel={t.stepper.dateLabel}
+            skippedLabel={t.stepper.skipped}
           />
         </div>
 
@@ -415,18 +421,22 @@ function Stepper({
   order,
   stageLabels,
   dateLabel,
+  skippedLabel,
 }: {
   currentIndex: number;
   order: Order;
   stageLabels: Record<OrderStageName, string>;
   dateLabel: string;
+  skippedLabel: string;
 }) {
   return (
     <ol className="grid grid-cols-1 rounded-[24px] bg-white sm:grid-cols-2 lg:grid-cols-5">
       {STEPS.map((step, index) => {
         const entry = order.stages.find((s) => s.stage === step);
         const occurredAt = entry?.occurredAt ?? (step === 'CREATED' ? order.createdAt : null);
-        const done = index < currentIndex;
+        // A stage the order jumped over has no record: it isn't "done" with a date, it was skipped.
+        const skipped = index < currentIndex && !entry && step !== 'CREATED';
+        const done = index < currentIndex && !skipped;
         const current = index === currentIndex;
         return (
           <li
@@ -438,9 +448,11 @@ function Stepper({
               className={`flex size-10 shrink-0 items-center justify-center rounded-[20px] text-[16px] font-medium ${
                 done
                   ? 'bg-success text-white'
-                  : current
-                    ? 'border-2 border-[#cfffe0] text-success'
-                    : 'border-2 border-[#cfd6dc] text-[#abb7c2]'
+                  : skipped
+                    ? 'border-2 border-[#cfd6dc] text-[#abb7c2]'
+                    : current
+                      ? 'border-2 border-[#cfffe0] text-success'
+                      : 'border-2 border-[#cfd6dc] text-[#abb7c2]'
               }`}
             >
               {done ? (
@@ -453,6 +465,8 @@ function Stepper({
                     strokeLinejoin="round"
                   />
                 </svg>
+              ) : skipped ? (
+                '—'
               ) : (
                 String(index + 1).padStart(2, '0')
               )}
@@ -466,7 +480,14 @@ function Stepper({
                   done || current ? 'text-neutral-600' : 'text-neutral-500'
                 }`}
               >
-                {dateLabel} <span className="font-medium">{formatDateOnly(occurredAt) ?? '—'}</span>
+                {skipped ? (
+                  skippedLabel
+                ) : (
+                  <>
+                    {dateLabel}{' '}
+                    <span className="font-medium">{formatDateOnly(occurredAt) ?? '—'}</span>
+                  </>
+                )}
               </span>
             </span>
             {index < STEPS.length - 1 && (

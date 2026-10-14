@@ -1257,6 +1257,8 @@
         "nextMonth": "Next month"
       },
       "noTimes": "No available times on this day",
+      "availabilityError": "Couldn't load available times.",
+      "reload": "Reload",
       "calendar": {
         "weekdaysShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         "weekdaysLong": [
@@ -1442,7 +1444,8 @@
         "branch": "Branch:",
         "notFound": "This order isn't available.",
         "stepper": {
-          "dateLabel": "Date:"
+          "dateLabel": "Date:",
+          "skipped": "Skipped"
         },
         "actions": {
           "heading": "Actions and notifications",

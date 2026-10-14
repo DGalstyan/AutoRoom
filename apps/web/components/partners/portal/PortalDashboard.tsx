@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { ScrollFade } from '@/components/ui/ScrollFade';
 import { useEffect, useMemo, useState } from 'react';
 import type {
   Booking,
@@ -245,7 +246,7 @@ export function PortalDashboard() {
         <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6 xl:rounded-[70px]">
           <div
             role="group"
-            className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[24px] bg-neutral-25 px-4 py-3 sm:w-fit sm:rounded-pill xl:flex-nowrap xl:whitespace-nowrap"
+            className="grid max-w-full grid-cols-2 items-center gap-2 rounded-[24px] bg-neutral-25 p-2 sm:flex sm:w-fit sm:flex-wrap sm:gap-x-3 sm:gap-y-1 sm:rounded-pill sm:px-4 sm:py-3 xl:flex-nowrap xl:whitespace-nowrap"
           >
             <ViewPill
               active={tab === 'orders' && originFilter === 'ALL'}
@@ -339,7 +340,7 @@ export function PortalDashboard() {
           ) : (
             /* Same table language as the orders table (Figma 444:10964): 1px #e5e7e8 frame, black header, alternating rows. */
             <div className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white">
-              <div className="overflow-x-auto">
+              <ScrollFade>
                 <table className="w-full min-w-[1080px] table-fixed text-left">
                   <thead>
                     <tr className="bg-ink">
@@ -400,7 +401,7 @@ export function PortalDashboard() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </ScrollFade>
             </div>
           ))}
 
@@ -410,7 +411,7 @@ export function PortalDashboard() {
           ) : (
             /* Figma 441:5751: a black 88px header over 72px rows that alternate white / #f7f7f7. */
             <div className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white">
-              <div className="overflow-x-auto">
+              <ScrollFade>
                 <table className="w-full min-w-[960px] table-fixed text-left">
                   <thead>
                     <tr className="bg-ink">
@@ -449,7 +450,7 @@ export function PortalDashboard() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </ScrollFade>
               {filteredOrders.length === 0 && (
                 <p className="px-6 py-10 text-center text-body text-neutral-700">
                   {t.dashboard.noOrdersMatch}
@@ -463,7 +464,7 @@ export function PortalDashboard() {
             <Empty message={t.dashboard.noBookings} />
           ) : (
             <div className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white">
-              <div className="overflow-x-auto">
+              <ScrollFade>
                 <table className="w-full min-w-[760px] table-fixed text-left">
                   <thead>
                     <tr className="bg-ink">
@@ -500,7 +501,7 @@ export function PortalDashboard() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </ScrollFade>
             </div>
           ))}
       </div>
@@ -581,7 +582,7 @@ function ViewPill({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-[52px] min-h-11 px-4 py-2 text-[16px] leading-6 transition-colors duration-standard ${
+      className={`min-h-11 rounded-[52px] px-4 py-2 text-center text-[16px] leading-6 transition-colors duration-standard ${
         active
           ? 'bg-neutral-700 font-medium text-white'
           : 'font-normal text-neutral-800 hover:bg-neutral-50'

@@ -208,6 +208,10 @@ export function PartnerBookingPopup({
 
   const [slots, setSlots] = useState<PublicAvailabilitySlot[]>([]);
   const [takenTimes, setTakenTimes] = useState<string[]>([]);
+  // Set when the availability feed can't be read (offline, or the page predates a deploy and its
+  // server action no longer exists): times can't be trusted, so none are offered until a reload.
+  const [availabilityFailed, setAvailabilityFailed] = useState(false);
+  const [availabilityTick, setAvailabilityTick] = useState(0);
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<Status>('idle');
   const [successName, setSuccessName] = useState('');
@@ -261,15 +265,21 @@ export function PartnerBookingPopup({
       59,
     ).toISOString();
     let cancelled = false;
-    void getPublicAvailability({ from, to }).then(({ items, takenTimes: taken }) => {
-      if (cancelled) return;
-      setSlots(items);
-      setTakenTimes(taken);
-    });
+    getPublicAvailability({ from, to })
+      .then(({ items, takenTimes: taken, failed }) => {
+        if (cancelled) return;
+        setAvailabilityFailed(Boolean(failed));
+        if (failed) return;
+        setSlots(items);
+        setTakenTimes(taken);
+      })
+      .catch(() => {
+        if (!cancelled) setAvailabilityFailed(true);
+      });
     return () => {
       cancelled = true;
     };
-  }, [open, visibleMonth]);
+  }, [open, visibleMonth, availabilityTick]);
 
   const slotsByDay = useMemo(() => {
     const map = new Map<string, PublicAvailabilitySlot[]>();
@@ -516,6 +526,8 @@ export function PartnerBookingPopup({
       setStatus('error');
     } else if (result.reason === 'conflict') {
       setStatus('conflict');
+      setSelectedTime(null);
+      setAvailabilityTick((n) => n + 1); // the time is gone: refetch so it shows as taken
       const [h, m] = selectedTime.split(':').map(Number) as [number, number];
       const takenAt = new Date(
         selectedDate.getFullYear(),
@@ -804,7 +816,18 @@ export function PartnerBookingPopup({
 
                   <div className="rounded-[20px] bg-neutral-25 p-3 sm:h-[410px] sm:w-[110px] sm:shrink-0">
                     <span className="sr-only">{t.timeSlotsLabel}</span>
-                    {selectedDate ? (
+                    {availabilityFailed ? (
+                      <div role="alert" className="flex flex-col gap-2 px-1 py-2">
+                        <p className="text-[12px] leading-4 text-error">{t.availabilityError}</p>
+                        <button
+                          type="button"
+                          onClick={() => window.location.reload()}
+                          className="self-start text-[12px] font-medium leading-4 text-neutral-900 underline"
+                        >
+                          {t.reload}
+                        </button>
+                      </div>
+                    ) : selectedDate ? (
                       <div className="flex max-h-[386px] flex-row flex-wrap gap-2 overflow-y-auto sm:h-[386px] sm:max-h-none sm:flex-col sm:flex-nowrap sm:gap-4 sm:pr-1 [scrollbar-color:#cccfd0_#f5f5f6] [scrollbar-width:thin]">
                         {dayTimes.map(({ time, taken }) => {
                           const isSelected = selectedTime === time;
