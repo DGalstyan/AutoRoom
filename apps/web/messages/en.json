@@ -1429,7 +1429,8 @@
           "year": "Year",
           "price": "Price",
           "visibility": "On site"
-        }
+        },
+        "noOrdersMatch": "No orders match your search or filters."
       },
       "errors": {
         "loadFailed": "Could not load your data."

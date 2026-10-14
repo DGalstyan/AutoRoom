@@ -372,6 +372,7 @@ export function createApiClient(options: ApiClientOptions) {
       list: (
         query: {
           partnerId?: string;
+          carId?: string;
           origin?: CarOrigin;
           stage?: OrderStageName;
           search?: string;

@@ -15,7 +15,7 @@ import { ImageLightbox } from '@/components/shared/ImageLightbox';
 /** The four steps this page's stepper shows — Figma node `431:667`. Not all
  * five `OrderStageName` values: `DELIVERED` isn't a step here, it's past
  * the last one (the car has already reached the partner). */
-const STEPS: OrderStageName[] = ['CREATED', 'LOADING', 'IN_TRANSIT', 'ARRIVED'];
+const STEPS: OrderStageName[] = ['CREATED', 'LOADING', 'IN_TRANSIT', 'ARRIVED', 'DELIVERED'];
 
 /**
  * The partner-facing "Cars inner page" (Figma node `431:633`) — what a
@@ -82,6 +82,7 @@ export function PortalOrderDetail({ id }: { id: string }) {
     );
   }
 
+  // Delivered is the last step: once reached, every step is done.
   const effectiveStepIndex =
     order.stage === 'DELIVERED' ? STEPS.length : STEPS.indexOf(order.stage);
 
@@ -421,7 +422,7 @@ function Stepper({
   dateLabel: string;
 }) {
   return (
-    <ol className="grid grid-cols-1 rounded-[24px] bg-white sm:grid-cols-2 lg:grid-cols-4">
+    <ol className="grid grid-cols-1 rounded-[24px] bg-white sm:grid-cols-2 lg:grid-cols-5">
       {STEPS.map((step, index) => {
         const entry = order.stages.find((s) => s.stage === step);
         const occurredAt = entry?.occurredAt ?? (step === 'CREATED' ? order.createdAt : null);

@@ -38,6 +38,7 @@ import { useToast } from '@/components/ToastProvider';
 import { ImageAlbums, type StagedImage } from '@/pages/cars/ImageAlbums';
 import { ColourEditor } from '@/pages/cars/ColourEditor';
 import { PriceJourneyEditor } from '@/pages/cars/PriceJourneyEditor';
+import { PartnerPaperwork } from '@/pages/cars/PartnerPaperwork';
 import {
   AUCTION_PLATFORMS,
   CONDITIONS,
@@ -1001,6 +1002,15 @@ export function CarFormPage() {
             onReorder={handleReorderImages}
           />
         </Section>
+
+        {!creating && car?.partnerId && (
+          <Section
+            title="Partner paperwork"
+            description="Invoices and documents the assigned partner sees in their portal."
+          >
+            <PartnerPaperwork car={car} />
+          </Section>
+        )}
       </Stack>
 
       {!readOnly && (

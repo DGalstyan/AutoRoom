@@ -92,6 +92,7 @@ const paymentCreateSchema = z.object({
 
 const orderQuerySchema = z.object({
   partnerId: z.string().optional(),
+  carId: z.string().optional(),
   origin: z.nativeEnum(CarOrigin).optional(),
   stage: z.nativeEnum(OrderStageName).optional(),
   /** Matches order number, VIN, make or model. */
@@ -112,6 +113,7 @@ ordersRouter.get(
 
     const where: Prisma.OrderWhereInput = {
       ...(query.partnerId ? { partnerId: query.partnerId } : {}),
+      ...(query.carId ? { carId: query.carId } : {}),
       ...(query.stage ? { stage: query.stage } : {}),
       ...(query.origin ? { car: { origin: query.origin } } : {}),
       ...(query.search

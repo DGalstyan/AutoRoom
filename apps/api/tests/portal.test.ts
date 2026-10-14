@@ -97,11 +97,12 @@ describe('partner portal scoping', () => {
 
       const response = await agent().get('/portal/me').set(auth(mine.token));
 
+      // Counts are "has reached this stage": the delivered order has also loaded, shipped and arrived.
       expect(response.body.orderStats.stageCounts).toEqual({
         active: 2,
-        loading: 1,
-        inTransit: 0,
-        arrived: 0,
+        loading: 2,
+        inTransit: 1,
+        arrived: 1,
         delivered: 1,
       });
       expect(response.body.orderStats.paymentSummary).toEqual({ pending: 1, partial: 0, paid: 1 });

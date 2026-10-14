@@ -404,19 +404,29 @@ partnersRouter.get('/portal/me', requireAuth, requirePartner, async (req, res) =
       where: { partnerId: partner.id },
       select: {
         stage: true,
+        stages: { select: { stage: true } },
         car: { select: { price: true } },
         payments: { select: { amount: true } },
       },
     }),
   ]);
 
+  // "Reached", not "currently at": a delivered car has also arrived, so it counts under Arrived
+  // as well — otherwise the Arrived card reads 0 the moment a car moves on.
+  const STAGE_ORDER = ['CREATED', 'LOADING', 'IN_TRANSIT', 'ARRIVED', 'DELIVERED'] as const;
+  const reached = (order: (typeof orders)[number], target: (typeof STAGE_ORDER)[number]) => {
+    const at = STAGE_ORDER.indexOf(target);
+    return [order.stage, ...order.stages.map((entry) => entry.stage)].some(
+      (stage) => STAGE_ORDER.indexOf(stage) >= at,
+    );
+  };
   const stageCounts = {
     // Cars assigned to the partner — the same number the dashboard's "My cars" tab shows.
     active: partner._count.cars,
-    loading: orders.filter((order) => order.stage === 'LOADING').length,
-    inTransit: orders.filter((order) => order.stage === 'IN_TRANSIT').length,
-    arrived: orders.filter((order) => order.stage === 'ARRIVED').length,
-    delivered: orders.filter((order) => order.stage === 'DELIVERED').length,
+    loading: orders.filter((order) => reached(order, 'LOADING')).length,
+    inTransit: orders.filter((order) => reached(order, 'IN_TRANSIT')).length,
+    arrived: orders.filter((order) => reached(order, 'ARRIVED')).length,
+    delivered: orders.filter((order) => reached(order, 'DELIVERED')).length,
   };
 
   const paymentSummary = orders.reduce(

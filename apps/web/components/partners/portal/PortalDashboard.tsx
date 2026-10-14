@@ -100,7 +100,7 @@ export function PortalDashboard() {
     const term = orderSearch.trim().toLowerCase();
     const filtered = list.filter((order) => {
       if (originFilter !== 'ALL' && order.car.origin !== originFilter) return false;
-      if (stageFilter && order.stage !== stageFilter) return false;
+      if (stageFilter && !reachedStage(order, stageFilter)) return false;
       if (branchFilter !== 'ALL' && orderBranch(order) !== branchFilter) return false;
       if (!term) return true;
       return (
@@ -452,7 +452,7 @@ export function PortalDashboard() {
               </div>
               {filteredOrders.length === 0 && (
                 <p className="px-6 py-10 text-center text-body text-neutral-700">
-                  {t.dashboard.noOrders}
+                  {t.dashboard.noOrdersMatch}
                 </p>
               )}
             </div>
@@ -655,6 +655,16 @@ function formatWhen(iso: string) {
 
 function formatDate(iso: string) {
   return formatShortDate(iso) ?? '—';
+}
+
+const STAGE_ORDER: OrderStageName[] = ['CREATED', 'LOADING', 'IN_TRANSIT', 'ARRIVED', 'DELIVERED'];
+
+/** Whether the order is at, or has passed through, a stage — what the stage cards count. */
+function reachedStage(order: Order, target: OrderStageName): boolean {
+  const at = STAGE_ORDER.indexOf(target);
+  return [order.stage, ...order.stages.map((entry) => entry.stage)].some(
+    (stage) => STAGE_ORDER.indexOf(stage) >= at,
+  );
 }
 
 /** The branch a car is going to: the order's own delivery branch, else where the car is. */

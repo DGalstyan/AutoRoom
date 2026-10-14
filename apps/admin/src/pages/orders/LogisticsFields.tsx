@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import type { OrderUpdateInput } from '@autoroom/api/client';
 import {
   FormControlLabel,
@@ -8,6 +9,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useAuth } from '@/auth/AuthProvider';
 import { INSPECTION_STATUSES } from '@/pages/orders/orderOptions';
 
 /** `OrderUpdateInput.purchaseDate`/`paidDate` are ISO datetimes; an HTML
@@ -37,6 +39,19 @@ export function LogisticsFields({
   setDraft: (next: OrderUpdateInput) => void;
   disabled: boolean;
 }) {
+  const { api } = useAuth();
+  const branches = useQuery({
+    queryKey: ['branches', 'for-orders'],
+    queryFn: () => api.branches.list(),
+  });
+  // A branch name already saved on the order stays selectable even if the branch was since renamed.
+  const branchNames = Array.from(
+    new Set([
+      ...(branches.data?.items.map((branch) => branch.name) ?? []),
+      ...(draft.deliveryBranch ? [draft.deliveryBranch] : []),
+    ]),
+  );
+
   function set<K extends keyof OrderUpdateInput>(key: K, value: OrderUpdateInput[K]) {
     setDraft({ ...draft, [key]: value });
   }
@@ -92,12 +107,23 @@ export function LogisticsFields({
         </Typography>
         <Stack spacing={2}>
           <TextField
+            select
             label="Delivery branch"
             value={draft.deliveryBranch ?? ''}
             onChange={(event) => set('deliveryBranch', event.target.value || null)}
             fullWidth
             disabled={disabled}
-          />
+            helperText="Branches are managed under Branches."
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {branchNames.map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+          </TextField>
           <FormControlLabel
             control={
               <Switch
