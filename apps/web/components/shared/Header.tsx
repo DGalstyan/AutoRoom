@@ -147,8 +147,8 @@ export function Header({ logo = null }: HeaderProps = {}) {
             <Link
               key={item.href}
               href={item.href}
-              aria-current={pathname === item.href ? 'page' : undefined}
-              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-1.5 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent xl:px-2 xl:text-[16px] ${pathname === item.href ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              aria-current={isActiveHref(pathname, item.href) ? 'page' : undefined}
+              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-1.5 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent xl:px-2 xl:text-[16px] ${isActiveHref(pathname, item.href) ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
             >
               {nav[item.key]}
               {item.chevron && (
@@ -244,9 +244,11 @@ export function Header({ logo = null }: HeaderProps = {}) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setDrawerOpen(false)}
-                aria-current={pathname === item.href ? 'page' : undefined}
+                aria-current={isActiveHref(pathname, item.href) ? 'page' : undefined}
                 className={`min-h-11 rounded-md px-2 py-3 text-lead hover:bg-white/5 ${
-                  pathname === item.href ? 'font-bold text-white' : 'font-medium text-white/90'
+                  isActiveHref(pathname, item.href)
+                    ? 'font-bold text-white'
+                    : 'font-medium text-white/90'
                 }`}
               >
                 {nav[item.key]}
@@ -342,4 +344,10 @@ function PortalGlyph() {
       />
     </svg>
   );
+}
+
+/** A nav item is current on its own page and on every page beneath it (e.g. Partners on the portal). */
+function isActiveHref(pathname: string | null, href: string): boolean {
+  if (!pathname) return false;
+  return pathname === href || (href !== '/' && pathname.startsWith(`${href}/`));
 }

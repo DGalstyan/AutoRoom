@@ -33,6 +33,8 @@ export function useFocusTrap(
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
+        // An open dropdown inside the dialog takes Escape first (it closes itself).
+        if (container?.querySelector('[aria-haspopup][aria-expanded="true"]')) return;
         event.stopPropagation();
         onClose();
         return;

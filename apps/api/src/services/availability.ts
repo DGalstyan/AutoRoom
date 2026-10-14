@@ -1,4 +1,4 @@
-import { BookingStatus, Prisma } from '@prisma/client';
+import { BookingStatus, MeetingStatus, Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { badRequest, conflict } from '../lib/errors';
 
@@ -136,11 +136,43 @@ export async function resolveSlotForBooking(
 export async function countHolders(slotIds: string[]): Promise<Map<string, number>> {
   if (slotIds.length === 0) return new Map();
 
-  const rows = await prisma.booking.groupBy({
-    by: ['slotId'],
-    where: { slotId: { in: slotIds }, status: { in: [...OCCUPYING_STATUSES] } },
-    _count: { _all: true },
-  });
+  const [rows, meetings] = await Promise.all([
+    prisma.booking.groupBy({
+      by: ['slotId'],
+      where: { slotId: { in: slotIds }, status: { in: [...OCCUPYING_STATUSES] } },
+      _count: { _all: true },
+    }),
+    prisma.lead.groupBy({
+      by: ['meetingSlotId'],
+      where: {
+        meetingSlotId: { in: slotIds },
+        meetingStatus: { in: [...ACTIVE_MEETING_STATUSES] },
+      },
+      _count: { _all: true },
+    }),
+  ]);
 
-  return new Map(rows.map((row) => [row.slotId!, row._count._all]));
+  const held = new Map<string, number>();
+  for (const row of rows) held.set(row.slotId!, row._count._all);
+  // A dealer's meeting request holds its window too, so the public form and the
+  // admin diary agree on what is taken.
+  for (const row of meetings) {
+    held.set(row.meetingSlotId!, (held.get(row.meetingSlotId!) ?? 0) + row._count._all);
+  }
+  return held;
+}
+
+/** Dealer meetings that still occupy their time (cancelled/completed ones do not). */
+export const ACTIVE_MEETING_STATUSES = [MeetingStatus.PENDING, MeetingStatus.CONFIRMED] as const;
+
+/** Start times of the active dealer meetings in a range, for the public form to grey out. */
+export async function takenMeetingTimes(from: Date, to: Date): Promise<string[]> {
+  const leads = await prisma.lead.findMany({
+    where: {
+      meetingAt: { gte: from, lte: to },
+      meetingStatus: { in: [...ACTIVE_MEETING_STATUSES] },
+    },
+    select: { meetingAt: true },
+  });
+  return leads.map((lead) => lead.meetingAt!.toISOString());
 }

@@ -207,10 +207,7 @@ describe('become a dealer', () => {
       expect(response.body.meetingSlotId).toBeNull();
     });
 
-    it('does not consume the window it asked for', async () => {
-      // A lead is an enquiry, not an appointment: occupancy stays a fact about
-      // bookings, so a second visitor may still ask for the same time and a
-      // manager decides between them.
+    it('holds the window it asked for, so it cannot be booked twice', async () => {
       const slot = await createSlot({ startsAt: inDays(4) });
 
       await agent()
@@ -220,10 +217,27 @@ describe('become a dealer', () => {
       await agent()
         .post('/leads')
         .send(dealerBody({ meetingSlotId: slot.id }))
-        .expect(201);
+        .expect(409);
 
       const [listed] = (await agent().get('/public/availability')).body.items;
-      expect(listed.open).toBe(true);
+      expect(listed.open).toBe(false);
+    });
+
+    it('refuses a second meeting at the same time when no slot exists', async () => {
+      const at = inDays(8);
+      at.setUTCMinutes(0, 0, 0);
+
+      await agent()
+        .post('/leads')
+        .send(dealerBody({ meetingAt: at.toISOString() }))
+        .expect(201);
+      await agent()
+        .post('/leads')
+        .send(dealerBody({ meetingAt: at.toISOString() }))
+        .expect(409);
+
+      const { takenTimes } = (await agent().get('/public/availability')).body;
+      expect(takenTimes).toContain(at.toISOString());
     });
 
     it('refuses a window a confirmed booking already fills', async () => {

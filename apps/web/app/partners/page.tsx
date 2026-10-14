@@ -38,7 +38,7 @@ export default async function PartnersPage() {
       branches={branches}
       footer={<Footer logo={logo} contacts={contacts} />}
     >
-      <PartnersHero phone={contacts.general.b2bPhone} />
+      <PartnersHero phone={contacts.general.b2bPhone ?? contacts.general.phones[0] ?? null} />
       <div className="bg-surface-light">
         <PartnersWhy />
         <PartnersWhoCanJoin />

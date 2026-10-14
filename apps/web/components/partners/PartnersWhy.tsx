@@ -54,9 +54,9 @@ export function PartnersWhy() {
         {/* Figma `Group 39466`: three columns 598 | 287 | 399 with 30px gaps (the
             `fr` units reproduce those exact widths at 1344px), then a 598 | 716 row. */}
         <div className="flex flex-col gap-6 lg:gap-[30px]">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[598fr_287fr_399fr] lg:gap-[30px]">
-            <div className="flex flex-col gap-6 lg:gap-[10px]">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:gap-6 lg:grid-cols-[598fr_287fr_399fr] lg:gap-[30px]">
+            <div className="flex flex-col gap-3 sm:gap-6 lg:gap-[10px]">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6">
                 <StatTile item={support247} />
                 <StatTile item={specialPricing} />
               </div>
@@ -67,13 +67,13 @@ export function PartnersWhy() {
               />
             </div>
             <HeadingTile text={personalManager.title} tone="gold" />
-            <div className="flex flex-col gap-6 lg:gap-4">
+            <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-col lg:gap-4">
               <StatTile item={partnershipTerms} className="lg:flex-1" />
               <StatTile item={priorityService} className="lg:flex-1" />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[598fr_716fr] lg:gap-[30px]">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-[598fr_716fr] lg:gap-[30px]">
             <StatTile item={technicalSupport} />
             <StatTile item={directLine} />
           </div>
@@ -92,13 +92,13 @@ interface WhyItem {
 function StatTile({ item, className = '' }: { item: WhyItem; className?: string }) {
   return (
     <div
-      className={`flex min-h-[274px] flex-col justify-center gap-3 rounded-[48px] bg-white p-8 lg:px-[34px] ${className}`}
+      className={`flex min-h-[150px] flex-col justify-center gap-2 rounded-[24px] bg-white p-4 sm:min-h-[274px] sm:gap-3 sm:rounded-[48px] sm:p-8 lg:px-[34px] ${className}`}
     >
-      <p className="stretch-90 text-[28px] leading-9 text-ink sm:text-[36px] sm:leading-[48px]">
+      <p className="stretch-90 text-[18px] leading-6 text-ink sm:text-[36px] sm:leading-[48px]">
         {item.title}
       </p>
       {item.text && (
-        <p className="stretch-90 text-[20px] leading-[30px] text-ink sm:text-[24px] sm:leading-9">
+        <p className="stretch-90 text-[14px] leading-5 text-ink sm:text-[24px] sm:leading-9">
           {item.text}
         </p>
       )}
@@ -119,11 +119,11 @@ function HeadingTile({
 }) {
   return (
     <div
-      className={`flex min-h-[274px] items-center justify-start rounded-[48px] p-8 text-left ${
+      className={`flex min-h-[110px] items-center justify-start rounded-[24px] p-6 text-left sm:min-h-[274px] sm:rounded-[48px] sm:p-8 ${
         tone === 'gold' ? 'bg-accent text-ink lg:pl-[55px]' : 'bg-ink text-white lg:pl-16'
       } ${className}`}
     >
-      <p className="stretch-90 text-[28px] leading-9 sm:text-[36px] sm:leading-[48px]">{text}</p>
+      <p className="stretch-90 text-[22px] leading-7 sm:text-[36px] sm:leading-[48px]">{text}</p>
     </div>
   );
 }

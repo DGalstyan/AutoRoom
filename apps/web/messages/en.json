@@ -1210,11 +1210,12 @@
       "companyLabel": "Company name",
       "activityLabel": "Field of activity",
       "activityOptions": {
-        "showroom": "Car showrooms",
-        "rental": "Car rental companies",
-        "fleet": "Fleet operators",
-        "leasing": "Leasing companies",
-        "importer": "Individual importers"
+        "showroom": "Showroom",
+        "dealer": "Dealer",
+        "leasing": "Leasing",
+        "fleet": "Fleet",
+        "construction": "Construction",
+        "other": "Other"
       },
       "commentLabel": "Comment",
       "commentPlaceholder": "",
@@ -1239,7 +1240,9 @@
         "slotRequired": "Please pick a day and time",
         "slotTaken": "That time was just taken. Please pick another.",
         "companyRequired": "Enter the company name",
-        "sendFailed": "Connection problem: your request was not sent. Check your connection and try again, or call us."
+        "sendFailed": "Connection problem: your request was not sent. Check your connection and try again, or call us.",
+        "emailInvalid": "Enter a valid email address",
+        "activityRequired": "Choose your field of activity"
       },
       "steps": {
         "data": "Details",
@@ -1309,7 +1312,10 @@
           "tooMany": "Too many attempts. Try again in a few minutes.",
           "invalidPhone": "Check the phone number."
         }
-      }
+      },
+      "activityPlaceholder": "Select",
+      "companyPlaceholder": "e.g. Example LLC",
+      "pickDate": "Pick a date to see available times"
     },
     "portal": {
       "meta": {

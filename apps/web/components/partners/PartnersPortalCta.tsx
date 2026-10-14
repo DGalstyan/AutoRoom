@@ -13,7 +13,7 @@ export function PartnersPortalCta() {
 
   return (
     <div className="bg-surface-light pt-16 lg:pt-[202px]">
-      <CtaBand heading={t.heading} buttonLabel={t.cta} href="/partners/portal" />
+      <CtaBand heading={t.heading} buttonLabel={t.cta} href="/partners/portal" buttonTone="glass" />
     </div>
   );
 }

@@ -14,6 +14,7 @@ import type {
 import { ListDropdown } from '@/components/china/FilterDropdowns';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { errorMessage } from '@/lib/portal/api';
+import { carHref } from '@/lib/types/car';
 import { usePortalAuth } from '@/components/partners/portal/PortalAuthProvider';
 
 /**
@@ -165,7 +166,7 @@ export function PortalDashboard() {
   ];
 
   function showStage(stage: OrderStageName | null) {
-    setTab('orders');
+    setTab(stage ? 'orders' : 'cars');
     setStageFilter(stage);
     document
       .getElementById('portal-orders')
@@ -221,14 +222,17 @@ export function PortalDashboard() {
           <StatCard
             label={t.dashboard.paymentStats.pending}
             value={me.orderStats.paymentSummary.pending}
+            arrow
           />
           <StatCard
             label={t.dashboard.paymentStats.partial}
             value={me.orderStats.paymentSummary.partial}
+            arrow
           />
           <StatCard
             label={t.dashboard.paymentStats.paid}
             value={me.orderStats.paymentSummary.paid}
+            arrow
           />
         </div>
       </section>
@@ -237,7 +241,7 @@ export function PortalDashboard() {
         <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6 xl:rounded-[70px]">
           <div
             role="group"
-            className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[24px] bg-neutral-25 px-4 py-3 sm:w-fit sm:rounded-pill"
+            className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[24px] bg-neutral-25 px-4 py-3 sm:w-fit sm:rounded-pill xl:flex-nowrap xl:whitespace-nowrap"
           >
             <ViewPill
               active={tab === 'orders' && originFilter === 'ALL'}
@@ -276,7 +280,7 @@ export function PortalDashboard() {
           </div>
 
           {tab === 'orders' && (
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap xl:gap-8">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap xl:gap-4">
               <label className="flex h-11 w-full items-center justify-between rounded-pill bg-neutral-25 px-3 text-[12px] leading-4 text-neutral-700 sm:w-[228px]">
                 <span className="sr-only">{t.dashboard.filters.searchLabel}</span>
                 <input
@@ -348,7 +352,25 @@ export function PortalDashboard() {
                   </thead>
                   <tbody>
                     {cars.map((car) => (
-                      <tr key={car.id} className="odd:bg-white even:bg-page">
+                      <tr
+                        key={car.id}
+                        // Only a published car has a public page to open.
+                        {...(car.publishedAt
+                          ? {
+                              onClick: () => router.push(carHref(car)),
+                              onKeyDown: (event: React.KeyboardEvent) => {
+                                if (event.key === 'Enter') router.push(carHref(car));
+                              },
+                              role: 'link',
+                              tabIndex: 0,
+                            }
+                          : {})}
+                        className={`odd:bg-white even:bg-page ${
+                          car.publishedAt
+                            ? 'cursor-pointer hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent'
+                            : ''
+                        }`}
+                      >
                         <Td first>{car.make}</Td>
                         <Td>{car.model}</Td>
                         <Td>{car.year}</Td>
@@ -489,17 +511,20 @@ function StatCard({
   value,
   onOpen,
   active = false,
+  arrow = false,
 }: {
   label: string;
   value: number;
   onOpen?: () => void;
   active?: boolean;
+  /** Show the arrow chip even though the tile does not open anything (the design has it on every tile). */
+  arrow?: boolean;
 }) {
   const body = (
     <>
       <span className="flex items-center gap-4">
         <span className="text-[24px] font-bold leading-9 tabular-nums text-ink">{value}</span>
-        {onOpen && (
+        {(onOpen || arrow) && (
           <span
             aria-hidden="true"
             className="flex size-[22px] items-center justify-center rounded-full bg-[#eceef0] text-neutral-800"

@@ -7,7 +7,12 @@ import { requireAuth } from '../middleware/auth';
 import { requirePartner } from '../middleware/partner';
 import { requirePermission } from '../middleware/rbac';
 import { validateBody, validateQuery } from '../middleware/validate';
-import { countHolders, inSlotTransaction, occupiedBy } from '../services/availability';
+import {
+  countHolders,
+  inSlotTransaction,
+  occupiedBy,
+  takenMeetingTimes,
+} from '../services/availability';
 
 /**
  * The bookable diary — `references/admin.md` C3.
@@ -467,7 +472,8 @@ availabilityRouter.get(
     // submission re-checks occupancy anyway, so a stale cached `open` costs the
     // visitor a 409, never someone else's window.
     res.set('Cache-Control', 'public, max-age=30');
-    res.json({ items, total: items.length });
+    const takenTimes = to <= from ? [] : await takenMeetingTimes(from, to);
+    res.json({ items, total: items.length, takenTimes });
   },
 );
 

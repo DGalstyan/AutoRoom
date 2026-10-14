@@ -25,6 +25,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import {
   MEETING_FORMAT_LABEL,
   STATUSES,
+  activityLabel,
   meetingStatusTone,
   statusTone,
 } from '@/pages/leads/status';
@@ -264,7 +265,7 @@ export function LeadsPage() {
                 lead.budget,
                 lead.financing,
                 lead.company,
-                lead.activityType,
+                activityLabel(lead.activityType),
               ].filter(Boolean);
               return (
                 <Box>
@@ -339,7 +340,16 @@ export function LeadsPage() {
             render: (lead) => {
               if (!lead.meetingStatus) return null;
               const entry = meetingStatusTone(lead.meetingStatus);
-              return <StatusBadge label={entry.label} tone={entry.tone} />;
+              const overdue =
+                lead.meetingAt &&
+                new Date(lead.meetingAt) < new Date() &&
+                (lead.meetingStatus === 'PENDING' || lead.meetingStatus === 'CONFIRMED');
+              return (
+                <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                  <StatusBadge label={entry.label} tone={entry.tone} />
+                  {overdue && <StatusBadge label="Past due" tone="pending" />}
+                </Box>
+              );
             },
           },
           {

@@ -31,23 +31,33 @@ export interface GetAvailabilityParams {
   branchId?: string;
 }
 
+export interface PublicAvailability {
+  items: PublicAvailabilitySlot[];
+  /** Start times (ISO) of dealer meetings already requested — never offered again. */
+  takenTimes: string[];
+}
+
 export async function getPublicAvailability({
   from,
   to,
   branchId,
-}: GetAvailabilityParams): Promise<PublicAvailabilitySlot[]> {
+}: GetAvailabilityParams): Promise<PublicAvailability> {
   const base = apiBase();
   const params = new URLSearchParams({ from, to });
   if (branchId) params.set('branchId', branchId);
 
   try {
     const res = await fetch(`${base}/public/availability?${params.toString()}`, {
-      next: { revalidate: 30 },
+      cache: 'no-store',
     });
-    if (!res.ok) return [];
-    const data = (await res.json()) as { items: PublicAvailabilitySlot[]; total: number };
-    return data.items;
+    if (!res.ok) return { items: [], takenTimes: [] };
+    const data = (await res.json()) as {
+      items: PublicAvailabilitySlot[];
+      total: number;
+      takenTimes?: string[];
+    };
+    return { items: data.items, takenTimes: data.takenTimes ?? [] };
   } catch {
-    return [];
+    return { items: [], takenTimes: [] };
   }
 }

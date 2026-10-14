@@ -7,7 +7,11 @@ import { badRequest, conflict, notFound } from '../lib/errors';
 import { requireAuth } from '../middleware/auth';
 import { requirePermission } from '../middleware/rbac';
 import { validateBody, validateQuery } from '../middleware/validate';
-import { countHolders, SLOT_TAKEN_MESSAGE } from '../services/availability';
+import {
+  ACTIVE_MEETING_STATUSES,
+  countHolders,
+  SLOT_TAKEN_MESSAGE,
+} from '../services/availability';
 import { generateTemporaryPassword, hashPassword } from '../lib/password';
 import { serializePartner } from './partners';
 import { sendSms } from '../lib/sms';
@@ -251,16 +255,43 @@ leadsRouter.get(
       ...(meetingStatus ? { meetingStatus } : meeting ? { meetingStatus: { not: null } } : {}),
     };
 
-    const [items, total] = await Promise.all([
-      prisma.lead.findMany({
+    let items;
+    if (meeting || meetingStatus) {
+      // The meetings screen reads as a diary: upcoming meetings soonest first, then the
+      // ones already past, most recent first — so old requests never bury the next ones.
+      const now = new Date();
+      const upcomingWhere = { ...where, meetingAt: { gte: now } };
+      const pastWhere = { ...where, meetingAt: { lt: now } };
+      const upcomingCount = await prisma.lead.count({ where: upcomingWhere });
+      const upcoming =
+        skip < upcomingCount
+          ? await prisma.lead.findMany({
+              where: upcomingWhere,
+              orderBy: { meetingAt: 'asc' },
+              take,
+              skip,
+            })
+          : [];
+      const rest = take - upcoming.length;
+      const past =
+        rest > 0
+          ? await prisma.lead.findMany({
+              where: pastWhere,
+              orderBy: { meetingAt: 'desc' },
+              take: rest,
+              skip: Math.max(0, skip - upcomingCount),
+            })
+          : [];
+      items = [...upcoming, ...past];
+    } else {
+      items = await prisma.lead.findMany({
         where,
-        // The meetings screen reads as a diary: soonest first. Everything else is newest first.
-        orderBy: meeting || meetingStatus ? { meetingAt: 'asc' } : { createdAt: 'desc' },
+        orderBy: { createdAt: 'desc' },
         take,
         skip,
-      }),
-      prisma.lead.count({ where }),
-    ]);
+      });
+    }
+    const total = await prisma.lead.count({ where });
 
     res.json({ items: items.map(serializeLead), total, take, skip });
   },
@@ -558,7 +589,9 @@ async function resolveMeeting(body: z.infer<typeof createLeadBodySchema>): Promi
 
   if (!body.meetingSlotId) {
     if (!body.meetingAt) return null;
-    return assertFuture(new Date(body.meetingAt));
+    const at = assertFuture(new Date(body.meetingAt));
+    await assertTimeFree(at);
+    return at;
   }
 
   const slot = await prisma.availabilitySlot.findUnique({ where: { id: body.meetingSlotId } });
@@ -572,6 +605,14 @@ async function resolveMeeting(body: z.infer<typeof createLeadBodySchema>): Promi
   if (held >= slot.capacity) throw conflict(SLOT_TAKEN_MESSAGE);
 
   return assertFuture(slot.startsAt);
+}
+
+/** One dealer meeting per start time when no admin slot defines the capacity. */
+async function assertTimeFree(at: Date): Promise<void> {
+  const taken = await prisma.lead.count({
+    where: { meetingAt: at, meetingStatus: { in: [...ACTIVE_MEETING_STATUSES] } },
+  });
+  if (taken > 0) throw conflict(SLOT_TAKEN_MESSAGE);
 }
 
 /** A meeting in the past is a typo or a stale page, never a request. */

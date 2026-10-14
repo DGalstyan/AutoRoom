@@ -362,6 +362,13 @@ export function PartnersPage() {
   );
 }
 
+/** Digits with the usual `+ ( ) - .` and spaces, 8–15 digits — mirrors the API's `isPlausiblePhone`. */
+function isPlausiblePhone(value: string): boolean {
+  if (!/^[\d\s().+-]+$/.test(value) || (value.match(/\+/g) ?? []).length > 1) return false;
+  const digits = value.replace(/\D/g, '').length;
+  return digits >= 8 && digits <= 15;
+}
+
 function PartnerDialog({
   partner,
   onClose,
@@ -392,6 +399,10 @@ function PartnerDialog({
     onSuccess: (saved) => onDone(`${saved.name} saved.`),
     onError: (caught) => setError(errorMessage(caught)),
   });
+
+  // Same rules as the API (`lib/phoneRule.ts`), so a typo is caught before the request.
+  const phoneInvalid = Boolean(draft.phone) && !isPlausiblePhone(draft.phone!);
+  const emailInvalid = Boolean(draft.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email!);
 
   function set<K extends keyof PartnerInput>(key: K, value: PartnerInput[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -428,6 +439,10 @@ function PartnerDialog({
               label="Phone"
               value={draft.phone ?? ''}
               onChange={(event) => set('phone', event.target.value || null)}
+              error={phoneInvalid}
+              helperText={
+                phoneInvalid ? 'Enter a valid phone number, e.g. +374 94 123456' : undefined
+              }
               fullWidth
             />
             <TextField
@@ -435,6 +450,8 @@ function PartnerDialog({
               type="email"
               value={draft.email ?? ''}
               onChange={(event) => set('email', event.target.value || null)}
+              error={emailInvalid}
+              helperText={emailInvalid ? 'Enter a valid email address' : undefined}
               fullWidth
             />
             <TextField
@@ -463,7 +480,11 @@ function PartnerDialog({
           <Button onClick={onClose} disabled={mutation.isPending} color="inherit">
             Cancel
           </Button>
-          <Button type="submit" variant="contained" disabled={!draft.name || mutation.isPending}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!draft.name || phoneInvalid || emailInvalid || mutation.isPending}
+          >
             {mutation.isPending ? 'Saving…' : 'Save'}
           </Button>
         </DialogActions>

@@ -29,6 +29,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import {
   MEETING_FORMAT_LABEL,
   STATUSES,
+  activityLabel,
   meetingStatusTone,
   statusTone,
 } from '@/pages/leads/status';
@@ -169,7 +170,7 @@ export function LeadDetailPage() {
     ['Contact channel', lead.channel],
     ['Colour', lead.color],
     ['Company', lead.company],
-    ['Activity type', lead.activityType],
+    ['Activity type', activityLabel(lead.activityType)],
   ];
   const filledAboutFields = aboutFields.filter(([, value]) => Boolean(value));
 

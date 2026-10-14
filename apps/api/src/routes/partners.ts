@@ -411,7 +411,8 @@ partnersRouter.get('/portal/me', requireAuth, requirePartner, async (req, res) =
   ]);
 
   const stageCounts = {
-    active: orders.length,
+    // Cars assigned to the partner — the same number the dashboard's "My cars" tab shows.
+    active: partner._count.cars,
     loading: orders.filter((order) => order.stage === 'LOADING').length,
     inTransit: orders.filter((order) => order.stage === 'IN_TRANSIT').length,
     arrived: orders.filter((order) => order.stage === 'ARRIVED').length,

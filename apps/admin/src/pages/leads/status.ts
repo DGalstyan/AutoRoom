@@ -32,3 +32,16 @@ export const MEETING_STATUSES: { value: MeetingStatus; label: string; tone: Stat
 
 export const meetingStatusTone = (status: MeetingStatus) =>
   MEETING_STATUSES.find((entry) => entry.value === status)!;
+
+/** The dealer form stores a fixed key; older leads hold whatever translated label was on screen. */
+const ACTIVITY_LABELS: Record<string, string> = {
+  showroom: 'Showroom',
+  dealer: 'Dealer',
+  leasing: 'Leasing',
+  fleet: 'Fleet',
+  construction: 'Construction',
+  other: 'Other',
+};
+
+export const activityLabel = (value: string | null): string | null =>
+  value ? (ACTIVITY_LABELS[value] ?? value) : null;

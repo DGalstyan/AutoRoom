@@ -50,6 +50,12 @@ const FIXED_TIMES = [
   '16:00', '16:30', '17:00', '17:30',
 ]; // prettier-ignore
 
+/** Same shape check the API applies to `email`. */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Stored on the lead instead of the translated label, so filtering and reports work in any language. */
+const ACTIVITY_KEYS = ['showroom', 'dealer', 'leasing', 'fleet', 'construction', 'other'] as const;
+
 const MAX_DAYS_AHEAD = 60; // Matches `GET /public/availability`'s own clamp.
 
 function startOfDay(date: Date): Date {
@@ -201,6 +207,7 @@ export function PartnerBookingPopup({
   const [address, setAddress] = useState('');
 
   const [slots, setSlots] = useState<PublicAvailabilitySlot[]>([]);
+  const [takenTimes, setTakenTimes] = useState<string[]>([]);
   const [touched, setTouched] = useState(false);
   const [status, setStatus] = useState<Status>('idle');
   const [successName, setSuccessName] = useState('');
@@ -254,8 +261,10 @@ export function PartnerBookingPopup({
       59,
     ).toISOString();
     let cancelled = false;
-    void getPublicAvailability({ from, to }).then((items) => {
-      if (!cancelled) setSlots(items);
+    void getPublicAvailability({ from, to }).then(({ items, takenTimes: taken }) => {
+      if (cancelled) return;
+      setSlots(items);
+      setTakenTimes(taken);
     });
     return () => {
       cancelled = true;
@@ -284,10 +293,64 @@ export function PartnerBookingPopup({
     });
   }
 
+  // Minute-resolution "now": refreshed whenever the form re-renders, so a slot that has just passed
+  // stops being offered.
+  const now = new Date();
+  const takenKeys = useMemo(
+    () =>
+      new Set(
+        takenTimes.map((iso) => {
+          const d = new Date(iso);
+          return `${dateKey(d)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        }),
+      ),
+    [takenTimes],
+  );
+
+  /**
+   * Times offered for the picked day. A day the admin has published slots for offers exactly those;
+   * a day with none falls back to the standard working hours, except Sundays. Times already past
+   * are left out, and ones another dealer requested (or a full slot) are shown but disabled.
+   */
+  function timesFor(date: Date): { time: string; taken: boolean }[] {
+    const key = dateKey(date);
+    const published = slotsByDay.get(key) ?? [];
+    const times =
+      published.length > 0
+        ? published
+            .map((slot) => {
+              const d = new Date(slot.startsAt);
+              return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+            })
+            .sort()
+        : date.getDay() === 0
+          ? []
+          : FIXED_TIMES;
+    return times
+      .filter((time) => {
+        const [h, m] = time.split(':').map(Number) as [number, number];
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m) > now;
+      })
+      .map((time) => {
+        const matched = published.find((slot) => {
+          const d = new Date(slot.startsAt);
+          return (
+            `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` ===
+            time
+          );
+        });
+        return {
+          time,
+          taken: (matched ? !matched.open : false) || takenKeys.has(`${key} ${time}`),
+        };
+      });
+  }
+
   const today = startOfDay(new Date());
   const maxDate = new Date(today);
   maxDate.setDate(maxDate.getDate() + MAX_DAYS_AHEAD);
   const monthGrid = buildMonthGrid(visibleMonth);
+  const dayTimes = selectedDate ? timesFor(selectedDate) : [];
 
   const isFirstNavigableMonth =
     visibleMonth.getFullYear() === today.getFullYear() &&
@@ -299,6 +362,8 @@ export function PartnerBookingPopup({
   const nameError = touched && name.trim().length === 0;
   const phoneError = touched && !isValidArmenianPhone(phone);
   const companyError = touched && company.trim().length === 0;
+  const emailError = touched && email.trim().length > 0 && !EMAIL_PATTERN.test(email.trim());
+  const activityError = touched && activityType.length === 0;
   const slotError = touched && (!selectedDate || !selectedTime);
   const branchRequired = meetingFormat === 'OFFICE' && !branchId;
   const addressRequired = meetingFormat === 'OTHER' && address.trim().length === 0;
@@ -307,6 +372,7 @@ export function PartnerBookingPopup({
     name.trim().length > 0 &&
     isValidArmenianPhone(phone) &&
     company.trim().length > 0 &&
+    (email.trim().length === 0 || EMAIL_PATTERN.test(email.trim())) &&
     activityType.length > 0 &&
     !!selectedDate &&
     !!selectedTime &&
@@ -450,6 +516,15 @@ export function PartnerBookingPopup({
       setStatus('error');
     } else if (result.reason === 'conflict') {
       setStatus('conflict');
+      const [h, m] = selectedTime.split(':').map(Number) as [number, number];
+      const takenAt = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        h,
+        m,
+      ).toISOString();
+      setTakenTimes((previous) => [...previous, takenAt]);
       setSelectedTime(null);
     } else if (result.reason === 'unverified') {
       // The proof expired between the check and the submit: ask again.
@@ -491,7 +566,7 @@ export function PartnerBookingPopup({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="mx-4 mb-16 flex w-full max-w-[1344px] flex-col gap-8 outline-none sm:mx-6 sm:mb-24 sm:gap-12"
+        className="mx-auto mb-16 flex w-[calc(100%-2rem)] max-w-[1344px] flex-col gap-8 outline-none sm:mb-24 sm:w-[calc(100%-3rem)] sm:gap-12"
       >
         <div className="flex items-center gap-3">
           <button
@@ -578,9 +653,15 @@ export function PartnerBookingPopup({
                       autoComplete="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
+                      onBlur={() => setTouched(true)}
+                      aria-invalid={emailError}
+                      aria-describedby={emailError ? 'pbp-email-error' : undefined}
                       placeholder={t.emailPlaceholder}
                       className={INPUT}
                     />
+                    {emailError && (
+                      <FieldError id="pbp-email-error">{t.errors.emailInvalid}</FieldError>
+                    )}
                   </Field>
                 </div>
 
@@ -594,7 +675,7 @@ export function PartnerBookingPopup({
                     onBlur={() => setTouched(true)}
                     aria-invalid={companyError}
                     aria-describedby={companyError ? 'pbp-company-error' : undefined}
-                    placeholder={t.namePlaceholder}
+                    placeholder={t.companyPlaceholder}
                     className={INPUT}
                   />
                   {companyError && (
@@ -608,12 +689,16 @@ export function PartnerBookingPopup({
                     label={t.activityLabel}
                     value={activityType}
                     onChange={setActivityType}
-                    placeholder={Object.values(t.activityOptions)[0]}
-                    options={Object.values(t.activityOptions).map((label) => ({
-                      value: label,
-                      label,
+                    placeholder={t.activityPlaceholder}
+                    describedBy={activityError ? 'pbp-activity-error' : undefined}
+                    options={ACTIVITY_KEYS.map((key) => ({
+                      value: key,
+                      label: t.activityOptions[key],
                     }))}
                   />
+                  {activityError && (
+                    <FieldError id="pbp-activity-error">{t.errors.activityRequired}</FieldError>
+                  )}
                 </Field>
 
                 <Field id="pbp-comment" label={t.commentLabel}>
@@ -682,7 +767,11 @@ export function PartnerBookingPopup({
                         </span>
                       ))}
                       {monthGrid.map(({ date: cellDate, inMonth }) => {
-                        const disabled = !inMonth || cellDate < today || cellDate > maxDate;
+                        const closedSunday =
+                          cellDate.getDay() === 0 &&
+                          !(slotsByDay.get(dateKey(cellDate))?.length ?? 0);
+                        const disabled =
+                          !inMonth || cellDate < today || cellDate > maxDate || closedSunday;
                         const isSelected =
                           selectedDate && dateKey(cellDate) === dateKey(selectedDate);
                         return (
@@ -717,9 +806,7 @@ export function PartnerBookingPopup({
                     <span className="sr-only">{t.timeSlotsLabel}</span>
                     {selectedDate ? (
                       <div className="flex max-h-[386px] flex-row flex-wrap gap-2 overflow-y-auto sm:h-[386px] sm:max-h-none sm:flex-col sm:flex-nowrap sm:gap-4 sm:pr-1 [scrollbar-color:#cccfd0_#f5f5f6] [scrollbar-width:thin]">
-                        {FIXED_TIMES.map((time) => {
-                          const matched = slotForTime(time);
-                          const taken = matched ? !matched.open : false;
+                        {dayTimes.map(({ time, taken }) => {
                           const isSelected = selectedTime === time;
                           return (
                             <button
@@ -740,10 +827,15 @@ export function PartnerBookingPopup({
                             </button>
                           );
                         })}
+                        {dayTimes.length === 0 && (
+                          <p className="px-1 py-2 text-[12px] leading-4 text-neutral-700">
+                            {t.noTimes}
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <p className="px-1 py-2 text-[12px] leading-4 text-neutral-700">
-                        {t.noTimes}
+                        {t.pickDate}
                       </p>
                     )}
                   </div>
@@ -879,7 +971,7 @@ export function PartnerBookingPopup({
             <Button
               type="submit"
               variant="primary"
-              disabled={status === 'submitting' || status === 'code' || !isValid}
+              disabled={status === 'submitting' || status === 'code'}
             >
               {status === 'submitting' ? t.sending : status === 'error' ? popupT.retry : t.submit}
             </Button>
