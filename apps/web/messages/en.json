@@ -442,9 +442,9 @@
     },
     "languageLabel": "Language",
     "notFound": {
-      "heading": "Page not found",
-      "body": "The address is wrong or the page was removed.",
-      "home": "Back to the homepage"
+      "heading": "Whoops!",
+      "body": "Sorry, this page is not available or broken.",
+      "home": "Back to homepage"
     },
     "meta": {
       "title": "AutoRoom — Car imports from the USA and China",
