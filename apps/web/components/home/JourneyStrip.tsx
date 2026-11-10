@@ -15,6 +15,9 @@ import Image from 'next/image';
  * keeps its copy visible, on a dark panel so it reads over any photo. The accordion's 96–141px
  * strips clip their titles and need hover, so it is kept for the width the design was drawn at.
  */
+/** Which `journey-full-N.webp` the opened strip shows (the 1st card's own image is already the whole photo; the 5th reuses the 3rd's source). */
+const FULL_PHOTO: (number | null)[] = [null, 2, 3, 4, 3, 6, 7];
+
 export function JourneyStrip({
   heading,
   steps,
@@ -75,8 +78,39 @@ export function JourneyStrip({
                   alt={step.title}
                   fill
                   sizes={isActive ? '452px' : '141px'}
-                  className="hidden object-cover min-[1400px]:block"
+                  className={`hidden object-cover transition-opacity duration-300 min-[1400px]:block ${
+                    isActive && FULL_PHOTO[index] ? 'min-[1400px]:opacity-0' : ''
+                  }`}
                 />
+                {/* Opened strip: the whole photo (zoomed out), not the narrow slice's crop — over a
+                    blurred copy of itself so the card's remaining height is not an empty band. */}
+                {FULL_PHOTO[index] && (
+                  <span
+                    aria-hidden="true"
+                    className={`absolute inset-0 hidden transition-opacity duration-300 min-[1400px]:block ${
+                      isActive ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    <Image
+                      src={`/images/home/v2/journey-full-${FULL_PHOTO[index]}.webp`}
+                      alt=""
+                      fill
+                      sizes="904px"
+                      className="scale-125 object-cover blur-2xl brightness-75"
+                    />
+                    <Image
+                      src={`/images/home/v2/journey-full-${FULL_PHOTO[index]}.webp`}
+                      alt=""
+                      fill
+                      sizes="452px"
+                      className={`object-contain object-[50%_38%] ${
+                        FULL_PHOTO[index] !== 6
+                          ? '[mask-image:linear-gradient(to_bottom,transparent_17.7%,black_25%,black_64%,transparent_71.1%)]'
+                          : ''
+                      }`}
+                    />
+                  </span>
+                )}
                 <span
                   className="absolute inset-0 bg-gradient-to-b from-transparent from-[8.631%] to-[#030303]"
                   aria-hidden="true"
