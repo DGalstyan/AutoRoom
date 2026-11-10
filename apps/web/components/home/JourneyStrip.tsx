@@ -116,25 +116,6 @@ export function JourneyStrip({
                   aria-hidden="true"
                 />
 
-                {/* "+" affordance on a collapsed strip (the design draws it on the 2nd card). */}
-                {!isActive && (
-                  <span
-                    aria-hidden="true"
-                    className={`absolute right-2 top-2 hidden size-11 items-center justify-center rounded-full bg-black/20 text-white transition-opacity duration-standard min-[1400px]:flex ${
-                      index === 1 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                    }`}
-                  >
-                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                      <path
-                        d="M13 6v14M6 13h14"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </span>
-                )}
-
                 {/* Active / mobile copy */}
                 <span
                   className={`absolute inset-x-3 bottom-3 flex flex-col gap-1.5 rounded-[20px] bg-black/70 p-4 text-white backdrop-blur-sm min-[1400px]:inset-x-auto min-[1400px]:bottom-auto min-[1400px]:top-[438px] min-[1400px]:left-4 min-[1400px]:right-4 min-[1400px]:rounded-none min-[1400px]:bg-transparent min-[1400px]:p-0 min-[1400px]:backdrop-blur-none ${
