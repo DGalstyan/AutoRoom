@@ -2,7 +2,7 @@ import { GlassButton } from '@/components/home/GlassButton';
 import { getServerMessages } from '@/lib/i18n';
 
 /**
- * Localized 404 (Figma 468:738): a black page with a light "Whoops!" title, one line of copy, an
+ * Localized 404 (Figma 468:738, spacing re-measured from 471:3062 — title 56/66 at y171, copy 24/36 14px below, 410×157 numerals 68px below, 108px pill 72px below, the block centred in the viewport): a black page with a light "Whoops!" title, one line of copy, an
  * outlined gold "404" and the glass "Back to homepage" pill. The copy rises in one line at a time,
  * the numerals draw themselves, then breathe softly; reduced motion shows the finished page
  * (`globals.css` collapses every animation).
@@ -11,13 +11,13 @@ export default async function NotFound() {
   const { messages } = await getServerMessages();
   const t = messages.common.notFound;
   return (
-    <section className="flex min-h-[100svh] flex-col items-center justify-center gap-6 bg-ink px-4 pb-16 pt-32 text-center text-white">
-      <div className="flex flex-col items-center gap-3">
-        <h1 className="nf-rise text-[44px] font-normal leading-[1.1] sm:text-[56px]">
+    <section className="flex min-h-[100svh] flex-col items-center justify-center gap-6 bg-ink px-4 py-16 text-center sm:gap-0 text-white">
+      <div className="flex flex-col items-center gap-3 sm:gap-[14px]">
+        <h1 className="nf-rise text-[44px] font-normal leading-[1.1] sm:text-[56px] sm:leading-[66px]">
           {t.heading}
         </h1>
         <p
-          className="nf-rise text-[18px] leading-7 sm:text-[24px] sm:leading-8"
+          className="nf-rise text-[18px] leading-7 sm:text-[24px] sm:leading-9"
           style={{ animationDelay: '120ms' }}
         >
           {t.body}
@@ -25,10 +25,10 @@ export default async function NotFound() {
       </div>
 
       <svg
-        viewBox="0 0 440 180"
+        viewBox="0 0 440 168"
         role="img"
         aria-label="404"
-        className="nf-float my-6 h-auto w-[min(86vw,420px)] overflow-visible"
+        className="nf-float my-6 h-auto w-[min(86vw,410px)] overflow-visible sm:mb-[72px] sm:mt-[68px]"
       >
         <defs>
           <linearGradient id="nf-gold" x1="0" y1="0" x2="1" y2="1">
