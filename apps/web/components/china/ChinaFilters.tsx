@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { interpolate } from '@/lib/messages';
@@ -15,7 +15,8 @@ const PRICE_MAX = 500_000;
  * component that only ever edits the URL's `searchParams`; the actual
  * fetch stays server-side in `app/china/page.tsx`; changing a filter is a
  * normal navigation, not a second browser-reachable API call. Pixel-matched
- * to Figma node 101:222.
+ * to Figma node 101:222 / 474:2309 — which has no search box and no visible result
+ * count (the count stays as a screen-reader status).
  *
  * `makeModels` is the real make→model facet set for CHINA-origin cars,
  * computed server-side from what is actually published — an admin adding a
@@ -40,16 +41,14 @@ export function ChinaFilters({
   const query = searchParams.get('q') ?? '';
   const urlPriceMin = Number(searchParams.get('priceMin') ?? PRICE_MIN);
   const urlPriceMax = Number(searchParams.get('priceMax') ?? PRICE_MAX);
-  const [draft, setDraft] = useState(query);
   const [priceMin, setPriceMin] = useState(urlPriceMin);
   const [priceMax, setPriceMax] = useState(urlPriceMax);
   // Back/forward and chip removals change the URL; re-sync the local inputs
   // to it (the "adjust state while rendering" pattern, not an effect).
-  const [seenUrl, setSeenUrl] = useState(`${query}|${urlPriceMin}|${urlPriceMax}`);
-  const currentUrl = `${query}|${urlPriceMin}|${urlPriceMax}`;
+  const [seenUrl, setSeenUrl] = useState(`${urlPriceMin}|${urlPriceMax}`);
+  const currentUrl = `${urlPriceMin}|${urlPriceMax}`;
   if (seenUrl !== currentUrl) {
     setSeenUrl(currentUrl);
-    setDraft(query);
     setPriceMin(urlPriceMin);
     setPriceMax(urlPriceMax);
   }
@@ -128,27 +127,8 @@ export function ChinaFilters({
   function resetAll() {
     setPriceMin(PRICE_MIN);
     setPriceMax(PRICE_MAX);
-    setDraft('');
     router.push(pathname, { scroll: false });
   }
-
-  function submitSearch(event: FormEvent) {
-    event.preventDefault();
-    updateParams({ q: draft.trim() || null });
-  }
-
-  // Search applies as you type, like the other filters (after a short pause, so each
-  // keystroke is not a navigation). `latest` keeps the effect from re-firing on `updateParams`.
-  const latest = useRef(updateParams);
-  useEffect(() => {
-    latest.current = updateParams;
-  });
-  useEffect(() => {
-    const next = draft.trim();
-    if (next === query) return;
-    const timer = setTimeout(() => latest.current({ q: next || null }), 400);
-    return () => clearTimeout(timer);
-  }, [draft, query]);
 
   return (
     <div className="flex flex-col">
@@ -170,39 +150,6 @@ export function ChinaFilters({
             {t.tabInStock}
           </TabButton>
         </div>
-
-        <form
-          role="search"
-          onSubmit={submitSearch}
-          className="relative min-w-0 xl:mx-6 xl:max-w-[320px] xl:flex-1"
-        >
-          <label className="block">
-            <span className="sr-only">{t.searchLabel}</span>
-            <input
-              type="search"
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder={t.searchPlaceholder}
-              maxLength={120}
-              className="h-11 w-full rounded-pill bg-neutral-25 pl-3 pr-11 text-[12px] font-medium leading-[18px] text-neutral-800 placeholder:text-neutral-600 [&::-webkit-search-cancel-button]:hidden"
-            />
-          </label>
-          <button
-            type="submit"
-            aria-label={t.searchSubmit}
-            className="absolute right-0 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-pill text-neutral-800 transition-colors duration-micro hover:text-accent"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
-              <path
-                d="M11 11l3.5 3.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        </form>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap">
           <ListDropdown
@@ -242,7 +189,7 @@ export function ChinaFilters({
         <p
           role="status"
           aria-live="polite"
-          className="mr-2 text-[14px] font-medium text-neutral-800"
+          className="sr-only"
         >
           {total > 0 ? interpolate(t.resultCount, { count: String(total) }) : t.resultCountNone}
         </p>

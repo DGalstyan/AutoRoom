@@ -33,11 +33,9 @@ describe('ChinaFilters', () => {
     expect(screen.getByRole('status')).toHaveTextContent(t.resultCountNone);
   });
 
-  it('puts the search term in the URL (q) on submit', () => {
+  it('has no search box (the design has none)', () => {
     renderWithLocale(<ChinaFilters makeModels={MAKES} total={3} />);
-    fireEvent.change(screen.getByRole('searchbox'), { target: { value: ' byd seal ' } });
-    fireEvent.click(screen.getByRole('button', { name: t.searchSubmit }));
-    expect(push).toHaveBeenCalledWith('/china?q=byd+seal', { scroll: false });
+    expect(screen.queryByRole('searchbox')).toBeNull();
   });
 
   it('shows a chip per active filter, and each one removes just its own filter', () => {

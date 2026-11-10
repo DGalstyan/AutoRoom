@@ -13,6 +13,22 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * `logoUrl` yet falls back to a plain name badge instead of a dead/missing
  * logo. Pixel-matched to Figma node 101:403.
  */
+/**
+ * Figma 474:2499: the three logo boxes are not equal — Ameriabank 494px, IDBank 266px, Evoca
+ * 490px (all 113px tall, 47px apart), in that order, each logo at its own height. Banks that
+ * are not one of the three keep the equal-share fallback after them.
+ */
+const BANK_BOXES = [
+  { match: /ameria/i, width: 494, logoH: 73 },
+  { match: /\bid\s?bank/i, width: 266, logoH: 81 },
+  { match: /evoca/i, width: 490, logoH: 89 },
+];
+const boxFor = (name: string) => BANK_BOXES.find((box) => box.match.test(name));
+const boxRank = (name: string) => {
+  const index = BANK_BOXES.findIndex((box) => box.match.test(name));
+  return index === -1 ? BANK_BOXES.length : index;
+};
+
 export function ChinaFinancing({ banks }: { banks: Bank[] }) {
   const t = useMessages().china.financing;
   const { openUniversal } = useLeadWidgets();
@@ -22,7 +38,9 @@ export function ChinaFinancing({ banks }: { banks: Bank[] }) {
   // Figma's logo grid (node 101:412) holds exactly the 3 real partner
   // banks — AutoRoom's own offer is never a logo card there, it's the
   // separate in-house text block + CTA underneath.
-  const partnerBanks = withBankLogos(banks.filter((bank) => !bank.inHouse));
+  const partnerBanks = withBankLogos(banks.filter((bank) => !bank.inHouse)).sort(
+    (a, b) => boxRank(a.name) - boxRank(b.name),
+  );
   const hasInHouseOffer = banks.some((bank) => bank.inHouse);
 
   return (
@@ -39,24 +57,31 @@ export function ChinaFinancing({ banks }: { banks: Bank[] }) {
               {t.partnersHeading}
             </p>
             <div className="flex w-full flex-wrap items-center justify-center gap-4 lg:flex-nowrap lg:justify-between">
-              {partnerBanks.map((bank) => (
-                <div
-                  key={bank.id}
-                  className="flex h-[113px] min-w-[200px] flex-1 items-center justify-center rounded-xl bg-white p-3 lg:basis-0"
-                >
-                  {bank.logoUrl ? (
-                    <Image
-                      src={bank.logoUrl}
-                      alt={bank.name}
-                      width={242}
-                      height={81}
-                      className="h-[89px] w-auto max-w-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-[16px] font-medium text-neutral-800">{bank.name}</span>
-                  )}
-                </div>
-              ))}
+              {partnerBanks.map((bank) => {
+                const box = boxFor(bank.name);
+                return (
+                  <div
+                    key={bank.id}
+                    style={box ? { ['--bank-w' as string]: `${box.width}px` } : undefined}
+                    className={`flex h-[113px] min-w-[200px] items-center justify-center rounded-md bg-white p-3 ${
+                      box ? 'flex-1 lg:w-[var(--bank-w)] lg:flex-none' : 'flex-1 lg:basis-0'
+                    }`}
+                  >
+                    {bank.logoUrl ? (
+                      <Image
+                        src={bank.logoUrl}
+                        alt={bank.name}
+                        width={242}
+                        height={81}
+                        style={box ? { height: box.logoH } : undefined}
+                        className="h-[89px] w-auto max-w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-[16px] font-medium text-neutral-800">{bank.name}</span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
