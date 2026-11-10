@@ -9,16 +9,16 @@ import { useMessages } from '@/components/shared/LocaleProvider';
  * `Text` 436:1893): "Չե՞ս գտել քո մեքենան. միասին սկսենք ընտրությունը" + the glass
  * "Ընտրել" button. It is the old floating sticky CTA's copy, now an in-page band
  * (the design draws the heading clipped to a 25px box — an authoring slip — so
- * the full sentence is shown). Opens the Quiz, like the sticky CTA did.
+ * the full sentence is shown, with no sub-line, as in Figma 471:1768). Opens the Quiz, like the sticky CTA did.
  */
 export function StartCtaBand() {
   const t = useMessages().common.stickyCta;
   const { openQuiz } = useLeadWidgets();
   return (
     <CtaBand
-      heading={t.title}
-      sub={t.sub}
+      heading={t.label}
       buttonLabel={t.button}
+      buttonTone="glass"
       onClick={() => openQuiz({ sourceCta: 'home-start-band' })}
     />
   );

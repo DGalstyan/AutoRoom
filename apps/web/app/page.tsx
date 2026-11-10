@@ -1,6 +1,5 @@
 import { HomeHero } from '@/components/home/HomeHero';
 import { CountryCard } from '@/components/home/CountryCard';
-import { MachineryCard } from '@/components/home/MachineryCard';
 import { StartCtaBand } from '@/components/home/StartCtaBand';
 import { WeeklyOffers } from '@/components/home/WeeklyOffers';
 import { WhyAutoRoom } from '@/components/home/WhyAutoRoom';
@@ -60,16 +59,9 @@ export default async function HomePage() {
             />
           </Reveal>
         </div>
-        <Reveal delayMs={250} className="mx-auto mt-6 flex w-full justify-center lg:mt-10">
-          <MachineryCard
-            href="/machinery"
-            title={messages.home.machinery.title}
-            text={messages.home.machinery.text}
-          />
-        </Reveal>
       </section>
 
-      <div className="mt-10 lg:mt-24">
+      <div className="mt-10 lg:mt-[150px]">
         <StartCtaBand />
       </div>
 

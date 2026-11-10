@@ -27,6 +27,13 @@ const ACCENT =
   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ' +
   'sm:h-[108px] sm:min-w-[231px] sm:px-6';
 
+/** The light-grey pill (Figma `BTN` 471:1778, #e5e7e8 with #3d3d3d label) for buttons on the page background. */
+const LIGHT =
+  'group inline-flex h-16 max-w-full min-w-[160px] shrink-0 items-center text-center sm:whitespace-nowrap justify-center gap-1 rounded-pill bg-neutral-100 px-8 text-[20px] leading-7 text-neutral-800 ' +
+  'transition-colors duration-standard ease-expo hover:bg-[#d9dcdd] ' +
+  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ' +
+  'sm:h-[108px] sm:min-w-[231px] sm:px-6';
+
 export function GlassButton({
   children,
   onClick,
@@ -39,9 +46,9 @@ export function GlassButton({
   href?: string;
   className?: string;
   /** `accent` is the gold primary pill: use it where the dark glass would disappear into a black band. */
-  tone?: 'glass' | 'accent';
+  tone?: 'glass' | 'accent' | 'light';
 }) {
-  const classes = tone === 'accent' ? ACCENT : CLASSES;
+  const classes = tone === 'accent' ? ACCENT : tone === 'light' ? LIGHT : CLASSES;
   const content = (
     <>
       {children}

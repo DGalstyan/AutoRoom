@@ -36,7 +36,7 @@ export function WhyAutoRoom({
   heading: string;
   hotspots: Hotspot[];
   stats: { value: string; label: string }[];
-  /** `gold` (Homepage): gold rings + stems drawn over a clean render. `baked` (About): the render with its red ring markers built in. */
+  /** `gold` (Homepage, Figma 471:1779): the render with its red ring markers built in, plus the one gold ring + stem (471:1807/1808) drawn over it. `baked` (About): the render with its red ring markers built in. */
   markers?: 'gold' | 'baked';
 }) {
   return (
@@ -49,7 +49,7 @@ export function WhyAutoRoom({
             src={
               markers === 'baked'
                 ? '/images/home/v2/anatomy-car-baked.webp'
-                : '/images/home/v2/anatomy-car.webp'
+                : '/images/home/v2/anatomy-car-home.webp'
             }
             alt={heading}
             fill
@@ -57,7 +57,7 @@ export function WhyAutoRoom({
             className="object-contain"
           />
 
-          {(markers === 'baked' ? [] : MARKERS).map((m) => (
+          {(markers === 'baked' ? [] : MARKERS.slice(0, 1)).map((m) => (
             <span key={m.src} aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getFeaturedCars } from '@/lib/cars';
 import { getServerMessages } from '@/lib/i18n';
 import { carHref, formatUsd } from '@/lib/types/car';
+import { GlassButton } from '@/components/home/GlassButton';
 import { Reveal } from '@/components/ui/Reveal';
 
 /**
@@ -79,14 +80,11 @@ export async function WeeklyOffers() {
         })}
       </ul>
 
-      <p className="flex justify-center">
-        <Link
-          href="/offers"
-          className="inline-flex h-12 items-center rounded-pill bg-neutral-50 px-6 text-[14px] font-medium text-ink transition-colors duration-standard ease-expo hover:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-        >
+      <div className="flex justify-center">
+        <GlassButton tone="light" href="/offers">
           {t.viewAll}
-        </Link>
-      </p>
+        </GlassButton>
+      </div>
     </div>
   );
 }

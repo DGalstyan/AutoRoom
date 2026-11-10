@@ -138,11 +138,11 @@ describe('WeeklyOffers', () => {
     vi.mocked(getFeaturedCars).mockResolvedValue([1, 2, 3, 4, 5].map(car));
     renderWithLocale((await WeeklyOffers())!);
     const all = screen.getAllByRole('link');
-    // Four car cards, then the «Դիտել բոլորը» link to the full list.
+    // Four car cards, then the «Տեսնել բոլորը» link to the full list.
     const links = all.filter((link) => link.getAttribute('href') !== '/offers');
     expect(links).toHaveLength(4);
     expect(all.find((link) => link.getAttribute('href') === '/offers')).toHaveTextContent(
-      'Դիտել բոլորը',
+      'Տեսնել բոլորը',
     );
     expect(links[0]).toHaveAttribute('href', '/usa/available/car-1');
     expect(links[0]).toHaveTextContent('McLaren 720S 1');

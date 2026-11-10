@@ -103,14 +103,14 @@ export function JourneyStrip({
 
                 {/* Active / mobile copy */}
                 <span
-                  className={`absolute inset-x-3 bottom-3 flex flex-col gap-1.5 rounded-[20px] bg-black/70 p-4 text-white backdrop-blur-sm min-[1400px]:inset-x-auto min-[1400px]:bottom-[36px] min-[1400px]:left-4 min-[1400px]:right-4 min-[1400px]:rounded-none min-[1400px]:bg-transparent min-[1400px]:p-0 min-[1400px]:backdrop-blur-none ${
+                  className={`absolute inset-x-3 bottom-3 flex flex-col gap-1.5 rounded-[20px] bg-black/70 p-4 text-white backdrop-blur-sm min-[1400px]:inset-x-auto min-[1400px]:bottom-auto min-[1400px]:top-[438px] min-[1400px]:left-4 min-[1400px]:right-4 min-[1400px]:rounded-none min-[1400px]:bg-transparent min-[1400px]:p-0 min-[1400px]:backdrop-blur-none ${
                     isActive ? 'min-[1400px]:opacity-100' : 'min-[1400px]:opacity-0'
                   } transition-opacity duration-300`}
                 >
                   <span className="stretch-90 text-[20px] font-normal leading-7 min-[1400px]:text-[24px] min-[1400px]:leading-9">
                     {index + 1}. {step.title}
                   </span>
-                  <span className="text-[16px] font-normal leading-6 min-[1400px]:max-w-[388px] min-[1400px]:text-[14px] min-[1400px]:leading-5">
+                  <span className="text-[16px] font-normal leading-6 min-[1400px]:max-w-[388px] min-[1400px]:text-[12px] min-[1400px]:leading-4">
                     {step.text}
                   </span>
                 </span>

@@ -13,12 +13,12 @@ import type { Messages } from '@/lib/i18n';
 import type { BrandingLogos } from '@/lib/branding';
 
 const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string; chevron?: boolean }[] = [
-  // Order and labels follow the design (Figma 436:2154): China, USA, Partners, About, Special offers, Contact.
+  // Order follows the design (Figma 471:1737): China, USA, Special offers, About, Partners, Contact.
   { key: 'china', href: '/china', chevron: true },
   { key: 'usa', href: '/usa' },
-  { key: 'partners', href: '/partners' },
-  { key: 'about', href: '/about' },
   { key: 'offers', href: '/offers' },
+  { key: 'about', href: '/about' },
+  { key: 'partners', href: '/partners' },
   { key: 'contact', href: '/contact' },
 ];
 
@@ -96,7 +96,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
         // component's pre-existing judgment call for legibility over
         // arbitrary scrolled-past content, now anchored to the correct
         // unscrolled baseline.
-        className={`relative mx-auto flex max-w-header items-center justify-between gap-2 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:gap-4 sm:px-6 lg:gap-2 lg:px-4 lg:py-4 xl:gap-4 xl:px-6 ${
+        className={`relative mx-auto flex max-w-header items-center justify-between gap-2 rounded-pill px-4 py-2 shadow-card transition-colors duration-standard sm:gap-4 sm:px-6 lg:gap-2 lg:px-4 lg:py-[15px] xl:gap-4 xl:px-6 ${
           isLightHeader
             ? 'border border-line-light bg-white'
             : `border border-white/10 backdrop-blur-lg ${scrolled ? 'bg-bg/80' : 'bg-bg/30'}`
@@ -141,7 +141,7 @@ export function Header({ logo = null }: HeaderProps = {}) {
         */}
         <nav
           aria-label={nav.primaryNav}
-          className="hidden items-center gap-0 lg:flex xl:gap-0.5 min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-1.5"
+          className="hidden items-center gap-0 lg:flex xl:gap-0.5 min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-[18px]"
         >
           {NAV_LINKS.map((item) => (
             <Link

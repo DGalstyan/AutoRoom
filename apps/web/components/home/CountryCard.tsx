@@ -26,7 +26,7 @@ export function CountryCard({
       ? {
           box: 'lg:flex-1 min-[1400px]:w-[597px] min-[1400px]:flex-none aspect-[597/546]',
           card: 'left-[7.71%] right-[2.68%] top-0 bottom-[0.73%]',
-          title: 'left-[calc(7.71%+24px)] top-6',
+          title: 'left-[calc(7.71%+24px)] top-[38px]',
           arrow: 'right-[calc(2.68%+24px)] top-6',
           img: 'aspect-[597/258] ',
           imgW: 597,
@@ -35,7 +35,7 @@ export function CountryCard({
       : {
           box: 'lg:flex-1 min-[1400px]:w-[588px] min-[1400px]:flex-none aspect-[588/546]',
           card: 'left-[7.14%] right-[1.87%] top-[0.37%] bottom-[0.37%]',
-          title: 'left-[calc(7.14%+24px)] top-[26px]',
+          title: 'left-[calc(7.14%+24px)] top-[40px]',
           arrow: 'right-[calc(1.87%+24px)] top-[26px]',
           img: 'aspect-[588/264]',
           imgW: 588,
