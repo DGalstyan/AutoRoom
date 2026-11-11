@@ -85,6 +85,7 @@ export const LEAD_CTAS = {
   'offers-s3-final-cta': 'universal',
   'about-s1-hero-consultation': 'universal',
   'about-s5-final-cta': 'universal',
+  'about-outro-consultation': 'universal',
   'contact-s4-final-cta': 'universal',
   'compare-car-finder': 'universal',
   'contact-s1-form': 'contactForm', // the Contact page's own inline form, not a popup

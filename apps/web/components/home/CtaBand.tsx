@@ -17,6 +17,7 @@ export function CtaBand({
   href,
   padded = false,
   buttonTone = 'accent',
+  variant = 'band',
 }: {
   heading: ReactNode;
   sub?: ReactNode;
@@ -27,7 +28,43 @@ export function CtaBand({
   padded?: boolean;
   /** `glass` is the dark outlined pill (the Offers band); `accent` the gold one. */
   buttonTone?: 'glass' | 'accent';
+  /**
+   * `card` is the closing call-to-action of Figma 471:1126: the same copy and button inside a 1344px
+   * black card with a 48px radius and a 6px gold edge that fades to black along the width, instead of
+   * the full-bleed black band.
+   */
+  variant?: 'band' | 'card';
 }) {
+  if (variant === 'card') {
+    return (
+      <section className="mx-auto max-w-page px-4 sm:px-6 lg:px-12">
+        <div
+          className="flex flex-col gap-8 rounded-[48px] border-[6px] border-transparent px-6 py-14 text-white lg:flex-row lg:items-center lg:gap-9 lg:h-[336px] lg:px-[42px] lg:py-0"
+          style={{
+            background:
+              'linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(90deg, #c8a24a 0%, #c8a24a 25%, #000 100%) border-box',
+          }}
+        >
+          <Reveal className="lg:min-w-0 lg:flex-1">
+            <h2 className="type-h2">{heading}</h2>
+            {sub && (
+              <p className="stretch-85 mt-2 text-[20px] font-normal leading-[30px] sm:text-[28px] sm:leading-[40px] lg:text-[36px] lg:leading-[48px]">
+                {sub}
+              </p>
+            )}
+          </Reveal>
+          <GlassButton
+            tone={buttonTone === 'accent' ? 'glass' : buttonTone}
+            onClick={onClick}
+            href={href}
+          >
+            {buttonLabel}
+          </GlassButton>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-ink text-white">
       <div
