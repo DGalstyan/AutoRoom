@@ -66,8 +66,15 @@ describe('PriceJourney total row', () => {
     expect(screen.getByText('68,600$')).toBeInTheDocument();
   });
 
-  it('renders nothing without chips', () => {
-    const { container } = renderWithLocale(<PriceJourney chips={[]} car={CAR} />);
-    expect(container).toBeEmptyDOMElement();
+  it('without chips shows the four standard steps, and no total unless the car has an estimate', () => {
+    renderWithLocale(<PriceJourney chips={[]} car={CAR} />);
+    expect(screen.getByText('Մեքենայի արժեքը Չինաստանում')).toBeInTheDocument();
+    expect(screen.getByText('Մաքսազերծում (մոտավոր)')).toBeInTheDocument();
+    expect(screen.queryByText('Վերջնական արժեք')).toBeNull();
+  });
+
+  it("without chips shows the car's own estimated final price", () => {
+    renderWithLocale(<PriceJourney chips={[]} car={CAR} estFinal={14254} />);
+    expect(screen.getByText('14,254$')).toBeInTheDocument();
   });
 });

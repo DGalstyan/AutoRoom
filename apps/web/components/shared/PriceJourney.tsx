@@ -41,9 +41,12 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 export function PriceJourney({
   chips,
   car,
+  estFinal = null,
 }: {
   chips: PriceChip[];
   car: UniversalPopupCarContext;
+  /** The car's own estimated final price, shown when no price-chips were entered. */
+  estFinal?: number | null;
 }) {
   const t = useMessages().common.carDetail.priceJourney;
   const locale = useLocale();
@@ -98,7 +101,16 @@ export function PriceJourney({
     };
   }, [inView, total]);
 
-  if (chips.length === 0) return null;
+  // Figma always draws the four steps; a car with no chips entered shows the standard ones (no amounts are shown
+  // per step anyway) and, when it has one, its estimated final price.
+  const hasChips = chips.length > 0;
+  const rows = hasChips
+    ? chips.map((chip) => ({
+        label: localizeText(chip.label, locale),
+        note: localizeText(chip.note, locale),
+      }))
+    : t.defaultSteps.map((label) => ({ label, note: '' }));
+  const finalValue = hasChips ? displayedTotal : estFinal;
 
   return (
     <div ref={ref} className="flex flex-col gap-8 lg:gap-16">
@@ -107,8 +119,8 @@ export function PriceJourney({
       <div className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-12">
         <div className="flex flex-col justify-between gap-3 lg:flex-[715] lg:gap-[45px]">
           <div className="flex flex-col gap-3">
-            {chips.map((chip, index) => {
-              const note = localizeText(chip.note, locale);
+            {rows.map((row, index) => {
+              const note = row.note;
               return (
                 <div
                   key={index}
@@ -130,7 +142,7 @@ export function PriceJourney({
                         index === 0 ? 'text-[16px] leading-6' : 'text-[14px] leading-5'
                       }`}
                     >
-                      {localizeText(chip.label, locale)}
+                      {row.label}
                     </p>
                     {note && <p className="text-[12px] leading-4 text-neutral-700">{note}</p>}
                   </div>
@@ -139,7 +151,9 @@ export function PriceJourney({
             })}
           </div>
 
-          <TotalBar tone="light" label={t.finalLabel} value={formatUsdTight(displayedTotal)} />
+          {finalValue != null && finalValue > 0 && (
+            <TotalBar tone="light" label={t.finalLabel} value={formatUsdTight(finalValue)} />
+          )}
         </div>
 
         <PriceMap />

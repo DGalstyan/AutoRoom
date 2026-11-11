@@ -83,9 +83,11 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
       <div className="bg-surface-light">
         <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-24 lg:pt-[152px]">
           <div className="flex flex-col gap-24 sm:gap-[150px]">
-            {car.priceJourney.length > 0 && (
-              <PriceJourney chips={car.priceJourney} car={carContext} />
-            )}
+            <PriceJourney
+              chips={car.priceJourney}
+              car={carContext}
+              estFinal={car.estFinalPriceAM}
+            />
             <LoanCalculator car={car} finance={finance} />
             <div className="lg:mt-[26px]">
               <SimilarOffers cars={similarCars} />

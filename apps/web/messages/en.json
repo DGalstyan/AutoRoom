@@ -304,6 +304,12 @@
       },
       "priceJourney": {
         "heading": "The price journey",
+        "defaultSteps": [
+          "Car price in China",
+          "Domestic transport + export documents",
+          "International shipping + insurance",
+          "Customs clearance (estimated)"
+        ],
         "finalLabel": "Final price in Armenia",
         "cta": "Get an exact quote"
       },

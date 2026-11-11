@@ -46,6 +46,8 @@ export function LoanCalculator({
   const step = Math.max(100, Math.round(car.price * 0.01));
 
   const [downPayment, setDownPayment] = useState(defaultDownPayment);
+  // While the field has focus it shows what is being typed; otherwise the clamped, formatted amount.
+  const [draft, setDraft] = useState<string | null>(null);
   const clamped = Math.min(max, Math.max(min, downPayment));
   const monthly = computeMonthlyPaymentAmd(car.price, clamped, finance);
   const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
@@ -66,14 +68,30 @@ export function LoanCalculator({
             <div className="flex h-9 items-center rounded-pill bg-neutral-25 py-1 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
               <span>{t.price}</span>
             </div>
-            {/* Figma 474:2905 — the chosen down payment as plain text above the slider (no field, no steppers). */}
-            <p
+            {/* Figma 474:2905 draws the chosen amount as plain 12px text above the slider; it is a real field so an
+                exact amount can be typed. It follows the slider, and the slider and result follow it. */}
+            <input
               id="loan-down-payment-value"
-              aria-live="polite"
-              className="text-[12px] font-medium leading-[18px] tabular-nums text-neutral-800"
-            >
-              {formatUsdTight(clamped)}
-            </p>
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              aria-label={t.downPayment}
+              value={draft ?? formatUsdTight(clamped)}
+              onFocus={(event) => {
+                setDraft(String(clamped));
+                event.currentTarget.select();
+              }}
+              onChange={(event) => {
+                const digits = event.target.value.replace(/\D/g, '').slice(0, 9);
+                setDraft(digits);
+                setDownPayment(digits === '' ? 0 : Number(digits));
+              }}
+              onBlur={() => setDraft(null)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') event.currentTarget.blur();
+              }}
+              className="-mx-1 w-full rounded-[6px] bg-transparent px-1 text-[12px] font-medium leading-[18px] tabular-nums text-neutral-800 outline-none transition-colors duration-standard hover:bg-neutral-25 focus:bg-neutral-25 focus-visible:ring-1 focus-visible:ring-accent"
+            />
             <input
               type="range"
               min={min}
@@ -97,7 +115,7 @@ export function LoanCalculator({
           </div>
         </div>
 
-        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:min-h-[338px] lg:w-[589px] lg:px-0 lg:py-0 lg:pb-[60px] lg:pl-12 lg:pt-[60px]">
+        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:min-h-[338px] lg:w-[589px] lg:overflow-visible lg:px-0 lg:py-0 lg:pb-[60px] lg:pl-[100px] lg:pt-[60px]">
           {/* Figma 442:9250 — labels 16/24 regular, values 16/20 bold, both #666E73. */}
           <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
             <div>
@@ -111,20 +129,38 @@ export function LoanCalculator({
               <p className="text-[16px] font-bold leading-5 tabular-nums">{finance.termMonths}</p>
             </div>
           </div>
-          <hr className="relative z-10 my-1 border-0 border-t border-neutral-100 lg:w-[226px]" />
+          <hr className="relative z-10 my-0 border-0 border-t border-neutral-100 lg:w-[226px]" />
           <div className="relative z-10">
             <p className="stretch-90 text-[20px] font-bold leading-8 text-neutral-900">
               {t.monthly}
             </p>
             {/* The one big number: 28px on phones, 36px from sm, always 700 (the Price "total" size). */}
-            <Price as="p" size="total" className="text-neutral-900">
+            <Price as="p" size="total" className="text-neutral-900 lg:mt-[5px]">
               {formatAmd(monthly)}
             </Price>
           </div>
           {carImage && (
-            <div className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[164px] w-[246px] overflow-hidden rounded-[24px] sm:block">
-              <Image src={carImage} alt="" fill sizes="246px" className="object-cover" />
-            </div>
+            <>
+              {/* Phones: the photo in the corner, as before. */}
+              <div className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[120px] w-[180px] overflow-hidden rounded-[24px] sm:block lg:hidden">
+                <Image src={carImage} alt="" fill sizes="180px" className="object-cover" />
+              </div>
+              {/* Figma 474:2905: the car sits bottom-right, 245×107 at (325, 251) in the 589×338 card, hanging 20px
+                  below it. Figma's is a cut-out; a real photo is feathered into the card instead. */}
+              <div
+                className="pointer-events-none absolute left-[325px] top-[251px] z-0 hidden h-[107px] w-[245px] overflow-hidden rounded-[24px] lg:block"
+                style={{
+                  WebkitMaskImage:
+                    'linear-gradient(to right, transparent 0%, #000 28%), linear-gradient(to bottom, transparent 0%, #000 30%)',
+                  WebkitMaskComposite: 'source-in',
+                  maskImage:
+                    'linear-gradient(to right, transparent 0%, #000 28%), linear-gradient(to bottom, transparent 0%, #000 30%)',
+                  maskComposite: 'intersect',
+                }}
+              >
+                <Image src={carImage} alt="" fill sizes="245px" className="object-cover" />
+              </div>
+            </>
           )}
         </div>
       </div>
