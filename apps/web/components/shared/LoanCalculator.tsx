@@ -64,7 +64,7 @@ export function LoanCalculator({
 
       {/* Figma 442:9210: a 676px column (input card + three rows) and a 589px result card. */}
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex flex-col gap-6 lg:w-[676px]">
+        <div className="flex flex-col gap-6 lg:w-[676px] lg:pb-6">
           <div className="flex flex-col gap-[10px] rounded-[12px] bg-white p-6">
             <p className="text-[16px] font-bold leading-5 text-neutral-800">{t.downPayment}</p>
             {/* Figma 442:9222 — the "Գին" pill. It is a field: type another price and the down payment range,
@@ -144,58 +144,60 @@ export function LoanCalculator({
           </div>
         </div>
 
-        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:min-h-[338px] lg:w-[589px] lg:px-0 lg:py-0 lg:pb-[60px] lg:pl-[100px] lg:pt-[60px]">
-          {/* Figma 442:9250 — labels 16/24 regular, values 16/20 bold, both #666E73. */}
-          <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
-            <div>
-              <p className="type-body">{t.downPayment}</p>
-              <p className="text-[16px] font-bold leading-5 tabular-nums">
-                {formatUsdTight(clamped)}
+        <div className="flex w-full flex-col gap-4 lg:w-[589px]">
+          <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:min-h-[338px] lg:w-[589px] lg:px-0 lg:py-0 lg:pb-[60px] lg:pl-[100px] lg:pt-[60px]">
+            {/* Figma 442:9250 — labels 16/24 regular, values 16/20 bold, both #666E73. */}
+            <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
+              <div>
+                <p className="type-body">{t.downPayment}</p>
+                <p className="text-[16px] font-bold leading-5 tabular-nums">
+                  {formatUsdTight(clamped)}
+                </p>
+              </div>
+              <div>
+                <p className="type-body">{t.term}</p>
+                <p className="text-[16px] font-bold leading-5 tabular-nums">{finance.termMonths}</p>
+              </div>
+            </div>
+            <hr className="relative z-10 my-0 border-0 border-t border-neutral-100 lg:w-[226px]" />
+            <div className="relative z-10">
+              <p className="stretch-90 text-[20px] font-bold leading-8 text-neutral-900">
+                {t.monthly}
               </p>
+              {/* The one big number: 28px on phones, 36px from sm, always 700 (the Price "total" size). */}
+              <Price as="p" size="total" className="text-neutral-900 lg:mt-[5px]">
+                {formatAmd(monthly)}
+              </Price>
             </div>
-            <div>
-              <p className="type-body">{t.term}</p>
-              <p className="text-[16px] font-bold leading-5 tabular-nums">{finance.termMonths}</p>
-            </div>
-          </div>
-          <hr className="relative z-10 my-0 border-0 border-t border-neutral-100 lg:w-[226px]" />
-          <div className="relative z-10">
-            <p className="stretch-90 text-[20px] font-bold leading-8 text-neutral-900">
-              {t.monthly}
-            </p>
-            {/* The one big number: 28px on phones, 36px from sm, always 700 (the Price "total" size). */}
-            <Price as="p" size="total" className="text-neutral-900 lg:mt-[5px]">
-              {formatAmd(monthly)}
-            </Price>
-          </div>
-          {carImage && (
-            <>
-              {/* Phones: the photo in the corner, as before. */}
-              <div className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[120px] w-[180px] overflow-hidden rounded-[24px] sm:block lg:hidden">
-                <Image src={carImage} alt="" fill sizes="180px" className="object-cover" />
-              </div>
-              {/* Figma 474:2905 puts a cut-out car bottom-right (245×107). A real photo has a background, so it stays
+            {carImage && (
+              <>
+                {/* Phones: the photo in the corner, as before. */}
+                <div className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[120px] w-[180px] overflow-hidden rounded-[24px] sm:block lg:hidden">
+                  <Image src={carImage} alt="" fill sizes="180px" className="object-cover" />
+                </div>
+                {/* Figma 474:2905 puts a cut-out car bottom-right (245×107). A real photo has a background, so it stays
                   inside the card, feathered into it, rather than hanging over the edge. */}
-              <div
-                className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[107px] w-[200px] overflow-hidden rounded-[24px] lg:block"
-                style={{
-                  WebkitMaskImage:
-                    'linear-gradient(to right, transparent 0%, #000 28%), linear-gradient(to bottom, transparent 0%, #000 30%)',
-                  WebkitMaskComposite: 'source-in',
-                  maskImage:
-                    'linear-gradient(to right, transparent 0%, #000 28%), linear-gradient(to bottom, transparent 0%, #000 30%)',
-                  maskComposite: 'intersect',
-                }}
-              >
-                <Image src={carImage} alt="" fill sizes="200px" className="object-cover" />
-              </div>
-            </>
+                <div
+                  className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[107px] w-[200px] overflow-hidden rounded-[24px] lg:block"
+                  style={{
+                    WebkitMaskImage:
+                      'linear-gradient(to right, transparent 0%, #000 28%), linear-gradient(to bottom, transparent 0%, #000 30%)',
+                    WebkitMaskComposite: 'source-in',
+                    maskImage:
+                      'linear-gradient(to right, transparent 0%, #000 28%), linear-gradient(to bottom, transparent 0%, #000 30%)',
+                    maskComposite: 'intersect',
+                  }}
+                >
+                  <Image src={carImage} alt="" fill sizes="200px" className="object-cover" />
+                </div>
+              </>
+            )}
+          </div>
+          {disclaimer && (
+            <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{disclaimer}</p>
           )}
         </div>
       </div>
-      {disclaimer && (
-        <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{disclaimer}</p>
-      )}
     </div>
   );
 }

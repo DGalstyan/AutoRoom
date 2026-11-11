@@ -100,7 +100,7 @@ export function JourneyStrip({
                     />
                     <Image
                       src={`/images/home/v2/journey-full-${FULL_PHOTO[index]}.webp`}
-                      alt=""
+                      alt={step.title}
                       fill
                       sizes="452px"
                       className={`object-contain object-[50%_38%] ${

@@ -235,6 +235,23 @@
         "download": "Download photo"
       },
       "specs": {
+        "valueMap": {
+          "electric": "Electric",
+          "ev": "Electric",
+          "at": "Automatic",
+          "automatic": "Automatic",
+          "mt": "Manual",
+          "manual": "Manual",
+          "rwd": "Rear-wheel drive",
+          "fwd": "Front-wheel drive",
+          "awd": "All-wheel drive (AWD)",
+          "4wd": "All-wheel drive (4WD)",
+          "rear-engine rwd": "Rear-engine, rear-wheel drive",
+          "hybrid": "Hybrid",
+          "petrol": "Petrol",
+          "gasoline": "Petrol",
+          "diesel": "Diesel"
+        },
         "heading": "General specifications",
         "make": "Make",
         "model": "Model",

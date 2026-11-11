@@ -27,10 +27,16 @@ function isNoWarranty(value: string): boolean {
   return /^(no|none|n\/a|-|нет|չկա|ոչ)$/i.test(value.trim());
 }
 
+/** Admin types engine/drive/gearbox values in English ("AT", "Electric"); shown in the visitor's language when known. */
+function localizeSpecValue(value: string, map: Record<string, string> | undefined): string {
+  return map?.[value.trim().toLowerCase()] ?? value;
+}
+
 export function CarSpecs({ car }: { car: Car }) {
   const messages = useMessages();
   const t = messages.common.carDetail.specs;
   const conditionLabels = messages.common.carCard.conditions;
+  const valueMap = (t as { valueMap?: Record<string, string> }).valueMap;
 
   // Figma 478:1814 (USA): make, model, year, VIN, mileage, engine, fuel, drivetrain, transmission, damage, location.
   const usaRows: ({ label: string; value: string } | null)[] = [
@@ -45,10 +51,14 @@ export function CarSpecs({ car }: { car: Car }) {
         }
       : null,
     car.lotNumber ? { label: t.lotNumber, value: car.lotNumber } : null,
-    car.engine ? { label: t.engine, value: car.engine } : null,
+    car.engine ? { label: t.engine, value: localizeSpecValue(car.engine, valueMap) } : null,
     { label: t.fuel, value: t.powertrain[car.powertrain] },
-    car.drivetrain ? { label: t.drivetrain, value: car.drivetrain } : null,
-    car.transmission ? { label: t.transmission, value: car.transmission } : null,
+    car.drivetrain
+      ? { label: t.drivetrain, value: localizeSpecValue(car.drivetrain, valueMap) }
+      : null,
+    car.transmission
+      ? { label: t.transmission, value: localizeSpecValue(car.transmission, valueMap) }
+      : null,
     car.damageHistory
       ? { label: t.damageHistory, value: localizeDamage(car.damageHistory, t.damageTypes) }
       : null,
@@ -58,12 +68,13 @@ export function CarSpecs({ car }: { car: Car }) {
   const chinaRows: ({ label: string; value: string } | null)[] = [
     { label: t.make, value: car.make },
     { label: t.condition, value: conditionLabels[car.condition] },
-    car.deliveryEtaDays
-      ? {
-          label: t.deliveryEta,
-          value: interpolate(t.deliveryEtaValue, { days: String(car.deliveryEtaDays) }),
-        }
-      : null,
+    // Figma 478:3083 always has the delivery-time row; a car with no estimate yet shows a dash.
+    {
+      label: t.deliveryEta,
+      value: car.deliveryEtaDays
+        ? interpolate(t.deliveryEtaValue, { days: String(car.deliveryEtaDays) })
+        : '—',
+    },
     { label: t.year, value: String(car.year) },
     car.trim ? { label: t.trim, value: car.trim } : null,
     { label: t.fuel, value: t.powertrain[car.powertrain] },
@@ -74,9 +85,10 @@ export function CarSpecs({ car }: { car: Car }) {
         }
       : null,
     car.battery ? { label: t.battery, value: batteryLabel(car.battery) } : null,
-    car.engine ? { label: t.engine, value: car.engine } : null,
-    car.drivetrain ? { label: t.drivetrain, value: car.drivetrain } : null,
-    car.transmission ? { label: t.transmission, value: car.transmission } : null,
+    car.engine ? { label: t.engine, value: localizeSpecValue(car.engine, valueMap) } : null,
+    car.drivetrain
+      ? { label: t.drivetrain, value: localizeSpecValue(car.drivetrain, valueMap) }
+      : null,
     car.seats ? { label: t.seats, value: String(car.seats) } : null,
     car.warranty
       ? { label: t.warranty, value: isNoWarranty(car.warranty) ? t.warrantyNone : car.warranty }

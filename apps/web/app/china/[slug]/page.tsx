@@ -89,9 +89,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
               estFinal={car.estFinalPriceAM}
             />
             <LoanCalculator car={car} finance={finance} />
-            <div className="lg:mt-[26px]">
-              <SimilarOffers cars={similarCars} />
-            </div>
+            <SimilarOffers cars={similarCars} />
           </div>
         </div>
       </div>

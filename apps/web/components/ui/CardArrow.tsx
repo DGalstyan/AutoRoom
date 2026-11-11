@@ -7,7 +7,7 @@ export function CardArrow() {
   return (
     <span
       aria-hidden="true"
-      className="flex size-[34px] shrink-0 items-center justify-center text-white transition-[color,transform] duration-standard ease-expo group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent"
+      className="flex size-[34px] shrink-0 items-center justify-center text-white transition-transform duration-standard ease-expo group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path

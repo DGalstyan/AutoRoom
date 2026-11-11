@@ -149,7 +149,7 @@ export function ListDropdown({
                   autoFocus={selected}
                   onClick={() => choose(row.value)}
                   className={`flex min-h-11 w-full items-center gap-2 border-b border-neutral-50 py-2.5 pl-2 pr-8 text-left text-[12px] leading-4 transition-colors duration-micro hover:text-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
-                    selected ? 'font-medium text-neutral-800' : 'font-normal text-neutral-600'
+                    selected ? 'font-medium text-neutral-900' : 'font-normal text-neutral-800'
                   } ${index === 0 ? 'rounded-t-[8px]' : ''}`}
                 >
                   {index === 0 && (

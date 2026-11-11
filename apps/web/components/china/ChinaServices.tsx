@@ -35,6 +35,7 @@ export async function ChinaServices() {
             </div>
             <Photo
               src={`${IMG}/import-render.webp`}
+              alt={t.import.title}
               className="absolute left-1/2 top-[97px] h-[296px] w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 rounded-[24px]"
               sizes="401px"
             />
@@ -73,6 +74,7 @@ export async function ChinaServices() {
               </div>
               <Photo
                 src={`${IMG}/logistics-port.webp`}
+                alt={t.logistics.title}
                 className="absolute right-0 top-[210px] h-[92px] w-[134px] rounded-[24px]"
                 sizes="134px"
               />
@@ -129,7 +131,7 @@ export async function ChinaServices() {
                     >
                       <Image
                         src={`${IMG}/chinese-${n}.webp`}
-                        alt=""
+                        alt={t.chinese.title}
                         fill
                         sizes="170px"
                         className="object-cover"
@@ -180,6 +182,7 @@ export async function ChinaServices() {
             <div className="absolute left-1/2 top-[97px] w-[calc(100%-16px)] max-w-[421px] -translate-x-1/2 rounded-[24px] bg-[linear-gradient(127deg,#cbad5a_4.5%,#caaf59_96.4%)]">
               <Photo
                 src={`${IMG}/b2b-render.webp`}
+                alt={t.b2b.title}
                 className="h-[296px] w-full rounded-[24px]"
                 sizes="421px"
                 contain
@@ -212,7 +215,7 @@ export async function ChinaServices() {
             <div className="absolute left-6 top-[282px] h-[92px] w-[134px] overflow-hidden rounded-[24px]">
               <Image
                 src={`${IMG}/shipping-port.webp`}
-                alt=""
+                alt={t.shipping.title}
                 width={900}
                 height={1200}
                 sizes="190px"
@@ -250,11 +253,14 @@ function Card({
 
 function Photo({
   src,
+  alt,
   className,
   sizes,
   contain = false,
 }: {
   src: string;
+  /** What the picture shows — the title of the card it sits in. */
+  alt: string;
   className: string;
   sizes: string;
   contain?: boolean;
@@ -263,7 +269,7 @@ function Photo({
     <div className={`overflow-hidden ${className}`}>
       <Image
         src={src}
-        alt=""
+        alt={alt}
         width={900}
         height={900}
         sizes={sizes}

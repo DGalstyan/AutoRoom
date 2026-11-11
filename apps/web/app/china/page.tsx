@@ -103,7 +103,10 @@ export default async function ChinaPage({
         </div>
       </section>
 
-      <ChinaFinalCta />
+      {/* Figma: the card ends 136px above the footer. */}
+      <div className="bg-surface-light pb-10 lg:pb-[136px]">
+        <ChinaFinalCta />
+      </div>
     </>
   );
 }
