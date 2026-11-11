@@ -18,6 +18,7 @@ export function ContactFinalCta() {
       heading={t.heading}
       sub={t.text}
       buttonLabel={t.cta}
+      buttonTone="glass"
       onClick={() => openUniversal({ sourceCta: 'contact-s4-final-cta' })}
     />
   );
