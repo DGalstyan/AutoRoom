@@ -31,6 +31,8 @@ interface BrandLogoProps {
    * the surface it's drawn on, easy to misread as the opposite.
    */
   tone?: 'dark' | 'light';
+  /** Bundled artwork used on a dark surface until an admin uploads a logo (the footer's gold mark, Figma 478:549). */
+  defaultSrc?: string;
 }
 
 /**
@@ -50,12 +52,13 @@ export function BrandLogo({
   className = 'h-9 w-24',
   sizes = '96px',
   tone = 'dark',
+  defaultSrc = DEFAULT_LOGO_SRC,
 }: BrandLogoProps) {
   const brand = useMessages().common.brand;
   const logoSrc =
     tone === 'light'
       ? (logo?.logoDarkUrl ?? DEFAULT_LOGO_DARK_SRC)
-      : (logo?.logoLightUrl ?? DEFAULT_LOGO_SRC);
+      : (logo?.logoLightUrl ?? defaultSrc);
 
   return (
     <span className={`relative block ${className}`}>

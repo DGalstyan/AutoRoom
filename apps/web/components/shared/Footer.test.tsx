@@ -56,7 +56,7 @@ describe('Footer', () => {
   it("renders the site's real logo mark by default, not a placeholder glyph", async () => {
     renderWithLocale(await Footer());
     const img = screen.getByAltText(messages.common.brand);
-    expect(img).toHaveAttribute('src', '/brand/logo-mark.svg');
+    expect(img).toHaveAttribute('src', '/brand/logo-footer-gold.svg');
   });
 
   it('renders the admin-uploaded logo once one exists, matching Header', async () => {

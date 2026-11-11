@@ -108,6 +108,7 @@ export async function Footer({
           <Link href="/" aria-label={nav.home} className="inline-block">
             <BrandLogo
               logo={logo}
+              defaultSrc="/brand/logo-footer-gold.svg"
               className="h-[64px] w-[168px] lg:h-[98px] lg:w-[257px]"
               sizes="257px"
             />

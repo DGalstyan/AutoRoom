@@ -115,7 +115,7 @@ export function LoanCalculator({
           </div>
         </div>
 
-        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:min-h-[338px] lg:w-[589px] lg:overflow-visible lg:px-0 lg:py-0 lg:pb-[60px] lg:pl-[100px] lg:pt-[60px]">
+        <div className="relative flex w-full flex-col gap-4 overflow-hidden rounded-[20px] bg-white px-6 py-8 lg:min-h-[338px] lg:w-[589px] lg:px-0 lg:py-0 lg:pb-[60px] lg:pl-[100px] lg:pt-[60px]">
           {/* Figma 442:9250 — labels 16/24 regular, values 16/20 bold, both #666E73. */}
           <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
             <div>
@@ -145,10 +145,10 @@ export function LoanCalculator({
               <div className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[120px] w-[180px] overflow-hidden rounded-[24px] sm:block lg:hidden">
                 <Image src={carImage} alt="" fill sizes="180px" className="object-cover" />
               </div>
-              {/* Figma 474:2905: the car sits bottom-right, 245×107 at (325, 251) in the 589×338 card, hanging 20px
-                  below it. Figma's is a cut-out; a real photo is feathered into the card instead. */}
+              {/* Figma 474:2905 puts a cut-out car bottom-right (245×107). A real photo has a background, so it stays
+                  inside the card, feathered into it, rather than hanging over the edge. */}
               <div
-                className="pointer-events-none absolute left-[325px] top-[251px] z-0 hidden h-[107px] w-[245px] overflow-hidden rounded-[24px] lg:block"
+                className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[107px] w-[200px] overflow-hidden rounded-[24px] lg:block"
                 style={{
                   WebkitMaskImage:
                     'linear-gradient(to right, transparent 0%, #000 28%), linear-gradient(to bottom, transparent 0%, #000 30%)',
@@ -158,7 +158,7 @@ export function LoanCalculator({
                   maskComposite: 'intersect',
                 }}
               >
-                <Image src={carImage} alt="" fill sizes="245px" className="object-cover" />
+                <Image src={carImage} alt="" fill sizes="200px" className="object-cover" />
               </div>
             </>
           )}
