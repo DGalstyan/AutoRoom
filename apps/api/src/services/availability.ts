@@ -36,7 +36,17 @@ export function isSerializationFailure(error: unknown): boolean {
 }
 
 /** Attempts before giving up on a contended slot. */
-const MAX_ATTEMPTS = 3;
+const MAX_ATTEMPTS = 6;
+
+/**
+ * Pause before replaying a transaction the database made start over. Without it two bookings that
+ * collided retry at the very same moment and can collide again, every time, until the attempts run
+ * out — a slot with room for both would then answer one visitor "taken". A short, randomised, growing
+ * wait pulls the rivals apart so one of them goes first.
+ */
+function retryDelayMs(attempt: number): number {
+  return Math.round(Math.random() * 25 * attempt) + 5 * attempt;
+}
 
 /**
  * Runs `fn` under `Serializable`, retrying if the database makes it start over.
@@ -70,6 +80,7 @@ export async function inSlotTransaction<T>(
     } catch (error) {
       if (!isSerializationFailure(error)) throw error;
       if (attempt >= MAX_ATTEMPTS) throw conflict(SLOT_TAKEN_MESSAGE);
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs(attempt)));
     }
   }
 }

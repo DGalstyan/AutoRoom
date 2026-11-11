@@ -1,13 +1,10 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
-import { Dialog, DIALOG_BODY, DIALOG_FOOTER, DIALOG_HEADER } from '@/components/ui/Dialog';
+import { Dialog } from '@/components/ui/Dialog';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
-import { Button } from '@/components/ui/Button';
 import { formatArmenianPhone, isValidArmenianPhone } from '@/lib/phone';
 import { buildLeadHidden, submitLead } from '@/lib/leads';
-import type { LeadFinancing } from '@/lib/leads';
-import { LeadQualification, type QualificationValues } from '@/components/shared/LeadQualification';
 import { interpolate } from '@/lib/messages';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
@@ -80,9 +77,9 @@ export function UsaAuctionContactPopup({
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+374 ');
   const [carLink, setCarLink] = useState('');
-  // Quick one-tap answers (shared with the Universal popup). Financing starts
-  // on "need" — the Figma frame's default-ON toggle, kept as the default chip.
-  const [qualification, setQualification] = useState<QualificationValues>({ financing: 'need' });
+  // Figma 478:1489: the budget is a free-text field and financing a switch that starts ON.
+  const [budget, setBudget] = useState('');
+  const [needFinancing, setNeedFinancing] = useState(true);
   const [comment, setComment] = useState('');
   const [touched, setTouched] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -99,7 +96,8 @@ export function UsaAuctionContactPopup({
       setName('');
       setPhone('+374 ');
       setCarLink('');
-      setQualification({ financing: 'need' });
+      setBudget('');
+      setNeedFinancing(true);
       setComment('');
       setTouched(false);
       setStatus('idle');
@@ -122,10 +120,8 @@ export function UsaAuctionContactPopup({
         name: name.trim(),
         phone,
         carLink: carLink.trim() || undefined,
-        budget: qualification.budget,
-        financing: qualification.financing as LeadFinancing | undefined,
-        timing: qualification.timing,
-        channel: qualification.channel,
+        budget: budget.trim() || undefined,
+        financing: needFinancing ? 'need' : 'no',
         comment: comment.trim() || undefined,
       },
       hidden: buildLeadHidden({ sourcePage, sourceCta, locale }),
@@ -151,134 +147,176 @@ export function UsaAuctionContactPopup({
     );
   }
 
+  const field =
+    'h-[72px] w-full rounded-[50px] bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-[#999ea1] focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error';
+  const label = 'text-[16px] font-medium leading-5 text-neutral-800';
+  const pill =
+    'inline-flex h-12 items-center justify-center rounded-pill px-6 text-[14px] font-bold leading-5 text-ink transition-colors duration-standard';
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
       titleId={titleId}
       closeLabel={t.close}
-      fixedLayout
       closeOnOverlay={false}
+      panelClassName="max-w-[568px] rounded-[30px] p-6 sm:p-9"
+      closeButtonClassName="right-3 top-3"
     >
       <form
-        className="flex min-h-0 flex-1 flex-col"
+        className="flex flex-col gap-6"
+        noValidate
         onSubmit={(event) => {
           event.preventDefault();
           void handleSubmit();
         }}
       >
-        <div className={DIALOG_HEADER}>
+        {/* Figma 478:1491 — 20/32 bold title and a 14/18 intro, then 24px between the blocks. */}
+        <div className="flex flex-col gap-2 pr-10">
           <h2
             id={titleId}
             ref={headingRef}
             tabIndex={-1}
-            className="font-display text-h3 font-bold text-ink outline-none"
+            className="font-display text-[20px] font-bold leading-8 text-[#0f1b33] outline-none"
           >
             {t.title}
           </h2>
-          <p className="mt-2 text-small text-ink/70">{t.subtitle}</p>
+          <p className="text-[14px] leading-[18px] text-black">{t.subtitle}</p>
         </div>
 
-        <div className={DIALOG_BODY}>
-          <div className="mt-2 space-y-4">
-            <div>
-              <label htmlFor="uap-name" className="mb-1 block text-small font-medium text-ink">
-                {t.nameLabel}
-              </label>
-              <input
-                id="uap-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                onBlur={() => setTouched(true)}
-                aria-invalid={nameError}
-                aria-describedby={nameError ? 'uap-name-error' : undefined}
-                placeholder={t.namePlaceholder}
-                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
-              />
-              {nameError && (
-                <p id="uap-name-error" className="mt-1 text-small text-error">
-                  {t.errors.nameRequired}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="uap-phone" className="mb-1 block text-small font-medium text-ink">
-                {t.phoneLabel}
-              </label>
-              <input
-                id="uap-phone"
-                name="phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                value={phone}
-                onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
-                onBlur={() => setTouched(true)}
-                aria-invalid={phoneError}
-                aria-describedby={phoneError ? 'uap-phone-error' : undefined}
-                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
-              />
-              {phoneError && (
-                <p id="uap-phone-error" className="mt-1 text-small text-error">
-                  {t.errors.phoneInvalid}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="uap-car-link" className="mb-1 block text-small font-medium text-ink">
-                {t.carLinkLabel}
-              </label>
-              <input
-                id="uap-car-link"
-                name="carLink"
-                type="text"
-                value={carLink}
-                onChange={(event) => setCarLink(event.target.value)}
-                placeholder={t.carLinkPlaceholder}
-                className="h-14 w-full rounded-pill bg-neutral-25 px-6 text-[16px] leading-6 text-ink outline-none placeholder:text-neutral-600 focus:ring-2 focus:ring-accent aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-error"
-              />
-            </div>
-
-            <LeadQualification
-              values={qualification}
-              onChange={(patch) => setQualification((prev) => ({ ...prev, ...patch }))}
-              labels={{ budget: t.budgetLabel, financing: t.financingLabel }}
-            />
-
-            <div>
-              <label htmlFor="uap-comment" className="mb-1 block text-small font-medium text-ink">
-                {t.commentLabel}
-              </label>
-              <textarea
-                id="uap-comment"
-                name="comment"
-                rows={4}
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                placeholder={t.commentPlaceholder}
-                className="w-full rounded-md border border-line-light px-4 py-3 text-body text-ink outline-none focus:border-accent"
-              />
-            </div>
-          </div>
-          {failed && (
-            <p role="alert" className="mt-4 text-small text-error">
-              {popupT.sendFailed}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uap-name" className={label}>
+            {t.nameLabel}
+          </label>
+          <input
+            id="uap-name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            onBlur={() => setTouched(true)}
+            aria-invalid={nameError}
+            aria-describedby={nameError ? 'uap-name-error' : undefined}
+            placeholder={t.namePlaceholder}
+            className={field}
+          />
+          {nameError && (
+            <p id="uap-name-error" className="text-small text-error">
+              {t.errors.nameRequired}
             </p>
           )}
         </div>
 
-        <div className={DIALOG_FOOTER}>
-          <Button type="button" variant="tertiary" className="text-ink" onClick={onClose}>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uap-phone" className={label}>
+            {t.phoneLabel}
+          </label>
+          <input
+            id="uap-phone"
+            name="phone"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel"
+            value={phone}
+            onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
+            onBlur={() => setTouched(true)}
+            aria-invalid={phoneError}
+            aria-describedby={phoneError ? 'uap-phone-error' : undefined}
+            className={field}
+          />
+          {phoneError && (
+            <p id="uap-phone-error" className="text-small text-error">
+              {t.errors.phoneInvalid}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uap-car-link" className={label}>
+            {t.carLinkLabel}
+          </label>
+          <input
+            id="uap-car-link"
+            name="carLink"
+            type="text"
+            value={carLink}
+            onChange={(event) => setCarLink(event.target.value)}
+            placeholder={t.carLinkPlaceholder}
+            className={field}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uap-budget" className={label}>
+            {t.budgetLabel}
+          </label>
+          <input
+            id="uap-budget"
+            name="budget"
+            type="text"
+            inputMode="numeric"
+            value={budget}
+            onChange={(event) => setBudget(event.target.value.slice(0, 40))}
+            placeholder={t.budgetPlaceholder}
+            className={field}
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <span id="uap-financing-label" className={label}>
+            {t.financingLabel}
+          </span>
+          {/* Figma 478:1608: a 45×28 switch, dark when ON, with a 26px knob. */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={needFinancing}
+            aria-labelledby="uap-financing-label"
+            onClick={() => setNeedFinancing((value) => !value)}
+            className={`flex h-7 w-[45px] shrink-0 items-center rounded-[16px] p-[2px] transition-colors duration-standard focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+              needFinancing ? 'justify-end bg-neutral-800' : 'justify-start bg-neutral-100'
+            }`}
+          >
+            <span className="size-[24px] rounded-full bg-white shadow-sm" />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="uap-comment" className={label}>
+            {t.commentLabel}
+          </label>
+          <textarea
+            id="uap-comment"
+            name="comment"
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            placeholder={t.commentPlaceholder}
+            className="h-[146px] w-full resize-none rounded-[50px] bg-neutral-25 px-6 py-6 text-[16px] leading-6 text-ink outline-none placeholder:text-[#999ea1] focus:ring-2 focus:ring-accent"
+          />
+        </div>
+
+        {failed && (
+          <p role="alert" className="text-small text-error">
+            {popupT.sendFailed}
+          </p>
+        )}
+
+        <div className="flex items-start justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className={`${pill} bg-neutral-50 hover:bg-neutral-100`}
+          >
             {t.cancel}
-          </Button>
-          <Button type="submit" variant="primary" disabled={status === 'submitting'}>
+          </button>
+          <button
+            type="submit"
+            disabled={status === 'submitting'}
+            className={`${pill} bg-accent hover:bg-accent-600 disabled:opacity-60`}
+          >
             {status === 'submitting' ? t.sending : failed ? popupT.retry : t.submit}
-          </Button>
+          </button>
         </div>
       </form>
     </Dialog>

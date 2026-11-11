@@ -9,10 +9,10 @@ vi.mock('@/lib/actions/leads', () => ({ submitLead: (p: unknown) => submitLead(p
 
 const m = getMessagesForLocale('ru');
 
-describe('USA auction popup — quick qualification', () => {
+describe('USA auction popup — Figma form', () => {
   beforeEach(() => submitLead.mockClear());
 
-  it('answers budget, financing, timing and channel with chips and sends them with the lead context', async () => {
+  it('sends the free-text budget and the financing switch with the lead context', async () => {
     renderWithLocale(
       <UsaAuctionContactPopup
         open
@@ -28,19 +28,19 @@ describe('USA auction popup — quick qualification', () => {
     fireEvent.change(screen.getByLabelText(m.usa.auctionPopup.phoneLabel), {
       target: { value: '77123456' },
     });
-    const p = m.common.popup;
-    fireEvent.click(screen.getByRole('button', { name: p.budgetOptions['20-35k'] }));
-    fireEvent.click(screen.getByRole('button', { name: p.timingOptions.now }));
-    fireEvent.click(screen.getByRole('button', { name: p.channelOptions.viber }));
+    fireEvent.change(screen.getByLabelText(m.usa.auctionPopup.budgetLabel), {
+      target: { value: '129000000 AMD' },
+    });
+    const financing = screen.getByRole('switch', { name: m.usa.auctionPopup.financingLabel });
+    expect(financing).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(financing);
     fireEvent.click(screen.getByRole('button', { name: m.usa.auctionPopup.submit }));
 
     await waitFor(() => expect(submitLead).toHaveBeenCalledTimes(1), { timeout: 5000 });
     const { answers, hidden } = submitLead.mock.calls[0]![0];
     expect(answers).toMatchObject({
-      budget: '20-35k',
-      financing: 'need',
-      timing: 'now',
-      channel: 'viber',
+      budget: '129000000 AMD',
+      financing: 'no',
     });
     expect(hidden).toMatchObject({ sourcePage: '/usa', sourceCta: 'usa-final-cta', locale: 'ru' });
     expect(hidden.timestamp).toMatch(/^\d{4}-/);
