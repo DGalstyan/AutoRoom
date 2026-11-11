@@ -160,7 +160,7 @@ export function ContactForm() {
       />
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col justify-center rounded-xl bg-white p-9 shadow-card sm:p-10 lg:min-h-[552px]"
+        className="flex flex-col justify-center rounded-xl bg-white p-9 sm:p-10 lg:min-h-[552px]"
         noValidate
       >
         <div className="flex flex-col gap-8">

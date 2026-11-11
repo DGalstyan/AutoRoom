@@ -62,7 +62,7 @@ export async function ContactInfo() {
   const messengerLinks = configuredMessengers(messengers);
 
   return (
-    <div className="flex h-full flex-col justify-start rounded-xl bg-white p-6 shadow-card sm:p-9">
+    <div className="flex h-full flex-col justify-start rounded-xl bg-white p-6 sm:p-9 lg:pt-14">
       <h1 className="font-display text-home-card-title font-bold text-ink max-sm:hidden">
         {t.heading}
       </h1>
@@ -72,7 +72,7 @@ export async function ContactInfo() {
           <li>
             <a
               href={`mailto:${general.email}`}
-              className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800 hover:text-accent"
+              className="flex min-h-8 w-fit items-center gap-2 text-lead text-neutral-800 hover:text-accent"
             >
               <MailIcon />
               {general.email}
@@ -83,7 +83,7 @@ export async function ContactInfo() {
           <li key={phone}>
             <a
               href={branchTelHref(phone)}
-              className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800 hover:text-accent"
+              className="flex min-h-8 w-fit items-center gap-2 text-lead text-neutral-800 hover:text-accent"
             >
               <PhoneIcon />
               {phone}
@@ -96,7 +96,7 @@ export async function ContactInfo() {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-2 text-lead text-neutral-800 hover:text-accent"
+              className="flex min-h-8 w-fit items-center gap-2 text-lead text-neutral-800 hover:text-accent"
             >
               <ArrowUpRightIcon className="size-4" />
               {name}
@@ -104,7 +104,7 @@ export async function ContactInfo() {
           </li>
         ))}
         {general.workingHours && (
-          <li className="inline-flex items-center gap-2 text-lead text-neutral-800">
+          <li className="flex min-h-8 w-fit items-center gap-2 text-lead text-neutral-800">
             <ClockIcon />
             {general.workingHours}
           </li>
@@ -112,7 +112,7 @@ export async function ContactInfo() {
       </ul>
 
       {socialLinks.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-9">
           <p className="font-display text-home-card-title font-bold text-ink">{t.info.followUs}</p>
           {/* Third pixel-audit pass (node `141:584`, verified via
               get_metadata): a single column, not a 2-column grid — each row
@@ -126,9 +126,9 @@ export async function ContactInfo() {
                   href={social[key]!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center gap-1 text-lead text-neutral-800 hover:text-accent"
+                  className="flex min-h-7 w-fit items-center gap-1 text-lead text-neutral-800 hover:text-accent"
                 >
-                  <ArrowUpRightIcon className="size-4" />
+                  <SocialArrow />
                   {name}
                 </a>
               </li>
@@ -137,6 +137,28 @@ export async function ContactInfo() {
         </div>
       )}
     </div>
+  );
+}
+
+/** Figma 471:1383: a small light-grey arrow pointing right in front of each social link. */
+function SocialArrow() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      className="text-neutral-400"
+    >
+      <path
+        d="M3 8h10M9 4l4 4-4 4"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

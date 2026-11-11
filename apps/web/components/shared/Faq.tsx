@@ -8,10 +8,8 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 export interface FaqProps {
   items: readonly FaqItem[];
   heading?: string;
-  /** Figma's Homepage FAQ (node `110:503`) has no visible heading above the
-   * accordion — pass `hideHeading` there and keep a real `h2` for the a11y
-   * outline (and for pages that DO want the heading shown, e.g. a dedicated
-   * FAQ/Contact section, this defaults to visible). */
+  /** Pass `hideHeading` to keep the `h2` for the accessibility outline only. The heading is shown by default,
+   * centred, 16px above the first question, as in Figma (Homepage 485:4982, Contact 471:1543). */
   hideHeading?: boolean;
   /** Show only this many items until "Load more" is pressed, which reveals
    * the rest in place — no navigation, since it's the exact same admin-
@@ -37,10 +35,10 @@ export function Faq({ items, heading, hideHeading = false, initialCount, viewAll
 
   return (
     <div>
-      <h2 className={hideHeading ? 'sr-only' : 'font-display text-home-h2 font-light text-ink'}>
+      <h2 className={hideHeading ? 'sr-only' : 'type-h2 text-center text-ink'}>
         {heading ?? t.heading}
       </h2>
-      <div className={`mx-auto flex max-w-[760px] flex-col gap-4 ${hideHeading ? '' : 'mt-8'}`}>
+      <div className={`mx-auto flex max-w-[760px] flex-col gap-4 ${hideHeading ? '' : 'mt-4'}`}>
         {visibleItems.map((item, index) => {
           const isOpen = openIndex === index;
           const buttonId = `${baseId}-q-${index}`;

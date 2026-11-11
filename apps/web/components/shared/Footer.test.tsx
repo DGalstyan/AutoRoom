@@ -59,7 +59,7 @@ describe('Footer', () => {
     expect(img).toHaveAttribute('src', '/brand/logo-footer-gold.svg');
   });
 
-  it('renders the admin-uploaded logo once one exists, matching Header', async () => {
+  it('keeps the gold Figma mark even when a header logo has been uploaded', async () => {
     renderWithLocale(
       await Footer({
         logo: { logoLightUrl: 'https://cdn.example.com/logo.png', logoDarkUrl: null },
@@ -67,7 +67,7 @@ describe('Footer', () => {
     );
     expect(screen.getByAltText(messages.common.brand)).toHaveAttribute(
       'src',
-      'https://cdn.example.com/logo.png',
+      '/brand/logo-footer-gold.svg',
     );
   });
 

@@ -132,7 +132,7 @@ export function JourneyStrip({
 
                 {/* Collapsed strip label (desktop only) */}
                 <span
-                  className={`absolute bottom-[36px] left-2 right-[9px] hidden text-[16px] font-medium leading-5 text-white transition-opacity duration-300 min-[1400px]:block ${
+                  className={`absolute bottom-[36px] left-2 right-[9px] hidden text-[14px] font-medium leading-[18px] text-white [overflow-wrap:anywhere] transition-opacity duration-300 min-[1400px]:block ${
                     isActive ? 'opacity-0' : 'opacity-100'
                   }`}
                 >

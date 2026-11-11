@@ -4,11 +4,12 @@ import { StartCtaBand } from '@/components/home/StartCtaBand';
 import { WeeklyOffers } from '@/components/home/WeeklyOffers';
 import { WhyAutoRoom } from '@/components/home/WhyAutoRoom';
 import { JourneyStrip } from '@/components/home/JourneyStrip';
-import { EcosystemShowcase } from '@/components/home/EcosystemShowcase';
+import { ChinaServices } from '@/components/china/ChinaServices';
 import { NearYouMap } from '@/components/home/NearYouMap';
 import { FounderVideo } from '@/components/shared/FounderVideo';
 import { CustomerStoryWall } from '@/components/shared/CustomerStoryWall';
 import { HomeFaq } from '@/components/shared/HomeFaq';
+import { UsaShowcase } from '@/components/usa/UsaShowcase';
 import { HomeFinalCta } from '@/components/shared/HomeFinalCta';
 import { Reveal } from '@/components/ui/Reveal';
 import { getServerMessages } from '@/lib/i18n';
@@ -25,7 +26,7 @@ export default async function HomePage() {
     getFounderVideo(),
     listCustomerStories(),
   ]);
-  const { hero, anatomy, howItWorks, ecosystem, branches } = messages.home;
+  const { hero, anatomy, howItWorks, branches } = messages.home;
 
   return (
     <>
@@ -81,9 +82,10 @@ export default async function HomePage() {
         <JourneyStrip heading={howItWorks.heading} steps={howItWorks.steps} />
       </section>
 
-      <section className={`${COLUMN} ${GAP}`}>
-        <EcosystemShowcase heading={ecosystem.heading} items={ecosystem.items} />
-      </section>
+      {/* Figma 485:5095 "Services": the same full-bleed black 1387px bento of eight service cards the China page draws. */}
+      <div className={GAP}>
+        <ChinaServices />
+      </div>
 
       <section className={`${COLUMN} ${GAP}`}>
         <FounderVideo video={founderVideo} />
@@ -96,11 +98,17 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Figma 485:4982 "Component 2": the 968px black photo-card band between the video and the map — the
+          same scroll-driven showcase the USA page uses (Figma Variant2). */}
       <div className={GAP}>
-        <NearYouMap heading={branches.heading} cta={branches.cta} href="/contact#branches" />
+        <UsaShowcase />
       </div>
 
-      <section id="faq" className={`${COLUMN} mt-4 lg:mt-[17px]`}>
+      <div className={GAP}>
+        <NearYouMap heading={branches.heading} />
+      </div>
+
+      <section id="faq" className={`${COLUMN} mt-14 lg:mt-[150px]`}>
         <HomeFaq />
       </section>
 

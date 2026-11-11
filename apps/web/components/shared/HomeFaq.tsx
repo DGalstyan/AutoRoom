@@ -13,5 +13,5 @@ export async function HomeFaq() {
   const items = await getHomepageFaq(locale);
   if (items.length === 0) return null;
 
-  return <Faq items={items} hideHeading viewAllHref="/faq#general" />;
+  return <Faq items={items} viewAllHref="/faq#general" />;
 }

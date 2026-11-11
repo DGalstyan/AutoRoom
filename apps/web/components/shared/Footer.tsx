@@ -44,7 +44,7 @@ const NAV = [
 ] as const;
 
 interface FooterProps {
-  /** Same admin-managed branding logo `layout.tsx` passes to `Header`; falls back to the bundled mark until one is uploaded. */
+  /** Accepted so `layout.tsx` can pass the same branding it gives `Header`, but the footer always draws Figma's gold mark. */
   logo?: BrandingLogos | null;
   /** Admin-managed general contact info/socials/messengers; a field renders nothing (not a placeholder) until an admin fills it in. */
   contacts?: { general: GeneralContacts; social: SocialLinks; messengers?: MessengerLinks };
@@ -60,7 +60,6 @@ const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, 
 const NO_MESSENGERS: MessengerLinks = { whatsapp: null, viber: null, telegram: null };
 
 export async function Footer({
-  logo = null,
   contacts = { general: NO_CONTACTS, social: NO_SOCIAL },
 }: FooterProps = {}) {
   const [{ messages }, branches] = await Promise.all([getServerMessages(), getBranches()]);
@@ -106,8 +105,10 @@ export async function Footer({
         {/* Left block */}
         <div className="flex flex-col justify-between gap-12 lg:w-[calc(50%-24px)] lg:max-w-[560px] lg:gap-[192px]">
           <Link href="/" aria-label={nav.home} className="inline-block">
+            {/* Figma 478:549 draws the footer with its gold mark whatever the header logo is, so an uploaded
+                header logo (white artwork) is not used here. */}
             <BrandLogo
-              logo={logo}
+              logo={null}
               defaultSrc="/brand/logo-footer-gold.svg"
               className="h-[64px] w-[168px] lg:h-[98px] lg:w-[257px]"
               sizes="257px"

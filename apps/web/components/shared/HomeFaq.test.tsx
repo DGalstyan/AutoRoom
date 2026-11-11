@@ -14,13 +14,14 @@ describe('HomeFaq', () => {
     expect(await HomeFaq()).toBeNull();
   });
 
-  it('passes fetched items through to Faq with the heading hidden', async () => {
+  it('passes fetched items through to Faq with its heading shown', async () => {
     const items = [{ q: 'Q?', a: 'A.' }];
     vi.mocked(getHomepageFaq).mockResolvedValue(items);
 
     const element = await HomeFaq();
 
     expect(element).not.toBeNull();
-    expect(element?.props).toMatchObject({ items, hideHeading: true });
+    expect(element?.props).toMatchObject({ items });
+    expect(element?.props.hideHeading).toBeFalsy();
   });
 });
