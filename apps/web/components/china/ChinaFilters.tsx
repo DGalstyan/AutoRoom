@@ -186,11 +186,7 @@ export function ChinaFilters({
       </div>
 
       <div className="flex min-h-16 flex-wrap items-center gap-2 py-2">
-        <p
-          role="status"
-          aria-live="polite"
-          className="sr-only"
-        >
+        <p role="status" aria-live="polite" className="sr-only">
           {total > 0 ? interpolate(t.resultCount, { count: String(total) }) : t.resultCountNone}
         </p>
         {chips.length > 0 && (

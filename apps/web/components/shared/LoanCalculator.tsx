@@ -102,7 +102,9 @@ export function LoanCalculator({
           <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
             <div>
               <p className="type-body">{t.downPayment}</p>
-              <p className="text-[16px] font-bold leading-5 tabular-nums">{formatUsdTight(clamped)}</p>
+              <p className="text-[16px] font-bold leading-5 tabular-nums">
+                {formatUsdTight(clamped)}
+              </p>
             </div>
             <div>
               <p className="type-body">{t.term}</p>

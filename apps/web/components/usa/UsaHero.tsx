@@ -34,7 +34,7 @@ export async function UsaHero() {
       />
 
       <div className="mx-auto max-w-[1026px] lg:absolute lg:left-1/2 lg:top-[534px] lg:w-[1026px] lg:-translate-x-1/2">
-        <h1 className="stretch-90 animate-fade-up text-center font-display text-[26px] font-bold leading-[36px] text-white motion-reduce:animate-none sm:text-home-hero">
+        <h1 className="stretch-90 animate-fade-up text-center font-display text-[26px] font-semibold uppercase leading-[36px] text-white motion-reduce:animate-none sm:text-home-hero">
           {messages.usa.hero.h1}
         </h1>
       </div>

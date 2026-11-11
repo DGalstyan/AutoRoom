@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { AnimatedImage } from '@/components/ui/AnimatedImage';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { Reveal } from '@/components/ui/Reveal';
@@ -25,29 +26,62 @@ import { useMessages } from '@/components/shared/LocaleProvider';
 export function UsaImportProcess() {
   const t = useMessages().usa.importProcess;
   const { openUsaAuctionPopup } = useLeadWidgets();
+  const listRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  // The step whose card is at (or just above) the middle of the viewport is "current".
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const cards = listRef.current?.querySelectorAll('[data-step]');
+      if (!cards) return;
+      const mid = window.innerHeight / 2;
+      let current = 0;
+      for (let i = 0; i < cards.length; i += 1) {
+        if ((cards[i] as HTMLElement).getBoundingClientRect().top <= mid) current = i;
+      }
+      setActive(current);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col gap-8 lg:gap-[97px]">
       <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
 
-      <div className="flex flex-col gap-6 lg:gap-14">
+      <div ref={listRef} className="relative flex flex-col gap-6 lg:gap-20">
+        {/* Figma 478:1474 "Lines": a 6×776 vertical 12-segment progress line in the page margin, 31px from the
+            frame edge (17px left of the 48px column gutter). Gold up to and including the current step. */}
+        <div
+          className="pointer-events-none absolute inset-y-0 -left-[17px] z-[30] hidden min-[1400px]:block"
+          aria-hidden="true"
+        >
+          <div className="sticky top-[calc(50vh-388px)] flex h-[776px] w-[6px] flex-col gap-1">
+            {t.steps.map((_, segmentIndex) => (
+              <span
+                key={segmentIndex}
+                className={`w-[6px] flex-1 rounded-[9px] transition-colors duration-standard ${
+                  segmentIndex <= active ? 'bg-accent' : 'bg-white'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
         {t.steps.map((step, index) => (
-          <div key={step.title} className="sticky top-24" style={{ zIndex: index + 1 }}>
+          <div key={step.title} data-step className="sticky top-24" style={{ zIndex: index + 1 }}>
             <Reveal>
-              <div className="flex flex-col gap-6 rounded-[32px] bg-white p-6 shadow-[0_8px_57px_rgba(0,0,0,0.03)] sm:p-10 lg:rounded-[48px] lg:p-16">
-                {/* Figma's "Lines" progress indicator — segments up to and
-                  including the current step turn gold. */}
-                <div className="flex gap-[11px]" aria-hidden="true">
-                  {t.steps.map((_, segmentIndex) => (
-                    <span
-                      key={segmentIndex}
-                      className={`h-[6px] flex-1 rounded-[9px] ${
-                        segmentIndex <= index ? 'bg-accent' : 'bg-neutral-50'
-                      }`}
-                    />
-                  ))}
-                </div>
-
+              <div className="rounded-[32px] bg-white p-6 shadow-[0_8px_57px_rgba(0,0,0,0.03)] sm:p-10 lg:rounded-[48px] lg:p-16">
                 <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
                   <div className="flex flex-col justify-center gap-6 lg:h-[414px] lg:min-w-0 lg:flex-1 lg:gap-9 min-[1400px]:w-[409px] min-[1400px]:flex-none">
                     <p className="font-display text-[40px] font-bold leading-[52px] text-accent lg:text-[52px] lg:leading-[66px]">

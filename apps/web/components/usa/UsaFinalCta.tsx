@@ -26,7 +26,8 @@ export function UsaFinalCta() {
 
   return (
     <CtaBand
-      padded
+      variant="card"
+      buttonTone="glass"
       heading={t.heading}
       sub={t.text}
       buttonLabel={t.cta}

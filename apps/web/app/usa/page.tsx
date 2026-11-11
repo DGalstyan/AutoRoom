@@ -149,7 +149,10 @@ export default async function UsaPage({
         </div>
       </div>
 
-      <UsaFinalCta />
+      {/* Figma 478:1426: the card sits 66px above the footer. */}
+      <div className="bg-surface-light pb-10 lg:pb-[66px]">
+        <UsaFinalCta />
+      </div>
     </>
   );
 }

@@ -309,6 +309,7 @@ export function UsaStateClocks() {
   // times fill in a tick later.
   const [now, setNow] = useState<Date | null>(null);
   const [stateKey, setStateKey] = useState<string>(DEFAULT_STATE_KEY);
+  const [secondStateKey, setSecondStateKey] = useState<string>('newYork');
 
   useEffect(() => {
     queueMicrotask(() => setNow(new Date()));
@@ -317,18 +318,22 @@ export function UsaStateClocks() {
   }, []);
 
   const state = STATE_OPTIONS.find((option) => option.key === stateKey) ?? STATE_OPTIONS[0]!;
-  const hours = now ? hoursAhead(state.timeZone, 'Asia/Yerevan', now) : null;
-  const diffCaption =
-    hours === null
+  const second = STATE_OPTIONS.find((option) => option.key === secondStateKey) ?? STATE_OPTIONS[0]!;
+  const diffFor = (timeZone: string) => {
+    const hours = now ? hoursAhead(timeZone, 'Asia/Yerevan', now) : null;
+    return hours === null
       ? undefined
       : interpolate(t.diff, { hours: hours > 0 ? `+${hours}` : `${hours}` });
+  };
+  const diffCaption = diffFor(state.timeZone);
+  const secondDiffCaption = diffFor(second.timeZone);
 
   return (
     <div className="flex flex-col items-center gap-10 lg:gap-16">
       <h2 className="type-h2 text-center text-ink">{t.heading}</h2>
-      {/* One tool: Yerevan, and the US state the visitor picks. Offsets and the DST badge come
+      {/* Figma 478:1097: Yerevan plus two state pickers (Los Angeles / New York by default). Offsets and the DST badge come
           from the time-zone database, so the gap shifts by itself when the US changes its clocks. */}
-      <div className="grid w-full max-w-[784px] grid-cols-1 justify-items-center gap-6 md:grid-cols-2 lg:gap-12">
+      <div className="grid w-full max-w-[1200px] grid-cols-1 justify-items-center gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
         <ClockCard
           label={t.cities.yerevan}
           timeZone="Asia/Yerevan"
@@ -352,6 +357,23 @@ export function UsaStateClocks() {
           locale={locale}
           diffCaption={diffCaption}
           dst={now ? dstStatus(state.timeZone, now) : null}
+          dstLabels={t.dst}
+        />
+        <ClockCard
+          selector={
+            <StatePicker
+              id="usa-state-select-2"
+              label={t.stateLabel}
+              value={secondStateKey}
+              onChange={setSecondStateKey}
+              states={t.states}
+            />
+          }
+          timeZone={second.timeZone}
+          now={now}
+          locale={locale}
+          diffCaption={secondDiffCaption}
+          dst={now ? dstStatus(second.timeZone, now) : null}
           dstLabels={t.dst}
         />
       </div>

@@ -24,7 +24,15 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
   if (banks.length === 0) return null;
   // Figma 474:3154 order: Evoca, IDBank, Ameriabank, then AutoRoom's own row; any other bank after the partners.
   const rank = (b: { name: string; inHouse?: boolean }) =>
-    b.inHouse ? 99 : /evoca/i.test(b.name) ? 0 : /\bid\s?bank/i.test(b.name) ? 1 : /ameria/i.test(b.name) ? 2 : 3;
+    b.inHouse
+      ? 99
+      : /evoca/i.test(b.name)
+        ? 0
+        : /\bid\s?bank/i.test(b.name)
+          ? 1
+          : /ameria/i.test(b.name)
+            ? 2
+            : 3;
   const items = withBankLogos(banks).sort((a, b) => rank(a) - rank(b));
 
   return (

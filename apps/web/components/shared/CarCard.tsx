@@ -5,7 +5,6 @@ import { carHref, formatUsdTight } from '@/lib/types/car';
 import { getServerMessages } from '@/lib/i18n';
 import { interpolate } from '@/lib/messages';
 import { PromoCountdown } from '@/components/shared/PromoCountdown';
-import { CarCompareToggle } from '@/components/shared/CarCompareToggle';
 import { CardArrow } from '@/components/ui/CardArrow';
 
 /**
@@ -57,7 +56,6 @@ export async function CarCard({
 }) {
   const { messages } = await getServerMessages();
   const t = messages.common.carCard;
-  const compareT = messages.common.compare;
   // The full photo, not the 480px list thumbnail: these cards are 648px wide and the thumbnail looked soft.
   const imageSrc = car.images[0]?.url ?? car.images[0]?.thumbnailUrl;
 
@@ -135,7 +133,9 @@ export async function CarCard({
                   {t.platformDeal[car.auctionPlatform]}
                 </span>
               ) : (
-                <span className="rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
+                <span
+                  className={`rounded-pill border border-white bg-white/10 px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 ${car.condition === 'IN_STOCK' ? 'font-bold' : 'font-medium'} leading-[20px] text-white`}
+                >
                   {t.conditions[car.condition]}
                 </span>
               )}
@@ -159,25 +159,6 @@ export async function CarCard({
                 </span>
               )}
             </>
-          )}
-          {/* Not on promotion cards: the design's badge row there is the badge and the countdown only. */}
-          {!isPromo && (
-            <CarCompareToggle
-              className="pointer-events-auto relative z-[2]"
-              compact={crowded}
-              car={{
-                id: car.id,
-                slug: car.slug,
-                make: car.make,
-                model: car.model,
-                year: car.year,
-                imageUrl: imageSrc,
-                origin: car.origin,
-                condition: car.condition,
-              }}
-              label={compareT.toggle}
-              labelSelected={compareT.toggleSelected}
-            />
           )}
         </div>
 
