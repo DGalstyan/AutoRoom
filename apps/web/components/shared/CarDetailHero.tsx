@@ -2,13 +2,11 @@
 
 import { useState } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
-import { useCompare } from '@/components/shared/CompareProvider';
 import { CarGallery } from '@/components/shared/CarGallery';
 import { CarSpecs } from '@/components/shared/CarSpecs';
 import { BuyWithLoan } from '@/components/shared/BuyWithLoan';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
-import { Price } from '@/components/ui/Price';
 import { arrivalDateFromEta } from '@/lib/arrival';
 import { auctionViewLink } from '@/lib/auctionLink';
 import type { Bank } from '@/lib/banks';
@@ -56,7 +54,6 @@ export function CarDetailHero({
   const auctionT = t.auctionFollowAlong;
   const { openUniversal, openUsaAuctionPopup } = useLeadWidgets();
   const viewLink = variant === 'auction' ? auctionViewLink(car) : null;
-  const { openPicker } = useCompare();
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
 
   const isOnRoad = car.condition === 'ON_ROAD';
@@ -77,7 +74,7 @@ export function CarDetailHero({
   return (
     <div className="flex flex-col gap-9">
       {/* Pinned under the floating header while the page scrolls (Figma: sticky). */}
-      <div className="z-30 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:sticky lg:shadow-card lg:top-[104px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+      <div className="z-30 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:sticky lg:top-[104px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         {variant === 'auction' ? (
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:gap-x-[38px] lg:whitespace-nowrap">
             <h1 className="font-display text-[28px] font-semibold leading-10 text-neutral-900 sm:text-[36px] sm:leading-[56px]">
@@ -88,13 +85,13 @@ export function CarDetailHero({
             </p>
           </div>
         ) : (
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:whitespace-nowrap">
-            <h1 className="font-display text-[28px] font-medium uppercase leading-[40px] text-neutral-900 sm:text-[44px] sm:leading-[56px]">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:gap-x-[38px] lg:whitespace-nowrap">
+            <h1 className="font-display text-[28px] font-semibold uppercase tracking-[-0.04em] leading-10 text-neutral-900 sm:text-[36px] sm:leading-[56px]">
               {car.make} {car.model}
             </h1>
-            <Price size="lg" className="text-neutral-900">
+            <p className="font-display text-[24px] font-normal leading-9 tracking-[-0.05em] tabular-nums text-neutral-900">
               {formatUsd(car.price)}
-            </Price>
+            </p>
           </div>
         )}
 
@@ -124,7 +121,7 @@ export function CarDetailHero({
           <div className="flex flex-wrap items-center gap-3">
             <a
               href="#loan-calculator"
-              className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
+              className="inline-flex h-12 items-center justify-center gap-1 rounded-pill bg-neutral-50 px-6 lg:w-[297px] text-[14px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
             >
               {t.ctaLoan}
               <ArrowGlyph />
@@ -151,7 +148,7 @@ export function CarDetailHero({
               onClick={() =>
                 openUniversal({ sourceCta: 'car-detail-per-car-offer', car: carContext })
               }
-              className={`inline-flex h-12 items-center gap-1 rounded-pill px-6 text-[14px] text-neutral-900 transition-colors duration-standard ${
+              className={`inline-flex h-12 items-center justify-center gap-1 rounded-pill px-6 text-[14px] text-neutral-900 transition-colors duration-standard lg:w-[245px] ${
                 isOnRoad ? 'bg-neutral-50 hover:bg-neutral-100' : 'bg-accent hover:bg-accent-600'
               }`}
             >
@@ -206,25 +203,6 @@ export function CarDetailHero({
           )}
 
           <BuyWithLoan banks={banks} car={carContext} />
-
-          <button
-            type="button"
-            onClick={() =>
-              openPicker({
-                id: car.id,
-                slug: car.slug,
-                make: car.make,
-                model: car.model,
-                year: car.year,
-                imageUrl: car.images[0]?.url,
-                origin: car.origin,
-                condition: car.condition,
-              })
-            }
-            className="inline-flex h-[60px] w-[278px] max-w-full items-center justify-center rounded-pill bg-accent px-6 text-[16px] font-bold leading-6 text-ink transition-colors duration-standard hover:bg-accent-600"
-          >
-            {t.ctaCompare}
-          </button>
         </div>
       </div>
     </div>

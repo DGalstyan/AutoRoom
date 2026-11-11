@@ -22,7 +22,10 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
   const { openUniversal } = useLeadWidgets();
 
   if (banks.length === 0) return null;
-  const items = withBankLogos(banks);
+  // Figma 474:3154 order: Evoca, IDBank, Ameriabank, then AutoRoom's own row; any other bank after the partners.
+  const rank = (b: { name: string; inHouse?: boolean }) =>
+    b.inHouse ? 99 : /evoca/i.test(b.name) ? 0 : /\bid\s?bank/i.test(b.name) ? 1 : /ameria/i.test(b.name) ? 2 : 3;
+  const items = withBankLogos(banks).sort((a, b) => rank(a) - rank(b));
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,19 +46,19 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
                 <Image
                   src={bank.logoUrl}
                   alt={bank.name}
-                  width={143}
-                  height={55}
-                  className="h-full w-auto object-contain"
+                  width={277}
+                  height={53}
+                  className="h-[53px] w-[277px] object-contain"
                 />
               ) : (
                 // No logo uploaded for the in-house row: show AutoRoom's own mark, not its name as text.
                 <Image
                   src="/brand/logo-mark-dark.svg"
                   alt={bank.name}
-                  width={143}
-                  height={55}
+                  width={277}
+                  height={53}
                   unoptimized
-                  className="h-full w-auto object-contain"
+                  className="h-[53px] w-[277px] object-contain"
                 />
               )}
             </button>
@@ -73,7 +76,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
                   alt={bank.name}
                   width={277}
                   height={53}
-                  className="h-full w-auto object-contain"
+                  className="h-[53px] w-[277px] object-contain"
                 />
               ) : (
                 <span className="text-[16px] font-medium text-neutral-800">{bank.name}</span>
@@ -90,7 +93,7 @@ export function BuyWithLoan({ banks, car }: { banks: Bank[]; car: UniversalPopup
                   alt={bank.name}
                   width={277}
                   height={53}
-                  className="h-full w-auto object-contain"
+                  className="h-[53px] w-[277px] object-contain"
                 />
               ) : (
                 <span className="text-[16px] font-medium text-neutral-800">{bank.name}</span>
