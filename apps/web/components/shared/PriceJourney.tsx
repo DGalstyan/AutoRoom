@@ -163,15 +163,16 @@ export function PriceJourney({
         <button
           type="button"
           onClick={() => openUniversal({ sourceCta: 'china-detail-price-journey', car })}
-          className="inline-flex min-h-[82px] items-center gap-2 rounded-pill bg-accent px-6 text-[20px] leading-7 text-neutral-800 transition-colors duration-standard hover:bg-accent-600"
+          className="inline-flex items-center justify-center gap-1 rounded-pill bg-accent p-6 text-neutral-800 transition-colors duration-standard hover:bg-accent-600"
         >
-          {t.cta}
-          <span className="flex size-6 items-center justify-center" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+          {/* Figma 478:2854: 24px padding all round, Headings/H2-Regular (20/28), a 33.94px arrow box with a 24px arrow. */}
+          <span className="stretch-90 text-[20px] font-normal leading-7">{t.cta}</span>
+          <span className="flex size-[33.94px] items-center justify-center" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
               <path
                 d="M4 12 12 4M12 4H5M12 4v7"
                 stroke="currentColor"
-                strokeWidth="1.5"
+                strokeWidth="1.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />

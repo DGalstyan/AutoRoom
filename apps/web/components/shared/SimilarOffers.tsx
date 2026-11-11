@@ -21,7 +21,7 @@ export async function SimilarOffers({ cars }: { cars: CarSummary[] }) {
       <h2 className="type-h2 text-neutral-900">{t.heading}</h2>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-12">
         {cars.map((car) => (
-          <CarCard key={car.id} car={car} badgesEnd />
+          <CarCard key={car.id} car={car} badgesEnd hideFinancingOnPhone />
         ))}
       </div>
     </div>

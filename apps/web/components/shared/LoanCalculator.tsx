@@ -31,25 +31,28 @@ export function LoanCalculator({
   // The admin enters the small print in Armenian; other languages show their own text, or nothing.
   const disclaimer =
     locale === 'hy' ? finance.disclaimer : (finance.disclaimerTranslations?.[locale] ?? null);
+  // The "Գին" field: starts at the car's price and can be edited; everything below is worked out from it.
+  const [price, setPrice] = useState(car.price);
+  const [priceDraft, setPriceDraft] = useState<string | null>(null);
   const min = useMemo(
-    () => Math.round(car.price * finance.minDownPaymentRatio),
-    [car.price, finance.minDownPaymentRatio],
+    () => Math.round(price * finance.minDownPaymentRatio),
+    [price, finance.minDownPaymentRatio],
   );
   const max = useMemo(
-    () => Math.round(car.price * finance.maxDownPaymentRatio),
-    [car.price, finance.maxDownPaymentRatio],
+    () => Math.round(price * finance.maxDownPaymentRatio),
+    [price, finance.maxDownPaymentRatio],
   );
   const defaultDownPayment = useMemo(
-    () => Math.round(car.price * finance.defaultDownPaymentRatio),
-    [car.price, finance.defaultDownPaymentRatio],
+    () => Math.round(price * finance.defaultDownPaymentRatio),
+    [price, finance.defaultDownPaymentRatio],
   );
-  const step = Math.max(100, Math.round(car.price * 0.01));
+  const step = Math.max(100, Math.round(price * 0.01));
 
   const [downPayment, setDownPayment] = useState(defaultDownPayment);
   // While the field has focus it shows what is being typed; otherwise the clamped, formatted amount.
   const [draft, setDraft] = useState<string | null>(null);
   const clamped = Math.min(max, Math.max(min, downPayment));
-  const monthly = computeMonthlyPaymentAmd(car.price, clamped, finance);
+  const monthly = price > 0 ? computeMonthlyPaymentAmd(price, clamped, finance) : 0;
   const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
 
   const THUMB =
@@ -64,10 +67,36 @@ export function LoanCalculator({
         <div className="flex flex-col gap-6 lg:w-[676px]">
           <div className="flex flex-col gap-[10px] rounded-[12px] bg-white p-6">
             <p className="text-[16px] font-bold leading-5 text-neutral-800">{t.downPayment}</p>
-            {/* Figma 442:9222 — the "Գին" label in a 36px pill (Figma shows no amount). */}
-            <div className="flex h-9 items-center rounded-pill bg-neutral-25 py-1 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
+            {/* Figma 442:9222 — the "Գին" pill. It is a field: type another price and the down payment range,
+                the slider and the monthly payment are all worked out from it. */}
+            <label className="flex h-9 items-center justify-between gap-3 rounded-pill bg-neutral-25 py-1 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800 focus-within:ring-1 focus-within:ring-accent">
               <span>{t.price}</span>
-            </div>
+              <input
+                id="loan-price"
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label={t.price}
+                value={priceDraft ?? formatUsdTight(price)}
+                onFocus={(event) => {
+                  setPriceDraft(String(price));
+                  event.currentTarget.select();
+                }}
+                onChange={(event) => {
+                  const digits = event.target.value.replace(/\D/g, '').slice(0, 9);
+                  setPriceDraft(digits);
+                  const next = digits === '' ? 0 : Number(digits);
+                  setPrice(next);
+                  // A new price starts again from the usual share down, rather than keeping a stale amount.
+                  setDownPayment(Math.round(next * finance.defaultDownPaymentRatio));
+                }}
+                onBlur={() => setPriceDraft(null)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') event.currentTarget.blur();
+                }}
+                className="min-w-0 flex-1 bg-transparent text-right tabular-nums outline-none"
+              />
+            </label>
             {/* Figma 474:2905 draws the chosen amount as plain 12px text above the slider; it is a real field so an
                 exact amount can be typed. It follows the slider, and the slider and result follow it. */}
             <input

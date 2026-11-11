@@ -43,6 +43,7 @@ export async function CarCard({
   priority = false,
   badgesEnd = false,
   heavyTopScrim = false,
+  hideFinancingOnPhone = false,
   href,
 }: {
   car: CarSummary;
@@ -51,6 +52,8 @@ export async function CarCard({
   badgesEnd?: boolean;
   /** USA listing (Figma 440:3162): the scrim also goes solid black at the top edge. */
   heavyTopScrim?: boolean;
+  /** "Similar offers" on a car page: no "financing available" pill below `sm`, where the badge row gets crowded. */
+  hideFinancingOnPhone?: boolean;
   /** Overrides where the card links (the Offers list sends promotions to `/offers/[slug]`). */
   href?: string;
 }) {
@@ -140,7 +143,9 @@ export async function CarCard({
                 </span>
               )}
               {car.financingAvailable && (
-                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
+                <span
+                  className={`rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white ${hideFinancingOnPhone ? 'max-sm:hidden' : ''}`}
+                >
                   {t.financingAvailable}
                 </span>
               )}

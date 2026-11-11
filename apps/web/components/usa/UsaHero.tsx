@@ -5,7 +5,8 @@ import { getServerMessages } from '@/lib/i18n';
  * USA `/usa` hero — Figma 440:3066, 0–831px:
  *  - the highway clip (originally a 5.8 MB GIF, here an animated WebP over an
  *    instant poster), 1448×814 at (-8,-198), i.e. full-bleed — it spans 100% of the viewport width at any size (height keeps the 1448:814 ratio, never below 814px);
- *  - a 21px backdrop-blur scrim at 50% black over the top 761px;
+ *  - a 50% black scrim over the top 761px. Figma's dev values add a 21px backdrop blur, but its own render of the frame
+ *    shows the clip sharp (the GIF is already soft), so from `lg` up the scrim is flat 50% black, like the render;
  *  - a 25px-blurred #151310 → #F7F7F7 fade, 1665×309 at y=575, so the headline
  *    sits on dark and the page's light surface takes over beneath it;
  *  - the centred 36px/56px headline at y=534 (1026px wide).
@@ -25,7 +26,7 @@ export async function UsaHero() {
         imgClassName="object-cover"
       />
       <div
-        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-80px)] bg-black/30 backdrop-blur-[8px] lg:h-[761px]"
+        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-80px)] bg-black/30 backdrop-blur-[8px] lg:h-[761px] lg:bg-black/50 lg:backdrop-blur-none"
         aria-hidden="true"
       />
       <div
