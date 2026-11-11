@@ -77,10 +77,10 @@ export function CarDetailHero({
       <div className="z-30 flex flex-col gap-3 rounded-xl bg-white px-4 py-3 sm:px-6 lg:sticky lg:top-[104px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         {variant === 'auction' ? (
           <div className="flex flex-wrap items-center gap-x-6 gap-y-1 lg:gap-x-[38px] lg:whitespace-nowrap">
-            <h1 className="font-display text-[28px] font-semibold leading-10 text-neutral-900 sm:text-[36px] sm:leading-[56px]">
+            <h1 className="font-display text-[28px] font-semibold uppercase tracking-[-0.04em] leading-10 text-neutral-900 sm:text-[36px] sm:leading-[56px]">
               {car.make} {car.model}
             </h1>
-            <p className="font-display text-[24px] font-normal leading-9 tabular-nums text-neutral-900">
+            <p className="font-display text-[24px] font-normal leading-9 tracking-[-0.05em] tabular-nums text-neutral-900">
               {formatUsd(car.price)}
             </p>
           </div>

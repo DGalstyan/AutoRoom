@@ -38,7 +38,7 @@ export function AuctionHowItWorks({ car }: { car: Car }) {
                   {String(index + 1).padStart(2, '0')}
                 </span>
               </span>
-              <span className="min-w-0 flex-1 rounded-[20px] bg-white/10 p-4 text-[16px] font-bold leading-6 text-white">
+              <span className="min-w-0 flex-1 rounded-[20px] bg-white/10 p-4 text-[16px] font-bold leading-5 text-white">
                 {step}
               </span>
               {index < t.steps.length - 1 && (

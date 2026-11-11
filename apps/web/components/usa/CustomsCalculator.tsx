@@ -44,17 +44,19 @@ const PRODUCTION_YEARS = Array.from({ length: 20 }, (_, index) => CURRENT_YEAR -
  * Universal lead popup, the same hand-off every other "exact number" moment on the site uses.
  * The math lives in `lib/customs.ts` (tested); this file is the form and the breakdown.
  *
- * The two auction-house logo assets in Figma's own mock (`Ameriabank`/
- * `evokabank` fills under an "Աճուրդ" field) are mislabeled bank logos, not
- * real auction branding — a copy-paste artifact like the several others
- * already documented in this file (`PartnersWhoCanJoin`, `AuctionFollowAlong`).
- * Rendered as plain text toggles instead of chasing down real Manheim/IAAI/
- * Copart marks.
+ * The "Աճուրդ" toggle shows the Manheim / IAAI / Copart marks from Figma 478:1954
+ * (an older mock had mislabeled bank logos there, which is why it used text before).
  *
  * Auction-location options reuse `usa.stateClocks.states` — the same
  * curated US state list `UsaStateClocks` already offers — rather than a
  * second hardcoded list.
  */
+const AUCTION_LOGOS: Record<(typeof AUCTIONS)[number], string> = {
+  manheim: '/images/usa/auctions/manheim.png',
+  iaai: '/images/usa/auctions/iaai.jpg',
+  copart: '/images/usa/auctions/copart.png',
+};
+
 export function CustomsCalculator({
   rates,
   fallbackUsdToAmd,
@@ -161,7 +163,13 @@ export function CustomsCalculator({
                       auction === option ? 'ring-2 ring-accent' : 'ring-1 ring-transparent'
                     }`}
                   >
-                    {t.auctionOptions[option]}
+                    {/* Figma 478:1955: the three auction houses' own marks, not text. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={AUCTION_LOGOS[option]}
+                      alt={t.auctionOptions[option]}
+                      className="h-full w-full object-contain"
+                    />
                   </button>
                 ))}
               </div>
@@ -359,19 +367,38 @@ function SelectInput({
   children: ReactNode;
 }) {
   return (
-    <select
-      {...a11y}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className="h-9 w-full appearance-none rounded-full bg-neutral-25 pl-3 text-[12px] leading-[18px] aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-error font-medium text-neutral-800 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:14px] bg-[position:right_12px_center] bg-no-repeat pr-8"
-    >
-      {placeholder && (
-        <option value="" disabled>
-          {placeholder}
-        </option>
-      )}
-      {children}
-    </select>
+    <div className="relative">
+      <select
+        {...a11y}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-9 w-full appearance-none rounded-full bg-neutral-25 pl-3 pr-8 text-[12px] font-medium leading-[18px] text-neutral-800 aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-error"
+      >
+        {placeholder && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
+        {children}
+      </select>
+      {/* Figma 478:1949: a 12px chevron at the right edge of every dropdown. */}
+      <svg
+        aria-hidden="true"
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-neutral-700"
+      >
+        <path
+          d="M3 4.5 6 7.5l3-3"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
   );
 }
 

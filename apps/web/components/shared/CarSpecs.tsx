@@ -32,7 +32,30 @@ export function CarSpecs({ car }: { car: Car }) {
   const t = messages.common.carDetail.specs;
   const conditionLabels = messages.common.carCard.conditions;
 
-  const rows: { label: string; value: string }[] = [
+  // Figma 478:1814 (USA): make, model, year, VIN, mileage, engine, fuel, drivetrain, transmission, damage, location.
+  const usaRows: ({ label: string; value: string } | null)[] = [
+    { label: t.make, value: car.make },
+    { label: t.model, value: car.model },
+    { label: t.year, value: String(car.year) },
+    car.vin ? { label: t.vin, value: car.vin } : null,
+    car.mileage
+      ? {
+          label: t.mileage,
+          value: interpolate(t.mileageValueMi, { km: car.mileage.toLocaleString('en-US') }),
+        }
+      : null,
+    car.lotNumber ? { label: t.lotNumber, value: car.lotNumber } : null,
+    car.engine ? { label: t.engine, value: car.engine } : null,
+    { label: t.fuel, value: t.powertrain[car.powertrain] },
+    car.drivetrain ? { label: t.drivetrain, value: car.drivetrain } : null,
+    car.transmission ? { label: t.transmission, value: car.transmission } : null,
+    car.damageHistory
+      ? { label: t.damageHistory, value: localizeDamage(car.damageHistory, t.damageTypes) }
+      : null,
+    car.location ? { label: t.location, value: car.location } : null,
+  ];
+
+  const chinaRows: ({ label: string; value: string } | null)[] = [
     { label: t.make, value: car.make },
     { label: t.condition, value: conditionLabels[car.condition] },
     car.deliveryEtaDays
@@ -75,7 +98,10 @@ export function CarSpecs({ car }: { car: Car }) {
     car.damageHistory
       ? { label: t.damageHistory, value: localizeDamage(car.damageHistory, t.damageTypes) }
       : null,
-  ].filter((row): row is { label: string; value: string } => row !== null);
+  ];
+  const rows = (car.origin === 'USA' ? usaRows : chinaRows).filter(
+    (row): row is { label: string; value: string } => row !== null,
+  );
 
   return (
     <div className="flex flex-col gap-4">
