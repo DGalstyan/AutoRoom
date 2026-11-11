@@ -1,8 +1,7 @@
 import { LoadingImage } from '@/components/ui/LoadingImage';
 import Link from 'next/link';
 import type { CarSummary } from '@/lib/types/car';
-import { carHref, formatUsd } from '@/lib/types/car';
-import { Price } from '@/components/ui/Price';
+import { carHref, formatUsdTight } from '@/lib/types/car';
 import { getServerMessages } from '@/lib/i18n';
 import { interpolate } from '@/lib/messages';
 import { PromoCountdown } from '@/components/shared/PromoCountdown';
@@ -201,13 +200,13 @@ export async function CarCard({
               <span className="flex items-center gap-[10px] rounded-pill bg-white/10 px-[10px] py-[10px] text-[16px] max-sm:py-2 max-sm:text-[14px] font-medium leading-[20px]">
                 {hasDiscount && (
                   <span className="tabular-nums text-white line-through">
-                    {formatUsd(car.oldPrice!)}
+                    {formatUsdTight(car.oldPrice!)}
                   </span>
                 )}
                 {hasDiscount ? (
-                  <span className="tabular-nums text-error">{formatUsd(car.price)}</span>
+                  <span className="tabular-nums text-error">{formatUsdTight(car.price)}</span>
                 ) : (
-                  <Price className="text-white">{formatUsd(car.price)}</Price>
+                  <span className="tabular-nums text-white">{formatUsdTight(car.price)}</span>
                 )}
               </span>
             </div>

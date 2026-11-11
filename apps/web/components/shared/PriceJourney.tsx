@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import type { PriceChip } from '@/lib/types/car';
-import { formatUsd, localizeText } from '@/lib/types/car';
+import { formatUsdTight, localizeText } from '@/lib/types/car';
 import { TotalBar } from '@/components/ui/TotalBar';
 import { countUpValue, resolveJourney } from '@/lib/priceJourney';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
@@ -139,7 +139,7 @@ export function PriceJourney({
             })}
           </div>
 
-          <TotalBar tone="light" label={t.finalLabel} value={formatUsd(displayedTotal)} />
+          <TotalBar tone="light" label={t.finalLabel} value={formatUsdTight(displayedTotal)} />
         </div>
 
         <PriceMap />

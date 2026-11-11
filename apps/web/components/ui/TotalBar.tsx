@@ -44,13 +44,16 @@ export function TotalBar({
       >
         {label}
       </p>
-      <Price
-        as="p"
-        size="total"
-        className={`mt-1 ${tone === 'light' ? 'text-neutral-800' : 'text-white'}`}
-      >
-        {value}
-      </Price>
+      {tone === 'light' ? (
+        // Figma 442:9181: the final value is a 24/40 bold figure, not the 36px calculator total.
+        <p className="mt-1 font-body text-[24px] font-bold leading-10 tabular-nums text-neutral-800">
+          {value}
+        </p>
+      ) : (
+        <Price as="p" size="total" className="mt-1 text-white">
+          {value}
+        </Price>
+      )}
       {children && (
         <div
           className={`mt-3 text-small tabular-nums ${tone === 'light' ? 'text-neutral-700' : 'text-white/70'}`}

@@ -147,6 +147,11 @@ export function carHref(car: Pick<Car, 'origin' | 'condition' | 'slug'>): string
   return car.condition === 'AUCTION' ? `/usa/auctions/${car.slug}` : `/usa/available/${car.slug}`;
 }
 
+/** Figma writes some prices tight ("1000$", "14,254$", card chips) and the hero price spaced ("123,874,543 $"). */
+export function formatUsdTight(amount: number): string {
+  return `${amount.toLocaleString('en-US')}$`;
+}
+
 export function formatUsd(amount: number): string {
   return `${amount.toLocaleString('en-US')} $`;
 }

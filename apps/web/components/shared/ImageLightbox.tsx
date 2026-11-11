@@ -8,6 +8,7 @@ import {
   type PointerEvent,
   type WheelEvent,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { interpolate } from '@/lib/messages';
@@ -122,13 +123,15 @@ export function ImageLightbox({
   const button =
     'flex size-11 items-center justify-center rounded-full bg-white/90 text-neutral-900 shadow-card transition-colors duration-standard hover:bg-white disabled:opacity-40';
 
-  return (
+  // Portalled to <body>: inside the gallery it sat in a lower stacking context than the fixed header and the
+  // sticky title bar, so those (and the image tabs) showed over the photo.
+  return createPortal(
     <div
       ref={panelRef}
       role="dialog"
       aria-modal="true"
       aria-label={t.lightbox}
-      className="fixed inset-0 z-[60] flex flex-col bg-black/95"
+      className="fixed inset-0 z-[60] flex flex-col bg-black"
     >
       <div className="flex shrink-0 items-center justify-between gap-3 p-3 sm:p-4">
         <span className="rounded-pill bg-white/10 px-3 py-1 text-[14px] tabular-nums text-white">
@@ -240,6 +243,7 @@ export function ImageLightbox({
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

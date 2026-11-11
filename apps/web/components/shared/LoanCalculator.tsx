@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
-import { formatUsd } from '@/lib/types/car';
+import { formatUsdTight } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
 import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
@@ -62,10 +62,9 @@ export function LoanCalculator({
         <div className="flex flex-col gap-6 lg:w-[676px]">
           <div className="flex flex-col gap-[10px] rounded-[12px] bg-white p-6">
             <p className="text-[16px] font-bold leading-5 text-neutral-800">{t.downPayment}</p>
-            {/* Figma 442:9222 — the car's price, in a 36px pill. */}
-            <div className="flex h-9 items-center justify-between rounded-pill bg-neutral-25 py-1 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
+            {/* Figma 442:9222 — the "Գին" label in a 36px pill (Figma shows no amount). */}
+            <div className="flex h-9 items-center rounded-pill bg-neutral-25 py-1 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
               <span>{t.price}</span>
-              <span className="tabular-nums">{formatUsd(car.price)}</span>
             </div>
             {/* Figma 474:2905 — the chosen down payment as plain text above the slider (no field, no steppers). */}
             <p
@@ -73,7 +72,7 @@ export function LoanCalculator({
               aria-live="polite"
               className="text-[12px] font-medium leading-[18px] tabular-nums text-neutral-800"
             >
-              {formatUsd(clamped)}
+              {formatUsdTight(clamped)}
             </p>
             <input
               type="range"
@@ -103,7 +102,7 @@ export function LoanCalculator({
           <div className="relative z-10 flex flex-col gap-[10px] text-neutral-700 lg:w-[265px]">
             <div>
               <p className="type-body">{t.downPayment}</p>
-              <p className="text-[16px] font-bold leading-5 tabular-nums">{formatUsd(clamped)}</p>
+              <p className="text-[16px] font-bold leading-5 tabular-nums">{formatUsdTight(clamped)}</p>
             </div>
             <div>
               <p className="type-body">{t.term}</p>

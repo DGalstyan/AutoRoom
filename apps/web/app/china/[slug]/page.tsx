@@ -81,13 +81,15 @@ export default async function CarDetailPage({ params }: { params: Promise<{ slug
       {/* One block for the three lower sections — the design's 150px gap between
           them is a single frame, not three independently-padded sections. */}
       <div className="bg-surface-light">
-        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-24 lg:pt-[102px]">
+        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-24 lg:pt-[152px]">
           <div className="flex flex-col gap-24 sm:gap-[150px]">
             {car.priceJourney.length > 0 && (
               <PriceJourney chips={car.priceJourney} car={carContext} />
             )}
             <LoanCalculator car={car} finance={finance} />
-            <SimilarOffers cars={similarCars} />
+            <div className="lg:mt-[26px]">
+              <SimilarOffers cars={similarCars} />
+            </div>
           </div>
         </div>
       </div>
