@@ -5,9 +5,8 @@ import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import type { UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import type { PriceChip } from '@/lib/types/car';
 import { formatUsd, localizeText } from '@/lib/types/car';
-import { Price } from '@/components/ui/Price';
 import { TotalBar } from '@/components/ui/TotalBar';
-import { buildAddends, countUpValue, resolveJourney } from '@/lib/priceJourney';
+import { countUpValue, resolveJourney } from '@/lib/priceJourney';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -101,8 +100,6 @@ export function PriceJourney({
 
   if (chips.length === 0) return null;
 
-  const addends = buildAddends(chips);
-
   return (
     <div ref={ref} className="flex flex-col gap-8 lg:gap-16">
       <h2 className="type-h2 text-neutral-900">{t.heading}</h2>
@@ -137,17 +134,12 @@ export function PriceJourney({
                     </p>
                     {note && <p className="text-[12px] leading-4 text-neutral-700">{note}</p>}
                   </div>
-                  <Price as="p" className="shrink-0 text-neutral-800">
-                    {formatUsd(chip.amount)}
-                  </Price>
                 </div>
               );
             })}
           </div>
 
-          <TotalBar tone="light" label={t.finalLabel} value={formatUsd(displayedTotal)}>
-            {addends}
-          </TotalBar>
+          <TotalBar tone="light" label={t.finalLabel} value={formatUsd(displayedTotal)} />
         </div>
 
         <PriceMap />

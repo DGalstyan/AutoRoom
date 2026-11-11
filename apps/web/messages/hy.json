@@ -215,10 +215,10 @@
       "ctaLoan": "Ֆինանսավորման պայմաններ",
       "ctaCompare": "Համեմատիր այս մեքենան",
       "gallery": {
-        "exterior": "Էքստերիեր",
-        "interior": "Ինտերիեր",
-        "details": "Դետալներ",
-        "video": "Տեսանյութ",
+        "exterior": "Exterior",
+        "interior": "Interior",
+        "details": "Details",
+        "video": "Video",
         "scrollThumbnails": "Թերթել մանրապատկերները",
         "photoLabel": "Լուսանկար {n}",
         "previous": "Նախորդ լուսանկար",
@@ -249,9 +249,9 @@
           "HYBRID": "Հիբրիդ",
           "BENZIN": "Բենզին"
         },
-        "range": "Հեռավորություն մեկ լիցքավորումից",
+        "range": "Range",
         "rangeValue": "մինչև {km} կմ (WLTP)",
-        "battery": "Մարտկոց",
+        "battery": "Battery",
         "engine": "Շարժիչ",
         "drivetrain": "Քարշակ",
         "transmission": "Փոխանցման տուփ",
@@ -304,7 +304,7 @@
       },
       "priceJourney": {
         "heading": "Գնի ճանապարհը",
-        "finalLabel": "Վերջնական արժեք Հայաստանում",
+        "finalLabel": "Վերջնական արժեք",
         "cta": "Ստանալ ճշգրիտ հաշվարկ"
       },
       "loanCalculator": {

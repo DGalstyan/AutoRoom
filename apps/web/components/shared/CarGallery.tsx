@@ -38,12 +38,14 @@ export function CarGallery({
     VIDEO: t.video,
   };
 
-  const albums = useMemo(
+  // Figma 474:3081 always draws all four tabs; one with no media is shown dimmed and cannot be opened.
+  const albums = ALBUM_ORDER;
+  const filledAlbums = useMemo(
     () => ALBUM_ORDER.filter((album) => images.some((image) => image.album === album)),
     [images],
   );
 
-  const [selectedAlbum, setSelectedAlbum] = useState<ImageAlbum | undefined>(albums[0]);
+  const [selectedAlbum, setSelectedAlbum] = useState<ImageAlbum | undefined>(filledAlbums[0]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [manualOverride, setManualOverride] = useState(false);
   const [canScrollMore, setCanScrollMore] = useState(false);
@@ -99,7 +101,6 @@ export function CarGallery({
 
   const showColorOverride = Boolean(colorImageUrl) && !manualOverride;
   const isVideo = selectedAlbum === 'VIDEO' && !showColorOverride;
-  const canStep = albumImages.length > 1 && !showColorOverride && !isVideo;
   const albumName = selectedAlbum ? ALBUM_LABELS[selectedAlbum] : undefined;
   const itemLabel = (index: number) =>
     interpolate(selectedAlbum === 'VIDEO' ? t.videoLabel : t.photoLabel, { n: String(index + 1) });
@@ -144,24 +145,6 @@ export function CarGallery({
             aria-hidden="true"
           />
         )}
-
-        {canStep && (
-          <>
-            <StepButton direction="prev" label={t.previous} onClick={() => step(-1)} />
-            <StepButton direction="next" label={t.next} onClick={() => step(1)} />
-          </>
-        )}
-        {activeImage && albumImages.length > 1 && !showColorOverride && (
-          <span
-            aria-live="polite"
-            className="absolute bottom-3 right-3 rounded-pill bg-black/60 px-3 py-1 text-[14px] font-medium leading-[20px] text-white tabular-nums"
-          >
-            {interpolate(t.counter, {
-              n: String(activeIndex + 1),
-              total: String(albumImages.length),
-            })}
-          </span>
-        )}
       </div>
 
       {zoomOpen && activeImage && !isVideo && (
@@ -178,7 +161,7 @@ export function CarGallery({
       )}
 
       <div className="flex flex-col gap-6">
-        {albums.length > 0 && (
+        {
           <div
             role="tablist"
             aria-label={t.albums}
@@ -191,18 +174,19 @@ export function CarGallery({
                 role="tab"
                 aria-selected={selectedAlbum === album && !showColorOverride}
                 aria-label={`${ALBUM_LABELS[album]} (${images.filter((image) => image.album === album).length})`}
+                disabled={!filledAlbums.includes(album)}
                 onClick={() => selectAlbum(album)}
                 className={`rounded-[52px] min-h-11 px-4 py-2 text-[16px] leading-[24px] lg:min-h-10 transition-colors duration-standard ${
                   selectedAlbum === album && !showColorOverride
                     ? 'bg-neutral-700 font-medium text-white'
-                    : 'text-neutral-800 hover:bg-neutral-50'
+                    : 'text-neutral-800 hover:bg-neutral-50 disabled:opacity-40 disabled:hover:bg-transparent'
                 }`}
               >
                 {ALBUM_LABELS[album]}
               </button>
             ))}
           </div>
-        )}
+        }
 
         {albumImages.length > 0 && selectedAlbum !== 'VIDEO' && (
           <div className="relative">
@@ -244,31 +228,6 @@ export function CarGallery({
         )}
       </div>
     </div>
-  );
-}
-
-function StepButton({
-  direction,
-  label,
-  onClick,
-}: {
-  direction: 'prev' | 'next';
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      className={`absolute top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-800 shadow-card transition-colors duration-standard hover:bg-white ${
-        direction === 'prev' ? 'left-3' : 'right-3'
-      }`}
-    >
-      <span className={direction === 'prev' ? 'rotate-180' : undefined}>
-        <ArrowRightGlyph />
-      </span>
-    </button>
   );
 }
 

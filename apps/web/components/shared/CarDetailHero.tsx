@@ -177,7 +177,7 @@ export function CarDetailHero({
                 {t.colorPicker.heading}
               </h2>
               <div className="flex flex-wrap items-center gap-3">
-                {colors.map((color) => (
+                {colors.map((color, colorIndex) => (
                   <button
                     key={color.name}
                     type="button"
@@ -189,7 +189,8 @@ export function CarDetailHero({
                       )
                     }
                     className={`size-12 rounded-md transition-colors duration-standard ${
-                      selectedColor === color.name
+                      selectedColor === color.name ||
+                      (selectedColor === undefined && colorIndex === 0)
                         ? 'border-2 border-neutral-800'
                         : isPaleColor(color.hex)
                           ? 'border border-neutral-500'

@@ -5,8 +5,7 @@ import Image from 'next/image';
 import type { Car, FinanceCalculator } from '@/lib/types/car';
 import { formatUsd } from '@/lib/types/car';
 import { Price } from '@/components/ui/Price';
-import { computeMonthlyPaymentAmd, explainLoan, formatAmd } from '@/lib/loan';
-import { interpolate } from '@/lib/messages';
+import { computeMonthlyPaymentAmd, formatAmd } from '@/lib/loan';
 import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -48,17 +47,7 @@ export function LoanCalculator({
 
   const [downPayment, setDownPayment] = useState(defaultDownPayment);
   const clamped = Math.min(max, Math.max(min, downPayment));
-  // While typing, the field shows exactly what was typed; it snaps into range on blur/Enter.
-  const [draft, setDraft] = useState<string | null>(null);
-  const draftNumber = draft === null ? null : Number(draft);
-  const outOfRange = draft !== null && (draft === '' || draftNumber! < min || draftNumber! > max);
-
-  function commit(value: number) {
-    setDownPayment(Math.min(max, Math.max(min, Math.round(value))));
-    setDraft(null);
-  }
   const monthly = computeMonthlyPaymentAmd(car.price, clamped, finance);
-  const why = explainLoan(car.price, clamped, finance);
   const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
 
   const THUMB =
@@ -72,69 +61,20 @@ export function LoanCalculator({
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex flex-col gap-6 lg:w-[676px]">
           <div className="flex flex-col gap-[10px] rounded-[12px] bg-white p-6">
-            <label
-              htmlFor="loan-down-payment"
-              className="text-[16px] font-bold leading-5 text-neutral-800"
-            >
-              {t.downPayment}
-            </label>
+            <p className="text-[16px] font-bold leading-5 text-neutral-800">{t.downPayment}</p>
             {/* Figma 442:9222 — the car's price, in a 36px pill. */}
             <div className="flex h-9 items-center justify-between rounded-pill bg-neutral-25 py-1 pl-3 pr-3 text-[12px] font-medium leading-[18px] text-neutral-800">
               <span>{t.price}</span>
               <span className="tabular-nums">{formatUsd(car.price)}</span>
             </div>
-            {/* The down payment: a real, full-size field (typing is free, the value is clamped when
-                the visitor leaves it or presses Enter) with − / + steppers, not a tiny inline number. */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => commit(clamped - step)}
-                disabled={clamped <= min}
-                aria-label={t.downPaymentDecrease}
-                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[22px] leading-none text-neutral-800 transition-colors duration-standard hover:bg-neutral-50 disabled:opacity-40"
-              >
-                <span aria-hidden="true">−</span>
-              </button>
-              <div
-                className={`flex h-11 min-w-0 flex-1 items-center gap-2 rounded-pill bg-neutral-25 px-4 focus-within:ring-2 focus-within:ring-accent ${outOfRange ? 'ring-1 ring-error' : ''}`}
-              >
-                <span aria-hidden="true" className="text-[16px] text-neutral-600">
-                  $
-                </span>
-                <input
-                  id="loan-down-payment"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  value={draft ?? String(clamped)}
-                  onChange={(event) => {
-                    const digits = event.target.value.replace(/\D/g, '').slice(0, 9);
-                    setDraft(digits);
-                    const n = Number(digits);
-                    if (digits !== '' && n >= min && n <= max) setDownPayment(n);
-                  }}
-                  onBlur={() => commit(draft === null ? clamped : Number(draft) || min)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault();
-                      commit(draft === null ? clamped : Number(draft) || min);
-                    }
-                  }}
-                  aria-invalid={outOfRange || undefined}
-                  aria-describedby="loan-down-payment-range"
-                  className="h-full min-w-0 flex-1 bg-transparent text-[16px] font-bold tabular-nums text-neutral-900 outline-none"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => commit(clamped + step)}
-                disabled={clamped >= max}
-                aria-label={t.downPaymentIncrease}
-                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-neutral-25 text-[22px] leading-none text-neutral-800 transition-colors duration-standard hover:bg-neutral-50 disabled:opacity-40"
-              >
-                <span aria-hidden="true">+</span>
-              </button>
-            </div>
+            {/* Figma 474:2905 — the chosen down payment as plain text above the slider (no field, no steppers). */}
+            <p
+              id="loan-down-payment-value"
+              aria-live="polite"
+              className="text-[12px] font-medium leading-[18px] tabular-nums text-neutral-800"
+            >
+              {formatUsd(clamped)}
+            </p>
             <input
               type="range"
               min={min}
@@ -144,23 +84,8 @@ export function LoanCalculator({
               onChange={(event) => setDownPayment(Number(event.target.value))}
               className={`-my-[7px] h-11 w-full appearance-none bg-transparent ${THUMB}`}
               aria-label={t.downPayment}
+              aria-describedby="loan-down-payment-value"
             />
-            <p
-              id="loan-down-payment-range"
-              className={`flex justify-between text-[12px] font-medium leading-[18px] tabular-nums ${outOfRange ? 'text-error' : 'text-neutral-700'}`}
-            >
-              <span>
-                {t.downPaymentMin}: {formatUsd(min)}
-              </span>
-              <span>
-                {t.downPaymentMax}: {formatUsd(max)}
-              </span>
-            </p>
-            {outOfRange && (
-              <p role="alert" className="text-[12px] leading-4 text-error">
-                {interpolate(t.downPaymentRange, { min: formatUsd(min), max: formatUsd(max) })}
-              </p>
-            )}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -202,63 +127,6 @@ export function LoanCalculator({
           )}
         </div>
       </div>
-      <section
-        aria-labelledby="loan-explain-heading"
-        className="flex flex-col gap-4 rounded-[20px] bg-white p-6 text-neutral-700 lg:p-9"
-      >
-        <h3
-          id="loan-explain-heading"
-          className="stretch-90 text-[20px] font-bold leading-8 text-neutral-900"
-        >
-          {t.explainHeading}
-        </h3>
-        <dl className="grid gap-5 text-[14px] leading-6 lg:grid-cols-2 lg:gap-x-12">
-          <div>
-            <dt className="font-bold text-neutral-800">{t.explainDownTitle}</dt>
-            <dd>
-              {interpolate(t.explainDownText, {
-                min: formatUsd(why.minUsd),
-                minPct: String(why.minPct),
-                current: formatUsd(why.downUsd),
-                currentPct: String(why.downPct),
-                max: formatUsd(why.maxUsd),
-                maxPct: String(why.maxPct),
-              })}
-            </dd>
-          </div>
-          <div>
-            <dt className="font-bold text-neutral-800">{t.explainPrincipalTitle}</dt>
-            <dd className="tabular-nums">
-              {interpolate(t.explainPrincipalText, {
-                price: formatUsd(car.price),
-                down: formatUsd(why.downUsd),
-                rate: String(finance.usdToAmd),
-                amount: formatAmd(why.principalAmd),
-              })}
-            </dd>
-          </div>
-          <div>
-            <dt className="font-bold text-neutral-800">{t.explainTermTitle}</dt>
-            <dd className="tabular-nums">
-              {interpolate(t.explainTermText, {
-                n: String(why.termMonths),
-                annual: String(finance.nominalRate),
-                monthly: String(why.monthlyRatePct),
-              })}
-            </dd>
-          </div>
-          <div>
-            <dt className="font-bold text-neutral-800">{t.explainFormulaTitle}</dt>
-            <dd>
-              <p className="font-bold tabular-nums text-neutral-900">{t.explainFormula}</p>
-              <p className="mt-1 text-[12px] leading-4">{t.explainLegend}</p>
-              <p className="mt-1 font-bold tabular-nums text-neutral-900">
-                {interpolate(t.explainResult, { monthly: formatAmd(why.monthlyPaymentAmd) })}
-              </p>
-            </dd>
-          </div>
-        </dl>
-      </section>
       {disclaimer && (
         <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{disclaimer}</p>
       )}

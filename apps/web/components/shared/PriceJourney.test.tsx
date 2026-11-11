@@ -38,8 +38,9 @@ describe('PriceJourney total row', () => {
     const total = screen.getByText('68,600 $');
     expect(total).toHaveClass('text-price-total', 'font-bold', 'tabular-nums');
     expect(screen.queryByText('0 $')).not.toBeInTheDocument();
-    // The addends sit under the total, so the arithmetic is still visible.
-    expect(screen.getByText('52,000 $ + 4,300 $ + 9,800 $ + 2,500 $')).toBeInTheDocument();
+    // Figma draws neither the per-step amounts nor the sum line, only the numbered steps and the total.
+    expect(screen.queryByText('52,000 $ + 4,300 $ + 9,800 $ + 2,500 $')).toBeNull();
+    expect(screen.queryByText('52,000 $')).toBeNull();
   });
 
   it('shows the real sum immediately with reduced motion', () => {
