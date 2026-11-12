@@ -18,8 +18,7 @@ import type { GalleryImage } from '@/lib/gallery';
  * admin-managed gallery can hold any count, so `ROW_CYCLE` repeats that same
  * three-row rhythm (wide-first pair, plain triple, wide-second pair) for as
  * many images as exist, rather than hardcoding 7 slots. A trailing partial
- * row (e.g. a wide-first row with only one photo left) still renders — it
- * just leaves the row's other cell empty instead of forcing a fourth shape.
+ * row still renders, and its photos stretch across the row (see `spanClass`) so no cell is left empty.
  */
 const ROW_CYCLE = [
   // Figma 123:416: [wide, narrow] → [narrow ×3] → [narrow, wide].
@@ -57,7 +56,7 @@ export function PhotoGallery({ images }: { images: GalleryImage[] }) {
               <Reveal
                 key={image.id}
                 delayMs={tileIndex * 100}
-                className={tileIndex === row.wideIndex ? 'sm:col-span-2' : undefined}
+                className={spanClass(row, tileIndex)}
               >
                 <Tile src={image.imageUrl} n={sorted.indexOf(image) + 1} />
               </Reveal>
@@ -67,6 +66,17 @@ export function PhotoGallery({ images }: { images: GalleryImage[] }) {
       </div>
     </>
   );
+}
+
+/**
+ * Column span of a tile in the 3-column grid. A full row follows the Figma rhythm; a short last row (the admin's
+ * count is not a multiple of the cycle) stretches to the full width instead of leaving an empty cell.
+ */
+function spanClass(row: { wideIndex: number | null; images: GalleryImage[] }, tileIndex: number) {
+  const count = row.images.length;
+  if (count === 1) return 'sm:col-span-3';
+  if (count === 2 && row.wideIndex === null) return tileIndex === 0 ? 'sm:col-span-2' : undefined;
+  return tileIndex === row.wideIndex ? 'sm:col-span-2' : undefined;
 }
 
 function chunkIntoRows(images: GalleryImage[]) {

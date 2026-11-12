@@ -77,7 +77,7 @@ export default async function UsaAuctionCarDetailPage({
       </div>
 
       <div className="bg-surface-light">
-        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-[102px] lg:pt-[102px]">
+        <div className="mx-auto max-w-page px-4 pb-14 pt-14 sm:px-6 lg:px-12 lg:pb-[102px] lg:pt-0">
           <AuctionFollowAlong />
         </div>
       </div>
