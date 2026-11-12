@@ -80,7 +80,10 @@ export default async function OffersPage() {
         )}
       </div>
 
-      <OffersFinalCta />
+      {/* Same card + spacing as the China page's closing CTA. */}
+      <div className="bg-surface-light pb-10 lg:pb-[136px]">
+        <OffersFinalCta />
+      </div>
     </>
   );
 }

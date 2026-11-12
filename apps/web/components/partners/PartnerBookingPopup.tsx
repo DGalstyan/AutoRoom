@@ -734,6 +734,45 @@ export function PartnerBookingPopup({
                   {t.bookingHeading}
                 </h3>
 
+                {/* Figma: the meeting format (and its branch / address) comes before the calendar. */}
+                <Field id="pbp-format" label={t.formatLabel}>
+                  <FieldSelect
+                    id="pbp-format"
+                    label={t.formatLabel}
+                    value={meetingFormat}
+                    onChange={(next) => setMeetingFormat(next as MeetingFormat)}
+                    options={(['ONLINE', 'OFFICE', 'OTHER'] as const).map((format) => ({
+                      value: format,
+                      label: `${formatEmoji[format]} ${t.formatOptions[format.toLowerCase() as 'online' | 'office' | 'other']}`,
+                    }))}
+                  />
+                </Field>
+
+                {meetingFormat === 'OFFICE' && (
+                  <Field id="pbp-branch" label={t.branchLabel}>
+                    <FieldSelect
+                      id="pbp-branch"
+                      label={t.branchLabel}
+                      value={branchId}
+                      onChange={setBranchId}
+                      options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                    />
+                  </Field>
+                )}
+
+                {meetingFormat === 'OTHER' && (
+                  <Field id="pbp-address" label={t.addressLabel} hideLabel>
+                    <input
+                      id="pbp-address"
+                      type="text"
+                      value={address}
+                      onChange={(event) => setAddress(event.target.value)}
+                      placeholder={t.addressLabel}
+                      className={INPUT}
+                    />
+                  </Field>
+                )}
+
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="w-full rounded-[20px] bg-neutral-25 sm:w-[468px]">
                     <div className="flex items-center justify-between gap-2 px-6 py-4">
@@ -864,44 +903,6 @@ export function PartnerBookingPopup({
                   </div>
                 </div>
                 {slotError && <p className="text-small text-error">{t.errors.slotRequired}</p>}
-
-                <Field id="pbp-format" label={t.formatLabel}>
-                  <FieldSelect
-                    id="pbp-format"
-                    label={t.formatLabel}
-                    value={meetingFormat}
-                    onChange={(next) => setMeetingFormat(next as MeetingFormat)}
-                    options={(['ONLINE', 'OFFICE', 'OTHER'] as const).map((format) => ({
-                      value: format,
-                      label: `${formatEmoji[format]} ${t.formatOptions[format.toLowerCase() as 'online' | 'office' | 'other']}`,
-                    }))}
-                  />
-                </Field>
-
-                {meetingFormat === 'OFFICE' && (
-                  <Field id="pbp-branch" label={t.branchLabel}>
-                    <FieldSelect
-                      id="pbp-branch"
-                      label={t.branchLabel}
-                      value={branchId}
-                      onChange={setBranchId}
-                      options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                    />
-                  </Field>
-                )}
-
-                {meetingFormat === 'OTHER' && (
-                  <Field id="pbp-address" label={t.addressLabel} hideLabel>
-                    <input
-                      id="pbp-address"
-                      type="text"
-                      value={address}
-                      onChange={(event) => setAddress(event.target.value)}
-                      placeholder={t.addressLabel}
-                      className={INPUT}
-                    />
-                  </Field>
-                )}
 
                 {summaryLine && <p className="text-small font-medium text-ink">{summaryLine}</p>}
                 {status === 'error' && (

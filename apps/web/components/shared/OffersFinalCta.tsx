@@ -5,8 +5,7 @@ import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
- * /offers closing CTA — the black band shared with the other pages (Figma
- * `Text` 439:2600); opens the Universal popup (not the Quiz) per
+ * /offers closing CTA — the black 1344×336 gold-edged card the China, USA and Contact pages use; opens the Universal popup (not the Quiz) per
  * `references/pages.md`.
  */
 export function OffersFinalCta() {
@@ -15,6 +14,7 @@ export function OffersFinalCta() {
 
   return (
     <CtaBand
+      variant="card"
       heading={t.heading}
       sub={t.text}
       buttonLabel={t.cta}

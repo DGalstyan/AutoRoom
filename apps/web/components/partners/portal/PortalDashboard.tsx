@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ScrollFade } from '@/components/ui/ScrollFade';
 import { useEffect, useMemo, useState } from 'react';
@@ -47,7 +48,7 @@ export function PortalDashboard() {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'cars' | 'orders' | 'bookings'>('orders');
-  const [stageFilter, setStageFilter] = useState<OrderStageName | null>(null);
+  const [stageFilter, setStageFilter] = useState<OrderStageName | 'ACTIVE' | null>(null);
   // The date dropdown's own labels double as its values; '' means the default (newest first).
   const [dateChoice, setDateChoice] = useState('');
   const [originFilter, setOriginFilter] = useState<CarOrigin | 'ALL'>('ALL');
@@ -101,7 +102,7 @@ export function PortalDashboard() {
     const term = orderSearch.trim().toLowerCase();
     const filtered = list.filter((order) => {
       if (originFilter !== 'ALL' && order.car.origin !== originFilter) return false;
-      if (stageFilter && !reachedStage(order, stageFilter)) return false;
+      if (stageFilter && !inStage(order, stageFilter)) return false;
       if (branchFilter !== 'ALL' && orderBranch(order) !== branchFilter) return false;
       if (!term) return true;
       return (
@@ -146,8 +147,12 @@ export function PortalDashboard() {
     );
   }
 
-  const stageCards: { label: string; value: number; stage: OrderStageName | null }[] = [
-    { label: t.dashboard.stageStats.active, value: me.orderStats.stageCounts.active, stage: null },
+  const stageCards: { label: string; value: number; stage: OrderStageName | 'ACTIVE' }[] = [
+    {
+      label: t.dashboard.stageStats.active,
+      value: me.orderStats.stageCounts.active,
+      stage: 'ACTIVE',
+    },
     {
       label: t.dashboard.stageStats.loading,
       value: me.orderStats.stageCounts.loading,
@@ -170,8 +175,8 @@ export function PortalDashboard() {
     },
   ];
 
-  function showStage(stage: OrderStageName | null) {
-    setTab(stage ? 'orders' : 'cars');
+  function showStage(stage: OrderStageName | 'ACTIVE') {
+    setTab('orders');
     setStageFilter(stage);
     document
       .getElementById('portal-orders')
@@ -213,7 +218,7 @@ export function PortalDashboard() {
               label={card.label}
               value={card.value}
               onOpen={() => showStage(card.stage)}
-              active={tab === 'orders' && stageFilter === card.stage && card.stage !== null}
+              active={tab === 'orders' && stageFilter === card.stage}
             />
           ))}
         </div>
@@ -430,16 +435,19 @@ export function PortalDashboard() {
                       <tr
                         key={order.id}
                         onClick={() => router.push(`/partners/portal/orders/${order.id}`)}
-                        onKeyDown={(event) => {
-                          if (event.key !== 'Enter') return;
-                          router.push(`/partners/portal/orders/${order.id}`);
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        className="cursor-pointer odd:bg-white even:bg-page hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent"
+                        className="cursor-pointer odd:bg-white even:bg-page hover:bg-neutral-50"
                       >
                         <Td first>{formatDate(order.createdAt)}</Td>
-                        <Td>{order.orderNumber}</Td>
+                        <Td>
+                          {/* A real link: reachable and activated from the keyboard; the row click is a mouse convenience. */}
+                          <Link
+                            href={`/partners/portal/orders/${order.id}`}
+                            onClick={(event) => event.stopPropagation()}
+                            className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                          >
+                            {order.orderNumber}
+                          </Link>
+                        </Td>
                         <Td>{order.car.vin ?? '—'}</Td>
                         <Td>{order.car.make}</Td>
                         <Td>{order.car.model}</Td>
@@ -661,11 +669,8 @@ function formatDate(iso: string) {
 const STAGE_ORDER: OrderStageName[] = ['CREATED', 'LOADING', 'IN_TRANSIT', 'ARRIVED', 'DELIVERED'];
 
 /** Whether the order is at, or has passed through, a stage — what the stage cards count. */
-function reachedStage(order: Order, target: OrderStageName): boolean {
-  const at = STAGE_ORDER.indexOf(target);
-  return [order.stage, ...order.stages.map((entry) => entry.stage)].some(
-    (stage) => STAGE_ORDER.indexOf(stage) >= at,
-  );
+function inStage(order: Order, target: OrderStageName | 'ACTIVE'): boolean {
+  return target === 'ACTIVE' ? order.stage !== 'DELIVERED' : order.stage === target;
 }
 
 /** The branch a car is going to: the order's own delivery branch, else where the car is. */

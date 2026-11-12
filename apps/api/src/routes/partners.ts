@@ -411,22 +411,17 @@ partnersRouter.get('/portal/me', requireAuth, requirePartner, async (req, res) =
     }),
   ]);
 
-  // "Reached", not "currently at": a delivered car has also arrived, so it counts under Arrived
-  // as well — otherwise the Arrived card reads 0 the moment a car moves on.
-  const STAGE_ORDER = ['CREATED', 'LOADING', 'IN_TRANSIT', 'ARRIVED', 'DELIVERED'] as const;
-  const reached = (order: (typeof orders)[number], target: (typeof STAGE_ORDER)[number]) => {
-    const at = STAGE_ORDER.indexOf(target);
-    return [order.stage, ...order.stages.map((entry) => entry.stage)].some(
-      (stage) => STAGE_ORDER.indexOf(stage) >= at,
-    );
-  };
+  // Each order is counted once, at the stage it is at now (skipped stages stay uncounted), so the cards
+  // add up to the orders listed. "Active" is every order not yet delivered, which is where a freshly
+  // created order shows up.
+  const at = (stage: 'LOADING' | 'IN_TRANSIT' | 'ARRIVED' | 'DELIVERED') =>
+    orders.filter((order) => order.stage === stage).length;
   const stageCounts = {
-    // Cars assigned to the partner — the same number the dashboard's "My cars" tab shows.
-    active: partner._count.cars,
-    loading: orders.filter((order) => reached(order, 'LOADING')).length,
-    inTransit: orders.filter((order) => reached(order, 'IN_TRANSIT')).length,
-    arrived: orders.filter((order) => reached(order, 'ARRIVED')).length,
-    delivered: orders.filter((order) => reached(order, 'DELIVERED')).length,
+    active: orders.filter((order) => order.stage !== 'DELIVERED').length,
+    loading: at('LOADING'),
+    inTransit: at('IN_TRANSIT'),
+    arrived: at('ARRIVED'),
+    delivered: at('DELIVERED'),
   };
 
   const paymentSummary = orders.reduce(

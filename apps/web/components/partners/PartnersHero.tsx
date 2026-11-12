@@ -40,7 +40,7 @@ export function PartnersHero({ phone }: { phone: string | null }) {
       />
 
       <div className="mx-auto flex max-w-[1028px] flex-col items-center gap-[18px] text-center lg:absolute lg:left-1/2 lg:top-[271px] lg:w-[1028px] lg:max-w-[calc(100vw-32px)] lg:-translate-x-1/2">
-        <h1 className="stretch-90 animate-fade-up text-[26px] font-semibold leading-[36px] text-white motion-reduce:animate-none sm:text-home-hero">
+        <h1 className="stretch-90 animate-fade-up uppercase text-[26px] font-semibold leading-[36px] text-white motion-reduce:animate-none sm:text-home-hero">
           {t.h1}
         </h1>
         <p className="stretch-85 animate-fade-up text-[18px] leading-[28px] text-white [animation-delay:100ms] motion-reduce:animate-none sm:text-[24px] sm:leading-[36px]">
