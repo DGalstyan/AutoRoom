@@ -1,5 +1,6 @@
 'use client';
 
+import { useHeaderForcedLight } from '@/lib/headerOverlay';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
@@ -48,7 +49,9 @@ export function Header({ logo = null }: HeaderProps = {}) {
   // over a white page before this.
   const pathname = usePathname();
   // Light pages (About, Contact — Figma 436:2185/2390; China and its car pages — 458:457) and the portal draw the pill white.
+  const forcedLight = useHeaderForcedLight();
   const isLightHeader =
+    forcedLight ||
     (pathname?.startsWith('/partners/portal') ?? false) ||
     pathname === '/about' ||
     pathname === '/contact' ||

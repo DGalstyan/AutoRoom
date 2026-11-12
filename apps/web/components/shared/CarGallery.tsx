@@ -165,7 +165,7 @@ export function CarGallery({
           <div
             role="tablist"
             aria-label={t.albums}
-            className="flex w-fit max-w-full flex-wrap items-center gap-3 rounded-pill bg-white px-4 py-3"
+            className="flex w-fit max-w-full items-center gap-3 flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0 [&>*]:whitespace-nowrap rounded-pill bg-white px-4 py-3"
           >
             {albums.map((album) => (
               <button
@@ -193,7 +193,7 @@ export function CarGallery({
             <div
               ref={stripRef}
               onScroll={updateScrollAffordance}
-              className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:flex lg:h-[86px] lg:items-center lg:gap-3 lg:overflow-x-auto"
+              className="flex h-[70px] items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:h-[86px] lg:gap-3"
             >
               {albumImages.map((image, index) => (
                 <button
@@ -202,7 +202,7 @@ export function CarGallery({
                   onClick={() => selectThumbnail(index)}
                   aria-label={`${albumName ?? ''} ${itemLabel(index)}`.trim()}
                   aria-current={!showColorOverride && index === activeIndex ? 'true' : undefined}
-                  className={`relative aspect-[154/86] w-full overflow-hidden rounded-[12px] bg-neutral-800 lg:h-[86px] lg:w-[154px] lg:shrink-0 lg:rounded-[16px] ${
+                  className={`relative h-[62px] w-[110px] shrink-0 overflow-hidden rounded-[12px] bg-neutral-800 lg:h-[86px] lg:w-[154px] lg:rounded-[16px] ${
                     !showColorOverride && index === activeIndex
                       ? 'border-[3px] border-neutral-900'
                       : ''

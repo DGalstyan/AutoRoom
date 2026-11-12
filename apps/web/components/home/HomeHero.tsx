@@ -13,7 +13,7 @@ export function HomeHero({ h1, stats }: { h1: string; stats: { value: string; la
     <section className="relative isolate overflow-x-clip pb-16 pt-[132px] lg:h-[854px] lg:pb-0 lg:pt-0">
       {/* The clip is letterboxed (black bars top and bottom), so it is scaled up to crop them.
           Reduced-motion visitors get the still poster instead of an autoplaying video. */}
-      <div className="absolute inset-x-0 -top-[2px] -z-10 h-[calc(100%-120px)] overflow-hidden lg:h-[600px]">
+      <div className="absolute inset-x-0 -top-[2px] -z-10 h-[calc(100%-120px)] overflow-hidden [mask-image:linear-gradient(to_bottom,#000_calc(100%-72px),transparent)] lg:h-[600px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/home/v2/hero-poster.webp"
@@ -45,7 +45,15 @@ export function HomeHero({ h1, stats }: { h1: string; stats: { value: string; la
           translate — so positioning lives on a wrapper and only the inner element animates. */}
       <div className="lg:absolute lg:left-1/2 lg:top-[426px] lg:w-[min(1148px,calc(100%-48px))] lg:-translate-x-1/2">
         <h1 className="mx-auto max-w-[1148px] animate-fade-up px-4 text-center uppercase stretch-85 text-[26px] font-semibold leading-[36px] text-neutral-50 motion-reduce:animate-none sm:text-[32px] sm:leading-[44px] lg:px-0 lg:text-[36px] lg:leading-[56px]">
-          {h1}
+          {h1.split(/(\S+-\S+)/).map((part, i) =>
+            i % 2 === 1 ? (
+              <span key={i} className="whitespace-nowrap">
+                {part}
+              </span>
+            ) : (
+              part
+            ),
+          )}
         </h1>
       </div>
 

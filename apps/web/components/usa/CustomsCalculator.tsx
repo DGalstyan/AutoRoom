@@ -152,14 +152,14 @@ export function CustomsCalculator({
 
           <Field label={t.auctionLabel} group>
             {() => (
-              <div className="flex h-9 items-center justify-between gap-1 rounded-[10px] bg-neutral-25 px-2 py-1">
+              <div className="flex h-14 items-center justify-between gap-2 rounded-[10px] bg-neutral-25 px-2 py-1.5 lg:h-9 lg:gap-1 lg:py-1">
                 {AUCTIONS.map((option) => (
                   <button
                     key={option}
                     type="button"
                     aria-pressed={auction === option}
                     onClick={() => setAuction(option)}
-                    className={`flex h-[29px] max-w-[90px] flex-1 items-center justify-center rounded-[4px] bg-white p-0.5 text-[12px] font-semibold leading-[18px] text-neutral-900 transition-shadow ${
+                    className={`flex h-full flex-1 lg:max-w-[90px] items-center justify-center rounded-[4px] bg-white p-1 text-[12px] lg:h-[29px] lg:p-0.5 font-semibold leading-[18px] text-neutral-900 transition-shadow ${
                       auction === option ? 'ring-2 ring-accent' : 'ring-1 ring-transparent'
                     }`}
                   >
@@ -282,7 +282,8 @@ export function CustomsCalculator({
 }
 
 // Figma 282:1709: 10px Regular labels, 12px in from the field's edge, 4px above the field.
-const CALC_LABEL = 'pl-3 text-[10px] font-normal leading-4 text-neutral-800';
+const CALC_LABEL =
+  'pl-3 text-[14px] font-normal leading-5 text-neutral-800 lg:text-[10px] lg:leading-4';
 
 function Field({
   label,
@@ -321,16 +322,20 @@ function NumberInput({
   const clearLabel = useMessages().usa.customsCalculator.clear;
   return (
     <div
-      className={`flex h-9 items-center gap-1 rounded-full bg-neutral-25 pl-3 pr-2 ${a11y['aria-invalid'] ? 'ring-1 ring-error' : ''}`}
+      className={`flex h-12 items-center gap-1 rounded-full bg-neutral-25 pl-4 pr-2 lg:h-9 lg:pl-3 ${a11y['aria-invalid'] ? 'ring-1 ring-error' : ''}`}
     >
-      {prefix && <span className="text-[12px] leading-[18px] text-neutral-800">{prefix}</span>}
+      {prefix && (
+        <span className="text-[16px] leading-6 text-neutral-800 lg:text-[12px] lg:leading-[18px]">
+          {prefix}
+        </span>
+      )}
       <input
         {...a11y}
         type="number"
         min={0}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-full w-full bg-transparent text-[12px] font-medium leading-[18px] text-neutral-800 outline-none"
+        className="h-full w-full bg-transparent text-[16px] font-medium leading-6 lg:text-[12px] lg:leading-[18px] text-neutral-800 outline-none"
       />
       {value !== '' && (
         <button
@@ -372,7 +377,7 @@ function SelectInput({
         {...a11y}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 w-full appearance-none rounded-full bg-neutral-25 pl-3 pr-8 text-[12px] font-medium leading-[18px] text-neutral-800 aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-error"
+        className="h-12 w-full appearance-none rounded-full bg-neutral-25 pl-4 pr-8 text-[16px] font-medium leading-6 lg:h-9 lg:pl-3 lg:text-[12px] lg:leading-[18px] text-neutral-800 aria-[invalid=true]:ring-1 aria-[invalid=true]:ring-error"
       >
         {placeholder && (
           <option value="" disabled>

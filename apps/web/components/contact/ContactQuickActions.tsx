@@ -8,7 +8,7 @@ import { getServerMessages } from '@/lib/i18n';
  * not a scroll to a small text link.
  *  - `strip`: a short row of big buttons above the form (Call, WhatsApp, Viber).
  *  - `bar`: a bottom bar with Call and WhatsApp that sticks to the screen while the page scrolls and
- *    stops above the footer (sticky, not fixed, so it never covers the footer links).
+ *    stops above the footer (in flow, so it never covers the form or the footer links).
  * Only what the admin has configured is shown (no dead buttons); both hide from `sm` up, where the
  * full contact card is already on screen.
  */
@@ -56,7 +56,7 @@ export async function ContactQuickActions({ variant }: { variant: 'strip' | 'bar
   return (
     <nav
       aria-label={t.quick.label}
-      className="sticky bottom-0 z-30 mt-10 flex gap-3 border-t border-line-light bg-white/95 p-3 backdrop-blur sm:hidden"
+      className="mt-10 flex gap-3 border-t border-line-light bg-white/95 p-3 backdrop-blur sm:hidden"
     >
       {bar.map((action, index) => (
         <a

@@ -63,9 +63,9 @@ export async function ContactInfo() {
 
   return (
     <div className="flex h-full flex-col justify-start rounded-xl bg-white p-6 sm:p-9 lg:pt-14">
-      <h1 className="font-display text-home-card-title font-bold text-ink max-sm:hidden">
+      <p className="font-display text-home-card-title font-bold text-ink max-sm:hidden">
         {t.heading}
-      </h1>
+      </p>
 
       <ul className="mt-4 space-y-4">
         {general.email && (

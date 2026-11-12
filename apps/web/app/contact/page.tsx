@@ -44,11 +44,13 @@ export default async function ContactPage() {
   // (below the floating header); 150px between every following block.
   return (
     <div>
+      {/* The page's one heading; the visible copies (phone intro, contact card) are styled paragraphs. */}
+      <h1 className="sr-only">{t.heading}</h1>
       <section className={`${COLUMN} pt-32 lg:pt-[185px]`}>
         {/* Phones: heading and a one-line intro first, then the form, then the full contact card.
-            (The sticky bar below is the one place for Call / WhatsApp.) */}
+            (The bar at the end of the page is the one place for Call / WhatsApp.) */}
         <div className="mb-6 sm:hidden">
-          <h1 className="font-display text-home-card-title font-bold text-ink">{t.heading}</h1>
+          <p className="font-display text-home-card-title font-bold text-ink">{t.heading}</p>
           <p className="mt-2 text-body text-neutral-800">{t.intro}</p>
         </div>
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-[618fr_683fr] sm:gap-x-[43px]">

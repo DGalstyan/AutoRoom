@@ -133,7 +133,7 @@ export function ChinaFilters({
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6 xl:rounded-[70px]">
-        <div className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[24px] bg-neutral-25 px-4 py-3 sm:w-fit sm:flex-nowrap sm:rounded-pill">
+        <div className="flex max-w-full items-center gap-x-3 flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0 [&>*]:whitespace-nowrap rounded-pill bg-neutral-25 px-4 py-3 sm:w-fit">
           <TabButton active={condition === ''} onClick={() => updateParams({ condition: null })}>
             {t.tabAll}
           </TabButton>
