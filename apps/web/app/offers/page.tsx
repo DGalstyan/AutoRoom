@@ -64,7 +64,7 @@ export default async function OffersPage() {
                 key={car.id}
                 car={car}
                 imageSrc={car.images[0]?.url}
-                priority={index === 0}
+                priority={index < 2}
                 figma
               />
             ))}

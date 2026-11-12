@@ -41,7 +41,7 @@ export async function PromotionsSection({ cars }: { cars: Car[] }) {
                   <CarCard
                     key={car.id}
                     car={car}
-                    priority={index === 0}
+                    priority={index < 2}
                     badgesEnd
                     href={`/offers/${car.slug}`}
                   />
