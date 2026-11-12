@@ -43,7 +43,8 @@ export function CarSpecs({ car }: { car: Car }) {
     { label: t.make, value: car.make },
     { label: t.model, value: car.model },
     { label: t.year, value: String(car.year) },
-    car.vin ? { label: t.vin, value: car.vin } : null,
+    // Figma always lists the VIN row after the year; a dash stands in until admin enters one.
+    { label: t.vin, value: car.vin || '—' },
     car.mileage
       ? {
           label: t.mileage,
@@ -126,7 +127,7 @@ export function CarSpecs({ car }: { car: Car }) {
             key={row.label}
             className="flex min-h-12 items-center gap-3 rounded-md bg-white p-3 sm:gap-0"
           >
-            <span className="type-body w-[140px] shrink-0 text-neutral-700 [overflow-wrap:anywhere] sm:w-[221px]">
+            <span className="type-body w-[140px] shrink-0 text-neutral-700 [overflow-wrap:anywhere] sm:w-[221px] sm:pr-[60px]">
               {row.label}
             </span>
             <span className="min-w-0 flex-1 text-left text-[16px] font-medium leading-[20px] text-neutral-800 [overflow-wrap:anywhere]">

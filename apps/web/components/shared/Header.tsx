@@ -55,7 +55,14 @@ export function Header({ logo = null }: HeaderProps = {}) {
     (pathname?.startsWith('/china') ?? false) ||
     // USA car pages (auction / available) open on the light grey page, not a photo hero.
     (pathname?.startsWith('/usa/') ?? false) ||
-    pathname === '/compare';
+    pathname === '/compare' ||
+    // Plain light pages that start straight at their heading: listings, FAQ, blog and legal text.
+    pathname === '/offers' ||
+    pathname === '/machinery' ||
+    pathname === '/faq' ||
+    pathname === '/privacy' ||
+    pathname === '/terms' ||
+    (pathname?.startsWith('/blog') ?? false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerId = useId();
   const drawerRef = useRef<HTMLDivElement>(null);
