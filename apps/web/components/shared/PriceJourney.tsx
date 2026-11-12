@@ -151,9 +151,12 @@ export function PriceJourney({
             })}
           </div>
 
-          {finalValue != null && finalValue > 0 && (
-            <TotalBar tone="light" label={t.finalLabel} value={formatUsdTight(finalValue)} />
-          )}
+          {/* Figma always draws the final-value box; a car with neither price steps nor an estimate shows a dash. */}
+          <TotalBar
+            tone="light"
+            label={t.finalLabel}
+            value={finalValue != null && finalValue > 0 ? formatUsdTight(finalValue) : '—'}
+          />
         </div>
 
         <PriceMap />

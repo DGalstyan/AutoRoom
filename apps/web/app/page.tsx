@@ -112,7 +112,8 @@ export default async function HomePage() {
         <HomeFaq />
       </section>
 
-      <div className={GAP}>
+      {/* Figma 485:4982: the card ends 152px above the footer. */}
+      <div className={`${GAP} pb-14 lg:pb-[152px]`}>
         <HomeFinalCta />
       </div>
     </>

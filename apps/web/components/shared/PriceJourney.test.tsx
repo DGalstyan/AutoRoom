@@ -66,11 +66,12 @@ describe('PriceJourney total row', () => {
     expect(screen.getByText('68,600$')).toBeInTheDocument();
   });
 
-  it('without chips shows the four standard steps, and no total unless the car has an estimate', () => {
+  it('without chips shows the four standard steps and a dash for the final value', () => {
     renderWithLocale(<PriceJourney chips={[]} car={CAR} />);
     expect(screen.getByText('Մեքենայի արժեքը Չինաստանում')).toBeInTheDocument();
     expect(screen.getByText('Մաքսազերծում (մոտավոր)')).toBeInTheDocument();
-    expect(screen.queryByText('Վերջնական արժեք')).toBeNull();
+    expect(screen.getByText('Վերջնական արժեք')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
   });
 
   it("without chips shows the car's own estimated final price", () => {
