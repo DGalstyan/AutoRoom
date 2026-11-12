@@ -86,6 +86,8 @@ export interface Car {
   hasGuestAccess?: boolean;
   /** Which auction house this listing is on — set alongside `auctionViewUrl`. */
   auctionPlatform?: AuctionPlatform | null;
+  /** When the lot closes (ISO) — the card shows a live countdown to it. */
+  auctionEndsAt?: string | null;
 
   price: number;
   oldPrice?: number | null;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useOptimistic, useState, useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ListDropdown, PriceDropdown } from '@/components/china/FilterDropdowns';
 import { useMessages } from '@/components/shared/LocaleProvider';
@@ -27,7 +27,11 @@ export function UsaAuctionFilters({ makeModels }: { makeModels: Record<string, s
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const platform = searchParams.get('auctionPlatform') ?? '';
+  const urlPlatform = searchParams.get('auctionPlatform') ?? '';
+  // The server re-renders the grid on every change, which takes a moment: the tab flips at once
+  // (optimistic) and the page stays interactive while the new list loads.
+  const [, startTransition] = useTransition();
+  const [platform, setPlatform] = useOptimistic(urlPlatform);
   const make = searchParams.get('make') ?? '';
   const model = searchParams.get('model') ?? '';
 
@@ -43,6 +47,15 @@ export function UsaAuctionFilters({ makeModels }: { makeModels: Record<string, s
     setPriceMax(urlMax);
   }
 
+  // Warm the other tabs' pages so a switch usually finds its data already on the way.
+  useEffect(() => {
+    for (const p of PLATFORMS) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('auctionPlatform', p);
+      router.prefetch(`${pathname}?${params.toString()}`);
+    }
+  }, [router, pathname, searchParams]);
+
   const makes = Object.keys(makeModels).sort((a, b) => a.localeCompare(b));
   const models = (make ? (makeModels[make] ?? []) : Object.values(makeModels).flat())
     .slice()
@@ -54,8 +67,10 @@ export function UsaAuctionFilters({ makeModels }: { makeModels: Record<string, s
       if (value === null || value === '') params.delete(key);
       else params.set(key, value);
     }
-    router.push(params.size > 0 ? `${pathname}?${params.toString()}` : pathname, {
-      scroll: false,
+    const href = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
+    startTransition(() => {
+      if ('auctionPlatform' in patch) setPlatform(patch.auctionPlatform ?? '');
+      router.push(href, { scroll: false });
     });
   }
 

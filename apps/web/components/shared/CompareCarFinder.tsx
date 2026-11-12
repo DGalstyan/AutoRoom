@@ -63,30 +63,35 @@ export function CompareCarFinder() {
             label={quizT.questions.budget.label}
             value={answers.budget ?? ''}
             onChange={(value) => set('budget', value as LeadBudget)}
+            placeholder={t.select}
             options={quizT.questions.budget.options}
           />
           <FinderSelect
             label={quizT.questions.fuel.label}
             value={answers.fuel ?? ''}
             onChange={(value) => set('fuel', value as QuizAnswers['fuel'])}
+            placeholder={t.select}
             options={quizT.questions.fuel.options}
           />
           <FinderSelect
             label={quizT.questions.usage.label}
             value={answers.usage ?? ''}
             onChange={(value) => set('usage', value as QuizAnswers['usage'])}
+            placeholder={t.select}
             options={quizT.questions.usage.options}
           />
           <FinderSelect
             label={quizT.questions.country.label}
             value={answers.country ?? ''}
             onChange={(value) => set('country', value as QuizAnswers['country'])}
+            placeholder={t.select}
             options={quizT.questions.country.options}
           />
           <FinderSelect
             label={quizT.questions.timing.label}
             value={answers.timing ?? ''}
             onChange={(value) => set('timing', value as QuizAnswers['timing'])}
+            placeholder={t.select}
             options={quizT.questions.timing.options}
           />
         </div>
@@ -116,7 +121,9 @@ function FinderSelect({
   value,
   onChange,
   options,
+  placeholder,
 }: {
+  placeholder: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -136,7 +143,7 @@ function FinderSelect({
             onChange={(event) => onChange(event.target.value)}
             className={FIELD_CLASSES}
           >
-            <option value="" />
+            <option value="">{placeholder}</option>
             {Object.entries(options).map(([key, optionLabel]) => (
               <option key={key} value={key}>
                 {optionLabel}

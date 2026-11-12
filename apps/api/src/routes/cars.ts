@@ -143,6 +143,7 @@ const carBodySchema = z.object({
         'Use a plain http(s) link without a username/password in it — guests get a temporary link, never a shared login.',
     }),
   auctionPlatform: z.nativeEnum(AuctionPlatform).nullish(),
+  auctionEndsAt: z.string().datetime({ offset: true }).or(z.string().datetime()).nullish(),
 
   price: z.number().int().min(0),
   oldPrice: z.number().int().min(0).nullish(),
@@ -814,6 +815,7 @@ function serializeCarBase(car: Omit<CarRow, 'similarAsSource'>) {
     createdAt: car.createdAt.toISOString(),
     updatedAt: car.updatedAt.toISOString(),
     promoDeadline: car.promoDeadline?.toISOString() ?? null,
+    auctionEndsAt: car.auctionEndsAt?.toISOString() ?? null,
     images: car.images.map(serializeImage),
   };
 }

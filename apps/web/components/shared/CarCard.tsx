@@ -142,6 +142,12 @@ export async function CarCard({
                   {t.conditions[car.condition]}
                 </span>
               )}
+              {/* Auction lots: live «1 օր 3 ժ 45 ր» to the admin-set closing time. */}
+              {car.condition === 'AUCTION' && car.auctionEndsAt && (
+                <span className="rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white">
+                  <PromoCountdown deadline={car.auctionEndsAt} />
+                </span>
+              )}
               {car.financingAvailable && (
                 <span
                   className={`rounded-pill border border-white bg-transparent px-[16px] py-[10px] text-[16px] max-sm:px-3 max-sm:py-2 max-sm:text-[14px] max-sm:leading-5 font-medium leading-[20px] text-white ${hideFinancingOnPhone ? 'max-sm:hidden' : ''}`}

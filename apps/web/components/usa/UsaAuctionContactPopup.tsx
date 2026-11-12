@@ -13,6 +13,8 @@ export interface UsaAuctionContactPopupProps {
   onClose: () => void;
   sourcePage: string;
   sourceCta: string;
+  /** The car page the visitor came from — pre-fills the car link / lot number field. */
+  carRef?: string;
 }
 
 type Status = 'idle' | 'submitting' | 'success';
@@ -68,6 +70,7 @@ export function UsaAuctionContactPopup({
   onClose,
   sourcePage,
   sourceCta,
+  carRef = '',
 }: UsaAuctionContactPopupProps) {
   const t = useMessages().usa.auctionPopup;
   const locale = useLocale();
@@ -95,7 +98,7 @@ export function UsaAuctionContactPopup({
     if (open) {
       setName('');
       setPhone('+374 ');
-      setCarLink('');
+      setCarLink(carRef);
       setBudget('');
       setNeedFinancing(true);
       setComment('');

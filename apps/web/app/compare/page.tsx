@@ -5,13 +5,14 @@ import { Reveal } from '@/components/ui/Reveal';
 import { CompareTable } from '@/components/shared/CompareTable';
 import { CompareCarFinder } from '@/components/shared/CompareCarFinder';
 import { getCarBySlug } from '@/lib/cars';
+import { CompareBackLink } from '@/components/shared/CompareBackLink';
 import { carHref } from '@/lib/types/car';
 import { getFinanceCalculatorSettings } from '@/lib/settings';
 import { getServerMessages } from '@/lib/i18n';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getServerMessages();
-  return { title: messages.common.compare.page.heading };
+  return { title: `${messages.common.compare.page.heading} — AutoRoom` };
 }
 
 /**
@@ -42,11 +43,11 @@ export default async function ComparePage({
   return (
     <Section tone="light" wide className="pt-32 sm:pb-[150px] sm:pt-[185px]">
       <Reveal>
-        <div className="mb-16 flex items-center gap-3">
+        <div className="mb-16 flex items-center gap-3 lg:ml-12">
           {/* 48px "‹" before the heading, back to the car the comparison started from. */}
-          <Link
-            href={carA ? carHref(carA) : '/china'}
-            aria-label={t.back}
+          <CompareBackLink
+            href={carA ? carHref(carA) : carB ? carHref(carB) : '/china'}
+            label={t.back}
             className="flex size-12 shrink-0 items-center justify-center rounded-pill text-ink transition-colors duration-standard hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
@@ -58,7 +59,7 @@ export default async function ComparePage({
                 strokeLinejoin="round"
               />
             </svg>
-          </Link>
+          </CompareBackLink>
           <h1 className="type-h2 text-ink">{t.heading}</h1>
         </div>
       </Reveal>

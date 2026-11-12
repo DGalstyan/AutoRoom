@@ -52,7 +52,10 @@ export function Header({ logo = null }: HeaderProps = {}) {
     (pathname?.startsWith('/partners/portal') ?? false) ||
     pathname === '/about' ||
     pathname === '/contact' ||
-    (pathname?.startsWith('/china') ?? false);
+    (pathname?.startsWith('/china') ?? false) ||
+    // USA car pages (auction / available) open on the light grey page, not a photo hero.
+    (pathname?.startsWith('/usa/') ?? false) ||
+    pathname === '/compare';
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerId = useId();
   const drawerRef = useRef<HTMLDivElement>(null);

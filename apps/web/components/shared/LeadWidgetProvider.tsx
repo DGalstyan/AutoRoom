@@ -21,6 +21,8 @@ interface OpenQuizOptions {
 
 interface OpenUsaAuctionOptions {
   sourceCta: string;
+  /** Pre-fills the popup's «Մեքենայի հղում կամ լոտի համար» field (the car page being viewed). */
+  carRef?: string;
 }
 
 interface LeadWidgetContextValue {
@@ -56,9 +58,14 @@ export function LeadWidgetProvider({ children }: { children: ReactNode }) {
     open: false,
     sourceCta: '',
   });
-  const [usaAuction, setUsaAuction] = useState<{ open: boolean; sourceCta: string }>({
+  const [usaAuction, setUsaAuction] = useState<{
+    open: boolean;
+    sourceCta: string;
+    carRef: string;
+  }>({
     open: false,
     sourceCta: '',
+    carRef: '',
   });
 
   const openUniversal = useCallback((opts: OpenUniversalOptions) => {
@@ -76,7 +83,7 @@ export function LeadWidgetProvider({ children }: { children: ReactNode }) {
   const openUsaAuctionPopup = useCallback((opts: OpenUsaAuctionOptions) => {
     setUniversal((prev) => ({ ...prev, open: false }));
     setQuiz((prev) => ({ ...prev, open: false }));
-    setUsaAuction({ open: true, sourceCta: opts.sourceCta });
+    setUsaAuction({ open: true, sourceCta: opts.sourceCta, carRef: opts.carRef ?? '' });
   }, []);
 
   const closeUniversal = useCallback(() => setUniversal((prev) => ({ ...prev, open: false })), []);
@@ -118,6 +125,7 @@ export function LeadWidgetProvider({ children }: { children: ReactNode }) {
         onClose={closeUsaAuction}
         sourcePage={pathname}
         sourceCta={usaAuction.sourceCta}
+        carRef={usaAuction.carRef}
       />
     </LeadWidgetContext.Provider>
   );

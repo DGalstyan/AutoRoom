@@ -234,6 +234,8 @@ export interface Car {
   hasGuestAccess?: boolean;
   /** Which auction house an `AUCTION` car's listing is on. */
   auctionPlatform: AuctionPlatform | null;
+  /** When the auction lot closes (ISO) — drives the card countdown. */
+  auctionEndsAt: string | null;
 
   /** Whole currency units — the site never renders cents. */
   price: number;

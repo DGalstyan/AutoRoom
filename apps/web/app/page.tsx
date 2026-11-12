@@ -108,7 +108,8 @@ export default async function HomePage() {
         <NearYouMap heading={branches.heading} />
       </div>
 
-      <section id="faq" className={`${COLUMN} mt-14 lg:mt-[150px]`}>
+      {/* Figma leaves 152px between the last question and the closing card; the «Տես բոլոր հարցերը» link (not in the design) sits inside that gap. */}
+      <section id="faq" className={`${COLUMN} mt-14 lg:-mb-[66px] lg:mt-[150px]`}>
         <HomeFaq />
       </section>
 

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { getMessagesForLocale, isLocale, LOCALE_COOKIE } from '@/lib/i18n';
 
-export default async function Loading() {
+export async function PageLoading() {
   // Reads the locale cookie directly rather than `getServerMessages()`
   // (which also fetches the admin `localization.locales` setting): this is
   // the instant Suspense fallback shown while the real page streams in, so

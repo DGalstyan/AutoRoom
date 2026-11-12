@@ -73,11 +73,11 @@ export function CustomsCalculator({
   const [auction, setAuction] = useState<Auction | null>(null);
   const [auctionLocation, setAuctionLocation] = useState('');
   const [transportFee, setTransportFee] = useState('');
-  const [engineType, setEngineType] = useState<Powertrain | ''>('');
-  const [age, setAge] = useState<Age | ''>('');
-  const [productionYear, setProductionYear] = useState('');
+  const [engineType, setEngineType] = useState<Powertrain | ''>(POWERTRAINS[0]);
+  const [age, setAge] = useState<Age | ''>(AGES[0]);
+  const [productionYear, setProductionYear] = useState(String(PRODUCTION_YEARS[0]));
   const [engineVolume, setEngineVolume] = useState('');
-  const [vehicleType, setVehicleType] = useState<VehicleType | ''>('');
+  const [vehicleType, setVehicleType] = useState<VehicleType | ''>(VEHICLE_TYPES[0]);
   const [errors, setErrors] = useState<Partial<Record<CustomsField, CustomsErrorKey>>>({});
   const [result, setResult] = useState<CustomsResult | null>(null);
 

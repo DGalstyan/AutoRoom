@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { CarCard } from '@/components/shared/CarCard';
 import { UsaHero } from '@/components/usa/UsaHero';
-import { CustomsCalculator } from '@/components/usa/CustomsCalculator';
-import { getCustomsRates } from '@/lib/settings';
 import { UsaAuctionFilters } from '@/components/usa/UsaAuctionFilters';
 import { UsaStateClocks } from '@/components/usa/UsaStateClocks';
 import { UsaImportProcess } from '@/components/usa/UsaImportProcess';
@@ -69,7 +67,6 @@ export default async function UsaPage({
   const t = messages.usa;
 
   const sp = await searchParams;
-  const customs = await getCustomsRates();
   const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : undefined);
 
   const auctionPlatform = toAuctionPlatform(one(sp.auctionPlatform));
@@ -116,15 +113,20 @@ export default async function UsaPage({
           <div className="mt-8 lg:mt-16">
             <UsaAuctionFilters makeModels={auctionMakeModels} />
           </div>
-          <CarGrid cars={auctionCars} className="mt-8 lg:mt-16" />
+          {auctionCars.length > 0 ? (
+            <CarGrid cars={auctionCars} className="mt-8 lg:mt-16" />
+          ) : (
+            <p
+              role="status"
+              className="mt-8 rounded-[32px] bg-white px-6 py-16 text-center text-[18px] leading-7 text-neutral-700 lg:mt-16"
+            >
+              {t.bestAuctions.empty}
+            </p>
+          )}
         </section>
 
         <CarGridSection heading={t.availableCars.heading} cars={availableCars} />
         <CarGridSection heading={t.onRoad.heading} cars={onRoadCars} />
-
-        <div className={`${COLUMN} mt-16 lg:mt-[150px]`}>
-          <CustomsCalculator rates={customs.rates} fallbackUsdToAmd={customs.fallbackUsdToAmd} />
-        </div>
       </div>
 
       <div className="bg-surface-light pt-0">

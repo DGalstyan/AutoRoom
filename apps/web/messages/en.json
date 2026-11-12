@@ -211,6 +211,7 @@
       }
     },
     "carDetail": {
+      "compareOther": "Compare with another model",
       "ctaOffer": "Personal offer",
       "ctaLoan": "Loan terms",
       "ctaCompare": "Compare this car",
@@ -459,6 +460,7 @@
         "changeCar": "Change {name}"
       },
       "finder": {
+        "select": "Select",
         "cancel": "Cancel",
         "submit": "Find my car"
       }
@@ -960,6 +962,7 @@
     },
     "bestAuctions": {
       "heading": "This week's best deals from US auctions",
+      "empty": "No auction cars match these filters yet.",
       "filters": {
         "tabAll": "All",
         "tabCopart": "Copart Deal",

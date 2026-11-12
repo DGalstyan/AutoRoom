@@ -3,7 +3,7 @@
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
-import { auctionViewLink } from '@/lib/auctionLink';
+import { auctionViewLink, carPopupRef } from '@/lib/auctionLink';
 import type { Car } from '@/lib/types/car';
 
 /**
@@ -54,7 +54,12 @@ export function AuctionHowItWorks({ car }: { car: Car }) {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
-            onClick={() => openUsaAuctionPopup({ sourceCta: 'usa-auction-detail-follow-along' })}
+            onClick={() =>
+              openUsaAuctionPopup({
+                sourceCta: 'usa-auction-detail-follow-along',
+                carRef: carPopupRef(car),
+              })
+            }
             className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] leading-[18px] text-ink transition-colors duration-standard hover:bg-white"
           >
             {t.contactCta}

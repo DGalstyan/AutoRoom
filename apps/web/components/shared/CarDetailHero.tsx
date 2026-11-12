@@ -8,8 +8,9 @@ import { BuyWithLoan } from '@/components/shared/BuyWithLoan';
 import type { Car } from '@/lib/types/car';
 import { carHref, formatUsd } from '@/lib/types/car';
 import { arrivalDateFromEta } from '@/lib/arrival';
-import { auctionViewLink } from '@/lib/auctionLink';
+import { auctionViewLink, carPopupRef } from '@/lib/auctionLink';
 import type { Bank } from '@/lib/banks';
+import { useCompare } from '@/components/shared/CompareProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 
 /**
@@ -53,6 +54,7 @@ export function CarDetailHero({
   const t = useMessages().common.carDetail;
   const auctionT = t.auctionFollowAlong;
   const { openUniversal, openUsaAuctionPopup } = useLeadWidgets();
+  const { openPicker } = useCompare();
   const viewLink = variant === 'auction' ? auctionViewLink(car) : null;
   const [selectedColor, setSelectedColor] = useState<string | undefined>();
 
@@ -99,7 +101,12 @@ export function CarDetailHero({
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={() => openUsaAuctionPopup({ sourceCta: 'usa-auction-detail-hero' })}
+              onClick={() =>
+                openUsaAuctionPopup({
+                  sourceCta: 'usa-auction-detail-hero',
+                  carRef: carPopupRef(car),
+                })
+              }
               className="inline-flex h-12 items-center gap-1 rounded-pill bg-neutral-50 px-6 text-[14px] leading-[18px] text-neutral-900 transition-colors duration-standard hover:bg-neutral-100"
             >
               {auctionT.contactCta}
@@ -204,6 +211,26 @@ export function CarDetailHero({
           )}
 
           <BuyWithLoan banks={banks} car={carContext} />
+
+          {/* Figma 492:9897: a gold «Համեմատել այլ մոդելի հետ» pill centred under the banks (on every car page, so the comparison is reachable) — opens the compare picker with this car as the first pick. */}
+          <button
+            type="button"
+            onClick={() =>
+              openPicker({
+                id: car.id,
+                slug: car.slug,
+                make: car.make,
+                model: car.model,
+                year: car.year,
+                imageUrl: car.images[0]?.url,
+                origin: car.origin,
+                condition: car.condition,
+              })
+            }
+            className="mx-auto mt-9 inline-flex h-[60px] items-center justify-center rounded-pill bg-accent px-6 text-[16px] font-semibold leading-6 text-ink transition-colors duration-standard hover:bg-accent-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          >
+            {t.compareOther}
+          </button>
         </div>
       </div>
     </div>

@@ -70,6 +70,7 @@ const BLANK: CarInput = {
   mileage: null,
   auctionViewUrl: null,
   auctionPlatform: null,
+  auctionEndsAt: null,
   price: 0,
   oldPrice: null,
   estFinalPriceAM: null,
@@ -866,6 +867,25 @@ export function CarFormPage() {
                 </MenuItem>
               ))}
             </TextField>
+            <TextField
+              id="field-auctionEndsAt"
+              label="Auction ends at"
+              type="datetime-local"
+              value={toDatetimeLocal(draft.auctionEndsAt)}
+              onChange={(event) =>
+                set(
+                  'auctionEndsAt',
+                  event.target.value ? new Date(event.target.value).toISOString() : null,
+                )
+              }
+              disabled={readOnly}
+              slotProps={{ inputLabel: { shrink: true } }}
+              error={Boolean(fieldErrors.auctionEndsAt)}
+              helperText={
+                fieldErrors.auctionEndsAt ??
+                'Shows a live “1 օր 3 ժ 45 ր” countdown on the auction card until this moment.'
+              }
+            />
             <TextField
               id="field-auctionViewUrl"
               label="Auction view URL"

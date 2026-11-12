@@ -484,6 +484,9 @@ model Car {
   /// Set alongside `auctionViewUrl` for an `AUCTION` car — see
   /// `AuctionPlatform`'s own comment.
   auctionPlatform AuctionPlatform?
+  /// When this `AUCTION` car's lot closes — drives the live «1 օր 3 ժ 45 ր» countdown on its card.
+  /// Null = no countdown shown.
+  auctionEndsAt   DateTime?
 
   /// Whole currency units, not minor: AutoRoom quotes round figures and the
   /// public site never renders cents.

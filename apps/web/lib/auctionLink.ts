@@ -47,3 +47,10 @@ export function auctionViewLink(car: AuctionLinkCar): string | null {
   }
   return PLATFORM_HOME[platform];
 }
+
+/** What the contact popup's «Մեքենայի հղում կամ լոտի համար» field starts with: the lot number, else this car page's link. */
+export function carPopupRef(car: Pick<Car, 'lotNumber' | 'slug'>): string {
+  const lot = car.lotNumber?.trim();
+  if (lot) return lot;
+  return typeof window === 'undefined' ? '' : `${window.location.origin}/usa/auctions/${car.slug}`;
+}
