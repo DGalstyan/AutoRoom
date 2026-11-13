@@ -569,7 +569,7 @@ export function PartnerBookingPopup({
   return (
     <div className="fixed inset-0 z-20 bg-surface-light">
       {/* The scroll area starts below the floating header, so the title never slides under it. */}
-      <div className="absolute inset-x-0 bottom-0 top-[88px] flex flex-col items-center overflow-y-auto pt-6 sm:top-[104px] sm:pt-12">
+      <div className="absolute inset-x-0 bottom-0 top-[104px] flex flex-col items-center overflow-y-auto pt-4 sm:top-[124px] sm:pt-8">
         <button
           type="button"
           aria-label={t.close}
