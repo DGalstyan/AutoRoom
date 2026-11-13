@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { useForceLightHeader } from '@/lib/headerOverlay';
+import { useForceLightHeader, useHideFloatingBars } from '@/lib/headerOverlay';
 import { useFocusTrap } from '@/lib/hooks/useFocusTrap';
 import { SuccessDialog } from '@/components/ui/SuccessDialog';
 import { Button } from '@/components/ui/Button';
@@ -194,6 +194,7 @@ export function PartnerBookingPopup({
   }, [open]);
 
   useForceLightHeader(open);
+  useHideFloatingBars(open);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('+374 ');
   const [email, setEmail] = useState('');

@@ -27,11 +27,11 @@ export function PartnersHero({ phone }: { phone: string | null }) {
         src="/images/partners/hero.webp"
         poster="/images/partners/hero-poster.webp"
         priority
-        className="absolute inset-x-0 -top-[2px] -z-10 h-[calc(100%-80px)] lg:h-[max(814px,56.22vw)]"
+        className="absolute inset-x-0 -top-[2px] -z-10 max-lg:[mask-image:linear-gradient(to_bottom,#000_calc(100%-96px),transparent)] h-[calc(100%-80px)] lg:h-[max(814px,56.22vw)]"
         imgClassName="object-cover"
       />
       <div
-        className="absolute inset-x-0 top-0 -z-10 h-[calc(100%-80px)] bg-black/30 backdrop-blur-[8px] lg:h-[838px]"
+        className="absolute inset-x-0 top-0 -z-10 max-lg:[mask-image:linear-gradient(to_bottom,#000_calc(100%-96px),transparent)] h-[calc(100%-80px)] bg-black/30 backdrop-blur-[8px] lg:h-[838px]"
         aria-hidden="true"
       />
       <div

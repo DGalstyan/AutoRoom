@@ -44,7 +44,7 @@ export interface UniversalPopupProps {
   open: boolean;
   onClose: () => void;
   /** Pre-select depending on where the popup opened from. */
-  preselect?: Partial<{ interest: LeadInterest; budget: LeadBudget }>;
+  preselect?: Partial<{ interest: LeadInterest; budget: LeadBudget; timing: LeadTiming }>;
   /** Locks a read-only car card at the top — the per-car variant. */
   car?: UniversalPopupCarContext;
   sourcePage: string;
@@ -82,7 +82,7 @@ export function UniversalPopup({
   const [interest, setInterest] = useState<LeadInterest | undefined>(preselect?.interest);
   const [budget, setBudget] = useState<LeadBudget | undefined>(preselect?.budget);
   const [financing, setFinancing] = useState<LeadFinancing | undefined>();
-  const [timing, setTiming] = useState<LeadTiming | undefined>();
+  const [timing, setTiming] = useState<LeadTiming | undefined>(preselect?.timing);
   const [channel, setChannel] = useState<LeadChannel | undefined>();
   const [color, setColor] = useState<string | undefined>();
   const [comment, setComment] = useState('');
@@ -104,7 +104,7 @@ export function UniversalPopup({
       setInterest(preselect?.interest);
       setBudget(preselect?.budget);
       setFinancing(undefined);
-      setTiming(undefined);
+      setTiming(preselect?.timing);
       setChannel(undefined);
       setColor(undefined);
       setComment(prefilledComment ?? '');

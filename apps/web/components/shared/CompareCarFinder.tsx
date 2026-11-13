@@ -5,11 +5,12 @@ import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { Reveal } from '@/components/ui/Reveal';
 import { Field } from '@/components/ui/Field';
+import { ListboxSelect } from '@/components/ui/ListboxSelect';
 import { recommendCars, serializeQuizAnswers, type QuizAnswers } from '@/lib/quiz';
 import type { LeadBudget } from '@/lib/leads';
 
 const FIELD_CLASSES =
-  'h-[72px] w-full appearance-none truncate rounded-[50px] bg-neutral-25 pl-6 pr-12 text-[16px] leading-6 text-ink outline-none transition-shadow duration-standard focus:ring-2 focus:ring-accent';
+  'h-[72px] w-full truncate rounded-[50px] bg-neutral-25 pl-6 pr-12 text-[16px] leading-6 outline-none transition-shadow duration-standard focus:ring-2 focus:ring-accent';
 
 /**
  * "Գտիր քո մեքենան 60 վայրկյանում" as an inline finder on `/compare`
@@ -30,22 +31,42 @@ export function CompareCarFinder() {
   const quizT = useMessages().common.quiz;
   const { openUniversal } = useLeadWidgets();
   const [answers, setAnswers] = useState<QuizAnswers>({});
+  const [showHint, setShowHint] = useState(false);
 
   function set<K extends keyof QuizAnswers>(key: K, value: QuizAnswers[K] | '') {
+    setShowHint(false);
     setAnswers((current) => ({ ...current, [key]: value || undefined }));
   }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (Object.values(answers).every((value) => !value)) {
+      setShowHint(true);
+      return;
+    }
     const recommended = recommendCars(answers);
     const carNames = recommended.map((car) => `${car.make} ${car.model}`).join(', ');
+    const answerSummary = (Object.keys(quizT.questions) as (keyof QuizAnswers)[])
+      .filter((key) => answers[key])
+      .map(
+        (key) =>
+          `${quizT.questions[key].label}: ${(quizT.questions[key].options as Record<string, string>)[answers[key] as string]}`,
+      )
+      .join(', ');
+    // Only a stated country picks the popup's interest chip; otherwise it stays unselected rather than "not sure yet".
     const interest =
-      answers.country === 'usa' ? 'usa' : answers.country === 'china' ? 'china' : 'undecided';
+      answers.country === 'usa'
+        ? 'usa'
+        : answers.country === 'china'
+          ? 'china'
+          : answers.country === 'any'
+            ? 'undecided'
+            : undefined;
 
     openUniversal({
       sourceCta: 'compare-car-finder',
-      preselect: { interest, budget: answers.budget },
-      comment: `${quizT.resultCommentPrefix}${carNames}`,
+      preselect: { interest, budget: answers.budget, timing: answers.timing },
+      comment: `${quizT.resultCommentPrefix}${carNames} (${answerSummary})`,
       quizAnswers: serializeQuizAnswers(answers),
     });
   }
@@ -96,10 +117,18 @@ export function CompareCarFinder() {
           />
         </div>
 
+        {showHint && (
+          <p role="alert" className="text-small text-error">
+            {t.pickOne}
+          </p>
+        )}
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setAnswers({})}
+            onClick={() => {
+              setAnswers({});
+              setShowHint(false);
+            }}
             className="h-12 rounded-pill bg-neutral-50 px-6 text-[14px] font-bold leading-5 text-ink transition-colors duration-standard hover:bg-neutral-100"
           >
             {t.cancel}
@@ -114,6 +143,12 @@ export function CompareCarFinder() {
       </form>
     </Reveal>
   );
+}
+
+/** Figma capitalises each option ("Քաղաք", "Հիմա") and writes thousands with a comma ("10,000$"). */
+function displayOption(label: string): string {
+  const formatted = label.replace(/(\d)\.(\d{3})/g, '$1,$2');
+  return formatted.charAt(0).toLocaleUpperCase() + formatted.slice(1);
 }
 
 function FinderSelect({
@@ -136,35 +171,17 @@ function FinderSelect({
       labelClassName="text-[16px] font-medium leading-5 text-neutral-800"
     >
       {(a11y) => (
-        <div className="relative">
-          <select
-            {...a11y}
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            className={FIELD_CLASSES}
-          >
-            <option value="">{placeholder}</option>
-            {Object.entries(options).map(([key, optionLabel]) => (
-              <option key={key} value={key}>
-                {optionLabel}
-              </option>
-            ))}
-          </select>
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            className="pointer-events-none absolute right-6 top-1/2 size-3 -translate-y-1/2 text-ink"
-          >
-            <path
-              d="M5 7.5 10 12.5 15 7.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </svg>
-        </div>
+        <ListboxSelect
+          {...a11y}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          triggerClassName={FIELD_CLASSES}
+          options={Object.entries(options).map(([key, optionLabel]) => ({
+            value: key,
+            label: displayOption(optionLabel),
+          }))}
+        />
       )}
     </Field>
   );

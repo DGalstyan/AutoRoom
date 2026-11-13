@@ -454,13 +454,14 @@
         "priceMonthly": "Monthly payment",
         "generalHeading": "General info",
         "specsHeading": "Technical specs",
-        "empty": "Pick 2 cars to compare",
-        "browseCta": "Browse cars",
         "removeCar": "Remove {name} from comparison",
-        "changeCar": "Change {name}"
+        "changeCar": "Change {name}",
+        "pickCar": "Choose a car",
+        "compareCta": "Compare"
       },
       "finder": {
         "select": "Select",
+        "pickOne": "Pick at least one answer",
         "cancel": "Cancel",
         "submit": "Find my car"
       }

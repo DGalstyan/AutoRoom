@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Section } from '@/components/ui/Section';
 import { Reveal } from '@/components/ui/Reveal';
 import { CompareTable } from '@/components/shared/CompareTable';
+import { ComparePicker } from '@/components/shared/ComparePicker';
 import { CompareCarFinder } from '@/components/shared/CompareCarFinder';
 import { getCarBySlug } from '@/lib/cars';
 import { CompareBackLink } from '@/components/shared/CompareBackLink';
-import { carHref } from '@/lib/types/car';
+import { carHref, type Car } from '@/lib/types/car';
 import { getFinanceCalculatorSettings } from '@/lib/settings';
 import { getServerMessages } from '@/lib/i18n';
 
@@ -23,6 +23,20 @@ export async function generateMetadata(): Promise<Metadata> {
  * through `localStorage` on a page that has no reason to run client-side at
  * all — the picker modal (`CompareModal`) is what actually navigates here.
  */
+function toPick(car: Car | null) {
+  if (!car) return null;
+  return {
+    id: car.id,
+    slug: car.slug,
+    make: car.make,
+    model: car.model,
+    year: car.year,
+    imageUrl: car.images[0]?.thumbnailUrl ?? car.images[0]?.url,
+    origin: car.origin,
+    condition: car.condition,
+  };
+}
+
 export default async function ComparePage({
   searchParams,
 }: {
@@ -43,7 +57,7 @@ export default async function ComparePage({
   return (
     <Section tone="light" wide className="pt-32 sm:pb-[150px] sm:pt-[185px]">
       <Reveal>
-        <div className="mb-16 flex items-center gap-3 lg:ml-12">
+        <div className="mb-16 flex items-center gap-3">
           {/* 48px "‹" before the heading, back to the car the comparison started from. */}
           <CompareBackLink
             href={carA ? carHref(carA) : carB ? carHref(carB) : '/china'}
@@ -67,15 +81,7 @@ export default async function ComparePage({
       {carA && carB ? (
         <CompareTable carA={carA} carB={carB} finance={finance} />
       ) : (
-        <div className="flex flex-col items-center gap-6 py-16 text-center">
-          <p className="text-body text-neutral-700">{t.empty}</p>
-          <Link
-            href="/china"
-            className="inline-flex h-12 items-center rounded-pill bg-accent px-6 text-[14px] font-bold text-ink transition-colors duration-standard hover:bg-accent-600"
-          >
-            {t.browseCta}
-          </Link>
-        </div>
+        <ComparePicker initialA={toPick(carA)} initialB={toPick(carB)} />
       )}
 
       {/* "Neither of these is it" escape hatch, right on the results page —

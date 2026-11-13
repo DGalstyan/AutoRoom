@@ -5,11 +5,11 @@ import { usePathname } from 'next/navigation';
 import { UniversalPopup, type UniversalPopupCarContext } from '@/components/shared/UniversalPopup';
 import { QuizPopup } from '@/components/shared/QuizPopup';
 import { UsaAuctionContactPopup } from '@/components/usa/UsaAuctionContactPopup';
-import type { LeadBudget, LeadInterest } from '@/lib/leads';
+import type { LeadBudget, LeadInterest, LeadTiming } from '@/lib/leads';
 
 interface OpenUniversalOptions {
   sourceCta: string;
-  preselect?: Partial<{ interest: LeadInterest; budget: LeadBudget }>;
+  preselect?: Partial<{ interest: LeadInterest; budget: LeadBudget; timing: LeadTiming }>;
   car?: UniversalPopupCarContext;
   comment?: string;
   quizAnswers?: Record<string, string>;

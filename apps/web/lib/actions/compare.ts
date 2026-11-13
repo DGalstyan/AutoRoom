@@ -49,7 +49,6 @@ export async function searchCarsToCompare(
   excludeCarId?: string,
 ): Promise<CompareSearchResult[]> {
   const trimmed = query.trim().toLowerCase();
-  if (!trimmed) return [];
 
   const { items } = await listCars({ take: 100 });
 

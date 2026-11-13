@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useCompare } from '@/components/shared/CompareProvider';
 import { useMessages } from '@/components/shared/LocaleProvider';
 import { interpolate } from '@/lib/messages';
+import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
+import { useFloatingBarsHidden } from '@/lib/headerOverlay';
 
 /**
  * Floating summary bar for the `⚖ Համեմատել` toggle on `CarCard` — not
@@ -14,10 +16,13 @@ import { interpolate } from '@/lib/messages';
  * pattern for this across car-marketplace sites generally.
  */
 export function CompareBar() {
-  const { cars, remove, openPicker } = useCompare();
+  const { cars, remove, openPicker, isPickerOpen } = useCompare();
+  const { isAnyOpen } = useLeadWidgets();
+  const overlayOpen = useFloatingBarsHidden();
   const t = useMessages().common.compare.bar;
 
-  if (cars.length === 0) return null;
+  // Steps aside while any popup is open, so it never sits over a form.
+  if (cars.length === 0 || isPickerOpen || isAnyOpen || overlayOpen) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-6 z-40 flex justify-center px-4">
