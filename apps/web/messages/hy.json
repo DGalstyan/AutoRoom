@@ -454,7 +454,7 @@
         "priceMonthly": "Ամսական վճար",
         "generalHeading": "Ընդհանուր տվյալներ",
         "specsHeading": "Տեխնիկական տվյալներ",
-          "removeCar": "Հեռացնել {name}-ը համեմատությունից",
+        "removeCar": "Հեռացնել {name}-ը համեմատությունից",
         "changeCar": "Փոխել {name}-ը",
         "pickCar": "Ընտրել մեքենա",
         "compareCta": "Համեմատել"
