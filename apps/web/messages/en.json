@@ -1447,6 +1447,9 @@
           "DELIVERED": "Delivered"
         },
         "filters": {
+          "statusLabel": "Status",
+          "clearStatus": "Clear filter",
+          "clearAll": "Clear filters",
           "all": "All",
           "searchPlaceholder": "Search…",
           "allBranches": "All branches",
@@ -1578,6 +1581,7 @@
           "daysAgo": "{n} days ago",
           "weekAgo": "1 week ago",
           "weeksAgo": "{n} weeks ago",
+          "monthAgo": "1 month ago",
           "monthsAgo": "{n} months ago",
           "kinds": {
             "INVOICE": "Invoice",

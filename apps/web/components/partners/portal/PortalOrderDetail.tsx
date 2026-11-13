@@ -723,6 +723,7 @@ function DocumentsByAge({
     daysAgo: string;
     weekAgo: string;
     weeksAgo: string;
+    monthAgo: string;
     monthsAgo: string;
     kinds: Record<string, string>;
     open: string;
@@ -744,7 +745,8 @@ function DocumentsByAge({
     if (days < 7) return interpolate(t.daysAgo, { n: String(days) });
     if (days < 14) return t.weekAgo;
     if (days < 30) return interpolate(t.weeksAgo, { n: String(Math.floor(days / 7)) });
-    return interpolate(t.monthsAgo, { n: String(Math.max(1, Math.floor(days / 30))) });
+    const months = Math.max(1, Math.floor(days / 30));
+    return months === 1 ? t.monthAgo : interpolate(t.monthsAgo, { n: String(months) });
   };
 
   const groups: { label: string; items: OrderDocument[] }[] = [];

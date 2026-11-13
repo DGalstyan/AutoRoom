@@ -1450,6 +1450,9 @@
           "DELIVERED": "Доставлен"
         },
         "filters": {
+          "statusLabel": "Статус",
+          "clearStatus": "Сбросить фильтр",
+          "clearAll": "Сбросить фильтры",
           "all": "Все",
           "searchPlaceholder": "Поиск…",
           "allBranches": "Все филиалы",
@@ -1581,6 +1584,7 @@
           "daysAgo": "{n} дн. назад",
           "weekAgo": "1 неделю назад",
           "weeksAgo": "{n} нед. назад",
+          "monthAgo": "1 мес. назад",
           "monthsAgo": "{n} мес. назад",
           "kinds": {
             "INVOICE": "Счёт",

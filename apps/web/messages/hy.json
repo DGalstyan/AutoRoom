@@ -1447,6 +1447,9 @@
           "DELIVERED": "Հանձնված"
         },
         "filters": {
+          "statusLabel": "Կարգավիճակ",
+          "clearStatus": "Մաքրել ֆիլտրը",
+          "clearAll": "Մաքրել ֆիլտրերը",
           "all": "Բոլորը",
           "searchPlaceholder": "Որոնում…",
           "allBranches": "Բոլոր մասնաճյուղերը",
@@ -1578,6 +1581,7 @@
           "daysAgo": "{n} օր առաջ",
           "weekAgo": "1 շաբաթ առաջ",
           "weeksAgo": "{n} շաբաթ առաջ",
+          "monthAgo": "1 ամիս առաջ",
           "monthsAgo": "{n} ամիս առաջ",
           "kinds": {
             "INVOICE": "Հաշիվ-ապրանքագիր",

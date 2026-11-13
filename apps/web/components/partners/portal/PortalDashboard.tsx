@@ -176,6 +176,11 @@ export function PortalDashboard() {
   ];
 
   function showStage(stage: OrderStageName | 'ACTIVE') {
+    // Tapping the active card again switches the filter off.
+    if (tab === 'orders' && stageFilter === stage) {
+      setStageFilter(null);
+      return;
+    }
     setTab('orders');
     setStageFilter(stage);
     document
@@ -211,7 +216,7 @@ export function PortalDashboard() {
         >
           {t.dashboard.stageStats.heading}
         </h2>
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-5 lg:gap-6">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:mt-14 lg:grid-cols-5 lg:gap-6">
           {stageCards.map((card) => (
             <StatCard
               key={card.label}
@@ -228,7 +233,7 @@ export function PortalDashboard() {
         <h2 id="portal-pay-heading" className="stretch-90 text-[24px] font-bold leading-9 text-ink">
           {t.dashboard.paymentStats.heading}
         </h2>
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-14 lg:grid-cols-[repeat(3,267px)] lg:gap-6">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:mt-14 lg:grid-cols-[repeat(3,267px)] lg:gap-6">
           <StatCard
             label={t.dashboard.paymentStats.pending}
             value={me.orderStats.paymentSummary.pending}
@@ -248,6 +253,29 @@ export function PortalDashboard() {
       </section>
 
       <div id="portal-orders" className="mt-8 flex scroll-mt-28 flex-col gap-9 lg:mt-16">
+        {tab === 'orders' && stageFilter && (
+          <div className="-mb-3 flex flex-wrap items-center gap-2">
+            <span className="inline-flex h-11 items-center gap-2 rounded-pill bg-accent/20 pl-4 pr-1 text-[14px] font-medium text-ink ring-1 ring-accent">
+              {t.dashboard.filters.statusLabel}:{' '}
+              {stageCards.find((card) => card.stage === stageFilter)?.label}
+              <button
+                type="button"
+                onClick={() => setStageFilter(null)}
+                aria-label={t.dashboard.filters.clearStatus}
+                className="flex size-9 items-center justify-center rounded-full hover:bg-black/5"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path
+                    d="m2 2 8 8M10 2l-8 8"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </span>
+          </div>
+        )}
         <div className="flex flex-col gap-4 rounded-[32px] bg-white px-6 py-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6 xl:rounded-[70px]">
           <div
             role="group"
@@ -258,6 +286,7 @@ export function PortalDashboard() {
               onClick={() => {
                 setTab('orders');
                 setOriginFilter('ALL');
+                setStageFilter(null);
               }}
             >
               {t.dashboard.filters.all}
@@ -291,14 +320,14 @@ export function PortalDashboard() {
 
           {tab === 'orders' && (
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:flex-nowrap xl:gap-4">
-              <label className="flex h-11 w-full items-center justify-between rounded-pill bg-neutral-25 px-3 text-[12px] leading-4 text-neutral-700 sm:w-[228px]">
+              <label className="flex h-12 w-full items-center justify-between rounded-pill bg-neutral-25 px-4 text-[16px] leading-6 text-neutral-700 sm:h-11 sm:w-[228px] sm:px-3 sm:text-[12px] sm:leading-4">
                 <span className="sr-only">{t.dashboard.filters.searchLabel}</span>
                 <input
                   type="search"
                   value={orderSearch}
                   onChange={(event) => setOrderSearch(event.target.value)}
                   placeholder={t.dashboard.filters.searchPlaceholder}
-                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-700 [&::-webkit-search-cancel-button]:hidden"
+                  className="h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-700 [&::-webkit-search-cancel-button]:hidden"
                 />
                 <svg
                   width="20"
@@ -416,52 +445,98 @@ export function PortalDashboard() {
           ) : (
             /* Figma 441:5751: a black 88px header over 72px rows that alternate white / #f7f7f7. */
             <div className="overflow-hidden rounded-[24px] border border-neutral-100 bg-white">
-              <ScrollFade>
-                <table className="w-full min-w-[960px] table-fixed text-left">
-                  <thead>
-                    <tr className="bg-ink">
-                      <Th first>{t.dashboard.ordersTable.date}</Th>
-                      <Th>{t.dashboard.ordersTable.orderNumber}</Th>
-                      <Th>{t.dashboard.ordersTable.vin}</Th>
-                      <Th>{t.dashboard.ordersTable.make}</Th>
-                      <Th>{t.dashboard.ordersTable.model}</Th>
-                      <Th>{t.dashboard.ordersTable.status}</Th>
-                      <Th>{t.dashboard.ordersTable.country}</Th>
-                      <Th>{t.dashboard.ordersTable.branch}</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredOrders.map((order) => (
-                      <tr
-                        key={order.id}
-                        onClick={() => router.push(`/partners/portal/orders/${order.id}`)}
-                        className="cursor-pointer odd:bg-white even:bg-page hover:bg-neutral-50"
+              {/* Phones: one card per order instead of a 960px-wide table. */}
+              <ul className="flex flex-col sm:hidden">
+                {filteredOrders.map((order) => (
+                  <li key={order.id} className="border-b border-neutral-100 p-4 last:border-b-0">
+                    <div className="flex items-center justify-between gap-3">
+                      <Link
+                        href={`/partners/portal/orders/${order.id}`}
+                        className="inline-flex min-h-11 items-center text-[16px] font-bold text-ink underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                       >
-                        <Td first>{formatDate(order.createdAt)}</Td>
-                        <Td>
-                          {/* A real link: reachable and activated from the keyboard; the row click is a mouse convenience. */}
-                          <Link
-                            href={`/partners/portal/orders/${order.id}`}
-                            onClick={(event) => event.stopPropagation()}
-                            className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                          >
-                            {order.orderNumber}
-                          </Link>
-                        </Td>
-                        <Td>{order.car.vin ?? '—'}</Td>
-                        <Td>{order.car.make}</Td>
-                        <Td>{order.car.model}</Td>
-                        <Td>{t.dashboard.orderStage[order.stage]}</Td>
-                        <Td>{order.car.origin === 'CHINA' ? nav.china : nav.usa}</Td>
-                        <Td>{orderBranch(order) ?? '—'}</Td>
+                        {order.orderNumber}
+                      </Link>
+                      <span className="rounded-pill bg-neutral-25 px-3 py-1 text-[12px] font-medium text-ink">
+                        {t.dashboard.orderStage[order.stage]}
+                      </span>
+                    </div>
+                    <p className="text-[16px] font-medium text-neutral-800">
+                      {order.car.make} {order.car.model}
+                    </p>
+                    <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[14px] text-neutral-700">
+                      <dt>{t.dashboard.ordersTable.date}</dt>
+                      <dd>{formatDate(order.createdAt)}</dd>
+                      <dt>{t.dashboard.ordersTable.vin}</dt>
+                      <dd className="break-all">{order.car.vin ?? '—'}</dd>
+                      <dt>{t.dashboard.ordersTable.country}</dt>
+                      <dd>
+                        {order.car.origin === 'CHINA' ? nav.china : nav.usa}
+                        {orderBranch(order) ? ` · ${orderBranch(order)}` : ''}
+                      </dd>
+                    </dl>
+                  </li>
+                ))}
+              </ul>
+              <div className="max-sm:hidden">
+                <ScrollFade>
+                  <table className="w-full min-w-[960px] table-fixed text-left">
+                    <thead>
+                      <tr className="bg-ink">
+                        <Th first>{t.dashboard.ordersTable.date}</Th>
+                        <Th>{t.dashboard.ordersTable.orderNumber}</Th>
+                        <Th>{t.dashboard.ordersTable.vin}</Th>
+                        <Th>{t.dashboard.ordersTable.make}</Th>
+                        <Th>{t.dashboard.ordersTable.model}</Th>
+                        <Th>{t.dashboard.ordersTable.status}</Th>
+                        <Th>{t.dashboard.ordersTable.country}</Th>
+                        <Th>{t.dashboard.ordersTable.branch}</Th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </ScrollFade>
+                    </thead>
+                    <tbody>
+                      {filteredOrders.map((order) => (
+                        <tr
+                          key={order.id}
+                          onClick={() => router.push(`/partners/portal/orders/${order.id}`)}
+                          className="cursor-pointer odd:bg-white even:bg-page hover:bg-neutral-50"
+                        >
+                          <Td first>{formatDate(order.createdAt)}</Td>
+                          <Td>
+                            {/* A real link: reachable and activated from the keyboard; the row click is a mouse convenience. */}
+                            <Link
+                              href={`/partners/portal/orders/${order.id}`}
+                              onClick={(event) => event.stopPropagation()}
+                              className="inline-flex min-h-11 items-center underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                            >
+                              {order.orderNumber}
+                            </Link>
+                          </Td>
+                          <Td>{order.car.vin ?? '—'}</Td>
+                          <Td>{order.car.make}</Td>
+                          <Td>{order.car.model}</Td>
+                          <Td>{t.dashboard.orderStage[order.stage]}</Td>
+                          <Td>{order.car.origin === 'CHINA' ? nav.china : nav.usa}</Td>
+                          <Td>{orderBranch(order) ?? '—'}</Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </ScrollFade>
+              </div>
               {filteredOrders.length === 0 && (
                 <p className="px-6 py-10 text-center text-body text-neutral-700">
                   {t.dashboard.noOrdersMatch}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStageFilter(null);
+                      setOriginFilter('ALL');
+                      setBranchFilter('ALL');
+                      setOrderSearch('');
+                    }}
+                    className="ml-2 inline-flex h-11 items-center rounded-pill bg-accent px-5 text-[14px] font-medium text-ink hover:bg-accent-600"
+                  >
+                    {t.dashboard.filters.clearAll}
+                  </button>
                 </p>
               )}
             </div>
@@ -558,14 +633,14 @@ function StatCard({
     </>
   );
   const base =
-    'flex min-h-[126px] flex-col items-start justify-center gap-0.5 rounded-[32px] bg-white p-8 text-left';
+    'flex min-h-[96px] flex-col items-start justify-center gap-0.5 rounded-[24px] bg-white p-4 text-left sm:min-h-[126px] sm:rounded-[32px] sm:p-8';
   return onOpen ? (
     <button
       type="button"
       onClick={onOpen}
       aria-pressed={active}
       className={`${base} transition-shadow duration-standard hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${
-        active ? 'ring-2 ring-accent' : ''
+        active ? 'bg-accent/20 ring-2 ring-accent' : ''
       }`}
     >
       {body}
