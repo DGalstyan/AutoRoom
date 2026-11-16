@@ -16,14 +16,13 @@ import { useLocale, useMessages } from '@/components/shared/LocaleProvider';
  * on the left, a single big result card on the right. Term/rates/USD→AMD
  * come from the admin-managed `finance.calculator` setting (`lib/settings.ts`)
  * rather than being hardcoded, so a rate change in admin updates every car's
- * calculator without a deploy. The result card's corner carries the car's own
- * photo — a real-data stand-in for the Figma mock's unrelated stock image.
+ * calculator without a deploy. The result card's corner carries the design's own car image (Figma 478:2908).
  */
 export function LoanCalculator({
   car,
   finance,
 }: {
-  car: Pick<Car, 'price' | 'images'>;
+  car: Pick<Car, 'price'>;
   finance: FinanceCalculator;
 }) {
   const t = useMessages().common.carDetail.loanCalculator;
@@ -53,7 +52,6 @@ export function LoanCalculator({
   const [draft, setDraft] = useState<string | null>(null);
   const clamped = Math.min(max, Math.max(min, downPayment));
   const monthly = price > 0 ? computeMonthlyPaymentAmd(price, clamped, finance) : 0;
-  const carImage = car.images[0]?.thumbnailUrl ?? car.images[0]?.url;
 
   const THUMB =
     '[&::-webkit-slider-thumb]:-mt-[10px] [&::-webkit-slider-thumb]:size-[30px] [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-0 [&::-webkit-slider-thumb]:bg-[url(/images/china/filters/knob.svg)] [&::-webkit-slider-thumb]:bg-contain [&::-moz-range-thumb]:size-[30px] [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[url(/images/china/filters/knob.svg)] [&::-moz-range-thumb]:bg-contain [&::-moz-range-track]:h-[9px] [&::-moz-range-track]:rounded-pill [&::-moz-range-track]:bg-neutral-25 [&::-webkit-slider-runnable-track]:h-[9px] [&::-webkit-slider-runnable-track]:rounded-pill [&::-webkit-slider-runnable-track]:bg-neutral-25';
@@ -169,27 +167,16 @@ export function LoanCalculator({
                 {formatAmd(monthly)}
               </Price>
             </div>
-            {carImage && (
-              <>
-                {/* Phones: the photo in the corner, as before. */}
-                <div className="pointer-events-none absolute bottom-4 right-4 z-0 hidden h-[120px] w-[180px] overflow-hidden rounded-[24px] sm:block lg:hidden">
-                  <Image src={carImage} alt="" fill sizes="180px" className="object-cover" />
-                </div>
-                {/* Figma 474:2905: a 245×107 car, 13px from the card's right edge, hanging 22px below its bottom.
-                  The design's car is a cut-out; a real photo has a background, so it is feathered into the page. */}
-                <div
-                  className="pointer-events-none absolute -bottom-[22px] right-[13px] z-0 hidden h-[107px] w-[245px] lg:block"
-                  style={{
-                    WebkitMaskImage:
-                      'radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%)',
-                    maskImage:
-                      'radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%)',
-                  }}
-                >
-                  <Image src={carImage} alt="" fill sizes="245px" className="object-cover" />
-                </div>
-              </>
-            )}
+            {/* Figma 478:2908: the design's own car (a 246×164 cut-out, contrast/saturation filters baked into the
+              export), 17px from the card's right edge and hanging 48px below its bottom. */}
+            <Image
+              src="/images/china/loan-car.png"
+              alt=""
+              width={492}
+              height={328}
+              sizes="246px"
+              className="pointer-events-none absolute -bottom-12 right-4 z-0 hidden h-auto w-[180px] sm:block lg:right-[17px] lg:w-[246px]"
+            />
           </div>
           {disclaimer && (
             <p className="max-w-2xl text-[12px] leading-4 text-neutral-700">{disclaimer}</p>
