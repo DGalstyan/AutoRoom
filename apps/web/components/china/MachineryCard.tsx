@@ -47,20 +47,23 @@ export function MachineryCard({
   const wrapW = WRAP_W[side];
   const isLeft = side === 'left';
   const { box, crop } = art;
+  const open = () =>
+    openUniversal({
+      sourceCta: 'china-machinery-card',
+      preselect: { interest: 'machinery' },
+    });
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: `${wrapW}/${WRAP_H}`, maxWidth: wrapW }}>
+    <div
+      className="group relative w-full"
+      style={{ aspectRatio: `${wrapW}/${WRAP_H}`, maxWidth: wrapW }}
+    >
       {/* The white card: 533×542 of the 593×546 wrapper, flush to the outer edge. */}
       <button
         type="button"
         aria-label={requestLabel.replace('{name}', name)}
-        onClick={() =>
-          openUniversal({
-            sourceCta: 'china-machinery-card',
-            preselect: { interest: 'machinery' },
-          })
-        }
-        className="group absolute rounded-[48px] bg-white text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        onClick={open}
+        className="absolute cursor-pointer rounded-[48px] bg-white text-left transition-shadow duration-standard ease-expo group-hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         style={{
           top: 0,
           bottom: pct(4, WRAP_H),
@@ -90,7 +93,10 @@ export function MachineryCard({
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute"
+        // The render is part of the card: hovering or clicking it acts like the card itself
+        // (keyboard users have the button above).
+        onClick={open}
+        className="absolute cursor-pointer"
         style={{
           left: pct(box.x, wrapW),
           top: pct(box.y, WRAP_H),
@@ -99,34 +105,36 @@ export function MachineryCard({
           transform: art.flip ? 'scaleX(-1)' : undefined,
         }}
       >
-        {crop ? (
-          <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 origin-bottom transition-transform duration-standard ease-expo group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+          {crop ? (
+            <div className="absolute inset-0 overflow-hidden">
+              <Image
+                src={art.src}
+                alt=""
+                width={1024}
+                height={1024}
+                priority={priority}
+                sizes="(min-width: 1024px) 34vw, 90vw"
+                className="absolute max-w-none"
+                style={{
+                  height: `${crop.h}%`,
+                  left: `${crop.l}%`,
+                  top: `${crop.t}%`,
+                  width: `${crop.w}%`,
+                }}
+              />
+            </div>
+          ) : (
             <Image
               src={art.src}
               alt=""
-              width={1024}
-              height={1024}
+              fill
               priority={priority}
               sizes="(min-width: 1024px) 34vw, 90vw"
-              className="absolute max-w-none"
-              style={{
-                height: `${crop.h}%`,
-                left: `${crop.l}%`,
-                top: `${crop.t}%`,
-                width: `${crop.w}%`,
-              }}
+              className="object-cover"
             />
-          </div>
-        ) : (
-          <Image
-            src={art.src}
-            alt=""
-            fill
-            priority={priority}
-            sizes="(min-width: 1024px) 34vw, 90vw"
-            className="object-cover"
-          />
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
