@@ -57,7 +57,7 @@ export function Faq({ items, heading, hideHeading = false, initialCount, viewAll
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className={`flex w-full justify-between gap-4 px-6 text-left text-[16px] font-medium leading-[20px] text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-accent ${
+                  className={`flex w-full justify-between gap-4 pl-6 pr-5 text-left text-[16px] font-medium leading-[20px] text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-accent ${
                     isOpen ? 'items-start pb-0 pt-7' : 'min-h-[76px] items-center py-3'
                   }`}
                 >

@@ -56,7 +56,7 @@ export function ContactForm() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('+374 ');
+  const [phone, setPhone] = useState('');
   const [topic, setTopic] = useState<(typeof TOPIC_KEYS)[number] | ''>('');
   const [comment, setComment] = useState('');
   // The design's form has no comment box; it stays available behind a link (and opens by itself if one was typed).
@@ -141,7 +141,7 @@ export function ContactForm() {
     setStatus('idle');
     setName('');
     setEmail('');
-    setPhone('+374 ');
+    setPhone('');
     setTopic('');
     setComment('');
     setTouched({ name: false, phone: false, email: false });
@@ -206,7 +206,7 @@ export function ContactForm() {
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                placeholder="+374 __ ______"
+                placeholder="(123) 456 - 789"
                 value={phone}
                 onChange={(event) => setPhone(formatArmenianPhone(event.target.value))}
                 onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
@@ -254,22 +254,42 @@ export function ContactForm() {
             <label htmlFor="contact-topic" className={LABEL_CLASSES}>
               {t.topicLabel}
             </label>
-            <select
-              id="contact-topic"
-              name="topic"
-              value={topic}
-              onChange={(event) => setTopic(event.target.value as (typeof TOPIC_KEYS)[number])}
-              className={`${FIELD_CLASSES} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 16 16%22 fill=%22none%22><path d=%22M4 6l4 4 4-4%22 stroke=%22%23999EA1%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-[length:16px] bg-[position:right_24px_center] bg-no-repeat pr-12`}
-            >
-              <option value="" disabled>
-                {t.topicPlaceholder}
-              </option>
-              {TOPIC_KEYS.map((key) => (
-                <option key={key} value={key}>
-                  {t.topicOptions[key]}
+            {/* A real chevron instead of a background image, so the arrow is always drawn; the
+                placeholder state is the grey of the other fields' placeholders (Figma 141:636). */}
+            <div className="relative">
+              <select
+                id="contact-topic"
+                name="topic"
+                value={topic}
+                onChange={(event) => setTopic(event.target.value as (typeof TOPIC_KEYS)[number])}
+                className={`${FIELD_CLASSES} appearance-none pr-14 ${topic ? 'text-ink' : 'text-neutral-600'}`}
+              >
+                <option value="" disabled>
+                  {t.topicPlaceholder}
                 </option>
-              ))}
-            </select>
+                {TOPIC_KEYS.map((key) => (
+                  <option key={key} value={key} className="text-ink">
+                    {t.topicOptions[key]}
+                  </option>
+                ))}
+              </select>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+                className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-neutral-600"
+              >
+                <path
+                  d="M4 6l4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
           </div>
 
           {showComment || comment ? (

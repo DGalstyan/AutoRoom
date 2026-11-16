@@ -71,7 +71,8 @@ export default async function ContactPage() {
         <ContactFaq />
       </section>
 
-      <div className="mt-16 lg:mt-[150px]">
+      {/* Figma: the card has ~100px of page above and below it (it no longer sits on the footer). */}
+      <div className="mt-16 pb-10 lg:mt-[100px] lg:pb-[100px]">
         <ContactFinalCta />
       </div>
 
