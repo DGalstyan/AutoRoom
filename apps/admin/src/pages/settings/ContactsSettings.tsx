@@ -127,18 +127,20 @@ export function ContactsSettings({
         onReset={social.reset}
       >
         <Stack spacing={2.5}>
-          {(['instagram', 'pinterest', 'facebook', 'youtube', 'linkedin', 'tiktok'] as const).map((network) => (
-            <TextField
-              key={network}
-              label={LABELS[network]}
-              value={social.value![network] ?? ''}
-              onChange={(event) => social.patch({ [network]: event.target.value || null })}
-              error={Boolean(social.fieldErrors[network])}
-              helperText={social.fieldErrors[network]}
-              disabled={readOnly}
-              fullWidth
-            />
-          ))}
+          {(['instagram', 'pinterest', 'facebook', 'youtube', 'linkedin', 'tiktok'] as const).map(
+            (network) => (
+              <TextField
+                key={network}
+                label={LABELS[network]}
+                value={social.value![network] ?? ''}
+                onChange={(event) => social.patch({ [network]: event.target.value || null })}
+                error={Boolean(social.fieldErrors[network])}
+                helperText={social.fieldErrors[network]}
+                disabled={readOnly}
+                fullWidth
+              />
+            ),
+          )}
         </Stack>
       </SectionCard>
 
