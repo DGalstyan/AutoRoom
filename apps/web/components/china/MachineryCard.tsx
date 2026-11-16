@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import type { CSSProperties } from 'react';
 import { useLeadWidgets } from '@/components/shared/LeadWidgetProvider';
 
 /** Where the machine render sits inside its card box and how the 1024×1024 source is cropped (all % of the design box). */
@@ -11,7 +12,15 @@ export interface MachineryArt {
   /** Crop of the square source inside the box (Figma fill offsets); omit to cover the box. */
   crop?: { h: number; l: number; t: number; w: number };
   flip?: boolean;
+  /** Hover pose in design px (Figma variant "Variant2"): the box's top-left shift and its growth. Defaults to the Excavator's. */
+  hover?: { dx: number; dy: number; scale: number };
 }
+
+/** Figma 503:703 → 503:716 (Excavator): the render lifts 20px left / 43px up and grows 7%. */
+const DEFAULT_HOVER = { dx: -20, dy: -43, scale: 1.07 };
+/** The prototype's hover: Smart Animate, "Gentle" easing, 1.022s. */
+const HOVER_MOTION =
+  'duration-[1022ms] ease-[cubic-bezier(0.3,1.1,0.5,1)] motion-reduce:transition-none';
 
 interface MachineryCardProps {
   name: string;
@@ -47,6 +56,7 @@ export function MachineryCard({
   const wrapW = WRAP_W[side];
   const isLeft = side === 'left';
   const { box, crop } = art;
+  const hover = art.hover ?? DEFAULT_HOVER;
   const open = () =>
     openUniversal({
       sourceCta: 'china-machinery-card',
@@ -56,14 +66,19 @@ export function MachineryCard({
   return (
     <div
       className="group relative w-full"
-      style={{ aspectRatio: `${wrapW}/${WRAP_H}`, maxWidth: wrapW }}
+      style={{
+        aspectRatio: `${wrapW}/${WRAP_H}`,
+        maxWidth: wrapW,
+        // 1cqw = 1% of this wrapper, so the hover offsets (design px) scale with the card.
+        containerType: 'inline-size',
+      }}
     >
       {/* The white card: 533×542 of the 593×546 wrapper, flush to the outer edge. */}
       <button
         type="button"
         aria-label={requestLabel.replace('{name}', name)}
         onClick={open}
-        className="absolute cursor-pointer rounded-[48px] bg-white text-left transition-shadow duration-standard ease-expo group-hover:shadow-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className={`absolute cursor-pointer rounded-[48px] bg-white text-left transition-colors group-hover:bg-accent ${HOVER_MOTION} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`}
         style={{
           top: 0,
           bottom: pct(4, WRAP_H),
@@ -77,13 +92,13 @@ export function MachineryCard({
           </span>
           <span
             aria-hidden="true"
-            className="flex size-16 shrink-0 items-center justify-center rounded-full bg-[rgba(127,127,127,0.1)] text-ink transition-colors duration-standard group-hover:bg-accent"
+            className={`flex size-16 shrink-0 items-center justify-center rounded-full bg-[rgba(127,127,127,0.1)] text-ink transition-colors group-hover:bg-[rgba(127,127,127,0.3)] ${HOVER_MOTION}`}
           >
             <ArrowGlyph />
           </span>
         </span>
         <span
-          className={`absolute bottom-7 inline-flex items-center rounded-full border border-neutral-800 bg-white/10 p-2.5 text-[16px] leading-6 text-neutral-800 ${
+          className={`absolute bottom-7 inline-flex items-center rounded-full border border-neutral-800 bg-white/10 p-2.5 text-[16px] font-normal leading-6 text-neutral-800 group-hover:font-bold ${
             isLeft ? 'left-6' : 'right-[23px]'
           }`}
         >
@@ -96,16 +111,23 @@ export function MachineryCard({
         // The render is part of the card: hovering or clicking it acts like the card itself
         // (keyboard users have the button above).
         onClick={open}
-        className="absolute cursor-pointer"
-        style={{
-          left: pct(box.x, wrapW),
-          top: pct(box.y, WRAP_H),
-          width: pct(box.w, wrapW),
-          height: pct(box.h, WRAP_H),
-          transform: art.flip ? 'scaleX(-1)' : undefined,
-        }}
+        className={`absolute origin-top-left cursor-pointer transition-transform group-hover:[transform:translate(var(--hx),var(--hy))_scale(var(--hs))] ${HOVER_MOTION}`}
+        style={
+          {
+            left: pct(box.x, wrapW),
+            top: pct(box.y, WRAP_H),
+            width: pct(box.w, wrapW),
+            height: pct(box.h, WRAP_H),
+            '--hx': `calc(${hover.dx} * 100cqw / ${wrapW})`,
+            '--hy': `calc(${hover.dy} * 100cqw / ${wrapW})`,
+            '--hs': hover.scale,
+          } as CSSProperties
+        }
       >
-        <div className="absolute inset-0 origin-bottom transition-transform duration-standard ease-expo group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+        <div
+          className="absolute inset-0"
+          style={{ transform: art.flip ? 'scaleX(-1)' : undefined }}
+        >
           {crop ? (
             <div className="absolute inset-0 overflow-hidden">
               <Image

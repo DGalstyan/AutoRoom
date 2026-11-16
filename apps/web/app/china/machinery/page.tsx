@@ -27,6 +27,8 @@ const ART: MachineryArt[] = [
     src: `${IMG}/wheel-loader.png`,
     box: { x: 0, y: 251, w: 392, h: 263 },
     crop: { h: 149.05, l: 0, t: -23.76, w: 100 },
+    // Figma 503:743: the loader grows to 484×324 and moves to (-46, 215.5).
+    hover: { dx: -46, dy: -35.5, scale: 1.235 },
   },
   {
     src: `${IMG}/bulldozer.png`,
