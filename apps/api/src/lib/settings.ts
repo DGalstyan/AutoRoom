@@ -108,6 +108,9 @@ const contactsSocial = z.object({
   instagram: socialProfileUrl(/(^|\.)instagram\.com$/i, 'Instagram'),
   tiktok: socialProfileUrl(/(^|\.)tiktok\.com$/i, 'TikTok'),
   linkedin: socialProfileUrl(/(^|\.)linkedin\.com$/i, 'LinkedIn'),
+  // Added after launch: rows saved earlier lack these keys, so a missing one reads as "not set".
+  pinterest: socialProfileUrl(/(^|\.)pinterest\.[a-z.]+$/i, 'Pinterest').default(null),
+  youtube: socialProfileUrl(/(^|\.)(youtube\.com|youtu\.be)$/i, 'YouTube').default(null),
 });
 
 /**
@@ -273,7 +276,14 @@ export const SETTINGS = {
     schema: contactsSocial,
     isPublic: true,
     label: 'Social networks',
-    defaults: { facebook: null, instagram: null, tiktok: null, linkedin: null },
+    defaults: {
+      facebook: null,
+      instagram: null,
+      tiktok: null,
+      linkedin: null,
+      pinterest: null,
+      youtube: null,
+    },
   }),
   'contacts.messengers': define({
     group: SettingGroup.CONTACTS,

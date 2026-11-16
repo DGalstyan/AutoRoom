@@ -1106,6 +1106,8 @@ export interface ContactsSocial {
   instagram: string | null;
   tiktok: string | null;
   linkedin: string | null;
+  pinterest: string | null;
+  youtube: string | null;
 }
 
 export interface ContactsMessengers {

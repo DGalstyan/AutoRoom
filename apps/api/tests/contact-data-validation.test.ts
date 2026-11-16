@@ -42,6 +42,8 @@ describe('social links and lead email', () => {
       ['facebook', 'https://facebook.com'],
       ['tiktok', 'https://www.tiktok.com/'],
       ['linkedin', 'https://www.linkedin.com'],
+      ['pinterest', 'https://www.pinterest.com/'],
+      ['youtube', 'https://www.youtube.com'],
     ] as const) {
       expect((await put({ [key]: url })).status).toBe(400);
     }
@@ -55,7 +57,17 @@ describe('social links and lead email', () => {
       facebook: 'https://www.facebook.com/autoroom.am',
       tiktok: 'https://www.tiktok.com/@autoroom.am',
       linkedin: 'https://www.linkedin.com/company/autoroom',
+      pinterest: 'https://www.pinterest.com/autoroomam/',
+      youtube: 'https://www.youtube.com/@autoroomam',
     });
+    expect(res.status).toBe(200);
+  });
+  it('still accepts a payload without the newer networks', async () => {
+    const { token } = await createUser('admin');
+    const res = await agent()
+      .put('/settings/contacts.social')
+      .set(auth(token))
+      .send({ facebook: null, instagram: null, tiktok: null, linkedin: null });
     expect(res.status).toBe(200);
   });
 

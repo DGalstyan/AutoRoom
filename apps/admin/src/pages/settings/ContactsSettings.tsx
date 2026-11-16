@@ -127,7 +127,7 @@ export function ContactsSettings({
         onReset={social.reset}
       >
         <Stack spacing={2.5}>
-          {(['facebook', 'instagram', 'tiktok', 'linkedin'] as const).map((network) => (
+          {(['instagram', 'pinterest', 'facebook', 'youtube', 'linkedin', 'tiktok'] as const).map((network) => (
             <TextField
               key={network}
               label={LABELS[network]}
@@ -204,6 +204,8 @@ const LABELS: Record<string, string> = {
   instagram: 'Instagram',
   tiktok: 'TikTok',
   linkedin: 'LinkedIn',
+  pinterest: 'Pinterest',
+  youtube: 'YouTube',
   whatsapp: 'WhatsApp',
   viber: 'Viber',
   telegram: 'Telegram',

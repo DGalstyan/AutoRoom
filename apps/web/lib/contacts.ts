@@ -33,6 +33,9 @@ export interface SocialLinks {
   instagram: string | null;
   tiktok: string | null;
   linkedin: string | null;
+  /** Optional: absent from payloads saved before these two were added. */
+  pinterest?: string | null;
+  youtube?: string | null;
 }
 
 /** Verified deep links built by the API from admin settings (`contacts.messengers`); null = not configured. */
@@ -59,7 +62,14 @@ const NO_CONTACTS: GeneralContacts = {
   workingHours: null,
   b2bPhone: null,
 };
-const NO_SOCIAL: SocialLinks = { facebook: null, instagram: null, tiktok: null, linkedin: null };
+const NO_SOCIAL: SocialLinks = {
+  facebook: null,
+  instagram: null,
+  tiktok: null,
+  linkedin: null,
+  pinterest: null,
+  youtube: null,
+};
 export const NO_MESSENGERS: MessengerLinks = { whatsapp: null, viber: null, telegram: null };
 
 export async function getContacts(): Promise<{

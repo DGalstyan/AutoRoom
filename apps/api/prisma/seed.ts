@@ -454,8 +454,15 @@ const SETTINGS: { key: string; group: SettingGroup; value: unknown }[] = [
   {
     key: 'contacts.social',
     group: SettingGroup.CONTACTS,
-    // The About page specifies these four networks; URLs pending.
-    value: { facebook: null, instagram: null, tiktok: null, linkedin: null },
+    // The About page specifies four networks, the Contact page also Pinterest and YouTube; URLs are set in the admin.
+    value: {
+      facebook: null,
+      instagram: null,
+      tiktok: null,
+      linkedin: null,
+      pinterest: null,
+      youtube: null,
+    },
   },
   {
     key: 'contacts.messengers',

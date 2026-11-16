@@ -5,10 +5,13 @@ import { getServerMessages } from '@/lib/i18n';
 import { ArrowUpRightIcon } from '@/components/ui/icons';
 
 const SOCIAL_LABELS = [
+  // Figma's order (Instagram, Pinterest, Facebook, Youtube, Linkedin); TikTok follows if it is set.
   { key: 'instagram', name: 'Instagram' },
+  { key: 'pinterest', name: 'Pinterest' },
   { key: 'facebook', name: 'Facebook' },
-  { key: 'tiktok', name: 'TikTok' },
+  { key: 'youtube', name: 'Youtube' },
   { key: 'linkedin', name: 'Linkedin' },
+  { key: 'tiktok', name: 'TikTok' },
 ] as const;
 
 /**
@@ -19,9 +22,8 @@ const SOCIAL_LABELS = [
  * replaced with the real admin-managed `getContacts()` data (same source
  * Footer uses), same "render nothing until a field is filled in" contract.
  *
- * Figma also shows Pinterest/Youtube in its social list; those aren't
- * rendered here since the backend's `SocialLinks` type has no field for
- * them (same reasoning as Footer's own `SOCIAL_LABELS`).
+ * Figma's list is Instagram, Pinterest, Facebook, Youtube, Linkedin; each one shows as
+ * soon as its URL is saved under Settings → Contacts in the admin (blank hides it).
  *
  * The spec additionally calls for direct WhatsApp/Viber/Telegram chat
  * buttons — neither Figma nor the backend expose real messenger deep-links
