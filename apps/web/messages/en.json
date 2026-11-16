@@ -20,7 +20,10 @@
       "headerCta": "Get Started",
       "blog": "Blog",
       "partnerPortal": "Partner portal",
-      "machinery": "Construction machinery"
+      "machinery": "Construction machinery",
+      "chinaCars": "Car from China",
+      "chinaMachinery": "Construction machinery from China",
+      "chinaMenu": "China section menu"
     },
     "stickyCta": {
       "label": "Haven't found your car? Let's find it together",
@@ -2095,5 +2098,48 @@
     ],
     "cta": "Get an offer",
     "contact": "Contact us"
+  },
+  "chinaMachinery": {
+    "meta": {
+      "title": "Construction machinery from China — AutoRoom",
+      "description": "Construction machinery from China to order: excavators, loaders, cranes and more, with price, delivery time and financing calculated for you."
+    },
+    "heading": "Construction machinery from China",
+    "badge": "To order",
+    "requestLabel": "Get an offer: {name}",
+    "items": [
+      {
+        "slug": "excavator",
+        "name": "Excavator"
+      },
+      {
+        "slug": "wheel-loader",
+        "name": "Wheel Loader"
+      },
+      {
+        "slug": "bulldozer",
+        "name": "Bulldozer"
+      },
+      {
+        "slug": "forklift",
+        "name": "Forklift"
+      },
+      {
+        "slug": "crane",
+        "name": "Crane"
+      },
+      {
+        "slug": "road-roller",
+        "name": "Road Roller"
+      },
+      {
+        "slug": "grader",
+        "name": "Grader"
+      },
+      {
+        "slug": "backhoe",
+        "name": "Road Roller"
+      }
+    ]
   }
 }

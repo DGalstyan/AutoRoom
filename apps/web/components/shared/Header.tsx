@@ -25,7 +25,9 @@ const NAV_LINKS: { key: keyof Messages['common']['nav']; href: string; chevron?:
 
 /** The phone menu is the one place that also lists the Blog (it is not in the design's bar); the footer links it on desktop. */
 const MENU_LINKS = [
-  ...NAV_LINKS.slice(0, -1),
+  NAV_LINKS[0],
+  { key: 'chinaMachinery' as const, href: '/china/machinery' },
+  ...NAV_LINKS.slice(1, -1),
   { key: 'machinery' as const, href: '/machinery' },
   { key: 'blog' as const, href: '/blog' },
   ...NAV_LINKS.slice(-1),
@@ -156,27 +158,30 @@ export function Header({ logo = null }: HeaderProps = {}) {
           aria-label={nav.primaryNav}
           className="hidden items-center gap-0 lg:flex xl:gap-0.5 min-[1400px]:absolute min-[1400px]:left-[calc(50%+0.5px)] min-[1400px]:top-1/2 min-[1400px]:-translate-x-1/2 min-[1400px]:-translate-y-1/2 min-[1400px]:gap-[18px]"
         >
-          {NAV_LINKS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={isActiveHref(pathname, item.href) ? 'page' : undefined}
-              className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-1.5 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent xl:px-2 xl:text-[16px] ${isActiveHref(pathname, item.href) ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
-            >
-              {nav[item.key]}
-              {item.chevron && (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path
-                    d="M4.67 6.33 8 9.67l3.33-3.34"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-            </Link>
-          ))}
+          {NAV_LINKS.map((item) =>
+            item.chevron ? (
+              <ChinaMenu
+                key={item.href}
+                pathname={pathname}
+                isLight={isLightHeader}
+                labels={{
+                  china: nav[item.key],
+                  cars: nav.chinaCars,
+                  machinery: nav.chinaMachinery,
+                  menu: nav.chinaMenu,
+                }}
+              />
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActiveHref(pathname, item.href) ? 'page' : undefined}
+                className={`inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-1.5 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent xl:px-2 xl:text-[16px] ${isActiveHref(pathname, item.href) ? 'font-bold' : 'font-normal'} ${isLightHeader ? 'text-ink' : 'text-white'}`}
+              >
+                {nav[item.key]}
+              </Link>
+            ),
+          )}
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex xl:gap-3">
@@ -291,6 +296,144 @@ export function Header({ logo = null }: HeaderProps = {}) {
         </div>
       )}
     </header>
+  );
+}
+
+const NAV_ITEM_CLASS =
+  'inline-flex min-h-11 items-center gap-1 whitespace-nowrap px-1.5 py-1 text-[14px] leading-6 transition-colors duration-micro hover:text-accent xl:px-2 xl:text-[16px]';
+
+/**
+ * "Չինաստան" with its dropdown — the two China doors: cars from China (`/china`) and
+ * construction machinery from China (`/china/machinery`, Figma 503:911). Opens on hover
+ * and on the chevron button (keyboard/touch), closes on Esc, outside click or navigation.
+ */
+function ChinaMenu({
+  pathname,
+  isLight,
+  labels,
+}: {
+  pathname: string | null;
+  isLight: boolean;
+  labels: { china: string; cars: string; machinery: string; menu: string };
+}) {
+  const [open, setOpen] = useState(false);
+  const menuId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  /** True while the panel was opened by hovering — the first click then keeps it open instead of closing it. */
+  const hoverOpened = useRef(false);
+  const active = isActiveHref(pathname, '/china');
+
+  // Close when the route changes (adjusting state during render, not in an effect).
+  const [seenPath, setSeenPath] = useState(pathname);
+  if (seenPath !== pathname) {
+    setSeenPath(pathname);
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        rootRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const tone = isLight ? 'text-ink' : 'text-white';
+  const items = [
+    { href: '/china', label: labels.cars },
+    { href: '/china/machinery', label: labels.machinery },
+  ];
+
+  return (
+    <div
+      ref={rootRef}
+      className="relative"
+      onPointerEnter={(e) => {
+        if (e.pointerType !== 'mouse') return;
+        hoverOpened.current = !open;
+        setOpen(true);
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType !== 'mouse') return;
+        hoverOpened.current = false;
+        setOpen(false);
+      }}
+    >
+      <div className="inline-flex items-center">
+        <Link
+          href="/china"
+          aria-current={pathname === '/china' ? 'page' : undefined}
+          className={`${NAV_ITEM_CLASS} pr-0 xl:pr-0 ${active ? 'font-bold' : 'font-normal'} ${tone}`}
+        >
+          {labels.china}
+        </Link>
+        <button
+          type="button"
+          aria-label={labels.menu}
+          aria-expanded={open}
+          aria-haspopup="true"
+          aria-controls={open ? menuId : undefined}
+          onClick={() => {
+            if (hoverOpened.current) {
+              hoverOpened.current = false;
+              return;
+            }
+            setOpen((v) => !v);
+          }}
+          className={`inline-flex min-h-11 items-center px-1 transition-colors duration-micro hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${tone}`}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+            className={`transition-transform duration-micro ${open ? 'rotate-180' : ''}`}
+          >
+            <path
+              d="M4.67 6.33 8 9.67l3.33-3.34"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+      {open && (
+        // The pt-3 strip keeps the pointer inside the hover area while crossing the gap.
+        <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3">
+          <ul
+            id={menuId}
+            className="flex min-w-[260px] flex-col gap-1 rounded-[24px] border border-line-light bg-white p-2 shadow-card"
+          >
+            {items.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  aria-current={pathname === item.href ? 'page' : undefined}
+                  className={`flex min-h-11 items-center whitespace-nowrap rounded-[16px] px-4 py-2 text-[16px] leading-6 text-ink transition-colors duration-micro hover:bg-surface-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${pathname === item.href ? 'font-bold' : 'font-normal'}`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 

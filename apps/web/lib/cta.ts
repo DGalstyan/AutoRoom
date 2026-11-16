@@ -75,6 +75,7 @@ export const LEAD_CTAS = {
   'offer-detail-similar': 'universal',
   // Machinery
   'machinery-hero': 'universal',
+  'china-machinery-card': 'universal',
   // USA
   'usa-s9-final-cta': 'usaAuction',
   'usa-import-process': 'usaAuction',

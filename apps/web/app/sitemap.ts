@@ -12,6 +12,7 @@ const STATIC_PATHS = [
   '/usa',
   '/offers',
   '/machinery',
+  '/china/machinery',
   '/partners',
   '/about',
   '/contact',

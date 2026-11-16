@@ -20,7 +20,10 @@
       "headerCta": "Начать",
       "blog": "Блог",
       "partnerPortal": "Портал партнёров",
-      "machinery": "Спецтехника"
+      "machinery": "Спецтехника",
+      "chinaCars": "Автомобиль из Китая",
+      "chinaMachinery": "Строительная техника из Китая",
+      "chinaMenu": "Меню раздела Китай"
     },
     "stickyCta": {
       "label": "Не нашли свой автомобиль? Давайте выберем вместе",
@@ -2098,5 +2101,48 @@
     ],
     "cta": "Получить предложение",
     "contact": "Связаться с нами"
+  },
+  "chinaMachinery": {
+    "meta": {
+      "title": "Строительная техника из Китая — AutoRoom",
+      "description": "Строительная техника из Китая под заказ: экскаваторы, погрузчики, краны и другое, с расчётом цены, сроков и финансирования."
+    },
+    "heading": "Строительная техника из Китая",
+    "badge": "Под заказ",
+    "requestLabel": "Получить предложение: {name}",
+    "items": [
+      {
+        "slug": "excavator",
+        "name": "Excavator"
+      },
+      {
+        "slug": "wheel-loader",
+        "name": "Wheel Loader"
+      },
+      {
+        "slug": "bulldozer",
+        "name": "Bulldozer"
+      },
+      {
+        "slug": "forklift",
+        "name": "Forklift"
+      },
+      {
+        "slug": "crane",
+        "name": "Crane"
+      },
+      {
+        "slug": "road-roller",
+        "name": "Road Roller"
+      },
+      {
+        "slug": "grader",
+        "name": "Grader"
+      },
+      {
+        "slug": "backhoe",
+        "name": "Road Roller"
+      }
+    ]
   }
 }

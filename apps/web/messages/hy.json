@@ -20,7 +20,10 @@
       "headerCta": "Ստանալ առաջարկ",
       "blog": "Բլոգ",
       "partnerPortal": "Գործընկերների պորտալ",
-      "machinery": "Շինտեխնիկա"
+      "machinery": "Շինտեխնիկա",
+      "chinaCars": "Մեքենա Չինաստանից",
+      "chinaMachinery": "Շինարարական տեխնիկա Չինաստանից",
+      "chinaMenu": "Չինաստանի ենթամենյու"
     },
     "stickyCta": {
       "label": "Չե՞ս գտել քո մեքենան. միասին սկսենք ընտրությունը",
@@ -2095,5 +2098,48 @@
     ],
     "cta": "Ստանալ առաջարկ",
     "contact": "Կապվել մեզ հետ"
+  },
+  "chinaMachinery": {
+    "meta": {
+      "title": "Շինարարական տեխնիկա Չինաստանից — AutoRoom",
+      "description": "Շինարարական տեխնիկա Չինաստանից պատվերով՝ էքսկավատոր, բեռնիչ, կռունկ և այլն։ Գինը, ժամկետը և ֆինանսավորումը հաշվարկում ենք քեզ համար։"
+    },
+    "heading": "Շինարարական տեխնիկա Չինաստանից",
+    "badge": "Պատվերով",
+    "requestLabel": "Ստանալ առաջարկ՝ {name}",
+    "items": [
+      {
+        "slug": "excavator",
+        "name": "Excavator"
+      },
+      {
+        "slug": "wheel-loader",
+        "name": "Wheel Loader"
+      },
+      {
+        "slug": "bulldozer",
+        "name": "Bulldozer"
+      },
+      {
+        "slug": "forklift",
+        "name": "Forklift"
+      },
+      {
+        "slug": "crane",
+        "name": "Crane"
+      },
+      {
+        "slug": "road-roller",
+        "name": "Road Roller"
+      },
+      {
+        "slug": "grader",
+        "name": "Grader"
+      },
+      {
+        "slug": "backhoe",
+        "name": "Road Roller"
+      }
+    ]
   }
 }

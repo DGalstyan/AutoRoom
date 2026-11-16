@@ -53,6 +53,20 @@ describe('Header', () => {
     expect(links).toEqual(EXPECTED_NAV_HREFS);
   });
 
+  it('opens the China dropdown with cars and construction machinery', async () => {
+    const user = userEvent.setup();
+    renderWithLocale(<Header />);
+    expect(screen.queryByRole('link', { name: nav.chinaMachinery })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: nav.chinaMenu }));
+    expect(screen.getByRole('link', { name: nav.chinaCars })).toHaveAttribute('href', '/china');
+    expect(screen.getByRole('link', { name: nav.chinaMachinery })).toHaveAttribute(
+      'href',
+      '/china/machinery',
+    );
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('link', { name: nav.chinaMachinery })).not.toBeInTheDocument();
+  });
+
   it('opens the Universal Popup from the header CTA with the right source', async () => {
     const user = userEvent.setup();
     renderWithLocale(<Header />);
