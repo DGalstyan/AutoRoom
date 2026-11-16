@@ -5,6 +5,11 @@ import { getServerMessages } from '@/lib/i18n';
 
 const IMG = '/images/china/services';
 
+/** The prototype's card transitions (Figma 471:914's variants): Smart Animate with Gentle / Ease-out / Bouncy easing. */
+const GENTLE = 'duration-[1020ms] ease-[cubic-bezier(0.3,1.1,0.5,1)]';
+const EASE_OUT = 'duration-300 ease-out';
+const BOUNCY = 'duration-[960ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]';
+
 /**
  * China "services" bento — Figma `Services` (438:844): a black 1440×1387 band
  * holding three rows of 417px cards (3 · 2 · 3) at 16px/32px gaps inside the
@@ -24,20 +29,25 @@ export async function ChinaServices() {
         className="mx-auto flex max-w-[1344px] flex-col gap-4 lg:gap-8"
       >
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-3">
+          {/* Figma 471:801/471:806: title and line top-left; the car cut-out sits low and slides up-left on hover. */}
           <Card tone="light">
-            <div className="absolute left-1/2 top-6 flex w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 items-end justify-center gap-4">
-              <p className="stretch-90 w-[229px] min-w-0 shrink text-[14px] font-medium leading-[18px] text-neutral-700">
-                {t.import.eyebrow}
-              </p>
-              <h3 className="stretch-90 shrink-0 whitespace-nowrap text-[24px] font-bold leading-9 text-ink">
+            <div className="absolute left-[43.5px] top-[47px] flex w-[calc(100%-87px)] max-w-[351px] flex-col gap-4">
+              <h3 className="stretch-90 text-[24px] font-bold leading-9 text-ink">
                 {t.import.title}
               </h3>
+              <p className="stretch-90 text-[14px] font-medium leading-[18px] text-neutral-700">
+                {t.import.eyebrow}
+              </p>
             </div>
-            <Photo
-              src={`${IMG}/import-render.webp`}
+            <Image
+              src={`${IMG}/import-car.png`}
               alt={t.import.title}
-              className="absolute left-1/2 top-[97px] h-[296px] w-[calc(100%-36px)] max-w-[401px] -translate-x-1/2 rounded-[24px]"
-              sizes="401px"
+              width={660}
+              height={440}
+              sizes="360px"
+              // The Figma fill carries contrast +0.36 / saturation -0.8, applied here as a filter.
+              style={{ filter: 'contrast(1.36) saturate(0.2)' }}
+              className={`absolute left-[calc(50%-123px)] top-[245px] h-[240px] w-[360px] max-w-none transition-transform ${GENTLE} motion-safe:group-hover:-translate-y-[68px] motion-safe:group-hover:translate-x-[-33.5px]`}
             />
           </Card>
 
@@ -79,7 +89,15 @@ export async function ChinaServices() {
                 sizes="134px"
               />
               <IconTile className="absolute left-0 top-[254px]">
-                <Image src={`${IMG}/icon-route.svg`} alt="" width={23} height={23} />
+                {/* Figma 471:823: the route icon grows 41→60 and goes from near-white to #666E73 (ease-out, 0.3s). */}
+                <span
+                  aria-hidden="true"
+                  className={`block size-[23px] bg-[#fafafa] transition-[transform,background-color] ${EASE_OUT} motion-safe:group-hover:scale-[1.46] motion-safe:group-hover:bg-neutral-700`}
+                  style={{
+                    WebkitMask: `url(${IMG}/icon-route.svg) center / contain no-repeat`,
+                    mask: `url(${IMG}/icon-route.svg) center / contain no-repeat`,
+                  }}
+                />
               </IconTile>
             </div>
           </Card>
@@ -102,7 +120,11 @@ export async function ChinaServices() {
                 </div>
               </div>
             </div>
-            <div className="absolute left-6 top-[326px] flex items-center gap-3">
+            {/* Figma 471:835/471:853: a clipped 47px frame that opens to 228px on hover, revealing the whole chain.
+              Without hover (touch) or with reduced motion the chain simply stays open. */}
+            <div
+              className={`absolute left-6 top-[326px] flex w-[47px] items-center gap-3 overflow-hidden transition-[width] ${GENTLE} group-hover:w-[228px] motion-reduce:w-[228px] [&>*]:shrink-0 [@media(hover:none)]:w-[228px]`}
+            >
               <IconTile>
                 <Image src={`${IMG}/icon-paper.svg`} alt="" width={24} height={24} />
               </IconTile>
@@ -123,7 +145,9 @@ export async function ChinaServices() {
                 {t.chinese.title}
               </h3>
               <div className="overflow-hidden rounded-[32px] bg-accent px-6 py-[18px]">
-                <div className="flex items-center gap-1">
+                <div
+                  className={`flex items-center gap-1 transition-transform ${GENTLE} motion-safe:group-active:scale-[1.026]`}
+                >
                   {[1, 2, 3, 2, 1].map((n, i) => (
                     <span
                       key={i}
@@ -186,6 +210,8 @@ export async function ChinaServices() {
                 className="h-[296px] w-full rounded-[24px]"
                 sizes="421px"
                 contain
+                // Figma 471:908: the render grows 3.9% and drifts 9.5px left / 7px up, with a bounce.
+                imageClassName={`origin-top-left transition-transform ${BOUNCY} motion-safe:group-hover:[transform:translate(-9.5px,-7px)_scale(1.039)]`}
               />
             </div>
           </Card>
@@ -241,7 +267,7 @@ function Card({
   return (
     <div className="h-full">
       <div
-        className={`relative h-[417px] overflow-hidden rounded-[32px] transition-transform duration-standard ease-expo hover:-translate-y-1 ${
+        className={`group relative h-[417px] overflow-hidden rounded-[32px] ${
           tone === 'light' ? 'bg-white' : 'bg-neutral-800'
         } ${className}`}
       >
@@ -257,6 +283,7 @@ function Photo({
   className,
   sizes,
   contain = false,
+  imageClassName = '',
 }: {
   src: string;
   /** What the picture shows — the title of the card it sits in. */
@@ -264,6 +291,7 @@ function Photo({
   className: string;
   sizes: string;
   contain?: boolean;
+  imageClassName?: string;
 }) {
   return (
     <div className={`overflow-hidden ${className}`}>
@@ -273,7 +301,7 @@ function Photo({
         width={900}
         height={900}
         sizes={sizes}
-        className={`h-full w-full ${contain ? 'object-contain' : 'object-cover'}`}
+        className={`h-full w-full ${contain ? 'object-contain' : 'object-cover'} ${imageClassName}`}
       />
     </div>
   );
